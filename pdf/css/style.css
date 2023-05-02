@@ -1,0 +1,150 @@
+
+.height {
+    min-height: auto;
+}
+
+.icon {
+    font-size: 47px;
+    color: #5CB85C;
+}
+
+.iconbig {
+    font-size: 77px;
+    color: #5CB85C;
+}
+
+.table > tbody > tr > .emptyrow {
+    border-top: none;
+}
+
+.table > thead > tr > .emptyrow {
+    border-bottom: none;
+}
+
+.table > tbody > tr > .highrow {
+    border-top: 3px solid;
+}
+table {
+  width:100%;
+}
+table, th, td {
+  border: 1px solid #bdbdbd;
+  border-collapse: collapse;
+}
+th, td {
+  padding: 15px;
+  text-align: left;
+}
+/*====================================== extra css for LR====================================================*/
+
+.font-weight900{
+  font-weight: 900;
+}
+.font-size9{
+  font-size: 9px;
+}
+.margin-bottom-5{
+  margin-bottom: 5px !important;
+}
+.height23{
+  height: 23px;
+  padding: 4px 20px;
+}
+.width100{
+  width: 100%;
+}
+
+.left{
+  float: left;
+}
+.font_12{
+  font-size: 12px;
+}
+.text-justify{
+  text-align: justify;
+}
+
+.bottom_none{
+   border-bottom: none;
+}
+.top_none{
+  border-top: none;
+}
+.lr_bottom td{
+  font-size: 10px;
+  width:14%;
+  font-weight: 600;
+}
+
+.lr_bottom .lr_bottom_border{
+  border-bottom: none;
+
+}
+.lr_bottom .lr_bottom_border_top{
+  border-bottom: none;
+  border-top: none;
+
+}
+.lr_bottom .lr_bottom_border_top1{
+  border-top: none;
+}
+.lt_bottom_section{
+  padding: 0px;
+  margin-top: -10px;
+}
+.lt_bottom_section .lt_bottom_iner{
+ border: 0px;
+}
+.table_style{
+  margin-bottom: 0px !important;
+}
+
+.description td{
+  font-size: 10px;
+  font-weight: 600;
+}
+
+.font_size_width{
+  font-size: 10px;
+  font-weight: 600;
+
+}
+.lr_top{
+  margin-top: 6px;
+  margin-bottom: 15px;
+}
+
+.lr_top .lr_top_section{
+  border: 1.3px solid #ef7f1a;
+  width: 97%;
+    text-align: center;
+    align-items: center;
+    margin: 0px auto;
+}
+
+.lr_heading .lr_heading_1{
+display: block;
+}
+
+.lr_heading .lr_heading_1{
+  float: left; 
+  margin-top: 15px;
+}
+.lr_heading .lr_heading_2 img{
+ width: 150px;
+ margin-top: 12px;
+}
+.lr_heading .lr_heading_2{
+ float: left;
+}
+.lr_heading .lr_heading_1 .address_style{
+  margin-top: 20px;
+   float: right; 
+  display: block;
+}
+.gst_section p{
+margin-left: -60%;
+margin-top: 6px;
+    font-size: 12px;
+    font-weight: 700;
+    }
