@@ -67,7 +67,7 @@
                           <header class="panel-heading" style="border-bottom: 1px solid #2a3542;line-height: 30px;">
                             Shipment Detail
                              <div class="btn-group pull-right">
-                                 <a href="{{ route('allshipmentlist') }}">
+                                 <a href="{{ URL::previous() }}">
                                   <button  class="btn btn-primary">
                                       <i class="fa fa-reply"></i> Back
                                   </button>

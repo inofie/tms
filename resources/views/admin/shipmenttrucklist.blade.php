@@ -64,7 +64,7 @@ All Trucks List | TMS
                     <header class="panel-heading" style="line-height: 30px;">
                       Truck List
                        <div class="btn-group pull-right">
-                                 <a href="{{route('shipmentlist')}}">
+                                 <a href="{{ URL::previous() }}">
                                   <button  class="btn btn-primary">
                                       <i class="fa fa-reply"></i> Back
                                   </button>

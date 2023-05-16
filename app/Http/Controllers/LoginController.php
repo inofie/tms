@@ -34,7 +34,12 @@ class LoginController extends Controller
 
 				return redirect()->route('admindashboard');
 			
-			} else if(Auth::user()->role == 'forwarder') {
+			} 
+			else if(Auth::user()->role == 'transporter'){
+
+				return redirect()->route('transporterdashboard');
+			
+			}else if(Auth::user()->role == 'forwarder') {
 
 				return redirect()->route('forwarderdashboard');
 			}
@@ -63,11 +68,11 @@ class LoginController extends Controller
 
 		$userdata = User::where('username',$request->username)->first();
 
-		if($userdata->role == "transporter"){
+		// if($userdata->role == "transporter"){
 
-		return redirect()->back()->withError("You have no permission for login.\n\r Please don't try again.");	
+		// return redirect()->back()->withError("You have no permission for login.\n\r Please don't try again.");	
 
-		}
+		// }
 
 
 		
@@ -87,7 +92,12 @@ class LoginController extends Controller
 
         				return redirect()->route('forwarderdashboard'); 
         			
-        		}               	
+        		} 
+				elseif(Auth::user()->role == 'transporter') {
+
+					return redirect()->route('transporterdashboard'); 
+				
+			}              	
 
         } else {
 

@@ -212,5 +212,50 @@ Route::group(['namespace' => 'Forwarder','prefix' =>'forwarder' , 'middleware' =
 	Route::post('/account/ledger','AccountController@LegerData')->name('f-main-account-data');
 
 });
+Route::group(['namespace' => 'Transporter','prefix' =>'transporter' , 'middleware' => 'auth'], function () {
+
+	Route::get('/dashboard','AdminController@Dashboard')->name('transporterdashboard');
+
+	Route::get('/shipment/list','ShipmentController@List')->name('shipmentlisttransporter');
+	Route::get('/shipment/add','ShipmentController@Add')->name('shipmentadd');
+	Route::post('/shipment/save','ShipmentController@Save')->name('shipmentsave');
+	Route::get('/shipment/{id}','ShipmentController@Detail')->name('shipmentdetail');
+	Route::get('/shipment/trucks/list/{id}','ShipmentController@TruckList')->name('shipmenttrucklist');
+	Route::post('/shipment/change/truckstatus','ShipmentController@ChangeTruckStatus')->name('changetruckstatusadmin');
+	Route::post('/shipment/truck/delete','ShipmentController@DeleteTruckStatus')->name('deletetruckstatusadmin');
+	Route::get('/shipment/expense/add/{id}','ShipmentController@AddExpense')->name('addexpensebyadmin');
+	Route::post('/shipment/expense/save','ShipmentController@SaveExpense')->name('expensesave1');
+	Route::get('/shipment/transporter/add/{id}','ShipmentController@AddTransporter')->name('shipmenttransporter');
+	Route::post('/shipment/transporter/save','ShipmentController@SaveTransporter')->name('savetransporter');
+	Route::post('/shipment/transporter/delete','ShipmentController@DeleteTransporter')->name('deleteshiptransporter');
+	Route::get('/lr/download/{id}','ShipmentController@DownloadLR')->name('downloadlr');
+	Route::get('/shipment/detail/{id}','ShipmentController@ShipmentDetails')->name('shipmentdetails');
+	Route::post('/shipment/amount/update','ShipmentController@ShipmentAmount')->name('shipmentamount');
+	Route::get('/shipment/edit/{id}','ShipmentController@ShipmentEdit')->name('shipmentedit');
+	Route::post('/shipment/update','ShipmentController@ShipmentUpdate')->name('shipmentupdate');
+	Route::post('/shipment/delete','ShipmentController@ShipmentDelete')->name('shipmentdelete');
+	Route::post('/shipment/add/warehouse','ShipmentController@WarehouseAdd')->name('shipwarehousein');
+	Route::post('/shipment/delivered','ShipmentController@ShipmentDelivered')->name('shipmentdelivered');
+	Route::any('/shipment/driverlist','ShipmentController@Driverlist')->name('shipmentdriverlist');
+	Route::get('/shipment/warehouse/list','ShipmentController@WarehouseShipmentList')->name('warehouseshiplisttransporter');
+	Route::get('/shipment/warehouse/transporter/add/{id}','ShipmentController@AddWareTransporter')->name('shipmentWaretransporter');
+	Route::post('/shipment/warehouse/tansporter/save','ShipmentController@SaveWareTransporter')->name('savewaretransporter');
+	Route::get('/shipment/warehouse/edit/{id}','ShipmentController@ShipmentWareEdit')->name('shipmentwareedit');
+	Route::post('/shipment/warehouse/update','ShipmentController@ShipmentWareUpdate')->name('shipmentwareupdate');
+	Route::get('/shipment/warehouse/detail/{id}','ShipmentController@ShipmentWareDetails')->name('shipmentwaredetails');
+	Route::post('/shipment/ontheway','ShipmentController@ShipmentOntheway')->name('shipmentontheway');
+	Route::post('/shipment/get/newid','ShipmentController@ShipmentNewID')->name('shipmentnewid');
+	Route::post('/shipment/newshipment','ShipmentController@NewShipment')->name('newshipment');
+	Route::get('/shipment/all/filter','ShipmentController@MyFilter')->name('myfilter');
+
+	Route::get('/shipment/all/list','ShipmentController@ShipmentAllList')->name('allshipmentlisttransporter');
+	Route::get('/shipment/old/detail/{id}','ShipmentController@ShipmentAllDetails')->name('shipalldetail');
+	Route::get('/driver/list','DriverController@List')->name('transporterdriverlist');
+	Route::get('/driver/add','DriverController@ADD')->name('transporterdriveradd');
+	Route::post('/driver/save','DriverController@Save')->name('transporterdriversave');
+	Route::get('/driver/edit/{id}','DriverController@Edit')->name('transporterdriveredit');
+	Route::post('/driver/update','DriverController@Update')->name('transporterdriverupdate');
+	Route::get('/driver/delete/{id}','DriverController@Delete')->name('transporterdriverdelete');
+});
 
 

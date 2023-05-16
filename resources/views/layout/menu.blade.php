@@ -126,7 +126,7 @@
 
                           <i class="fa fa-suitcase"></i>
 
-                          <span>Manage Acoounts</span>
+                          <span>Manage Accounts</span>
 
                       </a>
 
@@ -446,7 +446,49 @@
                       </ul>
                   </li>
 
-                @endif
+               
+                @elseif(Auth::user()->role == 'transporter')
+                        <li>
+
+                        <a class="{{ Request::is('transporter/dashboard*') ? 'active' : '' }}" href="{{ route('transporterdashboard') }}">
+                            <i class="fa fa-dashboard"></i>
+                            <span>Dashboard</span>
+                        </a>
+                        </li>
+
+
+                        <li class="sub-menu">
+                        <a href="javascript:;" class="{{ Request::is('admin/shipment*') ? 'active' : '' }}">
+                            <i class="fa fa-bus"></i>
+                            <span>Manage Shipmant</span>
+                        </a>
+                        <ul class="sub">
+                      	 <li class="{{ Request::is('admin/shipment/add') ? 'active' : '' }}">
+                            <a  href="{{ route('shipmentadd') }}">Add New</a>
+                          </li>
+                          <li class="{{ Request::is('admin/shipment/list') ? 'active' : '' }}">
+                            <a  href="{{ route('shipmentlisttransporter') }}">Latest List</a>
+                          </li>
+                          <li class="{{ Request::is('admin/shipment/warehouse/list') ? 'active' : '' }}">
+                              <a  href="{{ route('warehouseshiplisttransporter') }}">Warehouse List</a>
+                          </li>
+                            <li class="{{ Request::is('admin/shipment/all/list') ? 'active' : '' }}">
+                              <a  href="{{ route('allshipmentlisttransporter') }}">Old List</a>
+                            </li>
+                             <!-- <li class="{{ Request::is('admin/shipment/all/filter') ? 'active' : '' }}">
+                              <a  href="{{ route('myfilter') }}">Filter</a>
+                            </li> -->
+                          
+                        </ul>
+                        <li>
+                        <a class="{{ Request::is('transporter/driver*') ? 'active' : '' }}" href="{{ route('transporterdriverlist') }}">
+                          <i class="fa fa-car"></i>
+                          <span>Manage Driver</span>
+                        </a>
+                        </li>
+                        </li>
+
+                        @endif
 
 
 {{-- 

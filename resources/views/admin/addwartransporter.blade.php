@@ -62,7 +62,7 @@
                             <header class="panel-heading ">
                                Add Transporter
                                <div class="btn-group pull-right">
-                                 <a href="{{ route('warehouseshiplist') }}"> <button style="padding: 7%;" class="btn btn-info"><!-- id="editable-sample_new" -->
+                                 <a href="{{ URL::previous() }}"> <button style="padding: 7%;" class="btn btn-info"><!-- id="editable-sample_new" -->
                                       Back <i class="fa fa-reply"></i>
                                   </button></a>
                                 </div>
