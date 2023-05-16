@@ -118,7 +118,7 @@ Route::group(['namespace' => 'Admin','prefix' =>'admin' , 'middleware' => 'auth'
 	Route::post('/driver/save','DriverController@Save')->name('driversave');
 	Route::get('/driver/edit/{id}','DriverController@Edit')->name('driveredit');
 	Route::post('/driver/update','DriverController@Update')->name('driverupdate');
-	Route::post('/driver/delete','DriverController@Delete')->name('driverdelete');
+	Route::get('/driver/delete/{id}','DriverController@Delete')->name('driverdelete');
 
 	Route::get('/shipment/list','ShipmentController@List')->name('shipmentlist');
 	Route::get('/shipment/add','ShipmentController@Add')->name('shipmentadd');
