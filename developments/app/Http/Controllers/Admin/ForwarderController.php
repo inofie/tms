@@ -56,7 +56,7 @@ class ForwarderController extends Controller
         'email'=>'required|email',
         'gst'=>'required',
         'username'=>'required',
-        'password'=>'required',       
+        'password'=>'required|min:8',       
          ],[
          'name.required' => "Please Enter Name",
          'phone.required' => "Please Enter Phone Number",

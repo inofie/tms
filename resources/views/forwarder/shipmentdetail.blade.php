@@ -135,11 +135,11 @@
                                    <div class="form-group" >
                                     <div class="control-label col-lg-6 col-sm-12">
                                       <label >Shipment Load Proof:</label>
-                                      <img  style="width: 25%;" src="{{ asset('public/uploads/').'/'.$load_image}}">
+                                      <img  style="width: 25%;" src="{{ asset('uploads/').'/'.$load_image}}">
                                     </div>
                                      <div class="control-label col-lg-6 col-sm-12">
                                       <label >Shipment Unload Proof:</label>
-                                      <img  style="width: 25%;" src="{{ asset('public/uploads/').'/'.$unload_image}}">
+                                      <img  style="width: 25%;" src="{{ asset('uploads/').'/'.$unload_image}}">
                                     </div>
                                     
                                     

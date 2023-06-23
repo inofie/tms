@@ -106,6 +106,7 @@ All Employee List | TOT
                               <thead>
                               <tr>
                                   <th style="width:14.5%; ">Full Name</th>
+                                  <th style="width:14.5%; ">User Name</th>
                                   <th style="width:14.5%; ">Company</th>
                                   <th style="width:14.5%; ">Address</th>
                                   <th style="width:14.5%; ">Phone Number</th>
@@ -121,11 +122,12 @@ All Employee List | TOT
 
                                <tr class="table_space">
                                   <td  id="change_color">{{ $value->name }}</td>
+                                  <td>{{ $value->user_name }}</td>
                                   <td>{{ $value->company_name }}</td>
                                   <td>{{ $value->address }}</td>
                                   <td>{{ $value->phone }}</td>
                                   <td>{{ $value->email }}</td>
-                                  <td><img src="{{ asset('public/uploads') }}/{{ $value->pan_card }}" width="50px" alt="" class="zoom"></td>
+                                  <td><img src="{{ asset('/uploads') }}/{{ $value->pan_card }}" width="50px" alt="" class="zoom"></td>
                                   <td class="center">
                                   @if($value->status == 0 )Active  @else Blocked @endif
                                   </td>

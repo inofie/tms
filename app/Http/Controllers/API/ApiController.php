@@ -8,6 +8,7 @@ use App\Company;
 use App\Driver;
 use App\Employee;
 use App\Expense;
+use Carbon\Carbon;
 use App\Forwarder;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\WebNotificationController;
@@ -26,9 +27,16 @@ use Illuminate\Support\Facades\Auth;
 use Mail;
 use PDF;
 use Config;
+use Validator;
+use App\Jobs\CertificateApproveJob;
+use App\Http\Response\APIResponse;
 
 
 class ApiController extends Controller {
+	public function __construct()
+    {
+        $this->APIResponse = new APIResponse();
+    }
 
 	private function checkversion($version) {
 
@@ -66,7 +74,7 @@ class ApiController extends Controller {
 
 			}
 
-			if ($Request->role == 'admin') {
+			if ($Request->role == 'admin' || $Request->role == 'company') {
 
 				$comp = Company::withTrashed()->where('user_id', $Request->user_id)->first();
 
@@ -136,7 +144,22 @@ class ApiController extends Controller {
 		try {
 
 			//dd(env('MYAPP_VERSION'));
+			//dd($Request->all());
+			$data=$Request->all();
+			$rules = array(
+                'username' => 'required',
+				'password' => 'required'
+            );
 
+            $messages = [
+
+            ];
+            $validator = Validator::make($data, $rules, $messages);
+            if ($validator->fails()) {
+                return $this->APIResponse->respondValidationError(__($validator->errors()->first()));
+            }
+            else 
+			{
 			$check = $this->checkversion($Request->version);
 
 			if ($check == 1) {
@@ -181,14 +204,14 @@ class ApiController extends Controller {
 
 					$tokens = [$Request->device_token];
 
-					if ($data->role == "admin") {
+					if ($data->role == "admin" || $data->role == "company") {
 
 						$com = Company::where('user_id', $data->id)->first();
 
 						$data['other_id'] = $com->id;
 
 					}
-
+					
 					if ($data->role == "employee") {
 
 						$emp = Employee::where('user_id', $data->id)->first();
@@ -275,7 +298,7 @@ class ApiController extends Controller {
 			}
 
 			return response()->json(['status' => 'failed', 'message' => 'Username & Password Are Wrong.', 'data' => json_decode('{}'), 'code' => '500'], 200);
-
+		}
 		} catch (\Exception $e) {
 
 			return response()->json(['status' => 'failed', 'message' => $e->getMessage(), 'data' => json_decode('{}'), 'code' => '500'], 200);
@@ -347,17 +370,52 @@ class ApiController extends Controller {
 		try {
 
 			$check = $this->checkversion($Request->version);
-
+			$all = $Request->all();
+			//dd($all);
 			if ($check == 1) {
 
 				return response()->json(['status' => 'failed', 'message' => 'Please Update This Application.', 'data' => json_decode('{}'), 'code' => '500'], 200);
 			}
+			if (isset($all['page']) && ($all['offset'])) {
+				//pagination coding
+				$page = 1;
+				$perPage = 10;
+				if (isset($all['page']) && !empty($all['page'])) {
+					$page = $all['page'];
+				}
+				if (isset($all['offset']) && !empty($all['offset'])) {
+					$perPage = $all['offset'];
+				}
+				$offset = ($page - 1) * $perPage;
+				if ($Request->role == 'admin') {
+				$data = Company::whereNull('deleted_at');
+				$data = $data->paginate($perPage);
 
-			$data = Company::all();
+				
+				if (!empty($data)) {
+					$message = 'Company List Successfully.';
+					$dataa = $data;
+					return $this->APIResponse->successWithPagination($message, $dataa);
+				}
+			}
+			  else {
+					return $this->APIResponse->respondNotFound(__('No Record Found'));
+				}
 
+			}
+			else{
+			if ($Request->role == 'admin') {
+			$data = Company::whereNull('deleted_at')->get();
 			return response()->json(['status' => 'success', 'message' => 'Company List Successfully.', 'data' => $data, 'code' => '200'], 200);
+			}
 
-		} catch (\Exception $e) {
+			else{
+				return response()->json(['status' => 'success', 'message' => 'This User Have Not Permission.', 'data' => json_decode('{}'), 'code' => '500'], 200);
+			}
+
+		} 
+	}
+	catch (\Exception $e) {
 
 			return response()->json(['status' => 'failed', 'message' => $e->getMessage(), 'data' => json_decode('{}'), 'code' => '500'], 200);
 		}
@@ -367,7 +425,21 @@ class ApiController extends Controller {
 	public function CompanyAdd(Request $Request) {
 
 		try {
+			$data=$Request->all();
+			$rules = array(
+                'username' => 'required',
+				'password' => 'required'
+            );
 
+            $messages = [
+
+            ];
+            $validator = Validator::make($data, $rules, $messages);
+            if ($validator->fails()) {
+                return $this->APIResponse->respondValidationError(__($validator->errors()->first()));
+            }
+            else 
+			{
 			$check = $this->checkversion($Request->version);
 
 			if ($check == 1) {
@@ -387,7 +459,7 @@ class ApiController extends Controller {
 				$user->name = $Request->name;
 				$user->username = $Request->username;
 				$user->password = Hash::make($Request->password);
-				$user->role = "admin";
+				$user->role = "company";
 				$user->created_by = $Request->user_id;
 				$user->save();
 
@@ -420,7 +492,7 @@ class ApiController extends Controller {
 				return response()->json(['status' => 'failed', 'message' => 'Something Wrong.', 'data' => json_decode('{}'), 'code' => '500'], 200);
 
 			}
-
+		}
 		} catch (\Exception $e) {
 
 			return response()->json(['status' => 'failed', 'message' => $e->getMessage(), 'data' => json_decode('{}'), 'code' => '500'], 200);
@@ -586,19 +658,47 @@ class ApiController extends Controller {
 	public function ForwarderList(Request $Request) {
 
 		try {
-
+			$all = $Request->all();
 			$check = $this->checkversion($Request->version);
 
 			if ($check == 1) {
 
 				return response()->json(['status' => 'failed', 'message' => 'Please Update This Application.', 'data' => json_decode('{}'), 'code' => '500'], 200);
 			}
+			if (isset($all['page']) && ($all['offset'])) {
+				//pagination coding
+				$page = 1;
+				$perPage = 10;
+				if (isset($all['page']) && !empty($all['page'])) {
+					$page = $all['page'];
+				}
+				if (isset($all['offset']) && !empty($all['offset'])) {
+					$perPage = $all['offset'];
+				}
+				$offset = ($page - 1) * $perPage;
+				
+				$data = Forwarder::whereNull('deleted_at');
+				$data = $data->paginate($perPage);
 
-			$data = Forwarder::all();
+				
+				if (!empty($data)) {
+					$message = 'Forwarder List Successfully.';
+					$dataa = $data;
+					return $this->APIResponse->successWithPagination($message, $dataa);
+				}
+			
+			  else {
+					return $this->APIResponse->respondNotFound(__('No Record Found'));
+				}
+
+			}else{
+			$data = Forwarder::whereNull('deleted_at')->get();
 
 			return response()->json(['status' => 'success', 'message' => 'Forwarder List Successfully.', 'data' => $data, 'code' => '200'], 200);
-
-		} catch (\Exception $e) {
+			}
+		} 
+	
+	catch (\Exception $e) {
 
 			return response()->json(['status' => 'failed', 'message' => $e->getMessage(), 'data' => json_decode('{}'), 'code' => '500'], 200);
 		}
@@ -608,7 +708,21 @@ class ApiController extends Controller {
 	public function ForwarderAdd(Request $Request) {
 
 		try {
+			$data=$Request->all();
+			$rules = array(
+                'username' => 'required',
+				'password' => 'required'
+            );
 
+            $messages = [
+
+            ];
+            $validator = Validator::make($data, $rules, $messages);
+            if ($validator->fails()) {
+                return $this->APIResponse->respondValidationError(__($validator->errors()->first()));
+            }
+            else 
+			{
 			$check = $this->checkversion($Request->version);
 
 			if ($check == 1) {
@@ -664,7 +778,7 @@ class ApiController extends Controller {
 				return response()->json(['status' => 'failed', 'message' => 'Something Wrong.', 'data' => json_decode('{}'), 'code' => '500'], 200);
 
 			}
-
+		}
 		} catch (\Exception $e) {
 
 			return response()->json(['status' => 'failed', 'message' => $e->getMessage(), 'data' => json_decode('{}'), 'code' => '500'], 200);
@@ -824,17 +938,45 @@ class ApiController extends Controller {
 		try {
 
 			$check = $this->checkversion($Request->version);
-
+			$all = $Request->all();
 			if ($check == 1) {
 
 				return response()->json(['status' => 'failed', 'message' => 'Please Update This Application.', 'data' => json_decode('{}'), 'code' => '500'], 200);
 			}
+			if (isset($all['page']) && ($all['offset'])) {
+				//pagination coding
+				$page = 1;
+				$perPage = 10;
+				if (isset($all['page']) && !empty($all['page'])) {
+					$page = $all['page'];
+				}
+				if (isset($all['offset']) && !empty($all['offset'])) {
+					$perPage = $all['offset'];
+				}
+				$offset = ($page - 1) * $perPage;
+				
+				$data = Truck::where('status', 0)->whereNull('deleted_at');
+				$data = $data->paginate($perPage);
 
-			$data = Truck::where('status', 0)->get();
+				
+				if (!empty($data)) {
+					$message = 'Truck Detail Successfully.';
+					$dataa = $data;
+					return $this->APIResponse->successWithPagination($message, $dataa);
+				}
+			
+			  else {
+					return $this->APIResponse->respondNotFound(__('No Record Found'));
+				}
+
+			}
+			else{
+			$data = Truck::where('status', 0)->whereNull('deleted_at')->get();
 
 			return response()->json(['status' => 'success', 'message' => 'Truck Detail Successfully.', 'data' => $data, 'code' => '200'], 200);
-
-		} catch (\Exception $e) {
+			}
+		} 
+		catch (\Exception $e) {
 
 			return response()->json(['status' => 'failed', 'message' => $e->getMessage(), 'data' => json_decode('{}'), 'code' => '500'], 200);
 		}
@@ -869,16 +1011,43 @@ class ApiController extends Controller {
 		try {
 
 			$check = $this->checkversion($Request->version);
-
+			$all = $Request->all();
 			if ($check == 1) {
 
 				return response()->json(['status' => 'failed', 'message' => 'Please Update This Application.', 'data' => json_decode('{}'), 'code' => '500'], 200);
 			}
+			if (isset($all['page']) && ($all['offset'])) {
+				//pagination coding
+				$page = 1;
+				$perPage = 10;
+				if (isset($all['page']) && !empty($all['page'])) {
+					$page = $all['page'];
+				}
+				if (isset($all['offset']) && !empty($all['offset'])) {
+					$perPage = $all['offset'];
+				}
+				$offset = ($page - 1) * $perPage;
+				
+				$data = Transporter::whereNull('deleted_at');
+				$data = $data->paginate($perPage);
 
-			$data = Transporter::all();
+				
+				if (!empty($data)) {
+					$message = 'Transporter Detail Successfully.';
+					$dataa = $data;
+					return $this->APIResponse->successWithPagination($message, $dataa);
+				}
+			
+			  else {
+					return $this->APIResponse->respondNotFound(__('No Record Found'));
+				}
+
+			}
+		else{
+			$data = Transporter::whereNull('deleted_at')->get();
 
 			return response()->json(['status' => 'success', 'message' => 'Transporter Detail Successfully.', 'data' => $data, 'code' => '200'], 200);
-
+		}
 		} catch (\Exception $e) {
 
 			return response()->json(['status' => 'failed', 'message' => $e->getMessage(), 'data' => json_decode('{}'), 'code' => '500'], 200);
@@ -914,7 +1083,21 @@ class ApiController extends Controller {
 	public function TransporterAdd(Request $Request) {
 
 		try {
+			$data=$Request->all();
+			$rules = array(
+                'username' => 'required',
+				'password' => 'required'
+            );
 
+            $messages = [
+
+            ];
+            $validator = Validator::make($data, $rules, $messages);
+            if ($validator->fails()) {
+                return $this->APIResponse->respondValidationError(__($validator->errors()->first()));
+            }
+            else 
+			{
 			$check = $this->checkversion($Request->version);
 
 			if ($check == 1) {
@@ -1027,7 +1210,7 @@ class ApiController extends Controller {
 				return response()->json(['status' => 'failed', 'message' => 'Something Wrong.', 'data' => json_decode('{}'), 'code' => '500'], 200);
 
 			}
-
+		}
 		} catch (\Exception $e) {
 
 			return response()->json(['status' => 'failed', 'message' => $e->getMessage(), 'data' => json_decode('{}'), 'code' => '500'], 200);
@@ -1171,14 +1354,48 @@ class ApiController extends Controller {
 		try {
 
 			$check = $this->checkversion($Request->version);
-
+			$all = $Request->all();
 			if ($check == 1) {
 
 				return response()->json(['status' => 'failed', 'message' => 'Please Update This Application.', 'data' => json_decode('{}'), 'code' => '500'], 200);
 			}
+			if (isset($all['page']) && ($all['offset'])) {
+				//pagination coding
+				$page = 1;
+				$perPage = 10;
+				if (isset($all['page']) && !empty($all['page'])) {
+					$page = $all['page'];
+				}
+				if (isset($all['offset']) && !empty($all['offset'])) {
+					$perPage = $all['offset'];
+				}
+				$offset = ($page - 1) * $perPage;
+				
+				$data = Warehouse::whereNull('deleted_at');
+			
+				$data = $data->paginate($perPage);
+				foreach ($data as $key => $value) {
 
+					$data[$key] = $value;
+	
+					$detail = Company::findorfail($value->company_id);
+					$data[$key]['company_name'] = $detail->name;
+				}
+				
+				if (!empty($data)) {
+					$message = 'Warehouse Detail Successfully.';
+					$dataa = $data;
+					return $this->APIResponse->successWithPagination($message, $dataa);
+				}
+			
+			  else {
+					return $this->APIResponse->respondNotFound(__('No Record Found'));
+				}
+
+			}
+			else{
 			$data = array();
-			$data1 = Warehouse::all();
+			$data1 = Warehouse::whereNull('deleted_at')->get();
 
 			foreach ($data1 as $key => $value) {
 
@@ -1189,7 +1406,7 @@ class ApiController extends Controller {
 			}
 
 			return response()->json(['status' => 'success', 'message' => 'Warehouse Detail Successfully.', 'data' => $data, 'code' => '200'], 200);
-
+		}
 		} catch (\Exception $e) {
 
 			return response()->json(['status' => 'failed', 'message' => $e->getMessage(), 'data' => json_decode('{}'), 'code' => '500'], 200);
@@ -1227,14 +1444,50 @@ class ApiController extends Controller {
 	public function WarehouseAdd(Request $Request) {
 
 		try {
+			$data=$Request->all();
+			$rules = array(
+                'username' => 'required',
+				'password' => 'required'
+            );
 
+            $messages = [
+
+            ];
+            $validator = Validator::make($data, $rules, $messages);
+            if ($validator->fails()) {
+                return $this->APIResponse->respondValidationError(__($validator->errors()->first()));
+            }
+            else 
+			{
 			$check = $this->checkversion($Request->version);
 
 			if ($check == 1) {
 
 				return response()->json(['status' => 'failed', 'message' => 'Please Update This Application.', 'data' => json_decode('{}'), 'code' => '500'], 200);
 			}
+			$data = User::where('username', $Request->username)->count();
 
+			if ($data > 0) {
+
+				return response()->json(['status' => 'failed', 'message' => 'This Username Already Registred In Our System.', 'data' => json_decode('{}'), 'code' => '500'], 200);
+
+			} else {
+
+				$user = new User();
+
+				$user->name = $Request->name;
+
+				$user->username = $Request->username;
+
+				$user->password = Hash::make($Request->password);
+
+				$user->role = "warehouse";
+
+				$user->created_by = $Request->user_id;
+
+				$user->save();
+
+			}
 			$comapny = new Warehouse();
 
 			$comapny->name = $Request->name;
@@ -1249,7 +1502,7 @@ class ApiController extends Controller {
 
 			$comapny->created_by = $Request->user_id;
 
-			$comapny->company_id = $Request->company_id;
+			$comapny->company_id = $Request->other_id;
 
 			$comapny->myid = uniqid();
 
@@ -1270,7 +1523,7 @@ class ApiController extends Controller {
 				return response()->json(['status' => 'failed', 'message' => 'Something Wrong.', 'data' => json_decode('{}'), 'code' => '500'], 200);
 
 			}
-
+		}
 		} catch (\Exception $e) {
 
 			return response()->json(['status' => 'failed', 'message' => $e->getMessage(), 'data' => json_decode('{}'), 'code' => '500'], 200);
@@ -1370,17 +1623,59 @@ class ApiController extends Controller {
 		try {
 
 			$check = $this->checkversion($Request->version);
+			$all = $Request->all();
+			// if ($check == 1) {
 
-			if ($check == 1) {
+			// 	return response()->json(['status' => 'failed', 'message' => 'Please Update This Application.', 'data' => json_decode('{}'), 'code' => '500'], 200);
+			// }
+			if (isset($all['page']) && ($all['offset'])) {
+				//pagination coding
+				$page = 1;
+				$perPage = 10;
+				if (isset($all['page']) && !empty($all['page'])) {
+					$page = $all['page'];
+				}
+				if (isset($all['offset']) && !empty($all['offset'])) {
+					$perPage = $all['offset'];
+				}
+				$offset = ($page - 1) * $perPage;
+				$data = array();
+				if ($Request->role == 'admin' || $Request->role == 'employee') {
 
-				return response()->json(['status' => 'failed', 'message' => 'Please Update This Application.', 'data' => json_decode('{}'), 'code' => '500'], 200);
+					$data1 = Driver::where('self',0)->whereNull('deleted_at')->orderBy('id','desc');
+	
+				}
+	
+				if ($Request->role == 'transporter') {
+	
+					$data1 = Driver::where('transporter_id', $Request->other_id)->whereNull('deleted_at')->orderBy('id','desc')->where('self', 0);
+
+				}
+				$data1 = $data1->paginate($perPage);
+
+				foreach ($data1 as $key => $value) {
+					$data1[$key] = $value;
+					$details = Transporter::findorfail($value->transporter_id);
+					$data1[$key]['transporter_name'] = $details->name;
+				}
+				
+				if (!empty($data1)) {
+					$message = 'Driver List Successfully.';
+					$dataa = $data1;
+					return $this->APIResponse->successWithPagination($message, $dataa);
+				}
+			
+			  else {
+					return $this->APIResponse->respondNotFound(__('No Record Found'));
+				}
+
 			}
-
+			else{
 			$data = array();
 
 			if ($Request->role == 'admin' || $Request->role == 'employee') {
 
-				$data1 = Driver::where('self',0)->get();
+				$data1 = Driver::where('self',0)->whereNull('deleted_at')->orderBy('id','desc')->get();
 
 				foreach ($data1 as $key => $value) {
 					$data[$key] = $value;
@@ -1392,7 +1687,7 @@ class ApiController extends Controller {
 
 			if ($Request->role == 'transporter') {
 
-				$data1 = Driver::where('transporter_id', $Request->other_id)->where('self', 0)->get();
+				$data1 = Driver::where('transporter_id', $Request->other_id)->whereNull('deleted_at')->orderBy('id','desc')->where('self', 0)->get();
 
 				foreach ($data1 as $key => $value) {
 					$data[$key] = $value;
@@ -1403,7 +1698,7 @@ class ApiController extends Controller {
 			}
 
 			return response()->json(['status' => 'success', 'message' => 'Driver List Successfully.', 'data' => $data, 'code' => '200'], 200);
-
+		}
 		} catch (\Exception $e) {
 
 			return response()->json(['status' => 'failed', 'message' => $e->getMessage(), 'data' => json_decode('{}'), 'code' => '500'], 200);
@@ -1459,7 +1754,7 @@ class ApiController extends Controller {
 
 			$comapny->pan = $Request->pan_no;
 
-			$comapny->transporter_id = $Request->transporter_id;
+			$comapny->transporter_id = $Request->other_id;
 
 			$comapny->created_by = $Request->user_id;
 
@@ -1527,7 +1822,7 @@ class ApiController extends Controller {
 
 			$comapny->pan = $Request->pan_no;
 
-			$comapny->transporter_id = $Request->transporter_id;
+			$comapny->transporter_id = $Request->other_id;
 
 			$comapny->status = $Request->status;
 
@@ -1613,14 +1908,49 @@ class ApiController extends Controller {
 		try {
 
 			$check = $this->checkversion($Request->version);
-
+			$all = $Request->all();
 			if ($check == 1) {
 
 				return response()->json(['status' => 'failed', 'message' => 'Please Update This Application.', 'data' => json_decode('{}'), 'code' => '500'], 200);
 			}
+			if (isset($all['page']) && ($all['offset'])) {
+				//pagination coding
+				$page = 1;
+				$perPage = 10;
+				if (isset($all['page']) && !empty($all['page'])) {
+					$page = $all['page'];
+				}
+				if (isset($all['offset']) && !empty($all['offset'])) {
+					$perPage = $all['offset'];
+				}
+				$offset = ($page - 1) * $perPage;
+				
+				$data = array();
+				$data1 = Employee::where('company_id',$Request->other_id)->whereNull('deleted_at');
 
+				
+				$data1 = $data1->paginate($perPage);
+
+				foreach ($data1 as $key => $value) {
+					$data1[$key] = $value;
+					$company = Company::withTrashed()->findorfail($value->company_id);
+					$data1[$key]['comapny_name'] = $company->name;
+					}
+				
+				if (!empty($data1)) {
+					$message = 'Employee Detail Successfully.';
+					$dataa = $data1;
+					return $this->APIResponse->successWithPagination($message, $dataa);
+				}
+			
+			  else {
+					return $this->APIResponse->respondNotFound(__('No Record Found'));
+				}
+
+			}
+			else{
 			$data = array();
-			$data1 = Employee::all();
+			$data1 = Employee::where('company_id',$Request->other_id)->whereNull('deleted_at')->get();
 
 			foreach ($data1 as $key => $value) {
 				$data[$key] = $value;
@@ -1629,7 +1959,7 @@ class ApiController extends Controller {
 			}
 
 			return response()->json(['status' => 'success', 'message' => 'Employee Detail Successfully.', 'data' => $data, 'code' => '200'], 200);
-
+		}
 		} catch (\Exception $e) {
 
 			return response()->json(['status' => 'failed', 'message' => $e->getMessage(), 'data' => json_decode('{}'), 'code' => '500'], 200);
@@ -1672,7 +2002,21 @@ class ApiController extends Controller {
 	public function EmployeeAdd(Request $Request) {
 
 		try {
+			$data=$Request->all();
+			$rules = array(
+                'username' => 'required',
+				'password' => 'required'
+            );
 
+            $messages = [
+
+            ];
+            $validator = Validator::make($data, $rules, $messages);
+            if ($validator->fails()) {
+                return $this->APIResponse->respondValidationError(__($validator->errors()->first()));
+            }
+            else 
+			{
 			$check = $this->checkversion($Request->version);
 
 			if ($check == 1) {
@@ -1710,7 +2054,7 @@ class ApiController extends Controller {
 
 			$comapny->email = $Request->email;
 
-			$comapny->company_id = $Request->company_id;
+			$comapny->company_id = $Request->other_id;
 
 			$comapny->created_by = $Request->user_id;
 
@@ -1733,7 +2077,7 @@ class ApiController extends Controller {
 				return response()->json(['status' => 'failed', 'message' => 'Something Wrong.', 'data' => json_decode('{}'), 'code' => '500'], 200);
 
 			}
-
+		}
 		} catch (\Exception $e) {
 
 			return response()->json(['status' => 'failed', 'message' => $e->getMessage(), 'data' => json_decode('{}'), 'code' => '500'], 200);
@@ -1763,7 +2107,7 @@ class ApiController extends Controller {
 
 			$comapny->email = $Request->email;
 
-			$comapny->company_id = $Request->company_id;
+			$comapny->company_id = $Request->other_id;
 
 			$comapny->updated_by = $Request->user_id;
 
@@ -2329,13 +2673,52 @@ class ApiController extends Controller {
 		try {
 
 			$check = $this->checkversion($Request->version);
-
+			$all = $Request->all();
 			if ($check == 1) {
 
 				return response()->json(['status' => 'failed', 'message' => 'Please Update This Application.', 'data' => json_decode('{}'), 'code' => '500'], 200);
 			}
+			if (isset($all['page']) && ($all['offset'])) {
+				//pagination coding
+				$page = 1;
+				$perPage = 10;
+				if (isset($all['page']) && !empty($all['page'])) {
+					$page = $all['page'];
+				}
+				if (isset($all['offset']) && !empty($all['offset'])) {
+					$perPage = $all['offset'];
+				}
+				$offset = ($page - 1) * $perPage;
+				
+				$data1 = Shipment_Transporter::where('shipment_no', $Request->shipment_no)->whereNull('deleted_at');
 
-			$data1 = Shipment_Transporter::where('shipment_no', $Request->shipment_no)->get();
+				$data = array();
+
+				
+				$data1 = $data1->paginate($perPage);
+				foreach ($data1 as $key => $value) {
+
+					$data1[$key] = $value;
+	
+					$tras = Transporter::withTrashed()->findorfail($value->transporter_id);
+	
+					$data1[$key]['name'] = $tras->name;
+	
+				}
+				
+				if (!empty($data1)) {
+					$message = 'Shipment Transporter List Successfully.';
+					$dataa = $data1;
+					return $this->APIResponse->successWithPagination($message, $dataa);
+				}
+			
+			  else {
+					return $this->APIResponse->respondNotFound(__('No Record Found'));
+				}
+
+			}
+			else{
+			$data1 = Shipment_Transporter::where('shipment_no', $Request->shipment_no)->whereNull('deleted_at')->get();
 
 			$data = array();
 
@@ -2350,7 +2733,7 @@ class ApiController extends Controller {
 			}
 
 			return response()->json(['status' => 'success', 'message' => 'Shipment Transporter List Successfully.', 'data' => $data, 'code' => '200'], 200);
-
+		}
 		} catch (\Exception $e) {
 
 			return response()->json(['status' => 'failed', 'message' => $e->getMessage(), 'data' => json_decode('{}'), 'code' => '500'], 200);
@@ -2362,7 +2745,7 @@ class ApiController extends Controller {
 
 		try {
 
-			$tras = Transporter::findorfail($Request->transporter_id);
+			$tras = Transporter::findorfail($Request->other_id);
 
 			$ship = Shipment::where('shipment_no', $Request->shipment_no)->first();
 
@@ -2372,9 +2755,9 @@ class ApiController extends Controller {
 				$ship->status = 1;
 			}
 			if ($ship->all_transporter != "" && $ship->all_transporter != "null" && $ship->all_transporter != null) {
-				$ship->all_transporter = $ship->all_transporter . ", " . $Request->transporter_id;
+				$ship->all_transporter = $ship->all_transporter . ", " . $Request->other_id;
 			} else {
-				$ship->all_transporter = $Request->transporter_id;
+				$ship->all_transporter = $Request->other_id;
 			}
 
 			$ship->save();
@@ -2397,7 +2780,7 @@ class ApiController extends Controller {
 
 			$summary->flag = "Add Transporter";
 
-			$summary->transporter_id = $Request->transporter_id;
+			$summary->transporter_id = $Request->other_id;
 
 			$summary->description = "Add Transporter. - " . $tras->name;
 
@@ -2411,7 +2794,7 @@ class ApiController extends Controller {
 				if ($Request->driver_id != null && $Request->driver_id != '' && $Request->driver_id != 'null') {
                         $mydriverdetails = Driver::findorfail($Request->driver_id);
                     } else {
-                        $mydriverdetails = Driver::where('transporter_id', $Request->transporter_id)->where('self', 1)->first();
+                        $mydriverdetails = Driver::where('transporter_id', $Request->other_id)->where('self', 1)->first();
                     }
 
 
@@ -2422,10 +2805,10 @@ class ApiController extends Controller {
                     }
 
 
-                    	$tt = Transporter::findorfail($Request->transporter_id);
+                    	$tt = Transporter::findorfail($Request->other_id);
                         $driver = new Shipment_Driver();
                         $driver->shipment_no = $Request->shipment_no;
-                        $driver->transporter_id = $Request->transporter_id;
+                        $driver->transporter_id = $Request->other_id;
                         $driver->driver_id = $mydriverdetails->id;
                         $driver->truck_no = $mytruckno;
                         $driver->mobile = $tt->phone;
@@ -2436,14 +2819,14 @@ class ApiController extends Controller {
                         $summary = new Shipment_Summary();
                         $summary->shipment_no = $Request->shipment_no;
                         $summary->flag = "Add Driver";
-                        $summary->transporter_id = $Request->transporter_id;
+                        $summary->transporter_id = $Request->other_id;
                         $summary->description = "Add Driver. \n" . $mytruckno . "(Co.No." . $tt->phone . ").";
                         $summary->save();
 
                         $summary1 = new Shipment_Summary();
                         $summary1->shipment_no =  $Request->shipment_no;
                         $summary1->flag = "Add Truck";
-                        $summary1->transporter_id = $Request->transporter_id;
+                        $summary1->transporter_id = $Request->other_id;
                         $summary1->description = "Add Driver & Truck No. ".$mytruckno;
                         $summary1->save(); 
 
@@ -2484,7 +2867,7 @@ class ApiController extends Controller {
 
 			$token = array();
 
-			if ($Request->transporter_id != null && $Request->transporter_id != '' && $Request->transporter_id != 'null') {
+			if ($Request->other_id != null && $Request->other_id != '' && $Request->other_id != 'null') {
 
 				$tuser = User::findorfail($tras->user_id);
 
@@ -2552,12 +2935,12 @@ class ApiController extends Controller {
 
 			$check = $this->checkversion($Request->version);
 
-			if ($check == 1) {
+			// if ($check == 1) {
 
-				return response()->json(['status' => 'failed', 'message' => 'Please Update This Application.', 'data' => json_decode('{}'), 'code' => '500'], 200);
-			}
+			// 	return response()->json(['status' => 'failed', 'message' => 'Please Update This Application.', 'data' => json_decode('{}'), 'code' => '500'], 200);
+			// }
 
-			$data1 = Shipment_Driver::where('shipment_no', $Request->shipment_no)->where('transporter_id', $Request->other_id)->orderby('created_at', 'desc')->get();
+			$data1 = Shipment_Driver::where('shipment_no', $Request->shipment_no)->where('transporter_id', $Request->other_id)->orderby('created_at', 'desc')->whereNull('deleted_at')->get();
 
 			$data2 = array();
 
@@ -2699,7 +3082,7 @@ class ApiController extends Controller {
 
 			}
 
-			if ($Request->role == "admin") {
+			if ($Request->role == "admin" || $Request->role == 'company') {
 
 				$data = Shipment_Driver::findorfail($Request->id);
 				$data->deleted_by = $Request->user_id;
@@ -2740,7 +3123,7 @@ class ApiController extends Controller {
 			$shipment_data = Shipment::where('shipment_no', $Request->shipment_no)->first();
 
 			$account = new Account();
-			$account->to_transporter = $Request->transporter_id;
+			$account->to_transporter = $Request->other_id;
 			$account->from_company = $shipment_data->company;
 			$account->description = $Request->shipment_no . " Expense."." - ".$shipment_data->date." / " . $Request->reason;
 			$account->dates = date('Y-m-d');
@@ -2750,8 +3133,10 @@ class ApiController extends Controller {
 
 
 			$expense = new Expense();
+			$expense->dates = date('Y-m-d');
 			$expense->account_id = $account->id;
-			$expense->transporter_id = $Request->transporter_id;
+			
+			$expense->transporter_id = $Request->other_id;
 			$expense->reason = $Request->reason;
 			$expense->amount = $Request->amount;
 			$expense->shipment_no = $Request->shipment_no;
@@ -2764,7 +3149,7 @@ class ApiController extends Controller {
 			$summary = new Shipment_Summary();
 			$summary->shipment_no = $Request->shipment_no;
 			$summary->flag = "Add Expense";
-			$summary->transporter_id = $Request->transporter_id;
+			$summary->transporter_id = $Request->other_id;
 			$summary->description = "Add Expense. " . $Request->reason;
 			$summary->save();
 
@@ -2783,15 +3168,88 @@ class ApiController extends Controller {
 		try {
 
 			$check = $this->checkversion($Request->version);
-
+			$all = $Request->all();
 			if ($check == 1) {
 
 				return response()->json(['status' => 'failed', 'message' => 'Please Update This Application.', 'data' => json_decode('{}'), 'code' => '500'], 200);
 			}
+			if (isset($all['page']) && ($all['offset'])) {
+				//pagination coding
+				$page = 1;
+				$perPage = 10;
+				if (isset($all['page']) && !empty($all['page'])) {
+					$page = $all['page'];
+				}
+				if (isset($all['offset']) && !empty($all['offset'])) {
+					$perPage = $all['offset'];
+				}
+				$offset = ($page - 1) * $perPage;
+				
+				if ($Request->role == "admin" || $Request->role == 'company') {
 
-			if ($Request->role == "admin") {
+					$data1 = Shipment::where('status', 0)->whereNull('deleted_at')->orderby('created_at', 'desc');
+	
+					$data = array();
+	
+				}
+				
+				if ($Request->role == "transporter") {
+					$data1 = Shipment_Transporter::leftJoin('shipment','shipment.id','=','shipment_transporter.shipment_id')->where('shipment_transporter.transporter_id', $Request->other_id)->whereNull('shipment_transporter.deleted_at')->where('shipment_transporter.status', 1)->orderby('shipment_transporter.created_at', 'desc');
+					//dd($data2);
+					$data = array();
 
-				$data1 = Shipment::where('status', 0)->orderby('created_at', 'desc')->get();
+				}
+				if ($Request->role == "driver") {
+					
+
+					$data1 = Shipment_Driver::leftJoin('shipment','shipment.shipment_no','=','shipment_driver.shipment_no')->where('shipment_driver.driver_id', $Request->user_id)->whereNull('shipment_driver.deleted_at')->where('shipment_driver.status', 1);
+					
+					$data = array();
+					
+				}
+	
+				if ($Request->role == "forwarder") {
+	
+					$data1 = Shipment::where('status', 0)->whereNull('deleted_at')->where('forwarder', $Request->other_id);
+					$data = array();
+		
+				}
+				
+				$data1 = $data1->paginate($perPage);
+				
+				foreach ($data1 as $key => $value) {
+	
+					$data1[$key] = $value;
+
+					$com = Company::withTrashed()->findorfail($value->company);
+					$data1[$key]['company'] = $com->name;
+					$forw = Forwarder::withTrashed()->findorfail($value->forwarder);
+					$data1[$key]['forwarder'] = $forw->name;
+					if($value->trucktype !='' && $value->trucktype != 'null' && $value->trucktype != null) {
+					$tk = Truck::withTrashed()->findorfail($value->trucktype);
+					$data1[$key]['vehicle'] = $tk->name;
+					} else {
+						$data1[$key]['vehicle'] = '';
+
+					}
+				}
+
+				if (!empty($data1)) {
+					$message = 'Shipment List Successfully.';
+					$dataa = $data1;
+					return $this->APIResponse->successWithPagination($message, $dataa);
+				}
+			
+			  else {
+					return $this->APIResponse->respondNotFound(__('No Record Found'));
+				}
+
+			}
+
+			else{
+			if ($Request->role == "admin" || $Request->role == 'company') {
+
+				$data1 = Shipment::where('status', 0)->whereNull('deleted_at')->orderby('created_at', 'desc')->get();
 
 				$data = array();
 
@@ -2816,17 +3274,16 @@ class ApiController extends Controller {
 			}
 			
 			if ($Request->role == "transporter") {
-				$data2 = Shipment_Transporter::where('transporter_id', $Request->other_id)->where('status', 1)->orderby('created_at', 'desc')->get();
+				$data2 = Shipment_Transporter::where('transporter_id', $Request->other_id)->whereNull('deleted_at')->where('status', 1)->orderby('created_at', 'desc')->get();
 				//dd($data2);
 				$data = array();
-				//dd($data2);
+				
 				foreach ($data2 as $key => $value) {
-					//$data1 = Shipment::where('shipment_no', $value->shipment_no)->first();
+					
 					$data1 = Shipment::withTrashed()->where('shipment_no', $value->shipment_no)->first();
 					$data[$key] = $data1;
 					$com = Company::withTrashed()->findorfail($data1->company);
 					if($com && $data1->company != 3 && $data1->company != 1){
-				//		dd($data1);
 					}
 					$data[$key]['company'] = $com->name;
 					$forw = Forwarder::withTrashed()->findorfail($data1->forwarder);
@@ -2842,7 +3299,7 @@ class ApiController extends Controller {
 			}
 			if ($Request->role == "driver") {
 
-				$data2 = Shipment_Driver::where('driver_id', $Request->user_id)->where('status', 1)->orderby('created_at', 'desc')->get();
+				$data2 = Shipment_Driver::where('driver_id', $Request->user_id)->whereNull('deleted_at')->where('status', 1)->orderby('created_at', 'desc')->get();
 				//dd($Request->user_id,$data2);
 				$data = array();
 
@@ -2868,7 +3325,7 @@ class ApiController extends Controller {
 
 			if ($Request->role == "forwarder") {
 
-				$data1 = Shipment::where('status', 0)->where('forwarder', $Request->other_id)->get();
+				$data1 = Shipment::where('status', 0)->whereNull('deleted_at')->where('forwarder', $Request->other_id)->get();
 
 				$data = array();
 
@@ -2890,10 +3347,11 @@ class ApiController extends Controller {
 				}
 
 			}
-
+		}
 			return response()->json(['status' => 'success', 'message' => 'Shipment List Successfully.', 'data' => $data, 'code' => '200'], 200);
 
 		} catch (\Exception $e) {
+			dd($e);
 
 			return response()->json(['status' => 'failed', 'message' => $e->getMessage(), 'data' => json_decode('{}'), 'code' => '500'], 200);
 		}
@@ -2905,15 +3363,90 @@ class ApiController extends Controller {
 		try {
 
 			$check = $this->checkversion($Request->version);
-
+			$all = $Request->all();
 			if ($check == 1) {
 
 				return response()->json(['status' => 'failed', 'message' => 'Please Update This Application.', 'data' => json_decode('{}'), 'code' => '500'], 200);
 			}
+			if (isset($all['page']) && ($all['offset'])) {
+				//pagination coding
+				$page = 1;
+				$perPage = 10;
+				if (isset($all['page']) && !empty($all['page'])) {
+					$page = $all['page'];
+				}
+				if (isset($all['offset']) && !empty($all['offset'])) {
+					$perPage = $all['offset'];
+				}
+				$offset = ($page - 1) * $perPage;
+				
+				if ($Request->role == "admin" || $Request->role == 'company') {
+					$data1 = Shipment::where('status', 1)->whereNull('deleted_at')->orderby('created_at', 'desc');
+					$data = array();
+				}
+	
+				if ($Request->role == "transporter") {
+					$data1 = Shipment_Transporter::leftJoin('shipment','shipment.id','=','shipment_transporter.shipment_id')->where('shipment_transporter.transporter_id', $Request->other_id)->whereNull('shipment_transporter.deleted_at')->where('shipment_transporter.status', 2)->orderby('shipment_transporter.created_at', 'desc');
+					$data = array();	
+				}
+	
+				if ($Request->role == "driver") {
+	
+					$data1 = Shipment_Driver::leftJoin('shipment','shipment.shipment_no','=','shipment_driver.shipment_no')
+					->where('shipment_driver.driver_id', $Request->user_id)->whereNull('shipment_driver.deleted_at')
+					->where('shipment_driver.transporter_id', $Request->other_id)->whereIn('shipment_driver.status', [2,4,5,6,7,8,9,10,11,12,13,14,15,18]);
+					$data = array();
+	
+				}
+	
+				if ($Request->role == "forwarder") {
+	
+					$data1 = Shipment::where('status', 1)->whereNull('deleted_at')->where('forwarder', $Request->other_id)->get();
+	
+					$data = array();
+	
+				}
+				$data1 = $data1->paginate($perPage);
 
-			if ($Request->role == "admin") {
+				foreach ($data1 as $key => $value) {
+	
+					$data1[$key] = $value;
 
-				$data1 = Shipment::where('status', 1)->orderby('created_at', 'desc')->get();
+					$com = Company::withTrashed()->findorfail($value->company);
+					
+					$data1[$key]['company'] = $com->name;
+					
+					$forw = Forwarder::withTrashed()->findorfail($value->forwarder);
+					
+					$data1[$key]['forwarder'] = $forw->name;
+					
+					if($value->trucktype != 'null' && $value->trucktype != '' && $value->trucktype != null ){
+					
+						$tk = Truck::withTrashed()->findorfail($value->trucktype);
+						
+						$data1[$key]['vehicle'] = $tk->name;
+					} else {
+
+						$data1[$key]['vehicle'] = '';
+					}
+
+				}
+				if (!empty($data1)) {
+					$message = 'Shipment List Successfully.';
+					$dataa = $data1;
+					return $this->APIResponse->successWithPagination($message, $dataa);
+				}
+			
+			  else {
+					return $this->APIResponse->respondNotFound(__('No Record Found'));
+				}
+
+			}
+			else{
+
+			if ($Request->role == "admin" || $Request->role == 'company') {
+
+				$data1 = Shipment::where('status', 1)->whereNull('deleted_at')->orderby('created_at', 'desc')->get();
 
 				$data = array();
 
@@ -2944,7 +3477,7 @@ class ApiController extends Controller {
 			}
 
 			if ($Request->role == "transporter") {
-				$data2 = Shipment_Transporter::where('transporter_id', $Request->other_id)->where('status', 2)->orderby('created_at', 'desc')->get();
+				$data2 = Shipment_Transporter::where('transporter_id', $Request->other_id)->whereNull('deleted_at')->where('status', 2)->orderby('created_at', 'desc')->get();
 				$data = array();
 				foreach ($data2 as $key => $value) {
 					$data1 = Shipment::where('shipment_no', $value->shipment_no)->first();
@@ -2964,7 +3497,7 @@ class ApiController extends Controller {
 
 			if ($Request->role == "driver") {
 
-				$data2 = Shipment_Driver::where('driver_id', $Request->user_id)->where('transporter_id', $Request->other_id)->whereIn('status', [2,4,5,6,7,8,9,10])->orderby('created_at', 'desc')->get();
+				$data2 = Shipment_Driver::where('driver_id', $Request->user_id)->whereNull('deleted_at')->where('transporter_id', $Request->other_id)->whereIn('status', [2,4,5,6,7,8,9,10,11,12,13,14,15,18])->orderby('created_at', 'desc')->get();
 
 				$data = array();
 
@@ -2994,7 +3527,7 @@ class ApiController extends Controller {
 
 			if ($Request->role == "forwarder") {
 
-				$data1 = Shipment::where('status', 1)->where('forwarder', $Request->other_id)->get();
+				$data1 = Shipment::where('status', 1)->whereNull('deleted_at')->where('forwarder', $Request->other_id)->get();
 
 				$data = array();
 
@@ -3017,7 +3550,7 @@ class ApiController extends Controller {
 			}
 
 			return response()->json(['status' => 'success', 'message' => 'Shipment List Successfully.', 'data' => $data, 'code' => '200'], 200);
-
+		}
 		} catch (\Exception $e) {
 
 			return response()->json(['status' => 'failed', 'message' => $e->getMessage(), 'data' => json_decode('{}'), 'code' => '500'], 200);
@@ -3031,15 +3564,188 @@ class ApiController extends Controller {
 		try {
 
 			$check = $this->checkversion($Request->version);
-
+			$all = $Request->all();
 			if ($check == 1) {
 
 				return response()->json(['status' => 'failed', 'message' => 'Please Update This Application.', 'data' => json_decode('{}'), 'code' => '500'], 200);
 			}
+			if (isset($all['page']) && ($all['offset'])) {
+				//pagination coding
+				$page = 1;
+				$perPage = 10;
+				if (isset($all['page']) && !empty($all['page'])) {
+					$page = $all['page'];
+				}
+				if (isset($all['offset']) && !empty($all['offset'])) {
+					$perPage = $all['offset'];
+				}
+				$offset = ($page - 1) * $perPage;
 
-			if ($Request->role == "admin") {
+			if ($Request->role == "admin" || $Request->role == 'company') {
 
-				$data1 = Shipment::where('status', 2)->orderby('created_at', 'desc')->get();
+				$data1 = Shipment::where('status', 2)->whereNull('deleted_at')->orderby('created_at', 'desc');
+
+				$data = array();
+				$data1 = $data1->paginate($perPage);
+				foreach ($data1 as $key => $value) {
+				
+					$data1[$key] = $value;
+					$data1[$key]['expense'] = $value->expense;
+					if($value){
+					$com = Company::withTrashed()->findorfail($value->company);
+					$data1[$key]['company'] = $com->name;
+					}
+					else{
+						$data1[$key]['company'] = '';
+					}
+	
+					if($value){
+					$forw = Forwarder::withTrashed()->findorfail($value->forwarder);
+					$data1[$key]['forwarder'] = $forw->name;
+					}
+					else{
+						$data1[$key]['forwarder'] = '';
+					}
+	
+					if(isset($value->trucktype) && $value->trucktype !='' && $value->trucktype != 'null' && $value->trucktype != null) {
+						$tk = Truck::withTrashed()->findorfail($value->trucktype);
+						$data1[$key]['vehicle'] = $tk->name;
+					} else {
+						$data1[$key]['vehicle'] = '';
+					}
+				//}
+			}
+
+			}
+
+			if ($Request->role == "transporter") {
+				
+				$data1 = Shipment_Transporter::leftJoin('shipment','shipment.id','=','shipment_transporter.shipment_id')->where('shipment_transporter.transporter_id', $Request->other_id)->whereNull('shipment_transporter.deleted_at')->whereIn('shipment_transporter.status', ['3','17'])->whereNull('shipment_transporter.expense')->orderby('shipment_transporter.created_at', 'desc');
+
+				$data = array();
+				$data1 = $data1->paginate($perPage);
+				foreach ($data1 as $key => $value) {
+				
+					$data1[$key] = $value;
+					$data1[$key]['expense'] = $value->expense;
+					if($value){
+					$com = Company::withTrashed()->findorfail($value->company);
+					$data1[$key]['company'] = $com->name;
+					}
+					else{
+						$data1[$key]['company'] = '';
+					}
+	
+					if($value){
+					$forw = Forwarder::withTrashed()->findorfail($value->forwarder);
+					$data1[$key]['forwarder'] = $forw->name;
+					}
+					else{
+						$data1[$key]['forwarder'] = '';
+					}
+	
+					if(isset($value->trucktype) && $value->trucktype !='' && $value->trucktype != 'null' && $value->trucktype != null) {
+						$tk = Truck::withTrashed()->findorfail($value->trucktype);
+						$data1[$key]['vehicle'] = $tk->name;
+					} else {
+						$data1[$key]['vehicle'] = '';
+					}
+				//}
+			}
+			}
+
+			if ($Request->role == "driver") {
+				
+
+				$data1 = Shipment::rightJoin('shipment_driver','shipment_driver.shipment_no','=','shipment.shipment_no')->where('shipment_driver.transporter_id', $Request->other_id)->whereNull('shipment_driver.deleted_at')->where('shipment_driver.driver_id', $Request->user_id)->orderby('shipment_driver.created_at', 'desc')->whereIn('shipment_driver.status', ['3','17']);
+				$data = array();
+				$data1 = $data1->paginate($perPage);
+				foreach ($data1 as $key => $value) {
+					$data[$key] = Shipment::where('shipment_no', $value->shipment_no)->first();
+					$data1[$key]['id'] = $data[$key]->id ;
+					$data1[$key]['myid'] = $data[$key]->myid ;
+					$data1[$key]['status'] = $data[$key]->status ;
+					$data1[$key] = $value;
+					$data1[$key]['expense'] = $value->expense;
+					if($value){
+					$com = Company::withTrashed()->findorfail($value->company);
+					$data1[$key]['company'] = $com->name;
+					}
+					else{
+						$data1[$key]['company'] = '';
+					}
+	
+					if($value){
+					$forw = Forwarder::withTrashed()->findorfail($value->forwarder);
+					$data1[$key]['forwarder'] = $forw->name;
+					}
+					else{
+						$data1[$key]['forwarder'] = '';
+					}
+	
+					if(isset($value->trucktype) && $value->trucktype !='' && $value->trucktype != 'null' && $value->trucktype != null) {
+						$tk = Truck::withTrashed()->findorfail($value->trucktype);
+						$data1[$key]['vehicle'] = $tk->name;
+					} else {
+						$data1[$key]['vehicle'] = '';
+					}
+				//}
+			}
+			}
+
+			if ($Request->role == "forwarder") {
+
+				$data1 = Shipment::where('status', 2)->whereNull('deleted_at')->where('forwarder', $Request->other_id);
+				$data = array();
+				$data1 = $data1->paginate($perPage);
+				foreach ($data1 as $key => $value) {
+				
+					$data1[$key] = $value;
+					$data1[$key]['expense'] = $value->expense;
+					if($value){
+					$com = Company::withTrashed()->findorfail($value->company);
+					$data1[$key]['company'] = $com->name;
+					}
+					else{
+						$data1[$key]['company'] = '';
+					}
+	
+					if($value){
+					$forw = Forwarder::withTrashed()->findorfail($value->forwarder);
+					$data1[$key]['forwarder'] = $forw->name;
+					}
+					else{
+						$data1[$key]['forwarder'] = '';
+					}
+	
+					if(isset($value->trucktype) && $value->trucktype !='' && $value->trucktype != 'null' && $value->trucktype != null) {
+						$tk = Truck::withTrashed()->findorfail($value->trucktype);
+						$data1[$key]['vehicle'] = $tk->name;
+					} else {
+						$data1[$key]['vehicle'] = '';
+					}
+				//}
+			}
+			}
+		
+			
+				
+				if (!empty($data1)) {
+					$message = 'Shipment List Successfully.';
+					$dataa = $data1;
+					return $this->APIResponse->successWithPagination($message, $dataa);
+				}
+			
+			  else {
+					return $this->APIResponse->respondNotFound(__('No Record Found'));
+				}
+
+			}
+
+			else{
+			if ($Request->role == "admin" || $Request->role == 'company') {
+
+				$data1 = Shipment::where('status', 2)->whereNull('deleted_at')->orderby('created_at', 'desc')->get();
 
 				$data = array();
 
@@ -3064,7 +3770,7 @@ class ApiController extends Controller {
 			}
 
 			if ($Request->role == "transporter") {
-				$data2 = Shipment_Transporter::where('transporter_id', $Request->other_id)->where('status', 3)->whereNull('expense')->orderby('created_at', 'desc')->get();
+				$data2 = Shipment_Transporter::where('transporter_id', $Request->other_id)->whereNull('deleted_at')->whereIn('status', ['3','17'])->whereNull('expense')->orderby('created_at', 'desc')->get();
 				$data = array();
 				foreach ($data2 as $key => $value) {
 					//$expense = Expense::where('shipment_no', $value->shipment_no)->count();
@@ -3075,13 +3781,27 @@ class ApiController extends Controller {
 					//$diff=date_diff($date1,$date2);
 					//if($expense == 0){
 						$data1 = Shipment::where('shipment_no', $value->shipment_no)->first();
+						
 						$data[$key] = $data1;
 						$data[$key]['expense'] = $value->expense;
+						if($data1){
 						$com = Company::withTrashed()->findorfail($data1->company);
 						$data[$key]['company'] = $com->name;
+						}
+						else{
+							$data[$key]['company'] = '';
+						}
+						//dd($data[$key]['company']);
+						if($data1){
 						$forw = Forwarder::withTrashed()->findorfail($data1->forwarder);
+						
 						$data[$key]['forwarder'] = $forw->name;
-						if($data1->trucktype !='' && $data1->trucktype != 'null' && $data1->trucktype != null) {
+						}
+						else{
+							$data[$key]['forwarder'] = '';
+						}
+
+						if(isset($data1->trucktype) && $data1->trucktype !='' && $data1->trucktype != 'null' && $data1->trucktype != null) {
 						$tk = Truck::withTrashed()->findorfail($data1->trucktype);
 						$data[$key]['vehicle'] = $tk->name;
 						} else {
@@ -3092,35 +3812,43 @@ class ApiController extends Controller {
 			}
 
 			if ($Request->role == "driver") {
-				$data2 = Shipment_Driver::where('driver_id', $Request->user_id)->where('transporter_id', $Request->other_id)->where('status', 3)->orderby('created_at', 'desc')->get();
+				$data2 = Shipment_Driver::where('driver_id', $Request->user_id)->whereNull('deleted_at')->where('transporter_id', $Request->other_id)->whereIn('status', ['3','17'])->orderby('created_at', 'desc')->get();
 				$data = array();
 				foreach ($data2 as $key => $value) {
-					//$expense = Expense::where('shipment_no', $value->shipment_no)->count();
+					
 					$data1 = Shipment::where('shipment_no', $value->shipment_no)->first();
-					$date0=date_create($data1->date);
-					$date2=date_create(date('Y-m-d'));
-					$diff=date_diff($date0,$date2);
-					if($diff->format("%a") < 8){
-						$data1 = Shipment::where('shipment_no', $value->shipment_no)->first();
+				
 						$data[$key] = $data1;
 						$data[$key]['expense'] = $value->expense;
+						if($data1){
 						$com = Company::withTrashed()->findorfail($data1->company);
 						$data[$key]['company'] = $com->name;
+						}
+						else{
+							$data[$key]['company'] = '';
+						}
+
+						if($data1){
 						$forw = Forwarder::withTrashed()->findorfail($data1->forwarder);
 						$data[$key]['forwarder'] = $forw->name;
-						if($data1->trucktype !='' && $data1->trucktype != 'null' && $data1->trucktype != null) {
+						}
+						else{
+							$data[$key]['forwarder'] = '';
+						}
+
+						if(isset($data1->trucktype) && $data1->trucktype !='' && $data1->trucktype != 'null' && $data1->trucktype != null) {
 							$tk = Truck::withTrashed()->findorfail($data1->trucktype);
 							$data[$key]['vehicle'] = $tk->name;
 						} else {
 							$data[$key]['vehicle'] = '';
 						}
-					}
+					//}
 				}
 			}
 
 			if ($Request->role == "forwarder") {
 
-				$data1 = Shipment::where('status', 2)->where('forwarder', $Request->other_id)->get();
+				$data1 = Shipment::where('status', 2)->whereNull('deleted_at')->where('forwarder', $Request->other_id)->get();
 
 				$data = array();
 
@@ -3144,7 +3872,7 @@ class ApiController extends Controller {
 			}
 
 			return response()->json(['status' => 'success', 'message' => 'Shipment List Successfully.', 'data' => $data, 'code' => '200'], 200);
-
+		}
 		} catch (\Exception $e) {
 
 			return response()->json(['status' => 'failed', 'message' => $e->getMessage(), 'data' => json_decode('{}'), 'code' => '500'], 200);
@@ -3212,7 +3940,33 @@ class ApiController extends Controller {
 			}
 
 			$data->transporters_list = $t_list;
-
+			
+			if ($Request->role == "transporter") {
+			
+			$check = Shipment_Summary::where('shipment_no',$data->shipment_no)->where('transporter_id',$Request->other_id)->where('flag','View Shipment')->first();
+			if(!$check){
+			$summary = new Shipment_Summary();
+			$summary->shipment_no = $data->shipment_no;
+			$summary->flag = "View Shipment";
+			$summary->transporter_id = $Request->other_id;
+			$tra = Transporter::withTrashed()->findorfail($Request->other_id);
+			$summary->description = "View Shipment List By. - ".$tra->name;
+			$summary->save();
+			}
+		}
+		if ($Request->role == "driver") {
+			
+			$check = Shipment_Summary::where('shipment_no',$data->shipment_no)->where('driver_id',$Request->user_id)->where('flag','View Shipment')->first();
+			if(!$check){
+			$summary = new Shipment_Summary();
+			$summary->shipment_no = $data->shipment_no;
+			$summary->flag = "View Shipment";
+			$summary->driver_id = $Request->user_id;
+			$tra = Driver::withTrashed()->findorfail($Request->user_id);
+			$summary->description = "View Shipment List By. - ".$tra->name;
+			$summary->save();
+			}
+		}
 			if ($Request->role == "transporter") {
 
 				$driver_list = Shipment_Driver::where('shipment_no', $Request->shipment_no)->where('transporter_id', $Request->other_id)->get();
@@ -3378,6 +4132,7 @@ class ApiController extends Controller {
 
 				$ss = Shipment::where('shipment_no', $data->shipment_no)->first();
 				$ss->status = 1;
+				// $ss->cargo_status = 1;
 				$ss->save();
 
 				if ($Request->hasFile('image') && !empty($Request->file('image'))) {
@@ -3395,6 +4150,16 @@ class ApiController extends Controller {
 
 				$ss = Shipment::where('shipment_no', $data->shipment_no)->first();
 				$ss->status = 1;
+
+				// $cargostatus = Shipment_Driver::where('shipment_no',$data->shipment_no)->latest()->take(1)->first();
+                // if($data->id == $cargostatus->id)
+                // {
+                //     $ss->cargo_status = 2;
+                // }
+                // else{
+                //     $ss->cargo_status = 1;
+                // }
+
 				$ss->save();
 
 				$get_all_shipment = Shipment_Driver::where('shipment_no', $data->shipment_no)->where('status', 1)->orwhere('status', 2)->where('deleted_at', '')->count();
@@ -3402,7 +4167,7 @@ class ApiController extends Controller {
 				if ($get_all_shipment == 0) {
 
 					$transp = Shipment_Transporter::where('shipment_no', $data->shipment_no)->where('transporter_id', $data->transporter_id)->first();
-					$transp->status = 3;
+					$transp->status = 2;
 					$transp->save();
 				}
 
@@ -3410,11 +4175,189 @@ class ApiController extends Controller {
 					$file_name = time() . $Request->image->getClientOriginalName();
 					$Request->image->move($path, $file_name);
 					$data->unloaded_photo = $file_name;
+				}
+
+			}
+			if ($Request->status == "17") {
+
+				$data->unloadcontainer_time = date('Y-m-d H:i');
+
+				$ss = Shipment::where('shipment_no', $data->shipment_no)->first();
+				$ss->status = 1;
+
+				// $cargostatus = Shipment_Driver::where('shipment_no',$data->shipment_no)->latest()->take(1)->first();
+                // if($data->id == $cargostatus->id)
+                // {
+                //     $ss->cargo_status = 2;
+                // }
+                // else{
+                //     $ss->cargo_status = 1;
+                // }
+
+				$ss->save();
+
+				$get_all_shipment = Shipment_Driver::where('shipment_no', $data->shipment_no)->where('status', 1)->orwhere('status', 2)->where('deleted_at', '')->count();
+
+				if ($get_all_shipment == 0) {
+
+					$transp = Shipment_Transporter::where('shipment_no', $data->shipment_no)->where('transporter_id', $data->transporter_id)->first();
+					$transp->status = 2;
+					$transp->save();
+				}
+
+				if ($Request->hasFile('image') && !empty($Request->file('image'))) {
+					$file_name = time() . $Request->image->getClientOriginalName();
+					$Request->image->move($path, $file_name);
+					$data->unloadedcontainer_photo = $file_name;
 
 				}
 
 			}
+			if($Request->status == "4"){ 
+			
+				$data->hold_time = date('Y-m-d H:i');
 
+				$ss =Shipment::where('shipment_no',$data->shipment_no)->first();
+                $ss->status =1;
+                // $ss->cargo_status = 1;
+                $ss->save();
+
+				$transp = Shipment_Transporter::where('shipment_no', $data->shipment_no)->where('transporter_id', $data->transporter_id)->first();
+				$transp->status = 2;
+				$transp->save();
+				if ($Request->hasFile('image') && !empty($Request->file('image'))) {
+					$file_name = time() . $Request->image->getClientOriginalName();
+					$Request->image->move($path, $file_name);
+					$data->hold_photo = $file_name;
+				}
+
+			}
+			if($Request->status == "5"){ 
+			
+				$data->other_time = date('Y-m-d H:i');
+
+				$ss =Shipment::where('shipment_no',$data->shipment_no)->first();
+                $ss->status =1;
+                // $ss->cargo_status = 1;
+                $ss->save();
+
+				$transp = Shipment_Transporter::where('shipment_no', $data->shipment_no)->where('transporter_id', $data->transporter_id)->first();
+				$transp->status = 2;
+				$transp->save();
+				if ($Request->hasFile('image') && !empty($Request->file('image'))) {
+					$file_name = time() . $Request->image->getClientOriginalName();
+					$Request->image->move($path, $file_name);
+					$data->other_photo = $file_name;
+				}
+
+			}
+			if($Request->status == "11"){ 
+			
+				$data->truck_reachport_time = date('Y-m-d H:i');
+
+				$ss =Shipment::where('shipment_no',$data->shipment_no)->first();
+                $ss->status =1;
+                // $ss->cargo_status = 1;
+                $ss->save();
+
+				$transp = Shipment_Transporter::where('shipment_no', $data->shipment_no)->where('transporter_id', $data->transporter_id)->first();
+				$transp->status = 2;
+				$transp->save();
+				if ($Request->hasFile('image') && !empty($Request->file('image'))) {
+					$file_name = time() . $Request->image->getClientOriginalName();
+					$Request->image->move($path, $file_name);
+					$data->trucktransreachprt_photo = $file_name;
+				}
+
+			}
+			if($Request->status == "12"){ 
+			
+				$data->reachatport_time = date('Y-m-d H:i');
+
+				$ss =Shipment::where('shipment_no',$data->shipment_no)->first();
+                $ss->status =1;
+                // $ss->cargo_status = 1;
+                $ss->save();
+
+				$transp = Shipment_Transporter::where('shipment_no', $data->shipment_no)->where('transporter_id', $data->transporter_id)->first();
+				$transp->status = 2;
+				$transp->save();
+				if ($Request->hasFile('image') && !empty($Request->file('image'))) {
+					$file_name = time() . $Request->image->getClientOriginalName();
+					$Request->image->move($path, $file_name);
+					$data->reachprt_photo = $file_name;
+				}
+
+			}
+			if($Request->status == "13"){
+
+				$ss =Shipment::where('shipment_no',$data->shipment_no)->first();
+                $ss->status =1;
+                // $ss->cargo_status = 1;
+                $ss->save();
+			
+				$data->truck_reachcompany_time = date('Y-m-d H:i');
+				$transp = Shipment_Transporter::where('shipment_no', $data->shipment_no)->where('transporter_id', $data->transporter_id)->first();
+				$transp->status = 2;
+				$transp->save();
+				if ($Request->hasFile('image') && !empty($Request->file('image'))) {
+					$file_name = time() . $Request->image->getClientOriginalName();
+					$Request->image->move($path, $file_name);
+					$data->trucktransreachcompany_photo = $file_name;
+				}
+			}
+			if($Request->status == "14"){ 
+				$ss =Shipment::where('shipment_no',$data->shipment_no)->first();
+                $ss->status =1;
+                // $ss->cargo_status = 1;
+                $ss->save();
+			
+				$data->loadcontainer_time = date('Y-m-d H:i');
+				$transp = Shipment_Transporter::where('shipment_no', $data->shipment_no)->where('transporter_id', $data->transporter_id)->first();
+				$transp->status = 2;
+				$transp->save();
+				if ($Request->hasFile('image') && !empty($Request->file('image'))) {
+					$file_name = time() . $Request->image->getClientOriginalName();
+					$Request->image->move($path, $file_name);
+					$data->loadcontainer_photo = $file_name;
+				}
+			}
+			if($Request->status == "15"){ 
+
+				$ss =Shipment::where('shipment_no',$data->shipment_no)->first();
+                $ss->status =1;
+                // $ss->cargo_status = 1;
+                $ss->save();
+			
+				$data->loadcargo_time = date('Y-m-d H:i');
+				$transp = Shipment_Transporter::where('shipment_no', $data->shipment_no)->where('transporter_id', $data->transporter_id)->first();
+				$transp->status = 2;
+				$transp->save();
+				if ($Request->hasFile('image') && !empty($Request->file('image'))) {
+					$file_name = time() . $Request->image->getClientOriginalName();
+					$Request->image->move($path, $file_name);
+					$data->loadcargo_photo = $file_name;
+				}
+
+			}
+			if($Request->status == "18"){ 
+
+				$ss =Shipment::where('shipment_no',$data->shipment_no)->first();
+                $ss->status =1;
+                // $ss->cargo_status = 1;
+                $ss->save();
+			
+				$data->unloadcargo_time = date('Y-m-d H:i');
+				$transp = Shipment_Transporter::where('shipment_no', $data->shipment_no)->where('transporter_id', $data->transporter_id)->first();
+				$transp->status = 2;
+				$transp->save();
+				if ($Request->hasFile('image') && !empty($Request->file('image'))) {
+					$file_name = time() . $Request->image->getClientOriginalName();
+					$Request->image->move($path, $file_name);
+					$data->unloadcargo_photo = $file_name;
+				}
+
+			}
 
 			if ($Request->status == "6") {
 
@@ -3426,7 +4369,12 @@ class ApiController extends Controller {
 
 				$ss = Shipment::where('shipment_no', $data->shipment_no)->first();
 				$ss->status = 1;
+				// $ss->cargo_status = 1;
 				$ss->save();
+
+				$transp = Shipment_Transporter::where('shipment_no', $data->shipment_no)->where('transporter_id', $data->transporter_id)->first();
+				$transp->status = 2;
+				$transp->save();
 
 				if ($Request->hasFile('image') && !empty($Request->file('image'))) {
 					$file_name = time() . $Request->image->getClientOriginalName();
@@ -3444,9 +4392,13 @@ class ApiController extends Controller {
 				/*$transp = Shipment_Transporter::where('shipment_no', $data->shipment_no)->where('transporter_id', $data->transporter_id)->first();
 				$transp->status = ;
 				$transp->save();*/
+				$transp = Shipment_Transporter::where('shipment_no', $data->shipment_no)->where('transporter_id', $data->transporter_id)->first();
+				$transp->status = 2;
+				$transp->save();
 
 				$ss = Shipment::where('shipment_no', $data->shipment_no)->first();
 				$ss->status = 1;
+				// $ss->cargo_status = 1;
 				$ss->save();
 
 				if ($Request->hasFile('image') && !empty($Request->file('image'))) {
@@ -3465,9 +4417,14 @@ class ApiController extends Controller {
 				/*$transp = Shipment_Transporter::where('shipment_no', $data->shipment_no)->where('transporter_id', $data->transporter_id)->first();
 				$transp->status = 8;
 				$transp->save();*/
+				$transp = Shipment_Transporter::where('shipment_no', $data->shipment_no)->where('transporter_id', $data->transporter_id)->first();
+				$transp->status = 2;
+				
+				$transp->save();
 
 				$ss = Shipment::where('shipment_no', $data->shipment_no)->first();
 				$ss->status = 1;
+				// $ss->cargo_status = 1;
 				$ss->save();
 
 				if ($Request->hasFile('image') && !empty($Request->file('image'))) {
@@ -3486,9 +4443,13 @@ class ApiController extends Controller {
 				/*$transp = Shipment_Transporter::where('shipment_no', $data->shipment_no)->where('transporter_id', $data->transporter_id)->first();
 				$transp->status = 9;
 				$transp->save();*/
+				$transp = Shipment_Transporter::where('shipment_no', $data->shipment_no)->where('transporter_id', $data->transporter_id)->first();
+				$transp->status = 2;
+				$transp->save();
 
 				$ss = Shipment::where('shipment_no', $data->shipment_no)->first();
 				$ss->status = 1;
+				// $ss->cargo_status = 1;
 				$ss->save();
 
 				if ($Request->hasFile('image') && !empty($Request->file('image'))) {
@@ -3508,8 +4469,13 @@ class ApiController extends Controller {
 				$transp->status = 10;
 				$transp->save();
 */
+				$transp = Shipment_Transporter::where('shipment_no', $data->shipment_no)->where('transporter_id', $data->transporter_id)->first();
+				$transp->status = 2;
+				$transp->save();
+
 				$ss = Shipment::where('shipment_no', $data->shipment_no)->first();
 				$ss->status = 1;
+				// $ss->cargo_status = 1;
 				$ss->save();
 
 				if ($Request->hasFile('image') && !empty($Request->file('image'))) {
@@ -3857,9 +4823,9 @@ class ApiController extends Controller {
 
 				$pdf = PDF::loadView('lr.yoginilr', compact('data', 'trucks'));
 
-				file_put_contents("public/pdf/" . $Request->shipment_no . ".pdf", $pdf->output());
+				file_put_contents("pdf/" . $Request->shipment_no . ".pdf", $pdf->output());
 
-				$path = env('APP_URL') . "/public/pdf/" . $Request->shipment_no . ".pdf";
+				$path = env('APP_URL') . "pdf/" . $Request->shipment_no . ".pdf";
 
 				return response()->json(['status' => 'success', 'message' => 'LR PDF Successfully Updated.', 'data' => $path, 'code' => '200'], 200);
 
@@ -3869,9 +4835,9 @@ class ApiController extends Controller {
 
 				$pdf = PDF::loadView('lr.ssilr', compact('data', 'trucks'));
 
-				file_put_contents("public/pdf/" . $Request->shipment_no . ".pdf", $pdf->output());
+				file_put_contents("pdf/" . $Request->shipment_no . ".pdf", $pdf->output());
 
-				$path = env('APP_URL') . "/public/pdf/" . $Request->shipment_no . ".pdf";
+				$path = env('APP_URL') . "pdf/" . $Request->shipment_no . ".pdf";
 
 				return response()->json(['status' => 'success', 'message' => 'LR PDF Successfully Updated.', 'data' => $path, 'code' => '200'], 200);
 
@@ -3879,9 +4845,9 @@ class ApiController extends Controller {
 
 				$pdf = PDF::loadView('lr.hanshlr', compact('data', 'trucks'));
 
-				file_put_contents("public/pdf/" . $Request->shipment_no . ".pdf", $pdf->output());
+				file_put_contents("pdf/" . $Request->shipment_no . ".pdf", $pdf->output());
 
-				$path = env('APP_URL') . "/public/pdf/" . $Request->shipment_no . ".pdf";
+				$path = env('APP_URL') . "pdf/" . $Request->shipment_no . ".pdf";
 
 				return response()->json(['status' => 'success', 'message' => 'LR PDF Successfully Updated.', 'data' => $path, 'code' => '200'], 200);
 
@@ -3889,9 +4855,9 @@ class ApiController extends Controller {
 
 				$pdf = PDF::loadView('lr.bmflr', compact('data', 'trucks'));
 
-				file_put_contents("public/pdf/" . $Request->shipment_no . ".pdf", $pdf->output());
+				file_put_contents("pdf/" . $Request->shipment_no . ".pdf", $pdf->output());
 
-				$path = env('APP_URL') . "/public/pdf/" . $Request->shipment_no . ".pdf";
+				$path = env('APP_URL') . "pdf/" . $Request->shipment_no . ".pdf";
 
 				return response()->json(['status' => 'success', 'message' => 'LR PDF Successfully Updated.', 'data' => $path, 'code' => '200'], 200);
 
@@ -3910,13 +4876,62 @@ class ApiController extends Controller {
 		try {
 
 			$check = $this->checkversion($Request->version);
-
+			$all = $Request->all();
 			if ($check == 1) {
 
 				return response()->json(['status' => 'failed', 'message' => 'Please Update This Application.', 'data' => json_decode('{}'), 'code' => '500'], 200);
 			}
+			if (isset($all['page']) && ($all['offset'])) {
+				//pagination coding
+				$page = 1;
+				$perPage = 10;
+				if (isset($all['page']) && !empty($all['page'])) {
+					$page = $all['page'];
+				}
+				if (isset($all['offset']) && !empty($all['offset'])) {
+					$perPage = $all['offset'];
+				}
+				$offset = ($page - 1) * $perPage;
+				
+				$data1 = Shipment::where('status', 3)->whereNull('deleted_at');
 
-			$data1 = Shipment::where('status', 3)->get();
+			$data = array();
+
+			
+				$data1 = $data1->paginate($perPage);
+
+				foreach ($data1 as $key => $value) {
+
+					$data1[$key] = $value;
+	
+					$com = Company::withTrashed()->findorfail($value->company);
+					$data1[$key]['company_name'] = $com->name;
+					$forw = Forwarder::withTrashed()->findorfail($value->forwarder);
+					$data1[$key]['forwarder'] = $forw->name;
+					if($value->trucktype !='' && $value->trucktype != 'null' && $value->trucktype != null) {
+					$tk = Truck::withTrashed()->findorfail($value->trucktype);
+					$data1[$key]['vehicle'] = $tk->name;
+					} else {
+					$data1[$key]['vehicle'] = '';
+	
+						}
+					$ware = Warehouse::withTrashed()->findorfail($value->warehouse_id);
+					$data1[$key]['warehouse_name'] = $ware->name;
+	
+				}
+				if (!empty($data1)) {
+					$message = 'WareHouse Shipment List Successfully.';
+					$dataa = $data1;
+					return $this->APIResponse->successWithPagination($message, $dataa);
+				}
+			
+			  else {
+					return $this->APIResponse->respondNotFound(__('No Record Found'));
+				}
+
+			}
+			else{
+			$data1 = Shipment::where('status', 3)->whereNull('deleted_at')->get();
 
 			$data = array();
 
@@ -3941,7 +4956,7 @@ class ApiController extends Controller {
 			}
 
 			return response()->json(['status' => 'success', 'message' => 'WareHouse Shipment List Successfully.', 'data' => $data, 'code' => '200'], 200);
-
+		}
 		} catch (\Exception $e) {
 
 			return response()->json(['status' => 'failed', 'message' => $e->getMessage(), 'data' => json_decode('{}'), 'code' => '500'], 200);
@@ -4043,7 +5058,7 @@ class ApiController extends Controller {
 			$summary = new Shipment_Summary();
 			$summary->shipment_no = $Request->shipment_no;
 			$summary->flag = "Add Expense";
-			$summary->transporter_id = $Request->transporter_id;
+			$summary->transporter_id = $Request->other_id;
 			$summary->description = "Add Expense.";
 			$summary->save();
 
@@ -4062,15 +5077,161 @@ class ApiController extends Controller {
 		try {
 
 			$check = $this->checkversion($Request->version);
-
+			$all = $Request->all();
 			if ($check == 1) {
 
 				return response()->json(['status' => 'failed', 'message' => 'Please Update This Application.', 'data' => json_decode('{}'), 'code' => '500'], 200);
 			}
+			if (isset($all['page']) && ($all['offset'])) {
+				//pagination coding
+				$page = 1;
+				$perPage = 10;
+				if (isset($all['page']) && !empty($all['page'])) {
+					$page = $all['page'];
+				}
+				if (isset($all['offset']) && !empty($all['offset'])) {
+					$perPage = $all['offset'];
+				}
+				$offset = ($page - 1) * $perPage;
+				
+				$data = array();
 
+			if ($Request->role == "admin" || $Request->role == "company") {
+
+				$data = Cargostatus::where('admin', 1);
+
+			}
+			if ($Request->role == "employee") {
+
+				$data = Cargostatus::where('employee', 1);
+
+			}
+			
+			// if ($Request->role == "transporter" || $Request->role == "driver") {
+			// 	$data = Cargostatus::where('transporter', 1);
+			// }
+			if ($Request->role == "transporter" || $Request->role == "driver") {
+				
+				if($Request->type == "import" && $Request->type1 == "FCL" ){
+					if($Request->status == "Pending"){
+						$data = Cargostatus::where('id','6');
+					}
+					if($Request->status == "Pickup Confirmed"){
+						$data = Cargostatus::where('id','12');
+					}
+					if($Request->status == "Reach at Port"){
+						$data = Cargostatus::where('id','14');
+					}
+					if($Request->status == "Load Container"){
+						$data = Cargostatus::where('id','9');
+					}
+					if($Request->status == "Document Received"){
+						$data = Cargostatus::where('id','7');
+					}
+					if($Request->status == "Reach at Company"){
+						$data = Cargostatus::where('id','18');
+					}
+					if($Request->status == "Unload Cargo"){
+						$data = Cargostatus::where('id','17');
+					}
+					if($Request->status == "Unload container"){
+						$data = Cargostatus::where('admin', 0);
+					}
+				} 
+				
+				if($Request->type == "import" && $Request->type1 == "LCL"){
+					if($Request->status == "Pending"){
+						$data = Cargostatus::where('id','6');
+					}
+					if($Request->status == "Pickup Confirmed"){
+						$data = Cargostatus::where('id','12');
+					}
+					if($Request->status == "Reach at Port"){
+						$data = Cargostatus::where('id','2');
+					}
+					if($Request->status == "Load (Damage, Missing)"){
+						$data = Cargostatus::where('id','9');
+					}
+					if($Request->status == "Document Received"){
+						$data = Cargostatus::where('id','13');
+					}
+					if($Request->status == "Truck Transfer and Reach at company"){
+						$data = Cargostatus::where('id','3');
+					}
+					if($Request->status == "Unloaded"){
+						$data = Cargostatus::where('admin', 0);
+					}
+				}
+				if($Request->type == "export" && $Request->type1 == "LCL"){
+					if($Request->status == "Pending"){
+						$data = Cargostatus::where('id','6');
+					}
+					if($Request->status == "Pickup Confirmed"){
+						$data = Cargostatus::where('id','7');
+					}
+					if($Request->status == "Reach at Company"){
+						$data = Cargostatus::where('id','2');
+					}
+					if($Request->status == "Load (Damage, Missing)"){
+						$data = Cargostatus::where('id','9');
+					}
+					if($Request->status == "Document Received"){
+						$data = Cargostatus::where('id','11');
+					}
+					if($Request->status == "Truck Transfer and Reach at port"){
+						$data = Cargostatus::where('id','3');
+					}
+					if($Request->status == "Unloaded"){
+						$data = Cargostatus::where('admin', 0);
+					}
+
+				}
+				if($Request->type == "export" && $Request->type1 == "FCL"){
+					if($Request->status == "Pending"){
+						$data = Cargostatus::where('id','6');
+					}
+					if($Request->status == "Pickup Confirmed"){
+						$data = Cargostatus::where('id','12');
+					}
+					if($Request->status == "Reach at Port"){
+						$data = Cargostatus::where('id','14');
+					}
+					if($Request->status == "Load Container"){
+						$data = Cargostatus::where('id','7');
+					}
+					if($Request->status == "Reach at Company"){
+						$data = Cargostatus::where('id','15');
+					}
+					if($Request->status == "Load Cargo"){
+						$data = Cargostatus::where('id','9');
+					}
+					if($Request->status == "Document Received"){
+						$data = Cargostatus::where('id','17');
+					}
+					if($Request->status == "Unload container"){
+						$data = Cargostatus::where('admin', 0);
+					}
+				}
+
+			}
+				$data = $data->paginate($perPage);
+
+				
+				if (!empty($data)) {
+					$message = 'Cargo Status List Successfully.';
+					$dataa = $data;
+					return $this->APIResponse->successWithPagination($message, $dataa);
+				}
+			
+			  else {
+					return $this->APIResponse->respondNotFound(__('No Record Found'));
+				}
+
+			}
+			else{
 			$data = array();
 
-			if ($Request->role == "admin") {
+			if ($Request->role == "admin" || $Request->role == "company") {
 
 				$data = Cargostatus::where('admin', 1)->get();
 
@@ -4080,14 +5241,117 @@ class ApiController extends Controller {
 				$data = Cargostatus::where('employee', 1)->get();
 
 			}
+			// if ($Request->role == "transporter" || $Request->role == "driver") {
+			// 	$data = Cargostatus::where('transporter', 1)->get();
+			// }
 			if ($Request->role == "transporter" || $Request->role == "driver") {
 
-				$data = Cargostatus::where('transporter', 1)->get();
+				if($Request->type == "import" && $Request->type1 == "FCL" ){
+					if($Request->status == "Pending"){
+						$data = Cargostatus::where('id','6')->get();
+					}
+					if($Request->status == "Pickup Confirmed"){
+						$data = Cargostatus::where('id','12')->get();
+					}
+					if($Request->status == "Reach at Port"){
+						$data = Cargostatus::where('id','14')->get();
+					}
+					if($Request->status == "Load Container"){
+						$data = Cargostatus::where('id','9')->get();
+					}
+					if($Request->status == "Document Received"){
+						$data = Cargostatus::where('id','7')->get();
+					}
+					if($Request->status == "Reach at Company"){
+						$data = Cargostatus::where('id','18')->get();
+					}
+					if($Request->status == "Unload Cargo"){
+						$data = Cargostatus::where('id','17')->get();
+					}
+					if($Request->status == "Unload container"){
+						$data = Cargostatus::where('admin', 0)->get();
+					}
+				}
+
+				if($Request->type == "import" && $Request->type1 == "LCL"){
+					if($Request->status == "Pending"){
+						$data = Cargostatus::where('id','6')->get();
+					}
+					if($Request->status == "Pickup Confirmed"){
+						$data = Cargostatus::where('id','12')->get();
+					}
+					if($Request->status == "Reach at Port"){
+						$data = Cargostatus::where('id','2')->get();
+					}
+					if($Request->status == "Load (Damage, Missing)"){
+						$data = Cargostatus::where('id','9')->get();
+					}
+					if($Request->status == "Document Received"){
+						$data = Cargostatus::where('id','13')->get();
+					}
+					if($Request->status == "Truck Transfer and Reach at company"){
+						$data = Cargostatus::where('id','3')->get();
+					}
+					if($Request->status == "Unloaded"){
+						$data = Cargostatus::where('admin', 0)->get();
+					}
+				}
+				
+				if($Request->type == "export" && $Request->type1 == "LCL"){
+					if($Request->status == "Pending"){
+						$data = Cargostatus::where('id','6')->get();
+					}
+					if($Request->status == "Pickup Confirmed"){
+						$data = Cargostatus::where('id','7')->get();
+					}
+					if($Request->status == "Reach at Company"){
+						$data = Cargostatus::where('id','2')->get();
+					}
+					if($Request->status == "Load (Damage, Missing)"){
+						$data = Cargostatus::where('id','9')->get();
+					}
+					if($Request->status == "Document Received"){
+						$data = Cargostatus::where('id','11')->get();
+					}
+					if($Request->status == "Truck Transfer and Reach at port"){
+						$data = Cargostatus::where('id','3')->get();
+					}
+					if($Request->status == "Unloaded"){
+						$data = Cargostatus::where('admin', 0)->get();
+					}
+
+				}
+				if($Request->type == "export" && $Request->type1 == "FCL"){
+					if($Request->status == "Pending"){
+						$data = Cargostatus::where('id','6')->get();
+					}
+					if($Request->status == "Pickup Confirmed"){
+						$data = Cargostatus::where('id','12')->get();
+					}
+					if($Request->status == "Reach at Port"){
+						$data = Cargostatus::where('id','14')->get();
+					}
+					if($Request->status == "Load Container"){
+						$data = Cargostatus::where('id','7')->get();
+					}
+					if($Request->status == "Reach at Company"){
+						$data = Cargostatus::where('id','15')->get();
+					}
+					if($Request->status == "Load Cargo"){
+						$data = Cargostatus::where('id','9')->get();
+					}
+					if($Request->status == "Document Received"){
+						$data = Cargostatus::where('id','17')->get();
+					}
+					if($Request->status == "Unload container"){
+						$data = Cargostatus::where('admin', 0)->get();
+					}
+				}
 
 			}
 
 			return response()->json(['status' => 'success', 'message' => 'Cargo Status List Successfully.', 'data' => $data, 'code' => '200'], 200);
-
+		}
 		} catch (\Exception $e) {
 
 			return response()->json(['status' => 'failed', 'message' => $e->getMessage(), 'data' => json_decode('{}'), 'code' => '500'], 200);
@@ -4101,29 +5365,85 @@ class ApiController extends Controller {
 		try {
 
 			$check = $this->checkversion($Request->version);
-
+			$all = $Request->all();
 			if ($check == 1) {
 
 				return response()->json(['status' => 'failed', 'message' => 'Please Update This Application.', 'data' => json_decode('{}'), 'code' => '500'], 200);
 			}
+			if (isset($all['page']) && ($all['offset'])) {
+				//pagination coding
+				$page = 1;
+				$perPage = 10;
+				if (isset($all['page']) && !empty($all['page'])) {
+					$page = $all['page'];
+				}
+				if (isset($all['offset']) && !empty($all['offset'])) {
+					$perPage = $all['offset'];
+				}
+				$offset = ($page - 1) * $perPage;
+				
+				$data = array();
+		
+			if ($Request->role == "admin" || $Request->role == 'company') {
 
-			$data = array();
-
-			if ($Request->role == "admin") {
-
-				$data1 = Shipment_Driver::where('shipment_no', $Request->shipment_no)->get();
+				$data1 = Shipment_Driver::where('shipment_no', $Request->shipment_no)->whereNull('deleted_at');
 
 			}
 
 			if ($Request->role == "transporter") {
 
-				$data1 = Shipment_Driver::where('shipment_no', $Request->shipment_no)->where('transporter_id', $Request->other_id)->get();
+				$data1 = Shipment_Driver::where('shipment_no', $Request->shipment_no)->where('transporter_id', $Request->other_id)->whereNull('deleted_at');
 
 			}
 
 			if ($Request->role == "driver") {
 
-				$data1 = Shipment_Driver::where('driver_id', $Request->user_id)->where('shipment_no', $Request->shipment_no)->where('transporter_id', $Request->other_id)->get();
+				$data1 = Shipment_Driver::where('driver_id', $Request->user_id)->where('shipment_no', $Request->shipment_no)->where('transporter_id', $Request->other_id)->whereNull('deleted_at');
+
+			}
+
+			
+
+				$data1 = $data1->paginate($perPage);
+
+				foreach ($data1 as $key => $value) {
+
+					
+					$trans = Transporter::findorfail($value->transporter_id);
+					$data1[$key]['name'] = $trans->name;
+					$cargo = Cargostatus::findorfail($value->status);
+					$data1[$key]['status_name'] = $cargo->name;
+				}
+
+				if (!empty($data1)) {
+					$message = 'Trucks List Successfully.';
+					$dataa = $data1;
+					return $this->APIResponse->successWithPagination($message, $dataa);
+				}
+			
+			  else {
+					return $this->APIResponse->respondNotFound(__('No Record Found'));
+				}
+
+			}
+			else{
+			$data = array();
+		
+			if ($Request->role == "admin" || $Request->role == 'company') {
+
+				$data1 = Shipment_Driver::where('shipment_no', $Request->shipment_no)->whereNull('deleted_at')->get();
+
+			}
+
+			if ($Request->role == "transporter") {
+
+				$data1 = Shipment_Driver::where('shipment_no', $Request->shipment_no)->whereNull('deleted_at')->where('transporter_id', $Request->other_id)->get();
+
+			}
+
+			if ($Request->role == "driver") {
+
+				$data1 = Shipment_Driver::where('driver_id', $Request->user_id)->where('shipment_no', $Request->shipment_no)->where('transporter_id', $Request->other_id)->whereNull('deleted_at')->get();
 
 			}
 
@@ -4141,7 +5461,7 @@ class ApiController extends Controller {
 			}
 
 			return response()->json(['status' => 'success', 'message' => 'Trucks List Successfully.', 'data' => $data, 'code' => '200'], 200);
-
+		}
 		} catch (\Exception $e) {
 
 			return response()->json(['status' => 'failed', 'message' => $e->getMessage(), 'data' => json_decode('{}'), 'code' => '500'], 200);
@@ -4450,7 +5770,7 @@ class ApiController extends Controller {
 
 			$data = array();
 
-			if ($Request->role == "admin" && $Request->company_id == "" && $Request->transporter_id == "" && $Request->forwarder_id == "") {
+			if ($Request->role == "admin" || $Request->role == 'company' && $Request->other_id == "" && $Request->other_id == "" && $Request->other_id == "") {
 
 				/* $from = date('2020-01-01');
 
@@ -4495,82 +5815,82 @@ class ApiController extends Controller {
 
             	$data['pl_report'] = $total_credit;
 
-				$data['pending'] = Shipment::where('status', 0)->count();
+				$data['pending'] = Shipment::where('status', 0)->whereNull('deleted_at')->count();
 
-				$data['ontheway'] = Shipment::where('status', 1)->count();
+				$data['ontheway'] = Shipment::where('status', 1)->whereNull('deleted_at')->count();
 
-				$data['bill_status'] = Invoice::where('paid', 0)->count();
+				$data['bill_status'] = Invoice::where('paid', 0)->whereNull('deleted_at')->count();
 
 				//dd($data);
 
-			} else if ($Request->role == "admin" && $Request->company_id != "" && $Request->company_id != null && $Request->company_id != "null") {
+			} else if ($Request->role == "admin" || $Request->role == 'company' && $Request->other_id != "" && $Request->other_id != null && $Request->other_id != "null") {
 
 				$from = date('Y-04-01');
 
 				$to = date('Y-m-d');
 
-				$total_credit1 = Account::where('to_company', $Request->company_id)->whereBetween('dates', [$from, $to])->sum('credit');
+				$total_credit1 = Account::where('to_company', $Request->other_id)->whereNull('deleted_at')->whereBetween('dates', [$from, $to])->sum('credit');
 
-				$total_credit2 = Account::where('to_company', $Request->company_id)->whereBetween('dates', [$from, $to])->sum('debit');
+				$total_credit2 = Account::where('to_company', $Request->other_id)->whereNull('deleted_at')->whereBetween('dates', [$from, $to])->sum('debit');
 
 				$total_credit = $total_credit1 + $total_credit2;
 
 				$data['pl_report'] = $total_credit;
 
-				$data['pending'] = Shipment::where('status', 0)->where('company', $Request->company_id)->count();
+				$data['pending'] = Shipment::where('status', 0)->whereNull('deleted_at')->where('company', $Request->other_id)->count();
 
-				$data['ontheway'] = Shipment::where('status', 1)->where('company', $Request->company_id)->count();
+				$data['ontheway'] = Shipment::where('status', 1)->whereNull('deleted_at')->where('company', $Request->other_id)->count();
 
-				$data['bill_status'] = Invoice::where('paid', 0)->where('company_id', $Request->company_id)->count();
+				$data['bill_status'] = Invoice::where('paid', 0)->whereNull('deleted_at')->where('company_id', $Request->other_id)->count();
 
-			} else if ($Request->role == "employee" && $Request->company_id != "" && $Request->company_id != null && $Request->company_id != "null") {
+			} else if ($Request->role == "employee" && $Request->other_id != "" && $Request->other_id != null && $Request->other_id != "null") {
 
 				$from = date('Y-04-01');
 
 				$to = date('Y-m-d');
 
-				$total_credit1 = Account::where('to_company', $Request->company_id)->whereBetween('dates', [$from, $to])->sum('credit');
+				$total_credit1 = Account::where('to_company', $Request->other_id)->whereNull('deleted_at')->whereBetween('dates', [$from, $to])->sum('credit');
 
-				$total_credit2 = Account::where('to_company', $Request->company_id)->whereBetween('dates', [$from, $to])->sum('debit');
+				$total_credit2 = Account::where('to_company', $Request->other_id)->whereNull('deleted_at')->whereBetween('dates', [$from, $to])->sum('debit');
 
 				$total_credit = $total_credit1 + $total_credit2;
 
 				$data['pl_report'] = $total_credit;
 
-				$data['pending'] = Shipment::where('status', 0)->where('company', $Request->company_id)->count();
+				$data['pending'] = Shipment::where('status', 0)->whereNull('deleted_at')->where('company', $Request->other_id)->count();
 
-				$data['ontheway'] = Shipment::where('status', 1)->where('company', $Request->company_id)->count();
+				$data['ontheway'] = Shipment::where('status', 1)->whereNull('deleted_at')->where('company', $Request->other_id)->count();
 
-				$data['bill_status'] = Invoice::where('paid', 0)->where('company_id', $Request->company_id)->count();
+				$data['bill_status'] = Invoice::where('paid', 0)->whereNull('deleted_at')->where('company_id', $Request->other_id)->count();
 
 			} else if ($Request->role == "transporter") {
-				$pending = Shipment_Transporter::where('status', 1)->where('transporter_id', $Request->transporter_id)->get();
+				$pending = Shipment_Transporter::where('status', 1)->whereNull('deleted_at')->where('transporter_id', $Request->other_id)->get();
 				$pending1 = array();
 				foreach ($pending as $key => $value) {
-					$pending1[$key] = Shipment::where('shipment_no', $value->shipment_no)->first();
+					$pending1[$key] = Shipment::where('shipment_no', $value->shipment_no)->whereNull('deleted_at')->first();
 				}
 				$data['pending'] = count($pending1);
-				$ontheway = Shipment_Transporter::where('status', 2)->where('transporter_id', $Request->transporter_id)->get();
+				$ontheway = Shipment_Transporter::where('status', 2)->whereNull('deleted_at')->where('transporter_id', $Request->other_id)->get();
 				$ontheway1 = array();
 				foreach ($ontheway as $key => $value) {
-					$ontheway1[$key] = Shipment::where('shipment_no', $value->shipment_no)->first();
+					$ontheway1[$key] = Shipment::where('shipment_no', $value->shipment_no)->whereNull('deleted_at')->first();
 				}
 				$data['ontheway'] = count($ontheway1);
-				$delivery = Shipment_Transporter::where('status', 3)->where('transporter_id', $Request->transporter_id)->get();
+				$delivery = Shipment_Transporter::where('status', 3)->whereNull('deleted_at')->where('transporter_id', $Request->other_id)->get();
 				$delivery1 = array();
 				foreach ($delivery as $key => $value) {
-					$delivery1[$key] = Shipment::where('shipment_no', $value->shipment_no)->first();
+					$delivery1[$key] = Shipment::where('shipment_no', $value->shipment_no)->whereNull('deleted_at')->first();
 				}
 				$data['delivery'] = count($delivery1);
 			} else if ($Request->role == "forwarder") {
 
-				$data['total'] = Shipment::where('forwarder', $Request->forwarder_id)->count();
+				$data['total'] = Shipment::where('forwarder', $Request->other_id)->whereNull('deleted_at')->count();
 
-				$data['pending'] = Shipment::where('status', 0)->where('forwarder', $Request->forwarder_id)->count();
+				$data['pending'] = Shipment::where('status', 0)->whereNull('deleted_at')->where('forwarder', $Request->other_id)->count();
 
-				$data['delivery'] = Shipment::where('status', 2)->where('forwarder', $Request->forwarder_id)->count();
+				$data['delivery'] = Shipment::where('status', 2)->whereNull('deleted_at')->where('forwarder', $Request->other_id)->count();
 
-				$data['remaining'] = Shipment::where('paid', 0)->where('forwarder', $Request->forwarder_id)->sum('invoice_amount');
+				$data['remaining'] = Shipment::where('paid', 0)->whereNull('deleted_at')->where('forwarder', $Request->other_id)->sum('invoice_amount');
 			}
 
 			return response()->json(['status' => 'success', 'message' => 'Dashboard Data Success.', 'data' => $data, 'code' => '200'], 200);
@@ -4588,32 +5908,74 @@ class ApiController extends Controller {
 		try {
 
 			$check = $this->checkversion($Request->version);
-
+			$all = $Request->all();
 			if ($check == 1) {
 
 				return response()->json(['status' => 'failed', 'message' => 'Please Update This Application.', 'data' => json_decode('{}'), 'code' => '500'], 200);
 			}
+			if (isset($all['page']) && ($all['offset'])) {
+				//pagination coding
+				$page = 1;
+				$perPage = 10;
+				if (isset($all['page']) && !empty($all['page'])) {
+					$page = $all['page'];
+				}
+				if (isset($all['offset']) && !empty($all['offset'])) {
+					$perPage = $all['offset'];
+				}
+				$offset = ($page - 1) * $perPage;
+				
+				$data = array();
 
+				if ($Request->month != "" && $Request->year != "") {
+
+			
+					$data1 = Shipment_Transporter::leftJoin('shipment','shipment.id','=','shipment_transporter.shipment_id')->where('shipment_transporter.transporter_id', $Request->other_id)->where('shipment_transporter.status', 3)->whereYear('shipment_transporter.created_at', $Request->year)->whereNull('shipment_transporter.deleted_at')->whereMonth('shipment_transporter.created_at', $Request->month);
+	
+				}
+				$data1 = $data1->paginate($perPage);
+				foreach ($data1 as $key => $value) {
+	
+					//$ship_data = Shipment::where('shipment_no', $value->shipment_no)->first();
+
+					if ($value->status == 2) {
+						$data1[$key] = $value;
+						$data1[$key]['expense'] = $value->expense;
+					}
+				}
+				
+				if (!empty($data1)) {
+					$message = 'Data Success.';
+					$dataa = $data1;
+					return $this->APIResponse->successWithPagination($message, $dataa);
+				}
+			
+			  else {
+					return $this->APIResponse->respondNotFound(__('No Record Found'));
+				}
+
+			}
+			else{
 			$data = array();
 
 			if ($Request->month != "" && $Request->year != "") {
 
-				$data1 = Shipment_Transporter::where('transporter_id', $Request->transporter_id)->where('status', 3)->whereYear('created_at', $Request->year)->whereMonth('created_at', $Request->month)->get();
+				$data1 = Shipment_Transporter::where('transporter_id', $Request->other_id)->where('status', 3)->whereYear('created_at', $Request->year)->whereNull('deleted_at')->whereMonth('created_at', $Request->month)->get();
 
 				foreach ($data1 as $key => $value) {
 
 					$ship_data = Shipment::where('shipment_no', $value->shipment_no)->first();
 
 					if ($ship_data->status == 2) {
-						$data[$key] = $ship_data;
-						$data[$key]['expense'] = $value->expense;
+						$data1[$key] = $ship_data;
+						$data1[$key]['expense'] = $value->expense;
 					}
 				}
 
 			}
 
-			return response()->json(['status' => 'success', 'message' => 'Data Success.', 'data' => $data, 'code' => '200'], 200);
-
+			return response()->json(['status' => 'success', 'message' => 'Data Success.', 'data' => $data1, 'code' => '200'], 200);
+		}
 		} catch (\Exception $e) {
 
 			return response()->json(['status' => 'failed', 'message' => $e->getMessage(), 'data' => json_decode('{}'), 'code' => '500'], 200);
@@ -4627,19 +5989,589 @@ class ApiController extends Controller {
 		try {
 
 			$check = $this->checkversion($Request->version);
-
+			$all = $Request->all();
 			if ($check == 1) {
 
 				return response()->json(['status' => 'failed', 'message' => 'Please Update This Application.', 'data' => json_decode('{}'), 'code' => '500'], 200);
 			}
+			if (isset($all['page']) && ($all['offset'])) {
+				//pagination coding
+				$page = 1;
+				$perPage = 10;
+				if (isset($all['page']) && !empty($all['page'])) {
+					$page = $all['page'];
+				}
+				if (isset($all['offset']) && !empty($all['offset'])) {
+					$perPage = $all['offset'];
+				}
+				$offset = ($page - 1) * $perPage;
+				$data = array();
 
-			$data = array();
+				if ($Request->role == "admin" || $Request->role == "employee") {
+	
+					if ($Request->keyword != "" && $Request->keyword != " " && $Request->keyword != "null" && $Request->keyword != null) {
+	
+						$data1 = Shipment::where('shipment_no', 'like', '%' . $Request->keyword . '%')->orwhere('from1', 'like', '%' . $Request->keyword . '%')->orwhere('to1', 'like', '%' . $Request->keyword . '%')->orwhere('to2', 'like', '%' . $Request->keyword . '%')->orwhere('consignor', 'like', '%' . $Request->keyword . '%')->orwhere('consignee', 'like', '%' . $Request->keyword . '%')->orwhere('shipper_invoice', 'like', '%' . $Request->keyword . '%')->orwhere('forwarder_ref_no', 'like', '%' . $Request->keyword . '%')->orwhere('b_e_no', 'like', '%' . $Request->keyword . '%')->whereNull('deleted_at')->orderby('shipment_no', 'desc');
+						$data1 = $data1->paginate($perPage);
+						foreach ($data1 as $key => $value) {
+	
+							$data1[$key] = $value;
+	
+							$com = Company::withTrashed()->findorfail($value->company);
+	
+							$data1[$key]['company_name'] = $com->name;
+	
+							$forw = Forwarder::withTrashed()->findorfail($value->forwarder);
+	
+							$data1[$key]['forwarder_name'] = $forw->name;
+	
+							if($value->trucktype !='' && $value->trucktype != 'null' && $value->trucktype != null) {
+	
+							$tk = Truck::withTrashed()->findorfail($value->trucktype);
+	
+							$data1[$key]['vehicle'] = $tk->name;
+	
+							} else {
+	
+							$data1[$key]['vehicle'] = '';
+	
+							}
+	
+							if ($value->status == 0) {
+	
+								$data1[$key]['status'] = "pending";
+	
+							} elseif ($value->status == 1) {
+	
+								$data1[$key]['status'] = "ontheway";
+	
+							} elseif ($value->status == 2) {
+	
+								$data1[$key]['status'] = "delivery";
+	
+							} elseif ($value->status == 3) {
+	
+								$data1[$key]['status'] = "warehouse";
+	
+							}
+	
+						}
+	
+					} else if ($Request->shipment_no != "" && $Request->shipment_no != " " && $Request->shipment_no != "null" && $Request->shipment_no != null) {
+	
+						$data1 = Shipment::where('shipment_no', $Request->shipment_no)->whereNull('deleted_at');
+	
+						$com = Company::withTrashed()->findorfail($data1->company);
+	
+						$data1['company_name'] = $com->name;
+	
+						$forw = Forwarder::withTrashed()->findorfail($data1->forwarder);
+	
+						$data1['forwarder_name'] = $forw->name;
+	
+						if($data1->trucktype !='' && $data1->trucktype != 'null' && $data1->trucktype != null) {
+	
+						$tk = Truck::withTrashed()->findorfail($data1->trucktype);
+	
+						$data1['vehicle'] = $tk->name;
+	
+						} else {
+	
+							$data1[$key]['vehicle'] = '';
+	
+						}
+	
+						if ($data1->status == 0) {
+	
+							$data1['status'] = "pending";
+	
+						} elseif ($data1->status == 1) {
+	
+							$data1['status'] = "ontheway";
+	
+						} elseif ($data1->status == 2) {
+	
+							$data1['status'] = "delivery";
+	
+						} elseif ($data1->status == 3) {
+	
+							$data1['status'] = "warehouse";
+	
+						}
+	
+						$data = array($data1);
+	
+					} elseif ($Request->forwarder != "" && $Request->forwarder != " " && $Request->forwarder != "null" && $Request->forwarder != null) {
+	
+						$data1 = Shipment::where('forwarder', $Request->forwarder)->whereNull('deleted_at')->orderby('shipment_no', 'desc');
+						$data1 = $data1->paginate($perPage);
+						foreach ($data1 as $key => $value) {
+	
+							$data1[$key] = $value;
+	
+							$com = Company::withTrashed()->findorfail($value->company);
+	
+							$data1[$key]['company_name'] = $com->name;
+	
+							$forw = Forwarder::withTrashed()->findorfail($value->forwarder);
+	
+							$data1[$key]['forwarder_name'] = $forw->name;
+	
+							if($value->trucktype !='' && $value->trucktype != 'null' && $value->trucktype != null) {
+	
+							$tk = Truck::withTrashed()->findorfail($value->trucktype);
+	
+							$data1[$key]['vehicle'] = $tk->name;
+	
+							} else {
+							
+							$data1[$key]['vehicle'] = '';
+	
+							}
+	
+							if ($value->status == 0) {
+	
+								$data1[$key]['status'] = "pending";
+	
+							} elseif ($value->status == 1) {
+	
+								$data1[$key]['status'] = "ontheway";
+	
+							} elseif ($value->status == 2) {
+	
+								$data1[$key]['status'] = "delivery";
+	
+							} elseif ($value->status == 3) {
+	
+								$data1[$key]['status'] = "warehouse";
+	
+							}
+	
+						}
+	
+					} elseif ($Request->transporter != "" && $Request->transporter != " " && $Request->transporter != "null" && $Request->transporter != null) {
+	
+						$data1 = Shipment_Transporter::where('transporter_id', $Request->transporter)->whereNull('deleted_at')->orderby('shipment_no', 'desc');
+						$data1 = $data1->paginate($perPage);
+						foreach ($data1 as $key => $value) {
+	
+							$data2 = Shipment::where('shipment_no', $value->shipment_no)->first();
+	
+							$data1[$key] = $data2;
+	
+							$com = Company::withTrashed()->findorfail($data2->company);
+	
+							$data1[$key]['company_name'] = $com->name;
+	
+							$forw = Forwarder::withTrashed()->findorfail($data2->forwarder);
+	
+							$data1[$key]['forwarder_name'] = $forw->name;
+	
+							if($data2->trucktype !='' && $data2->trucktype != 'null' && $data2->trucktype != null) {
+	
+							$tk = Truck::withTrashed()->findorfail($data2->trucktype);
+	
+							$data1[$key]['vehicle'] = $tk->name;
+	
+							} else {
+							
+							$data1[$key]['vehicle'] = '';
+	
+							}
+	
+							if ($data2->status == 0) {
+	
+								$data1[$key]['status'] = "pending";
+	
+							} elseif ($data2->status == 1) {
+	
+								$data1[$key]['status'] = "ontheway";
+	
+							} elseif ($data2->status == 2) {
+	
+								$data1[$key]['status'] = "delivery";
+	
+							} elseif ($data2->status == 3) {
+	
+								$data1[$key]['status'] = "warehouse";
+	
+							}
+	
+						}
+	
+					} elseif ($Request->date != "" && $Request->date != " " && $Request->date != "null" && $Request->date != null) {
+	
+						$date = date('d-m-Y', strtotime($Request->date . "-" . $Request->month . "-" . $Request->year));
+	
+						$data1 = Shipment::where('date', $date)->get();
+						$data1 = $data1->paginate($perPage);
+						foreach ($data1 as $key => $value) {
+	
+							$data2 = Shipment::where('shipment_no', $value->shipment_no)->first();
+	
+							$data1[$key] = $data2;
+	
+							$com = Company::withTrashed()->findorfail($data2->company);
+	
+							$data1[$key]['company_name'] = $com->name;
+	
+							$forw = Forwarder::withTrashed()->findorfail($data2->forwarder);
+	
+							$data1[$key]['forwarder_name'] = $forw->name;
+	
+							if($data2->trucktype !='' && $data2->trucktype != 'null' && $data2->trucktype != null) {
+	
+							$tk = Truck::withTrashed()->findorfail($data2->trucktype);
+	
+							$data1[$key]['vehicle'] = $tk->name;
+	
+							} else {
+	
+							$data1[$key]['vehicle'] = '';
+	
+							}
+	
+							if ($data2->status == 0) {
+	
+								$data1[$key]['status'] = "pending";
+	
+							} elseif ($data2->status == 1) {
+	
+								$data11[$key]['status'] = "ontheway";
+	
+							} elseif ($data2->status == 2) {
+	
+								$data1[$key]['status'] = "delivery";
+	
+							} elseif ($data2->status == 3) {
+	
+								$data1[$key]['status'] = "warehouse";
+	
+							}
+	
+						}
+	
+					} elseif ($Request->month != "" && $Request->month != " " && $Request->month != "null" && $Request->month != null) {
+	
+						$data1 = Shipment::whereYear('date', $Request->year)->whereNull('deleted_at')->whereMonth('date', $Request->month)->orderby('date', 'desc');
+						$data1 = $data1->paginate($perPage);
+						foreach ($data1 as $key => $value) {
+	
+							$data1[$key] = $value;
+	
+							$com = Company::withTrashed()->findorfail($value->company);
+	
+							$data1[$key]['company_name'] = $com->name;
+	
+							$forw = Forwarder::withTrashed()->findorfail($value->forwarder);
+	
+							$data1[$key]['forwarder_name'] = $forw->name;
+	
+							if($value->trucktype !='' && $value->trucktype != 'null' && $value->trucktype != null) {
+	
+							$tk = Truck::withTrashed()->findorfail($value->trucktype);
+	
+							$data1[$key]['vehicle'] = $tk->name;
+	
+							} else {
+	
+							$data1[$key]['vehicle'] = '';
+	
+						}
+	
+							if ($value->status == 0) {
+	
+								$data1[$key]['status'] = "pending";
+	
+							} elseif ($value->status == 1) {
+	
+								$data1[$key]['status'] = "ontheway";
+	
+							} elseif ($value->status == 2) {
+	
+								$data1[$key]['status'] = "delivery";
+	
+							} elseif ($value->status == 3) {
+	
+								$data1[$key]['status'] = "warehouse";
+	
+							}
+	
+						}
+	
+					} elseif ($Request->year != "" && $Request->year != " " && $Request->year != "null" && $Request->year != null) {
+	
+						$data1 = Shipment::whereYear('date', $Request->year)->whereNull('deleted_at')->orderby('date', 'desc');
+						$data1 = $data1->paginate($perPage);
+						foreach ($data1 as $key => $value) {
+	
+							$data1[$key] = $value;
+	
+							$com = Company::withTrashed()->findorfail($value->company);
+	
+							$data1[$key]['company_name'] = $com->name;
+	
+							$forw = Forwarder::withTrashed()->findorfail($value->forwarder);
+	
+							$data1[$key]['forwarder_name'] = $forw->name;
+	
+							if($value->trucktype !='' && $value->trucktype != 'null' && $value->trucktype != null) {
+	
+							$tk = Truck::withTrashed()->findorfail($value->trucktype);
+	
+							$data1[$key]['vehicle'] = $tk->name;
+	
+							} else {
+	
+							$data1[$key]['vehicle'] = '';
+	
+						}
+	
+							if ($value->status == 0) {
+	
+								$data1[$key]['status'] = "pending";
+	
+							} elseif ($value->status == 1) {
+	
+								$data1[$key]['status'] = "ontheway";
+	
+							} elseif ($value->status == 2) {
+	
+								$data1[$key]['status'] = "delivery";
+	
+							} elseif ($value->status == 3) {
+	
+								$data1[$key]['status'] = "warehouse";
+	
+							}
+	
+						}
+	
+					}
+	
+				} 
+				elseif ($Request->role == "transporter") {
+	
+					if ($Request->month != "" && $Request->year != "") {
+	
+	
+						$data1 = Shipment::rightJoin('shipment_driver','shipment_driver.shipment_no','=','shipment.shipment_no')
+						->where('shipment_driver.transporter_id', $Request->other_id)->whereYear('shipment_driver.created_at', $Request->year)
+						->whereMonth('shipment_driver.created_at', $Request->month)->whereIn('shipment.status',['0','1','2'])->whereNull('shipment_driver.deleted_at')
+						->orderby('shipment_driver.id', 'desc');
 
+						$data1 = $data1->paginate($perPage);
+						foreach ($data1 as $key => $value) {
+	
+							$data[$key] = Shipment::where('shipment_no', $value->shipment_no)->first();
+							$data1[$key]['id'] = $data[$key]->id ;
+							$data1[$key]['myid'] = $data[$key]->myid ;
+							$data1[$key]['expense'] = $value->expense;
+	
+							
+	
+							if ($value->status == 1) {
+
+								$data1[$key]['status'] = "pending";
+	
+							} elseif ($value->status == 2 || $value->status == 4 ||$value->status == 5 ||$value->status == 6 ||$value->status == 7
+							||$value->status == 8 ||$value->status == 9 || $value->status == 10 || $value->status == 11 || $value->status == 12
+							||$value->status == 13 ||$value->status == 14 || $value->status == 15 || $value->status == 18) {
+	
+								$data1[$key]['status'] = "ontheway";
+	
+							} elseif ($value->status == 3 || $value->status == 17) {
+	
+								$data1[$key]['status'] = "delivery";
+	
+							}
+	
+						}
+	
+					}
+	
+				}
+				elseif($Request->role == "company"){
+					if ($Request->month != "" && $Request->year != "") {
+						$data1 = Shipment::whereYear('created_at', $Request->year)->whereMonth('created_at', $Request->month)->where('company',$Request->other_id)->whereNull('deleted_at')->orderby('date', 'desc');
+						if($Request->status == "pending"){
+							$data1 = $data1->where('status','0');
+						}
+						if($Request->status == "ontheway"){
+							$data1 = $data1->where('status','1');
+						}
+						if($Request->status == "delivered"){
+							$data1 = $data1->where('status','2');
+						}
+					}
+					else{
+						$data1 = Shipment::where('company',$Request->other_id)->whereNull('deleted_at')->orderby('date', 'desc');
+						if($Request->status == "pending"){
+							$data1 = $data1->where('status','0');
+						}
+						if($Request->status == "ontheway"){
+							$data1 = $data1->where('status','1');
+						}
+						if($Request->status == "delivered"){
+							$data1 = $data1->where('status','2');
+						}
+					}
+						$data1 = $data1->paginate($perPage);
+						foreach ($data1 as $key => $value) {
+	
+							$data1[$key] = $value;
+	
+							$com = Company::withTrashed()->findorfail($value->company);
+	
+							$data1[$key]['company_name'] = $com->name;
+	
+							$forw = Forwarder::withTrashed()->findorfail($value->forwarder);
+	
+							$data1[$key]['forwarder_name'] = $forw->name;
+	
+							if($value->trucktype !='' && $value->trucktype != 'null' && $value->trucktype != null) {
+	
+							$tk = Truck::withTrashed()->findorfail($value->trucktype);
+	
+							$data1[$key]['vehicle'] = $tk->name;
+	
+							} else {
+	
+							$data1[$key]['vehicle'] = '';
+	
+						}
+	
+							if ($value->status == 0) {
+	
+								$data1[$key]['status'] = "pending";
+	
+							} elseif ($value->status == 1) {
+	
+								$data1[$key]['status'] = "ontheway";
+	
+							} elseif ($value->status == 2) {
+	
+								$data1[$key]['status'] = "delivery";
+	
+							} elseif ($value->status == 3) {
+	
+								$data1[$key]['status'] = "warehouse";
+	
+							}
+	
+						}
+	
+					
+	
+				}
+				elseif ($Request->role == "driver") {
+	
+					if ($Request->month != "" && $Request->year != "") {
+	
+						$data1 = Shipment::rightJoin('shipment_driver','shipment_driver.shipment_no','=','shipment.shipment_no')
+						->where('shipment_driver.driver_id', $Request->user_id)->whereYear('shipment_driver.created_at', $Request->year)
+						->whereMonth('shipment_driver.created_at', $Request->month)->whereIn('shipment.status',['0','1','2'])->whereNull('shipment_driver.deleted_at')
+						->orderby('shipment_driver.id', 'desc');
+						//dd($data1);
+						$data1 = $data1->paginate($perPage);
+						foreach ($data1 as $key => $value) {
+	
+							$data[$key] = Shipment::where('shipment_no', $value->shipment_no)->first();
+							$data1[$key]['id'] = $data[$key]->id ;
+							$data1[$key]['myid'] = $data[$key]->myid ;
+							$data1[$key]['expense'] = $value->expense;
+	
+							if ($value->status == 1) {
+	
+								$data1[$key]['status'] = "pending";
+	
+							} elseif ($value->status == 2 || $value->status == 4 ||$value->status == 5 ||$value->status == 6 ||$value->status == 7
+							||$value->status == 8 ||$value->status == 9 || $value->status == 10 || $value->status == 11 || $value->status == 12
+							||$value->status == 13 ||$value->status == 14 || $value->status == 15 || $value->status == 18) {
+	
+								$data1[$key]['status'] = "ontheway";
+	
+							} elseif ($value->status == 3 || $value->status == 17) {
+	
+								$data1[$key]['status'] = "delivery";
+	
+							}
+	
+						}
+						//dd($data1);
+					}
+	
+				} elseif ($Request->role == "forwarder") {
+	
+					if ($Request->month != "" && $Request->year != "") {
+	
+						$data1 = Shipment::where('forwarder', $Request->other_id)->whereNull('deleted_at')->whereYear('date', $Request->year)->whereMonth('date', $Request->month);
+						$data1 = $data1->paginate($perPage);
+
+						foreach ($data1 as $key => $value) {
+	
+							$data1[$key] = $value;
+	
+							$com = Company::withTrashed()->findorfail($value->company);
+	
+							$data1[$key]['company_name'] = $com->name;
+	
+							$forw = Forwarder::withTrashed()->findorfail($value->forwarder);
+	
+							$data1[$key]['forwarder_name'] = $forw->name;
+	
+							if($value->trucktype !='' && $value->trucktype != 'null' && $value->trucktype != null) {
+								
+							$tk = Truck::withTrashed()->findorfail($value->trucktype);
+	
+							$data1[$key]['vehicle'] = $tk->name;
+	
+							} else {
+	
+							$data1[$key]['vehicle'] = '';
+	
+							}
+	
+							if ($value->status == 0) {
+	
+								$data1[$key]['status'] = "pending";
+	
+							} elseif ($value->status == 1 || $value->status == 3) {
+	
+								$data1[$key]['status'] = "ontheway";
+	
+							} elseif ($value->status == 2) {
+	
+								$data1[$key]['status'] = "delivery";
+	
+							}
+	
+						}
+	
+					}
+				}
+
+				
+				
+				if (!empty($data1)) {
+					$message = 'Data Success.';
+					$dataa = $data1;
+					return $this->APIResponse->successWithPagination($message, $dataa);
+				}
+			
+			  else {
+					return $this->APIResponse->respondNotFound(__('No Record Found'));
+				}
+
+			}
+			
+			else{
+			$data = array();			
 			if ($Request->role == "admin" || $Request->role == "employee") {
 
 				if ($Request->keyword != "" && $Request->keyword != " " && $Request->keyword != "null" && $Request->keyword != null) {
 
-					$data1 = Shipment::where('shipment_no', 'like', '%' . $Request->keyword . '%')->orwhere('from1', 'like', '%' . $Request->keyword . '%')->orwhere('to1', 'like', '%' . $Request->keyword . '%')->orwhere('to2', 'like', '%' . $Request->keyword . '%')->orwhere('consignor', 'like', '%' . $Request->keyword . '%')->orwhere('consignee', 'like', '%' . $Request->keyword . '%')->orwhere('shipper_invoice', 'like', '%' . $Request->keyword . '%')->orwhere('forwarder_ref_no', 'like', '%' . $Request->keyword . '%')->orwhere('b_e_no', 'like', '%' . $Request->keyword . '%')->orderby('shipment_no', 'desc')->get();
+					$data1 = Shipment::where('shipment_no', 'like', '%' . $Request->keyword . '%')->orwhere('from1', 'like', '%' . $Request->keyword . '%')->orwhere('to1', 'like', '%' . $Request->keyword . '%')->orwhere('to2', 'like', '%' . $Request->keyword . '%')->orwhere('consignor', 'like', '%' . $Request->keyword . '%')->orwhere('consignee', 'like', '%' . $Request->keyword . '%')->orwhere('shipper_invoice', 'like', '%' . $Request->keyword . '%')->orwhere('forwarder_ref_no', 'like', '%' . $Request->keyword . '%')->orwhere('b_e_no', 'like', '%' . $Request->keyword . '%')->orderby('shipment_no', 'desc')->whereNull('deleted_at')->get();
 
 					foreach ($data1 as $key => $value) {
 
@@ -4667,19 +6599,19 @@ class ApiController extends Controller {
 
 						if ($value->status == 0) {
 
-							$data[$key]['mystatus'] = "Pending";
+							$data[$key]['status'] = "pending";
 
 						} elseif ($value->status == 1) {
 
-							$data[$key]['mystatus'] = "OnTheWay";
+							$data[$key]['status'] = "ontheway";
 
 						} elseif ($value->status == 2) {
 
-							$data[$key]['mystatus'] = "Delivery";
+							$data[$key]['status'] = "delivery";
 
 						} elseif ($value->status == 3) {
 
-							$data[$key]['mystatus'] = "InWarehouse";
+							$data[$key]['status'] = "warehouse";
 
 						}
 
@@ -4687,7 +6619,7 @@ class ApiController extends Controller {
 
 				} else if ($Request->shipment_no != "" && $Request->shipment_no != " " && $Request->shipment_no != "null" && $Request->shipment_no != null) {
 
-					$data1 = Shipment::where('shipment_no', $Request->shipment_no)->first();
+					$data1 = Shipment::where('shipment_no', $Request->shipment_no)->whereNull('deleted_at')->first();
 
 					$com = Company::withTrashed()->findorfail($data1->company);
 
@@ -4711,19 +6643,19 @@ class ApiController extends Controller {
 
 					if ($data1->status == 0) {
 
-						$data1['mystatus'] = "Pending";
+						$data1['status'] = "pending";
 
 					} elseif ($data1->status == 1) {
 
-						$data1['mystatus'] = "OnTheWay";
+						$data1['status'] = "ontheway";
 
 					} elseif ($data1->status == 2) {
 
-						$data1['mystatus'] = "Delivery";
+						$data1['status'] = "delivery";
 
 					} elseif ($data1->status == 3) {
 
-						$data1['mystatus'] = "InWarehouse";
+						$data1['status'] = "warehouse";
 
 					}
 
@@ -4731,7 +6663,7 @@ class ApiController extends Controller {
 
 				} elseif ($Request->forwarder != "" && $Request->forwarder != " " && $Request->forwarder != "null" && $Request->forwarder != null) {
 
-					$data1 = Shipment::where('forwarder', $Request->forwarder)->orderby('shipment_no', 'desc')->get();
+					$data1 = Shipment::where('forwarder', $Request->forwarder)->orderby('shipment_no', 'desc')->whereNull('deleted_at')->get();
 
 					foreach ($data1 as $key => $value) {
 
@@ -4759,19 +6691,19 @@ class ApiController extends Controller {
 
 						if ($value->status == 0) {
 
-							$data[$key]['mystatus'] = "Pending";
+							$data[$key]['status'] = "pending";
 
 						} elseif ($value->status == 1) {
 
-							$data[$key]['mystatus'] = "OnTheWay";
+							$data[$key]['status'] = "ontheway";
 
 						} elseif ($value->status == 2) {
 
-							$data[$key]['mystatus'] = "Delivery";
+							$data[$key]['status'] = "delivery";
 
 						} elseif ($value->status == 3) {
 
-							$data[$key]['mystatus'] = "InWarehouse";
+							$data[$key]['status'] = "warehouse";
 
 						}
 
@@ -4779,7 +6711,7 @@ class ApiController extends Controller {
 
 				} elseif ($Request->transporter != "" && $Request->transporter != " " && $Request->transporter != "null" && $Request->transporter != null) {
 
-					$data1 = Shipment_Transporter::where('transporter_id', $Request->transporter)->orderby('shipment_no', 'desc')->get();
+					$data1 = Shipment_Transporter::where('transporter_id', $Request->transporter)->whereNull('deleted_at')->orderby('shipment_no', 'desc')->get();
 
 					foreach ($data1 as $key => $value) {
 
@@ -4809,19 +6741,19 @@ class ApiController extends Controller {
 
 						if ($data2->status == 0) {
 
-							$data[$key]['mystatus'] = "Pending";
+							$data[$key]['status'] = "pending";
 
 						} elseif ($data2->status == 1) {
 
-							$data[$key]['mystatus'] = "OnTheWay";
+							$data[$key]['status'] = "ontheway";
 
 						} elseif ($data2->status == 2) {
 
-							$data[$key]['mystatus'] = "Delivery";
+							$data[$key]['status'] = "delivery";
 
 						} elseif ($data2->status == 3) {
 
-							$data[$key]['mystatus'] = "InWarehouse";
+							$data[$key]['status'] = "warehouse";
 
 						}
 
@@ -4831,7 +6763,7 @@ class ApiController extends Controller {
 
 					$date = date('d-m-Y', strtotime($Request->date . "-" . $Request->month . "-" . $Request->year));
 
-					$data1 = Shipment::where('date', $date)->get();
+					$data1 = Shipment::where('date', $date)->whereNull('deleted_at')->get();
 
 					foreach ($data1 as $key => $value) {
 
@@ -4861,19 +6793,19 @@ class ApiController extends Controller {
 
 						if ($data2->status == 0) {
 
-							$data[$key]['mystatus'] = "Pending";
+							$data[$key]['status'] = "pending";
 
 						} elseif ($data2->status == 1) {
 
-							$data[$key]['mystatus'] = "OnTheWay";
+							$data[$key]['status'] = "ontheway";
 
 						} elseif ($data2->status == 2) {
 
-							$data[$key]['mystatus'] = "Delivery";
+							$data[$key]['status'] = "delivery";
 
 						} elseif ($data2->status == 3) {
 
-							$data[$key]['mystatus'] = "InWarehouse";
+							$data[$key]['status'] = "warehouse";
 
 						}
 
@@ -4881,7 +6813,7 @@ class ApiController extends Controller {
 
 				} elseif ($Request->month != "" && $Request->month != " " && $Request->month != "null" && $Request->month != null) {
 
-					$data1 = Shipment::whereYear('date', $Request->year)->whereMonth('date', $Request->month)->orderby('date', 'desc')->get();
+					$data1 = Shipment::whereYear('date', $Request->year)->whereNull('deleted_at')->whereMonth('date', $Request->month)->orderby('id', 'desc')->get();
 
 					foreach ($data1 as $key => $value) {
 
@@ -4909,19 +6841,19 @@ class ApiController extends Controller {
 
 						if ($value->status == 0) {
 
-							$data[$key]['mystatus'] = "Pending";
+							$data[$key]['status'] = "pending";
 
 						} elseif ($value->status == 1) {
 
-							$data[$key]['mystatus'] = "OnTheWay";
+							$data[$key]['status'] = "ontheway";
 
 						} elseif ($value->status == 2) {
 
-							$data[$key]['mystatus'] = "Delivery";
+							$data[$key]['status'] = "delivery";
 
 						} elseif ($value->status == 3) {
 
-							$data[$key]['mystatus'] = "InWarehouse";
+							$data[$key]['status'] = "warehouse";
 
 						}
 
@@ -4929,7 +6861,7 @@ class ApiController extends Controller {
 
 				} elseif ($Request->year != "" && $Request->year != " " && $Request->year != "null" && $Request->year != null) {
 
-					$data1 = Shipment::whereYear('date', $Request->year)->orderby('date', 'desc')->get();
+					$data1 = Shipment::whereYear('date', $Request->year)->whereNull('deleted_at')->orderby('id', 'desc')->get();
 
 					foreach ($data1 as $key => $value) {
 
@@ -4957,19 +6889,19 @@ class ApiController extends Controller {
 
 						if ($value->status == 0) {
 
-							$data[$key]['mystatus'] = "Pending";
+							$data[$key]['status'] = "pending";
 
 						} elseif ($value->status == 1) {
 
-							$data[$key]['mystatus'] = "OnTheWay";
+							$data[$key]['status'] = "ontheway";
 
 						} elseif ($value->status == 2) {
 
-							$data[$key]['mystatus'] = "Delivery";
+							$data[$key]['status'] = "delivery";
 
 						} elseif ($value->status == 3) {
 
-							$data[$key]['mystatus'] = "InWarehouse";
+							$data[$key]['status'] = "warehouse";
 
 						}
 
@@ -4980,26 +6912,30 @@ class ApiController extends Controller {
 			} elseif ($Request->role == "transporter") {
 
 				if ($Request->month != "" && $Request->year != "") {
+					
 
-					$data1 = Shipment_Transporter::where('transporter_id', $Request->transporter_id)->whereYear('created_at', $Request->year)->whereMonth('created_at', $Request->month)->get();
-
+					$data1 = Shipment_Driver::where('transporter_id', $Request->other_id)->whereYear('created_at', $Request->year)->whereNull('deleted_at')->whereMonth('created_at', $Request->month)->orderby('id', 'desc')->get();
+						// dd($data1);
 					foreach ($data1 as $key => $value) {
 
-						$data[$key] = Shipment::where('shipment_no', $value->shipment_no)->first();
+				
+						$data[$key] = Shipment::where('shipment_no', $value->shipment_no)->orderby('id', 'desc')->whereIn('status',['0','1','2'])->first();
 
 						$data[$key]['expense'] = $value->expense;
 
 						if ($value->status == 1) {
 
-							$data[$key]['mystatus'] = "Pending";
+							$data[$key]['status'] = "pending";
 
-						} elseif ($value->status == 2) {
+						} elseif ($value->status == 2 || $value->status == 4 ||$value->status == 5 ||$value->status == 6 ||$value->status == 7
+						||$value->status == 8 ||$value->status == 9 || $value->status == 10 || $value->status == 11 || $value->status == 12
+						||$value->status == 13 ||$value->status == 14 || $value->status == 15 || $value->status == 18) {
 
-							$data[$key]['mystatus'] = "OnTheWay";
+							$data[$key]['status'] = "ontheway";
 
-						} elseif ($value->status == 3) {
+						} elseif ($value->status == 3 || $value->status == 17) {
 
-							$data[$key]['mystatus'] = "Delivery";
+							$data[$key]['status'] = "delivery";
 
 						}
 
@@ -5007,11 +6943,124 @@ class ApiController extends Controller {
 
 				}
 
-			} elseif ($Request->role == "forwarder") {
+			} 
+			elseif($Request->role == "company"){
+				//dd(1);
+				if ($Request->month != "" && $Request->year != "") {
+					$data1 = Shipment::whereYear('created_at', $Request->year)->whereMonth('created_at', $Request->month)->where('company',$Request->other_id)->whereNull('deleted_at')->orderby('id', 'desc')->get();
+					if($Request->status == "pending"){
+						$data1 = $data1->where('status','0');
+					}
+					if($Request->status == "ontheway"){
+						$data1 = $data1->where('status','1');
+					}
+					if($Request->status == "delivered"){
+						$data1 = $data1->where('status','2');
+					}
+				}
+				else{
+					if($Request->status != null){
+					$data1 = Shipment::where('company',$Request->other_id)->whereNull('deleted_at')->orderby('id', 'desc');
+					if($Request->status == "pending"){
+						$data1 = $data1->where('status','0')->get();
+					}
+					if($Request->status == "ontheway"){
+						$data1 = $data1->where('status','1')->get();
+					}
+					if($Request->status == "delivered"){
+						$data1 = $data1->where('status','2')->get();
+					}
+				}
+				else{
+					$data1 = Shipment::where('company',$Request->other_id)->whereNull('deleted_at')->orderby('id', 'desc')->get();
+				}
+				}
+					
+					foreach ($data1 as $key => $value) {
+
+						$data[$key] = $value;
+
+						$com = Company::withTrashed()->findorfail($value->company);
+
+						$data[$key]['company_name'] = $com->name;
+
+						$forw = Forwarder::withTrashed()->findorfail($value->forwarder);
+
+						$data[$key]['forwarder_name'] = $forw->name;
+
+						if($value->trucktype !='' && $value->trucktype != 'null' && $value->trucktype != null) {
+
+						$tk = Truck::withTrashed()->findorfail($value->trucktype);
+
+						$data[$key]['vehicle'] = $tk->name;
+
+						} else {
+
+						$data[$key]['vehicle'] = '';
+
+					}
+
+						if ($value->status == 0) {
+
+							$data[$key]['status'] = "pending";
+
+						} elseif ($value->status == 1) {
+
+							$data[$key]['status'] = "ontheway";
+
+						} elseif ($value->status == 2) {
+
+							$data[$key]['status'] = "delivery";
+
+						} elseif ($value->status == 3) {
+
+							$data[$key]['status'] = "warehouse";
+
+						}
+
+					}
+
+				
+
+			}
+			elseif ($Request->role == "driver") {
 
 				if ($Request->month != "" && $Request->year != "") {
 
-					$data1 = Shipment::where('forwarder', $Request->forwarder_id)->whereYear('date', $Request->year)->whereMonth('date', $Request->month)->get();
+					$data1 = Shipment_Driver::where('driver_id', $Request->user_id)->whereYear('created_at', $Request->year)->whereNull('deleted_at')->whereMonth('created_at', $Request->month)->orderby('id', 'desc')->get();
+					
+					foreach ($data1 as $key => $value) {
+						//dd($value);
+						$data[$key] = Shipment::where('shipment_no', $value->shipment_no)->whereIn('status',['0','1','2'])->orderby('id', 'desc')->first();
+
+						$data[$key]['expense'] = $value->expense;
+
+						if ($value->status == 1) {
+
+							$data[$key]['status'] = "pending";
+
+						} elseif ($value->status == 2 || $value->status == 4 ||$value->status == 5 ||$value->status == 6 ||$value->status == 7
+						||$value->status == 8 ||$value->status == 9 || $value->status == 10 || $value->status == 11 || $value->status == 12
+						||$value->status == 13 ||$value->status == 14 || $value->status == 15 || $value->status == 18) {
+
+							$data[$key]['status'] = "ontheway";
+
+						} elseif ($value->status == 3 || $value->status == 17) {
+
+							$data[$key]['status'] = "delivery";
+
+						}
+
+					}
+
+				}
+
+			} 
+			elseif ($Request->role == "forwarder") {
+
+				if ($Request->month != "" && $Request->year != "") {
+
+					$data1 = Shipment::where('forwarder', $Request->other_id)->whereNull('deleted_at')->whereYear('date', $Request->year)->whereMonth('date', $Request->month)->orderby('id', 'desc')->get();
 
 					foreach ($data1 as $key => $value) {
 
@@ -5039,15 +7088,15 @@ class ApiController extends Controller {
 
 						if ($value->status == 0) {
 
-							$data[$key]['mystatus'] = "Pending";
+							$data[$key]['status'] = "pending";
 
 						} elseif ($value->status == 1 || $value->status == 3) {
 
-							$data[$key]['mystatus'] = "OnTheWay";
+							$data[$key]['status'] = "ontheway";
 
 						} elseif ($value->status == 2) {
 
-							$data[$key]['mystatus'] = "Delivery";
+							$data[$key]['status'] = "delivery";
 
 						}
 
@@ -5057,7 +7106,7 @@ class ApiController extends Controller {
 			}
 
 			return response()->json(['status' => 'success', 'message' => 'Data Success.', 'data' => $data, 'code' => '200'], 200);
-
+		}
 		} catch (\Exception $e) {
 
 			return response()->json(['status' => 'failed', 'message' => $e->getMessage(), 'data' => json_decode('{}'), 'code' => '500'], 200);
@@ -5077,7 +7126,7 @@ class ApiController extends Controller {
 				return response()->json(['status' => 'failed', 'message' => 'Please Update This Application.', 'data' => json_decode('{}'), 'code' => '500'], 200);
 			}
 
-			$data = Shipment::get();
+			$data = Shipment::whereNull('deleted_at')->get();
 
 			return response()->json(['status' => 'success', 'message' => 'Data Success.', 'data' => $data, 'code' => '200'], 200);
 
@@ -5126,9 +7175,9 @@ class ApiController extends Controller {
 
 			}
 
-			$total_credit1 = Account::where('to_company', $Request->company_id)->whereBetween('dates', [$startDate, $endDate])->sum('credit');
+			$total_credit1 = Account::where('to_company', $Request->other_id)->whereBetween('dates', [$startDate, $endDate])->sum('credit');
 
-			$total_debit1 = Account::where('from_company', $Request->company_id)->whereBetween('dates', [$startDate, $endDate])->sum('debit');
+			$total_debit1 = Account::where('from_company', $Request->other_id)->whereBetween('dates', [$startDate, $endDate])->sum('debit');
 
 			$data['credit'] = $total_credit1;
 
@@ -5159,9 +7208,9 @@ class ApiController extends Controller {
 
 			$data = array();
 
-			if ($Request->forwarder_id != '' && $Request->forwarder_id != ' ' && $Request->forwarder_id != null) {
+			if ($Request->other_id != '' && $Request->other_id != ' ' && $Request->other_id != null) {
 
-				$invoice_lists = Invoice::where('forwarder_id', $Request->forwarder_id)->where('paid', 0)->get();
+				$invoice_lists = Invoice::where('forwarder_id', $Request->other_id)->where('paid', 0)->get();
 
 				foreach ($invoice_lists as $key => $value) {
 
@@ -5234,7 +7283,7 @@ class ApiController extends Controller {
 
 			if ($Request->month != "" && $Request->year != "") {
 
-				$data1 = Invoice::where('forwarder_id', $Request->forwarder_id)->whereYear('created_at', $Request->year)->whereMonth('created_at', $Request->month)->get();
+				$data1 = Invoice::where('forwarder_id', $Request->other_id)->whereYear('created_at', $Request->year)->whereMonth('created_at', $Request->month)->get();
 
 				foreach ($data1 as $key => $value) {
 
@@ -5264,18 +7313,45 @@ class ApiController extends Controller {
 		try {
 
 			$check = $this->checkversion($Request->version);
-
+			$all = $Request->all();
 			if ($check == 1) {
 
 				return response()->json(['status' => 'failed', 'message' => 'Please Update This Application.', 'data' => json_decode('{}'), 'code' => '500'], 200);
 			}
+			if (isset($all['page']) && ($all['offset'])) {
+				//pagination coding
+				$page = 1;
+				$perPage = 10;
+				if (isset($all['page']) && !empty($all['page'])) {
+					$page = $all['page'];
+				}
+				if (isset($all['offset']) && !empty($all['offset'])) {
+					$perPage = $all['offset'];
+				}
+				$offset = ($page - 1) * $perPage;
+				
+				$data = Forwarder::select('*');
+				$data = $data->paginate($perPage);
 
+				
+				if (!empty($data)) {
+					$message = 'Forwarder List Success.';
+					$dataa = $data;
+					return $this->APIResponse->successWithPagination($message, $dataa);
+				}
+			
+			  else {
+					return $this->APIResponse->respondNotFound(__('No Record Found'));
+				}
+
+			}
+			else{
 			$data = array();
 
 			$data = Forwarder::get();
 
 			return response()->json(['status' => 'success', 'message' => 'Forwarder List  Success.', 'data' => $data, 'code' => '200'], 200);
-
+			}
 		} catch (\Exception $e) {
 
 			return response()->json(['status' => 'failed', 'message' => $e->getMessage(), 'data' => json_decode('{}'), 'code' => '500'], 200);
@@ -5298,7 +7374,7 @@ class ApiController extends Controller {
 
 			$data = array();
 
-			$invoice_lists = Invoice::where('forwarder_id', $Request->forwarder_id)->where('paid', 0)->get();
+			$invoice_lists = Invoice::where('forwarder_id', $Request->other_id)->where('paid', 0)->get();
 
 			foreach ($invoice_lists as $key => $value) {
 
@@ -5540,7 +7616,7 @@ class ApiController extends Controller {
 
 		try {
 
-			if ($Request->role == "admin" || $Request->role == "transporter" || $Request->role == "employee" || $Request->role == "forwarder") {
+			if ($Request->role == "admin" || $Request->role == 'company' || $Request->role == "transporter" || $Request->role == "employee" || $Request->role == "forwarder") {
 
 				$data = User::findorfail($Request->user_id);
 
@@ -5578,7 +7654,21 @@ class ApiController extends Controller {
 	public function LRMail(Request $Request) 
 	{
 		
-		try {
+		try 
+		{	$data=$Request->all();
+            $rules = array(
+                'email' => 'required|email'
+            );
+
+            $messages = [
+
+            ];
+            $validator = Validator::make($data, $rules, $messages);
+            if ($validator->fails()) {
+                return $this->APIResponse->respondValidationError(__($validator->errors()->first()));
+            }
+            else 
+			{
 
 			$check = $this->checkversion($Request->version);
 
@@ -5597,6 +7687,12 @@ class ApiController extends Controller {
 
 			$data->gst = $comp->gst_no;
 
+			$data->qr_code = '';
+			$account_qr_id = ['1','3','4','5'];
+			if(in_array($comp->id, $account_qr_id)){
+				$data->qr_code = $comp->id.'_id.jpeg';
+			}
+			
 			if ($data->forwarder != "" && $data->forwarder != null && $data->forwarder != 'null') {
 
 				$for = Forwarder::findorfail($data->forwarder);
@@ -5657,30 +7753,34 @@ class ApiController extends Controller {
 			
 
 			if ($comp->lr == "yoginilr") {
+				// dd(1);
 
 				$pdf = PDF::loadView('lr.yoginilr', compact('data', 'trucks'));
 
-				file_put_contents("public/pdf/" . $Request->shipment_no . ".pdf", $pdf->output());
+				file_put_contents("pdf/" . $Request->shipment_no . ".pdf", $pdf->output());
 
-				$path = env('APP_URL') . "/public/pdf/" . $Request->shipment_no . ".pdf";
+				$path = env('APP_URL') . "pdf/" . $Request->shipment_no . ".pdf";
 
 				$shipment = $Request->shipment_no;
 				$myemail = $Request->email;
 
 				$data2 = array('shipment_no'=>$shipment,'email'=>$myemail);
-
+				
+				
 				$yogini_username = env('YOGINI_MAIL_USERNAME');
 				$yogini_password = env('YOGINI_MAIL_PASSWORD');
 				Config::set('mail.username', $yogini_username);
 				Config::set('mail.password', $yogini_password);	
 
-				//dd($data2);		
+						
      			$mail_service = env('MAIL_SERVICE');
-						if($mail_service == 'on'){
+					if($mail_service == 'on'){
 				 Mail::send('yoginimail', $data2, function($message) use ($data2) {
          			$message->to($data2['email'])->subject('REGARDING LR DETAILS - '.$data2['shipment_no']);
          			$message->attach( public_path('/pdf').'/'.$data2['shipment_no'].'.pdf');
       			});
+				
+				//dispatch(new CertificateApproveJob($data2));
 				}
       			
 				return response()->json(['status' => 'success', 'message' => 'LR Send on Mail successfull.', 'data' => $path, 'code' => '200'], 200);
@@ -5691,9 +7791,9 @@ class ApiController extends Controller {
 
 				$pdf = PDF::loadView('lr.ssilr', compact('data', 'trucks'));
 
-				file_put_contents("public/pdf/" . $Request->shipment_no . ".pdf", $pdf->output());
+				 file_put_contents("pdf/" . $Request->shipment_no . ".pdf", $pdf->output());
 
-				$path = env('APP_URL') . "/public/pdf/" . $Request->shipment_no . ".pdf";
+				$path = env('APP_URL') . "pdf/" . $Request->shipment_no . ".pdf";
 
 				
 				$shipment = $Request->shipment_no;
@@ -5715,7 +7815,8 @@ class ApiController extends Controller {
          			$message->to($data2['email'])->subject('REGARDING LR DETAILS - '.$data2['shipment_no']);
          			$message->attach( public_path('/pdf').'/'.$data2['shipment_no'].'.pdf');
       			});	
-
+				
+			//	dispatch(new CertificateApproveJob($data2));
 				}
 					
 
@@ -5725,9 +7826,9 @@ class ApiController extends Controller {
 
 				$pdf = PDF::loadView('lr.hanshlr', compact('data', 'trucks'));
 
-				file_put_contents("public/pdf/" . $Request->shipment_no . ".pdf", $pdf->output());
+				 file_put_contents("pdf/" . $Request->shipment_no . ".pdf", $pdf->output());
 
-				$path = env('APP_URL') . "/public/pdf/" . $Request->shipment_no . ".pdf";
+				$path = env('APP_URL') . "pdf/" . $Request->shipment_no . ".pdf";
 
 				$shipment = $Request->shipment_no;
 				$myemail = $Request->email;
@@ -5746,6 +7847,8 @@ class ApiController extends Controller {
          			$message->to($data2['email'])->subject('REGARDING LR DETAILS - '.$data2['shipment_no']);
          			$message->attach( public_path('/pdf').'/'.$data2['shipment_no'].'.pdf');
       			});
+			
+				  //dispatch(new CertificateApproveJob($data2));
       			}		
 				
 				return response()->json(['status' => 'success', 'message' => 'LR Send on Mail successfull.', 'data' => $path, 'code' => '200'], 200);
@@ -5754,9 +7857,9 @@ class ApiController extends Controller {
 
 				$pdf = PDF::loadView('lr.bmflr', compact('data', 'trucks'));
 
-				file_put_contents("public/pdf/" . $Request->shipment_no . ".pdf", $pdf->output());
+				 file_put_contents("pdf/" . $Request->shipment_no . ".pdf", $pdf->output());
 
-				$path = env('APP_URL') . "/public/pdf/" . $Request->shipment_no . ".pdf";
+				$path = env('APP_URL') . "pdf/" . $Request->shipment_no . ".pdf";
 
 				$shipment = $Request->shipment_no;
 				$myemail = $Request->email;
@@ -5770,14 +7873,16 @@ class ApiController extends Controller {
          			$message->to($data2['email'])->subject('REGARDING LR DETAILS - '.$data2['shipment_no']);
          			$message->attach( public_path('/pdf').'/'.$data2['shipment_no'].'.pdf');
       			});	
+			
+				 // dispatch(new CertificateApproveJob($data2));
       			}				
 				
 				return response()->json(['status' => 'success', 'message' => 'LR Send on Mail successfull.', 'data' => $path, 'code' => '200'], 200);
 
 			}
-
+		}
 		} catch (\Exception $e) {
-
+			dd($e);
 			return response()->json(['status' => 'failed', 'message' => $e->getMessage(), 'data' => json_decode('{}'), 'code' => '500'], 200);
 		}
 
@@ -5790,7 +7895,7 @@ class ApiController extends Controller {
 
 			$check = $this->checkversion($Request->version);
 
-			$data = Driver::where('transporter_id',$Request->transporter_id)->orderby('name','asc')->get();
+			$data = Driver::where('transporter_id',$Request->other_id)->orderby('name','asc')->get();
 
 			return response()->json(['status' => 'success', 'message' => 'Driver List successfull.', 'data' => $data, 'code' => '200'], 200);
 

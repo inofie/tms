@@ -67,7 +67,7 @@
                           <header class="panel-heading " style="line-height: 30px;">
                              Edit Shipment
                               <div class="btn-group pull-right">
-                                 <a href="{{route('warehouseshiplist')}}">
+                                 <a href="{{ URL::previous() }}">
                                   <button  class="btn btn-primary">
                                       <i class="fa fa-reply"></i> Back
                                   </button>
@@ -718,7 +718,7 @@
                                           <div class="col-lg-12" style="text-align: center;">
                                               <button class="btn btn-success" id="msubmit" >Save</button>
                                               <button style="display: none;"  id="sform" class="btn btn-success" type="submit">Save</button>
-                                               <a href="{{route('shipmentlist')}}" class="btn btn-default">Cancel</a>
+                                               <a href="{{ URL::previous() }}" class="btn btn-default">Cancel</a>
                                           </div>
                                       </div>
 

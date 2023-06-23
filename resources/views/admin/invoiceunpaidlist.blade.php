@@ -108,6 +108,7 @@ All Unpaid Invoice List | TOT
                                   <th width="10%">Date</th>
                                   <th width="20%">Company</th>
                                   <th width="20%">Forwarder</th>
+                                  <th width="10%">Created Date</th>
                                   <th width="10%">Total Amount</th>
                                   <th width="30%" class="center">Action</th>
                               </tr>
@@ -123,6 +124,7 @@ All Unpaid Invoice List | TOT
                                   
                                   <td style="vertical-align: middle;">{{ $value->company_name }}</td>
                                   <td style="vertical-align: middle;">{{ $value->forwarder_name }}</td>
+                                  <td style="vertical-align: middle;">{{ $value->created_at }}</td>
                                    <td style="text-align: right;vertical-align: middle;"><i class="fa fa-inr"></i>{{ number_format($value->grand_total,0) }}</td>
                                   
                                   <td class="edit_delete center">
@@ -171,7 +173,14 @@ All Unpaid Invoice List | TOT
   $(document).ready(function() {
    
     $('#editable-sample').DataTable( {
-       "aaSorting": [[ 0, "desc" ]],
+       "aaSorting": [[ 4, "desc" ]],
+       "columnDefs":
+           [
+               {
+                   "targets": [4],
+                   "visible": false, 
+               },
+           ],
        /* "lengthChange": true,
       "lengthMenu": [ 10, 25, 50, 75, 100 ],
         dom: 'Bfrtip',

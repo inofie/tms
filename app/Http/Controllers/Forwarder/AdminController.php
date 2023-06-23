@@ -54,13 +54,13 @@ class AdminController extends Controller
 
         $ff= Forwarder::where('user_id',Auth::user()->id)->first();
 
-        $data['total'] = Shipment::where('forwarder',$ff->id)->count();
+        $data['total'] = Shipment::where('forwarder',$ff->id)->whereNull('deleted_at')->count();
 
-        $data['pending'] = Shipment::where('status',0)->where('forwarder',$ff->id)->count();
+        $data['pending'] = Shipment::where('status',0)->whereNull('deleted_at')->where('forwarder',$ff->id)->count();
 
-        $data['delivery'] = Shipment::where('status',2)->where('forwarder',$ff->id)->count();
+        $data['delivery'] = Shipment::where('status',2)->whereNull('deleted_at')->where('forwarder',$ff->id)->count();
 
-        $dataremain =Shipment::where('paid',0)->where('forwarder',$ff->id)->sum('invoice_amount');
+        $dataremain =Shipment::where('paid',0)->whereNull('deleted_at')->where('forwarder',$ff->id)->sum('invoice_amount');
         
         $data['remaining'] = (int)$dataremain;
 

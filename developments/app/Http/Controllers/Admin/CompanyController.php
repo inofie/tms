@@ -53,7 +53,7 @@ class CompanyController extends Controller
         'email'=>'required|email',
         'gst'=>'required',
         'username'=>'required',
-        'password'=>'required',
+        'password'=>'required|min:8',
         'logo'=>'required|mimes:jpeg,jpg,png',
 
          ],[

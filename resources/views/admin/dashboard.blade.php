@@ -116,6 +116,7 @@ Dashboard | TMS
 @section('js1')
 {{-- <script src="{{ asset('js/jquery.js') }}"></script> --}}
 <script src="{{ asset('js/jquery-1.8.3.min.js')}}"></script>
+
 @endsection
 
 @section('js2')

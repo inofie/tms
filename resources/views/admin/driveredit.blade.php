@@ -60,7 +60,7 @@
               
                         <section class="panel">
                             <header class="panel-heading ">
-                               Edit Transporter
+                               Edit Driver
                                 <div class="btn-group pull-right">
                                  <a href="{{ route('driverlist') }}"> <button style="padding: 7%;" class="btn btn-info"><!-- id="editable-sample_new" -->
                                       Back <i class="fa fa-reply"></i>
@@ -119,8 +119,8 @@
                                           <div class="form-group">
                                             <label class="col-lg-2 control-label">Password :</label>
                                             <div class="col-lg-10">
-                                                <input type="password" class="form-control" id="password"  required="required" name="password"  placeholder="If You Change Password Then Enter Password"/>
-                                                @error('phone')
+                                                <input type="password" class="form-control" id="password"   name="password"  placeholder="If You Change Password Then Enter Password"/>
+                                                @error('password')
                                                  <span class="text-danger"> {{ $message }} </span>
                                                 @enderror
                                             </div>
@@ -129,7 +129,7 @@
                                             <label class="col-lg-2 control-label">Licence Number :</label>
                                             <div class="col-lg-10">
                                                 <input required="required" type="text" class="form-control" id="licence_no" name="licence_no" value="{{ $data->licence_no }}"  placeholder="GJ-1234567890123"/>
-                                                @error('phone')
+                                                @error('licence_no')
                                                  <span class="text-danger"> {{ $message }} </span>
                                                 @enderror
                                             </div>
@@ -139,7 +139,7 @@
                                             <label class="col-lg-2 control-label">Truck Number :</label>
                                             <div class="col-lg-10">
                                                 <input required="required" type="text" class="form-control" id="truck_no" name="truck_no" value="{{ $data->truck_no }}" placeholder="Truck Number"/>
-                                                @error('phone')
+                                                @error('truck_no')
                                                  <span class="text-danger"> {{ $message }} </span>
                                                 @enderror
                                             </div>
@@ -158,10 +158,11 @@
                                         <div class="form-group">
                                             <label class="control-label col-md-2">R.C Book :</label>
                                             <div class="col-md-10">
-                                                <input type="file" name="rc_book" class="default">
-                                                 
-                                                <img src="{{ asset('public/uploads') }}/{{ $data->rc_book }}" style="margin-top: 1%;float: left;" width="100px" alt="" class="zoom">
-                                                 @error('rc_book')
+                                                <input type="file" name="rc_book" id="rc_book" class="item-img file2 ">
+                                                <div style=" overflow: hidden; width: 100px; ">
+                                                <img src="{{ asset('/uploads') }}/{{ $data->rc_book }}" id="item-img-output2" style="margin-top: 1%;float: left;" width="100px" alt="" class="zoom">
+                                                </div>
+                                                @error('rc_book')
                                                  <span class="text-danger"> {{ $message }} </span>
                                                 @enderror
                                             </div>
@@ -170,8 +171,10 @@
                                           <div class="form-group">
                                             <label class="control-label col-md-2">Pan Card :</label>
                                             <div class="col-md-10">
-                                                <input type="file" name="pan_card" class="default">
-                                                 <img src="{{ asset('public/uploads') }}/{{ $data->pan_card }}" style="margin-top: 1%;float: left;" width="100px" alt="" class="zoom">
+                                                <input type="file" name="pan_card" id="pan_card" class="item-img file1 ">
+                                                <div style=" overflow: hidden; width: 100px; ">
+                                                 <img src="{{ asset('/uploads') }}/{{ $data->pan_card }}" id="item-img-output1" style="margin-top: 1%;float: left;" width="100px" alt="" class="zoom">
+                                                 </div>
                                                  @error('pan_card')
                                                  <span class="text-danger"> {{ $message }} </span>
                                                 @enderror
@@ -181,10 +184,11 @@
                                            <div class="form-group">
                                             <label class="control-label col-md-2">Licence :</label>
                                             <div class="col-md-10">
-                                                <input type="file" name="licence" class="default">
-                                                
-                                                <img src="{{ asset('public/uploads') }}/{{ $data->licence }}" style="margin-top: 1%;float: left;" width="100px" alt="" class="zoom">
-                                                 @error('licence')
+                                                <input type="file" name="licence" id="licence" class="item-img file ">
+                                                <div style=" overflow: hidden; width: 100px; ">
+                                                <img src="{{ asset('/uploads') }}/{{ $data->licence }}" id="item-img-output" style="margin-top: 1%;float: left;" width="100px" alt="" class="zoom">
+                                                </div>
+                                                @error('licence')
                                                  <span class="text-danger"> {{ $message }} </span>
                                                 @enderror
                                             </div>
@@ -266,6 +270,50 @@
 
       $("#row"+id).remove();
      }
+     function readURL(input) {
+        if (input.files && input.files[0]) {
+            var reader = new FileReader();
 
+            reader.onload = function (e) {
+                $('#item-img-output').attr('src', e.target.result);
+            }
+
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+
+    $("#licence").change(function () {
+        readURL(this);
+    });
+    function readURLL(input) {
+        if (input.files && input.files[0]) {
+            var reader = new FileReader();
+
+            reader.onload = function (e) {
+                $('#item-img-output2').attr('src', e.target.result);
+            }
+
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+
+    $("#rc_book").change(function () {
+        readURLL(this);
+    });
+    function readURLs(input) {
+        if (input.files && input.files[0]) {
+            var reader = new FileReader();
+
+            reader.onload = function (e) {
+                $('#item-img-output1').attr('src', e.target.result);
+            }
+
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+
+    $("#pan_card").change(function () {
+        readURLs(this);
+    });
 </script>
   @endsection

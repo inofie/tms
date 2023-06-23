@@ -102,7 +102,7 @@
                                       <div class="form-group ">
                                           <label for="cars" class="control-label col-lg-2">Choose Company<span style="color: red">*</span>:</label>
                                            <div class="col-lg-10">
-                                           <select class="form-control" name="company" id="company" required="required">
+                                           <select class="form-control" name="company" id="company" >
                                               <option value="">Choose Company</option>
                                               @foreach($company as $value)
                                               @if(old('company') == $value->id)
@@ -119,7 +119,7 @@
                                           </div>
                                       </div>
 
-                                 <div class="form-group ">
+                                 <!-- <div class="form-group ">
                                           <label for="firstname" class="control-label col-lg-2">Shipment No</label>
   
                                           <div class="col-lg-10">
@@ -128,7 +128,7 @@
                                             <span class="text-danger"> {{ $message }} </span>
                                           @enderror
                                           </div>   
-                                  </div>
+                                  </div> -->
                              
 
 
@@ -217,7 +217,7 @@
                                     <div class="form-group">
                                           <label class="col-lg-2 control-label">From<span style="color: red">*</span>:</label>
                                           <div class="col-lg-10">
-                                              <input type="text" class="form-control" id="From" required="required" name="from1" value="{{ old('from1') }}" placeholder="From"/>
+                                              <input type="text" class="form-control" id="From"  name="from1" value="{{ old('from1') }}" placeholder="From"/>
                                                @error('from1')
                                             <span class="text-danger"> {{ $message }} </span>
                                           @enderror
@@ -226,7 +226,7 @@
                                       <div class="form-group">
                                             <label class="col-lg-2 control-label">To<span style="color: red">*</span>:</label>
                                             <div class="col-lg-10">
-                                                <input type="text" name="to1" value="{{ old('to1') }}" class="form-control" required="required"  placeholder="To"/>
+                                                <input type="text" name="to1" value="{{ old('to1') }}" class="form-control"   placeholder="To"/>
                                                 @error('to1')
                                             <span class="text-danger"> {{ $message }} </span>
                                           @enderror
@@ -271,7 +271,7 @@
                                               
                                             <option value="">Choose Transporter</option>
                                               @foreach($transporter as $value)
-                                              @if(old('tansporter') == $value->id)
+                                              @if(old('transporter') == $value->id)
                                               <option selected="selected" data-number="{{ $value->truck_no }}" value="{{ $value->id }}">{{ $value->name }}</option>
                                               @else  
                                               <option data-number="{{ $value->truck_no }}"  value="{{ $value->id }}">{{ $value->name }}</option>
@@ -285,7 +285,7 @@
                                           @enderror
                                           </div>
                                       </div>
-
+                                        <input type="hidden" id="old_driver" name="old_driver" value="{{ old('driver_id')  }}">
 
                                         <div class="form-group">
                                           <label class="col-lg-2 control-label">Truck Number</label>
@@ -394,7 +394,7 @@
                                        <div class="form-group">
                                           <label class="col-lg-2 control-label">No. of Package<span style="color: red">*</span>:</label>
                                           <div class="col-lg-10">
-                                              <input type="text" class="form-control" name="package" required="required" value="{{ old('package') }}"  placeholder="10"/>
+                                              <input type="text" class="form-control" name="package"  value="{{ old('package') }}"  placeholder="10"/>
                                               @error('package')
                                             <span class="text-danger"> {{ $message }} </span>
                                           @enderror
@@ -414,7 +414,7 @@
                                        <div class="form-group">
                                           <label class="col-lg-2 control-label">Total Gross Weight<span style="color: red">*</span>:</label>
                                           <div class="col-lg-10">
-                                              <input type="text" class="form-control"  required="required" name="weight"  placeholder="1000" value="{{ old('weight') }}" />
+                                              <input type="text" class="form-control"  name="weight"  placeholder="1000" value="{{ old('weight') }}" />
                                               @error('package')
                                             <span class="text-danger"> {{ $message }} </span>
                                           @enderror
@@ -518,7 +518,7 @@
                                         <div class="form-group">
                                           <label class="col-lg-2 control-label">Container No<span style="color:red;">*</span>:</label>
                                           <div class="col-lg-10">
-                                              <input type="text" required="required" class="form-control"  placeholder="Enter Container No" value="{{ old('container_no') }}" name="container_no" />
+                                              <input type="text"  class="form-control"  placeholder="Enter Container No" value="{{ old('container_no') }}" name="container_no" />
                                           </div>
                                         </div>
                                      
@@ -539,7 +539,7 @@
                                        <div class="form-group">
                                           <label class="col-lg-2 control-label">Seal No<span style="color: red">*</span>:</label>
                                           <div class="col-lg-10">
-                                              <input type="text" class="form-control" name="seal_no" required="required"  placeholder="Enter Seal No" value="{{ old('seal_no') }}" />
+                                              <input type="text" class="form-control" name="seal_no" placeholder="Enter Seal No" value="{{ old('seal_no') }}" />
                                           </div>
                                       </div>
 
@@ -645,38 +645,45 @@
     
   $(document).ready(function() {
     $('#transporter').change(function(){
-      $(".driverdiv").remove();
-       var selected = $(this).find('option:selected');
-       var no = selected.data('number'); 
-       $('#truck_no').val(no);
-       var mytransporter = $(this).val();
-         $.ajax({
-                    url: '{{route('shipmentdriverlist')}}',
-                    data: {"_token": "{{ csrf_token() }}","transporter_id":mytransporter},
-                    type: 'post',
-                    success: function(result)
-                    {
-                      $('.mytransporter').after(result);
-                      $('#driver').focus();
-                      $('.mydriver').change(function(){
-                          var selected = $(this).find('option:selected'); 
-                          var no = selected.data('number'); 
-                          $('#truck_no').val(no);
-                          $('#truck_no').focus();
-                      });
-                    }
-                }); 
+      finddriver();
     });
+    finddriver();
 
-   
+    function finddriver() {
+      $(".driverdiv").remove();
+       var selected = $('#transporter').find('option:selected');
+       if(selected) {
+        var no = selected.data('number'); 
+        $('#truck_no').val(no);
+        var mytransporter = $('#transporter').val();
+        var old_driver = $('#old_driver').val();
+        
+         $.ajax({
+            url: '{{route('shipmentdriverlist')}}',
+            data: {"_token": "{{ csrf_token() }}","transporter_id":mytransporter,"old_driver":old_driver},
+            type: 'post',
+            success: function(result)
+            {
+              $('.mytransporter').after(result);
+              $('#driver').focus();
+              $('.mydriver').change(function(){
+                  var selected = $('#transporter').find('option:selected'); 
+                  var no = selected.data('number'); 
+                  $('#truck_no').val(no);
+                  $('#truck_no').focus();
+              });
+            }
+        }); 
+       }
+    }
 
     $('#company').change(function(){
        var selected = $(this).find('option:selected');
+       
        var code = selected.data('code'); 
        var no = selected.data('no'); 
       
        var shipment_no = code+''+no;
-
        $('#shipment_no').val(shipment_no);
        $('#shipment_no').focus();
       

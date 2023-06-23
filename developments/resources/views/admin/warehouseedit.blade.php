@@ -150,9 +150,10 @@
                                             <label class="control-label col-md-2">Address Proof :</label>
                                             <div class="col-md-10">
                                                 <input type="file" name="address_proof" class="default">
-                                                
-                                                <img src="{{ asset('public/uploads') }}/{{ $data->address_proof }}" style="margin-top: 1%;float: left;" width="100px" alt="" class="zoom">
-                                                 @error('address_proof')
+                                                <div style=" overflow: hidden; width: 100px; ">
+                                                <img src="{{ asset('/uploads') }}/{{ $data->address_proof }}" style="margin-top: 1%;float: left;" width="100px" alt="" class="zoom">
+                                                </div>
+                                                @error('address_proof')
                                                  <span class="text-danger"> {{ $message }} </span>
                                                 @enderror
                                             </div>

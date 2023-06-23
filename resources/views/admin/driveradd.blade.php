@@ -116,7 +116,7 @@
                                             <label class="col-lg-2 control-label">Password<span style="color: red"> *</span> :</label>
                                             <div class="col-lg-10">
                                                 <input type="password" class="form-control" id="password"  required="required" name="password" value="{{ old('password') }}" placeholder="Enter Password"/>
-                                                @error('phone')
+                                                @error('password')
                                                  <span class="text-danger"> {{ $message }} </span>
                                                 @enderror
                                             </div>
@@ -125,7 +125,7 @@
                                             <label class="col-lg-2 control-label">Licence Number<span style="color: red"> *</span> :</label>
                                             <div class="col-lg-10">
                                                 <input type="text" class="form-control" id="licence_no" required="required" name="licence_no" value="{{ old('licence_no') }}"  placeholder="GJ-1234567890123"/>
-                                                @error('phone')
+                                                @error('licence_no')
                                                  <span class="text-danger"> {{ $message }} </span>
                                                 @enderror
                                             </div>
@@ -135,7 +135,7 @@
                                             <label class="col-lg-2 control-label">Truck Number<span style="color: red"> *</span> :</label>
                                             <div class="col-lg-10">
                                                 <input type="text" class="form-control" id="truck_no" required="required" name="truck_no" value="{{ old('truck_no') }}" placeholder="Truck Number"/>
-                                                @error('phone')
+                                                @error('truck_no')
                                                  <span class="text-danger"> {{ $message }} </span>
                                                 @enderror
                                             </div>

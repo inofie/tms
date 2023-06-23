@@ -36,8 +36,10 @@ class WarehouseController extends Controller
         foreach ($data1 as $key => $value) {
 
             $data[$key]=$value;
-            $company = Company::findorfail($value->company_id);
+            $company = Company::withTrashed()->findorfail($value->company_id);
             $data[$key]->company_name=$company->name;
+            $username = User::withTrashed()->findorfail($value->user_id);
+            $data[$key]->user_name=$username->username;
 
             # code...
         }
@@ -64,6 +66,7 @@ class WarehouseController extends Controller
         'gst'=>'required',
         'pan'=>'required',
         'address_proof'=>'required|mimes:jpeg,jpg,png',
+        'password'=>'required|min:8',
        ],[
          'name.required' => "Please Enter Name",
          'address.required' => "Please Enter Address",
@@ -75,12 +78,32 @@ class WarehouseController extends Controller
          'address_proof.required' => "Please Upload Address Proof Document",
          'address_proof.mimes' => "Please Upload Address Proof document File extension .jpg, .png, .jpeg",
           ]);
+                $data = User::where('username',$Request->username)->count();
+                        
+                if($data > 0){
         
+                    return redirect()->back()->withInput()->with('error','This Username Allready Registred in Our System.');
+                }
+  
+
+                $user = new User();
+                
+                $user->name = $Request->name;
+                
+                $user->username = $Request->username;
+                
+                $user->password = Hash::make($Request->password);
+                
+                $user->role = "warehouse";
+                
+                $user->created_by=Auth::user()->id;
+                
+                $user->save();
                
                 $comapny = new Warehouse();
 
                 $comapny->name = $Request->name;
-
+                $comapny->user_id = $user->id;
                 $comapny->phone = $Request->phone;
 
                 $comapny->address = $Request->address;
@@ -107,7 +130,7 @@ class WarehouseController extends Controller
 
                  if($comapny->save()){
 
-                     return redirect()->route('warehouselist')->with('success','Warehouse Addedd successfully.');
+                     return redirect()->route('warehouselist')->with('success','Warehouse Added successfully.');
 
                 }
 
@@ -118,8 +141,8 @@ class WarehouseController extends Controller
 
         $data = Warehouse::where('myid',$Request->id)->first();
         $company = Company::all();
-
-        return view('admin.warehouseedit',compact('data','company'));
+        $user = User::where('id',$data->user_id)->first();
+        return view('admin.warehouseedit',compact('data','company','user'));
 
     }
 
@@ -135,7 +158,7 @@ class WarehouseController extends Controller
         'company'=>'required',
         'gst'=>'required',
         'pan'=>'required',
-        'address_proof'=>'required|mimes:jpeg,jpg,png',
+        'address_proof'=>'mimes:jpeg,jpg,png',
        ],[
          'name.required' => "Please Enter Name",
          'address.required' => "Please Enter Address",
@@ -144,15 +167,39 @@ class WarehouseController extends Controller
          'company.required' => "Please Enter Company Name.",
          'gst.required' => "Please Enter GST Number",
          'pan.required' => "Please Enter PAN Number",
-         'address_proof.required' => "Please Upload Address Proof Document",
          'address_proof.mimes' => "Please Upload Address Proof document File extension .jpg, .png, .jpeg",
           ]);
+            if($Request->username != $Request->oldusername){
 
-                
+                $data = User::where('username',$Request->username)->where('id','!=',$Request->user_id)->count();
+                    
+            if($data > 0){
+
+                return redirect()->back()->withInput()->with('error','This Username Allready Registred in Our System.');
+            } 
+
+
+                    $user = User::findorfail($Request->user_id);
+                    
+                    $user->username = $Request->username;
+                    
+                    $user->save();
+
+            }
+                if($Request->password != '' && $Request->password != null){
+
+
+                    $user = User::findorfail($Request->user_id);
+                    
+                    $user->password = Hash::make($Request->password);
+                    
+                    $user->save();
+
+            }
                 $comapny = Warehouse::findorfail($Request->id);
 
                 $comapny->name = $Request->name;
-
+                
                 $comapny->phone = $Request->phone;
 
                 $comapny->address = $Request->address;

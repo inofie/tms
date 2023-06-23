@@ -111,7 +111,7 @@
       <table style="width: 100%">
         <tr>
           <td>
-            <img style="width: 100%;" src="{{ asset('public/uploads/11y.jpg')}}">
+            <img style="width: 100%;" src="{{ asset('uploads/11y.jpg')}}">
           </td>
         </tr>
       </table>
@@ -226,7 +226,7 @@
                <td style="border: 1px solid #dedede ; text-align: center; font-size: 10px; font-weight: 700; width: 15%; line-height: 1.2;  padding: 5px; border-radius: 5px;"> {{ $data->trucktype_name }}</td>
                <td style="border: 1px solid #dedede ; text-align: center; font-size: 10px; font-weight: 700; width: 20%; line-height: 1.2;  padding: 5px; border-radius: 5px;" rowspan="3">
 			   		@if($data->qr_code)
-					<img src="{{ asset('public/Qr_code') }}/{{ $data->qr_code }}" width="100%">
+					<img src="{{ asset('Qr_code') }}/{{ $data->qr_code }}" width="100%">
 				@endif
 			   </td>
 

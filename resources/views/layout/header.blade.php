@@ -1,5 +1,5 @@
       <!--header start-->
-
+      <script src="{{ asset('js/jquery.nicescroll.js') }}" type="text/javascript"></script>
       <header class="header white-bg">
 
           <div class="sidebar-toggle-box">

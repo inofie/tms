@@ -90,7 +90,7 @@
                                             <label class="col-lg-2 control-label">Licence Number <span style="color: red">*</span>:</label>
                                             <div class="col-lg-10">
                                                 <input type="text" class="form-control" id="licence_no" name="licence_no" value="{{ old('licence_no') }}"  placeholder="GJ-1234567890123"/>
-                                                @error('phone')
+                                                @error('licence_no')
                                                  <span class="text-danger"> {{ $message }} </span>
                                                 @enderror
                                             </div>

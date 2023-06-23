@@ -6,11 +6,31 @@ Shipment List | TMS
 
 @section('css2')
 
-  <link href="{{ asset('assets/advanced-datatable/media/css/demo_page.css')}}" rel="stylesheet" />
+<link href="{{ asset('assets/advanced-datatable/media/css/demo_page.css')}}" rel="stylesheet" />
 
-    <link href="{{ asset('assets/advanced-datatable/media/css/demo_table.css')}}" rel="stylesheet" />
+<link href="{{ asset('assets/advanced-datatable/media/css/demo_table.css')}}" rel="stylesheet" />
 
-<link rel="stylesheet" href="{{ asset('assets/data-tables/DT_bootstrap.css')}}" />
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.20/css/jquery.dataTables.min.css">
+
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/buttons/1.6.1/css/buttons.dataTables.min.css">
+
+<script type="text/javascript" src="https://code.jquery.com/jquery-3.3.1.js"></script>
+
+<script type="text/javascript" src="https://cdn.datatables.net/1.10.20/js/jquery.dataTables.min.js"></script>
+
+<script type="text/javascript" src="https://cdn.datatables.net/buttons/1.6.1/js/dataTables.buttons.min.js"></script>
+
+<script type="text/javascript" src="https://cdn.datatables.net/buttons/1.6.1/js/buttons.flash.min.js"></script>
+
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
+
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script>
+
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
+
+<script type="text/javascript" src="https://cdn.datatables.net/buttons/1.6.1/js/buttons.html5.min.js"></script>
+
+<script type="text/javascript" src="https://cdn.datatables.net/buttons/1.6.1/js/buttons.print.min.js"></script>
 @endsection
 
 
@@ -68,7 +88,11 @@ Shipment List | TMS
                                       <i class="fa fa-plus"></i> ADD
                                   </button>
                                 </a>
-
+                                <a style="padding:0px 1px;" href="{{route('myfilter')}}">
+                                  <button  class="btn btn-primary">
+                                      <i class="fa fa-plus"></i> Filter
+                                  </button>
+                                </a>
                                  
                                 
                                 </div>
@@ -83,6 +107,7 @@ Shipment List | TMS
                                     <th>Date</th>
                                     <th>Type</th>
                                     <th>Consignor</th>
+                                    <th>Created Date</th>
                                     <th>Consignee</th>
                                     <th>From</th>
                                     <th>To</th>
@@ -114,6 +139,7 @@ Shipment List | TMS
                                     </td>
                                     
                                     <td style="vertical-align: middle;">{{ $value->consignor }}</td>
+                                    <td style="vertical-align: middle;">{{ $value->created_at }}</td>
                                     
                                     <td style="vertical-align: middle;">{{ $value->consignee }}</td>
                                     
@@ -121,7 +147,7 @@ Shipment List | TMS
                                     
                                     <td style="vertical-align: middle;">{{ $value->to1 }}</td>
 
-                                    <td style="vertical-align: middle;">{{ $value->invoice_amount }}.00</td>
+                                    <td style="vertical-align: middle;">{{ $value->invoice_amount??"0" }}</td>
                                     
                                     <td id="{{ $value->shipment_no }}mystatus" style="vertical-align: middle;text-align: center;">
                                       @if($value->status == 0) 
@@ -138,7 +164,7 @@ Shipment List | TMS
                                     <td style="width: 18%;text-align: center;vertical-align: middle;">
                                       <div style="width: 100%;float: left;" class="{{ $value->shipment_no }}hide">
                                         @if($value->status ==1)
-                                         <a href="{{ route('shipmenttrucklist',['id'=>$value->myid]) }}" style="margin-top: 2%;width: auto; margin:1%;width:auto;" class="btn btn-primary btn-xs"><i class="fa fa-truck"></i> Trucks
+                                         <a href="{{ route('shipmenttrucklists',['id'=>$value->myid]) }}" style="margin-top: 2%;width: auto; margin:1%;width:auto;" class="btn btn-primary btn-xs"><i class="fa fa-truck"></i> Trucks
                                          </a>
                                          @endif
                                          @if($value->status == 1)
@@ -151,7 +177,7 @@ Shipment List | TMS
                                           
                                         <a href="{{ route('addexpensebyadmin',['id'=>$value->myid]) }}" style="margin-top: 2%;width: auto; margin:1%;width:auto;background-color: #673ab7;border-color: #673ab7;color: #fff"  class="btn expense btn-xs"><i class="fa fa-plus"></i> Expense </a>
                                           @if($value->status == 0 || $value->status == 1)
-                                       <a href="{{ route('shipmenttransporter',['id'=>$value->myid]) }}" style="margin-top: 2%;width: auto; margin:1%;width:auto;" class="btn btn-warning btn-xs {{ $value->shipment_no }}hide"><i class="fa fa-plus"></i> Transporter</i></a> 
+                                       <a href="{{ route('shipmenttransporters',['id'=>$value->myid]) }}" style="margin-top: 2%;width: auto; margin:1%;width:auto;" class="btn btn-warning btn-xs {{ $value->shipment_no }}hide"><i class="fa fa-plus"></i> Transporter</i></a> 
                                        @endif                         
                                       </div>
 
@@ -166,6 +192,7 @@ Shipment List | TMS
                                     </td>
                                      <td class="center" style="vertical-align: middle;">
                                      <a href="{{ route('shipmentdetails',['id'=>$value->myid]) }}" style="margin-top: 3%;width: auto;min-width: 80%;background-color: #047fb9;border-color: #047fb9;color: #fff" class="btn  btn-xs "><i class="fa fa-eye"></i> View</a>
+                                     <a href="{{ route('allshipmentsummarylist',['shipment_no'=>$value->shipment_no]) }}" style="margin-top: 3%;width: auto;min-width: 60%;background-color: #673ab7;border-color: #673ab7;color: #fff" class="btn  btn-xs "><i class="fa fa-eye"></i> Shipment Summary</a>
                                      @if($value->status == 0 || $value->status == 1)
                                      <br><a href="{{ route('shipmentedit',['id'=>$value->myid]) }}" style="margin-top: 3%;width: auto;min-width: 80%;"  class="btn btn-success btn-xs {{ $value->shipment_no }}hide"><i class="fa fa-pencil"></i> Edit</a><br>
                                      <form method="post" action="{{ route('shipmentdelete') }}">
@@ -249,22 +276,19 @@ Shipment List | TMS
 
 @endsection
 
-@section('js1')
-<script type="text/javascript" language="javascript" src="{{ asset('assets/advanced-datatable/media/js/jquery.js') }}"></script>
-
-@endsection
-
-@section('js3')
-
-<script type="text/javascript" language="javascript" src="{{ asset('assets/advanced-datatable/media/js/jquery.dataTables.js') }}"></script>
-<script type="text/javascript" src="{{ asset('assets/data-tables/DT_bootstrap.js') }}"></script>
-@endsection
 @section('js4')
 
 <script type="text/javascript">
   $(document).ready(function() {
     $('#editable-sample').DataTable( {
-       "aaSorting": [[ 1, "desc" ]],
+      "aaSorting": [[ 4, "desc" ]],
+       "columnDefs":
+           [
+               {
+                   "targets": [4],
+                   "visible": false, 
+               },
+           ],
        /* "lengthChange": true,
       "lengthMenu": [ 10, 25, 50, 75, 100 ],
         dom: 'Bfrtip',

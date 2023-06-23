@@ -148,10 +148,11 @@
                                         <div class="form-group">
                                             <label class="control-label col-md-2">Logo :</label>
                                             <div class="col-md-10">
-                                                <input type="file" name="logo" class="default">
-                                                
-                                                <img src="{{ asset('public/uploads') }}/{{ $data->logo }}" style="margin-top: 1%;float: left;" width="100px" alt="" class="zoom">
-                                                 @error('logo')
+                                                <input type="file" name="logo" id="logo" class="item-img file ">
+                                                <div style=" overflow: hidden; width: 100px; ">
+                                                <img src="{{ asset('/uploads') }}/{{ $data->logo }}" id="item-img-output" style="margin-top: 1%;float: left;" width="100px" alt="" class="zoom">
+                                                </div>
+                                                @error('logo')
                                                  <span class="text-danger"> {{ $message }} </span>
                                                 @enderror
                                             </div>
@@ -258,6 +259,21 @@
 
       $("#row"+id).remove();
      }
+     function readURL(input) {
+        if (input.files && input.files[0]) {
+            var reader = new FileReader();
+
+            reader.onload = function (e) {
+                $('#item-img-output').attr('src', e.target.result);
+            }
+
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+
+    $("#logo").change(function () {
+        readURL(this);
+    });
 
 </script>
   @endsection

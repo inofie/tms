@@ -149,10 +149,11 @@
                                         <div class="form-group">
                                             <label class="control-label col-md-2">Address Proof :</label>
                                             <div class="col-md-10">
-                                                <input type="file" name="address_proof" class="default">
-                                                
-                                                <img src="{{ asset('public/uploads') }}/{{ $data->address_proof }}" style="margin-top: 1%;float: left;" width="100px" alt="" class="zoom">
-                                                 @error('address_proof')
+                                                <input type="file" name="address_proof" id="address_proof" class="item-img file ">
+                                                <div style=" overflow: hidden; width: 100px; ">
+                                                <img src="{{ asset('/uploads') }}/{{ $data->address_proof }}" id="item-img-output" style="margin-top: 1%;float: left;" width="100px" alt="" class="zoom">
+                                                </div>
+                                                @error('address_proof')
                                                  <span class="text-danger"> {{ $message }} </span>
                                                 @enderror
                                             </div>
@@ -172,11 +173,37 @@
                                           </select>
                                           </div>
                                       </div>
+                                      <br>
+                                      <h4><u>Login Details</u></h4>
+                                      
 
+                                        <div class="form-group">
+                                            <label class="col-lg-2 control-label">Username :</label>
+                                            <div class="col-lg-10">
+                                                <input type="text" class="form-control" id="username" name="username" value="{{ $user->username }}" placeholder="Enter Username"/>
+                                                 <input type="hidden" name="oldusername" value="{{ $user->username }}" />
+                                                 <input type="hidden" name="user_id" value="{{ $data->user_id }}" />
+                                                @error('username')
+                                                 <span class="text-danger"> {{ $message }} </span>
+                                                @enderror
+                                            </div>
+                                        </div>
+
+
+                                          <div class="form-group">
+                                            <label class="col-lg-2 control-label">Password :</label>
+                                            <div class="col-lg-10">
+                                                <input type="text" class="form-control" id="password " name="password" placeholder="Enter Password"/>
+                                                @error('password')
+                                                 <span class="text-danger"> {{ $message }} </span>
+                                                @enderror
+                                            </div>
+                                        </div>
+                                        
                                         <div class="form-group save_cancle">
                                             <div class="col-lg-offset-10 col-lg-2">
                                                 <button class="btn btn-success" type="submit">Save</button>
-                                                <button class="btn btn-default" type="button">Cancel</button>
+                                                <a class="btn btn-default" href="{{ route('warehouselist') }}">Cancel</a>
                                             </div>
                                         </div>
                                     </form>
@@ -231,6 +258,20 @@
 
       $("#row"+id).remove();
      }
+     function readURL(input) {
+        if (input.files && input.files[0]) {
+            var reader = new FileReader();
 
+            reader.onload = function (e) {
+                $('#item-img-output').attr('src', e.target.result);
+            }
+
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+
+    $("#address_proof").change(function () {
+        readURL(this);
+    });
 </script>
   @endsection

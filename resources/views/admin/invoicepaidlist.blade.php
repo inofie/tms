@@ -120,7 +120,7 @@ All Paid Invoice List | TOT
                                   <td  id="change_color">{{ $value->name }}</td>
                                   <td>{{ $value->company_name }}</td>
                                   <td>{{ $value->address }}</td>
-                                  <td><img src="{{ asset('public/uploads') }}/{{ $value->address_proof }}" width="50px" alt="" class="zoom"></td>
+                                  <td><img src="{{ asset('/uploads') }}/{{ $value->address_proof }}" width="50px" alt="" class="zoom"></td>
                                   <td>{{ $value->phone }}</td>
                                   <td>{{ $value->gst }}</td>
                                   <td>{{ $value->pan }}</td> 

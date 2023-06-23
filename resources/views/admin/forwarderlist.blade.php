@@ -106,6 +106,7 @@ All Forwarder List | TOT
                               <thead>
                               <tr>
                                   <th style="width:14.5%; ">Full Name</th>
+                                  <th style="width:14.5%; ">User Name</th>
                                   <th style="width:14.5%; ">Address</th>
                                   <th style="width:12.5%; ">Phone Number</th>
                                   <th style="width:14.5%; ">Email</th>
@@ -120,6 +121,7 @@ All Forwarder List | TOT
 
                                <tr class="table_space">
                                   <td  id="change_color">{{ $value->name }}</td>
+                                  <td>{{ $value->user_name }}</td>
                                   <td>{{ $value->address }}</td>
                                   <td>{{ $value->phone }}</td>
                                   <td>{{ $value->email }}</td>

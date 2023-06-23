@@ -1,3 +1,4 @@
+<script src="{{ asset('js/jquery.nicescroll.js') }}" type="text/javascript"></script>
 <aside>
 
           <div id="sidebar"  class="nav-collapse ">
@@ -9,6 +10,7 @@
 
 
                 @if(Auth::user()->role == 'admin' )
+                
                   <li>
                       <a class="{{ Request::is('admin/dashboard*') ? 'active' : '' }}" href="{{ route('admindashboard') }}">
                           <i class="fa fa-dashboard"></i>
@@ -31,7 +33,7 @@
                    <li class="sub-menu">
                       <a href="javascript:;" class="{{ Request::is('admin/shipment*') ? 'active' : '' }}">
                           <i class="fa fa-bus"></i>
-                          <span>Manage Shipmant</span>
+                          <span>Manage Shipment</span>
                       </a>
                       <ul class="sub">
                       	 <li class="{{ Request::is('admin/shipment/add') ? 'active' : '' }}">
@@ -46,9 +48,9 @@
                             <li class="{{ Request::is('admin/shipment/all/list') ? 'active' : '' }}">
                               <a  href="{{ route('allshipmentlist') }}">Old List</a>
                             </li>
-                             <li class="{{ Request::is('admin/shipment/all/filter') ? 'active' : '' }}">
+                             <!-- <li class="{{ Request::is('admin/shipment/all/filter') ? 'active' : '' }}">
                               <a  href="{{ route('myfilter') }}">Filter</a>
-                            </li>
+                            </li> -->
                           
                       </ul>
                   </li>
@@ -137,7 +139,7 @@
 
                           <i class="fa fa-bus"></i>
 
-                          <span>Manage Shipmant</span>
+                          <span>Manage Shipment</span>
 
                       </a>
 
@@ -217,6 +219,214 @@
                       </a>
 
                   </li> 
+                    <li class="@if(Request::is('admin/roles') ||Request::is('admin/roles/*') ) active @endif treeview">
+                    <a href="{{url('admin/roles')}}">
+                    <i class="fa fa-globe"></i><span>Manage Roles</span>
+                    </a>
+                    </li>
+     
+                        <li class="@if(Request::is('admin/roleuser') ||Request::is('admin/roleuser/*') ) active @endif treeview">
+                        <a href="{{url('admin/roleuser')}}">
+                        <i class="fa fa-user"></i><span>Manage Role Users</span>
+                        </a>
+                        </li>
+
+                  @elseif(Auth::user()->role == 'company' )
+                  <li>
+                      <a class="{{ Request::is('company/dashboard*') ? 'active' : '' }}" href="{{ route('companydashboard') }}">
+                          <i class="fa fa-dashboard"></i>
+                          <span>Dashboard</span>
+                      </a>
+                  </li>
+
+
+                 {{--  <li>
+
+                      <a class="{{ Request::is('admin/shipment*') ? 'active' : '' }}" href="{{ route('driverlist') }}">
+
+                          <i class="fa fa-car"></i>
+
+                          <span>Manage Shipment</span>
+
+                      </a>
+
+                  </li>  --}}
+                   <li class="sub-menu">
+                      <a href="javascript:;" class="{{ Request::is('admin/shipment*') ? 'active' : '' }}">
+                          <i class="fa fa-bus"></i>
+                          <span>Manage Shipment</span>
+                      </a>
+                      <ul class="sub">
+                      	 <li class="{{ Request::is('admin/shipment/add') ? 'active' : '' }}">
+                            <a  href="{{ route('shipmentadd') }}">Add New</a>
+                          </li>
+                          <li class="{{ Request::is('admin/shipment/list') ? 'active' : '' }}">
+                            <a  href="{{ route('shipmentlist') }}">Latest List</a>
+                          </li>
+                          <li class="{{ Request::is('admin/shipment/warehouse/list') ? 'active' : '' }}">
+                              <a  href="{{ route('warehouseshiplist') }}">Warehouse List</a>
+                          </li>
+                            <li class="{{ Request::is('admin/shipment/all/list') ? 'active' : '' }}">
+                              <a  href="{{ route('allshipmentlist') }}">Old List</a>
+                            </li>
+                             <!-- <li class="{{ Request::is('admin/shipment/all/filter') ? 'active' : '' }}">
+                              <a  href="{{ route('myfilter') }}">Filter</a>
+                            </li> -->
+                          
+                      </ul>
+                  </li>
+
+
+
+                    <li class="sub-menu">
+                      <a href="javascript:;" class="{{ Request::is('admin/invoice*') ? 'active' : '' }}">
+                          <i class="fa fa-file-text"></i>
+                          <span>Manage Invoices</span>
+                      </a>
+                      <ul class="sub">
+                         <li class="{{ Request::is('admin/invoice/new') ? 'active' : '' }}">
+                            <a  href="{{ route('invoiceadd') }}">New Invoices</a>
+                          </li>
+                          <li class="{{ Request::is('admin/invoice/unpaid/list') ? 'active' : '' }}">
+                            <a  href="{{ route('unpaidshipmentlist') }}">Unpaid Invoices</a>
+                          </li>
+                          <li class="{{ Request::is('admin/invoice/paid/list') ? 'active' : '' }}">
+                              <a  href="{{ route('paidshipmentlist') }}">Paid Invoices</a>
+                          </li>
+                            
+                          
+                      </ul>
+                  </li>
+
+
+                   <li class="sub-menu">
+                      <a href="javascript:;" class="{{ Request::is('admin/voucher*') ? 'active' : '' }}">
+                          <i class="fa fa-square"></i>
+                          <span>Manage Vouchers</span>
+                      </a>
+                      <ul class="sub">
+                         <li class="{{ Request::is('admin/voucher/credit') ? 'active' : '' }}">
+                            <a  href="{{ route('voucherlcredit') }}">New Credit Voucher</a>
+                          </li>
+                          <li class="{{ Request::is('admin/voucher/debit') ? 'active' : '' }}">
+                            <a  href="{{ route('voucherldebit') }}">New Debit Voucher</a>
+                          </li>
+                          <li class="{{ Request::is('admin/voucher/list') ? 'active' : '' }}">
+                            <a  href="{{ route('voucherlist') }}">Voucher List</a>
+                          </li>
+                          
+                            
+                          
+                      </ul>
+                  </li>
+
+
+                  <li class="sub-menu">
+                      <a href="javascript:;" class="{{ Request::is('admin/expense*') ? 'active' : '' }}">
+                          <i class="fa fa-inr"></i>
+                          <span>Manage Expenses</span>
+                      </a>
+                      <ul class="sub">
+                         <li class="{{ Request::is('admin/expense/add') ? 'active' : '' }}">
+                            <a  href="{{ route('expenseadd') }}">Add Expense</a>
+                          </li>
+                         
+                          <li class="{{ Request::is('admin/expense/list') ? 'active' : '' }}">
+                            <a  href="{{ route('expenselist') }}">Expense List</a>
+                          </li>
+                          
+                            
+                          
+                      </ul>
+                  </li>
+                  
+
+
+
+                  <li>
+
+                      <a class="{{ Request::is('admin/account*') ? 'active' : '' }}" href=" {{ route('accounts') }}">
+
+                          <i class="fa fa-suitcase"></i>
+
+                          <span>Manage Accounts</span>
+
+                      </a>
+
+                  </li>  
+                   {{-- <li>
+
+                      <a class="{{ Request::is('admin/shipment*') ? 'active' : '' }}" href="{{ route('shipmentlist') }}">
+
+                          <i class="fa fa-bus"></i>
+
+                          <span>Manage Shipment</span>
+
+                      </a>
+
+                  </li>     --}}   
+
+                  <li>
+
+                      <a class="{{ Request::is('admin/transporter*') ? 'active' : '' }}" href="{{ route('transporterlist') }}">
+
+                          <i class="fa fa-truck"></i>
+
+                          <span>Manage Transport</span>
+
+                      </a>
+
+                  </li>  
+
+
+                   <li>
+
+                      <a class="{{ Request::is('admin/forwarder*') ? 'active' : '' }}" href="{{ route('forwarderlist') }}">
+
+                          <i class="fa fa-university"></i>
+
+                          <span>Manage Forwarder</span>
+
+                      </a>
+
+                  </li>   
+
+                    <li>
+
+                      <a class="{{ Request::is('company/employee*') ? 'active' : '' }}" href="{{ route('employeelistcompany') }}">
+
+                          <i class="fa fa-users"></i>
+
+                          <span>Manage Employee</span>
+
+                      </a>
+
+                  </li> 
+
+                  <li>
+
+                      <a class="{{ Request::is('admin/warehouse*') ? 'active' : '' }}" href="{{ route('warehouselist') }}">
+
+                          <i class="fa fa-home"></i>
+
+                          <span>Manage Warehouse</span>
+
+                      </a>
+
+                  </li> 
+
+
+                   <li>
+
+                      <a class="{{ Request::is('admin/driver*') ? 'active' : '' }}" href="{{ route('driverlist') }}">
+
+                          <i class="fa fa-car"></i>
+
+                          <span>Manage Driver</span>
+
+                      </a>
+
+                  </li> 
 
                     @elseif(Auth::user()->role == 'employee')
 
@@ -248,7 +458,7 @@
                    <li class="sub-menu">
                       <a href="javascript:;" class="{{ Request::is('admin/shipment*') ? 'active' : '' }}">
                           <i class="fa fa-bus"></i>
-                          <span>Manage Shipmant</span>
+                          <span>Manage Shipment</span>
                       </a>
                       <ul class="sub">
                          <li class="{{ Request::is('admin/shipment/add') ? 'active' : '' }}">
@@ -297,7 +507,7 @@
 
                           <i class="fa fa-bus"></i>
 
-                          <span>Manage Shipmant</span>
+                          <span>Manage Shipment</span>
 
                       </a>
 
@@ -333,7 +543,7 @@
 
 
 
-                  <li>
+                  <!-- <li>
 
                       <a class="{{ Request::is('admin/company*') ? 'active' : '' }}" href="{{ route('companylist') }}">
 
@@ -343,7 +553,7 @@
 
                       </a>
 
-                  </li> 
+                  </li>  -->
 
 
                    <li>
@@ -358,7 +568,7 @@
 
                   </li>   
 
-                    <li>
+                    <!-- <li>
 
                       <a class="{{ Request::is('admin/employee*') ? 'active' : '' }}" href="{{ route('employeelist') }}">
 
@@ -368,7 +578,7 @@
 
                       </a>
 
-                  </li> 
+                  </li>  -->
 
                   <li>
 
@@ -416,7 +626,7 @@
                   <li class="sub-menu">
                       <a href="javascript:;" class="{{ Request::is('forwarder/shipment*') ? 'active' : '' }}">
                           <i class="fa fa-bus"></i>
-                          <span>Manage Shipmant</span>
+                          <span>Manage Shipment</span>
                       </a>
                       <ul class="sub">
                           <li class="{{ Request::is('forwarder/shipment/list') ? 'active' : '' }}">
@@ -433,7 +643,7 @@
                   <li class="sub-menu">
                       <a href="javascript:;" class="{{ Request::is('forwarder/account*') ? 'active' : '' }}">
                           <i class="fa fa-bus"></i>
-                          <span>Manage Acoounts</span>
+                          <span>Manage Accounts</span>
                       </a>
                       <ul class="sub">
                           <li class="{{ Request::is('forwarder/account/invoice/list') ? 'active' : '' }}">
@@ -458,25 +668,25 @@
 
 
                         <li class="sub-menu">
-                        <a href="javascript:;" class="{{ Request::is('admin/shipment*') ? 'active' : '' }}">
+                        <a href="javascript:;" class="{{ Request::is('transporter/shipment*') ? 'active' : '' }}">
                             <i class="fa fa-bus"></i>
-                            <span>Manage Shipmant</span>
+                            <span>Manage Shipment</span>
                         </a>
                         <ul class="sub">
-                      	 <li class="{{ Request::is('admin/shipment/add') ? 'active' : '' }}">
+                      	 <!-- <li class="{{ Request::is('admin/shipment/add') ? 'active' : '' }}">
                             <a  href="{{ route('shipmentadd') }}">Add New</a>
-                          </li>
-                          <li class="{{ Request::is('admin/shipment/list') ? 'active' : '' }}">
+                          </li> -->
+                          <li class="{{ Request::is('transporter/shipment/list') ? 'active' : '' }}">
                             <a  href="{{ route('shipmentlisttransporter') }}">Latest List</a>
                           </li>
-                          <li class="{{ Request::is('admin/shipment/warehouse/list') ? 'active' : '' }}">
+                          <!-- <li class="{{ Request::is('admin/shipment/warehouse/list') ? 'active' : '' }}">
                               <a  href="{{ route('warehouseshiplisttransporter') }}">Warehouse List</a>
-                          </li>
-                            <li class="{{ Request::is('admin/shipment/all/list') ? 'active' : '' }}">
+                          </li> -->
+                            <li class="{{ Request::is('transporter/shipment/all/list') ? 'active' : '' }}">
                               <a  href="{{ route('allshipmentlisttransporter') }}">Old List</a>
                             </li>
-                             <!-- <li class="{{ Request::is('admin/shipment/all/filter') ? 'active' : '' }}">
-                              <a  href="{{ route('myfilter') }}">Filter</a>
+                             <!-- <li class="{{ Request::is('transporter/shipment/all/filter') ? 'active' : '' }}">
+                              <a  href="{{ route('myfiltertransporter') }}">Filter</a>
                             </li> -->
                           
                         </ul>
@@ -488,6 +698,271 @@
                         </li>
                         </li>
 
+
+                        @elseif(Auth::user()->role == 'warehouse')
+                        <li>
+
+                        <a class="{{ Request::is('warehouse/dashboard*') ? 'active' : '' }}" href="{{ route('warehousedashboard') }}">
+                            <i class="fa fa-dashboard"></i>
+                            <span>Dashboard</span>
+                        </a>
+                        </li>
+
+                        <li class="sub-menu">
+                        <a href="javascript:;" class="{{ Request::is('warehouse/shipment*') ? 'active' : '' }}">
+                            <i class="fa fa-bus"></i>
+                            <span>Manage Shipment</span>
+                        </a>
+                        <ul class="sub">
+            
+                          <li class="{{ Request::is('warehouse/shipment/warehouse/list') ? 'active' : '' }}">
+                              <a  href="{{ route('warehouseshiplistwarehouse') }}">Warehouse List</a>
+                          </li>
+                            
+                          <!-- <li class="{{ Request::is('warehouse/shipment/all/filter') ? 'active' : '' }}">
+                              <a  href="{{ route('myfilterwarehouse') }}">Filter</a>
+                            </li> -->
+                          
+                        </ul>
+                        
+                        </li>
+                        @else
+                        
+                        @permission('dashboard-list')
+                        <li>
+                      <a class="{{ Request::is('admin/dashboard*') ? 'active' : '' }}" href="{{ route('admindashboard') }}">
+                          <i class="fa fa-dashboard"></i>
+                          <span>Dashboard</span>
+                      </a>
+                  </li>
+                  @endpermission
+
+
+                 {{--  <li>
+                    
+                      <a class="{{ Request::is('admin/shipment*') ? 'active' : '' }}" href="{{ route('driverlist') }}">
+
+                          <i class="fa fa-car"></i>
+
+                          <span>Manage Shipment</span>
+
+                      </a>
+
+                  </li>  --}}
+                  @permission('shipment-list')
+                   <li class="sub-menu">
+                      <a href="javascript:;" class="{{ Request::is('admin/shipment*') ? 'active' : '' }}">
+                          <i class="fa fa-bus"></i>
+                          <span>Manage Shipment</span>
+                      </a>
+                      <ul class="sub">
+                      	 <li class="{{ Request::is('admin/shipment/add') ? 'active' : '' }}">
+                            <a  href="{{ route('shipmentadd') }}">Add New</a>
+                          </li>
+                          <li class="{{ Request::is('admin/shipment/list') ? 'active' : '' }}">
+                            <a  href="{{ route('shipmentlist') }}">Latest List</a>
+                          </li>
+                          <li class="{{ Request::is('admin/shipment/warehouse/list') ? 'active' : '' }}">
+                              <a  href="{{ route('warehouseshiplist') }}">Warehouse List</a>
+                          </li>
+                            <li class="{{ Request::is('admin/shipment/all/list') ? 'active' : '' }}">
+                              <a  href="{{ route('allshipmentlist') }}">Old List</a>
+                            </li>
+                             <!-- <li class="{{ Request::is('admin/shipment/all/filter') ? 'active' : '' }}">
+                              <a  href="{{ route('myfilter') }}">Filter</a>
+                            </li> -->
+                          
+                      </ul>
+                  </li>
+                  @endpermission
+
+                  @permission('invoice-list')
+                    <li class="sub-menu">
+                      <a href="javascript:;" class="{{ Request::is('admin/invoice*') ? 'active' : '' }}">
+                          <i class="fa fa-file-text"></i>
+                          <span>Manage Invoices</span>
+                      </a>
+                      <ul class="sub">
+                         <li class="{{ Request::is('admin/invoice/new') ? 'active' : '' }}">
+                            <a  href="{{ route('invoiceadd') }}">New Invoices</a>
+                          </li>
+                          <li class="{{ Request::is('admin/invoice/unpaid/list') ? 'active' : '' }}">
+                            <a  href="{{ route('unpaidshipmentlist') }}">Unpaid Invoices</a>
+                          </li>
+                          <li class="{{ Request::is('admin/invoice/paid/list') ? 'active' : '' }}">
+                              <a  href="{{ route('paidshipmentlist') }}">Paid Invoices</a>
+                          </li>
+                            
+                          
+                      </ul>
+                  </li>
+                  @endpermission
+                  @permission('voucher-list')
+
+
+                   <li class="sub-menu">
+                      <a href="javascript:;" class="{{ Request::is('admin/voucher*') ? 'active' : '' }}">
+                          <i class="fa fa-square"></i>
+                          <span>Manage Vouchers</span>
+                      </a>
+                      <ul class="sub">
+                         <li class="{{ Request::is('admin/voucher/credit') ? 'active' : '' }}">
+                            <a  href="{{ route('voucherlcredit') }}">New Credit Voucher</a>
+                          </li>
+                          <li class="{{ Request::is('admin/voucher/debit') ? 'active' : '' }}">
+                            <a  href="{{ route('voucherldebit') }}">New Debit Voucher</a>
+                          </li>
+                          <li class="{{ Request::is('admin/voucher/list') ? 'active' : '' }}">
+                            <a  href="{{ route('voucherlist') }}">Voucher List</a>
+                          </li>
+                          
+                            
+                          
+                      </ul>
+                  </li>
+
+                  @endpermission
+                  @permission('expense-list')
+                  <li class="sub-menu">
+                      <a href="javascript:;" class="{{ Request::is('admin/expense*') ? 'active' : '' }}">
+                          <i class="fa fa-inr"></i>
+                          <span>Manage Expenses</span>
+                      </a>
+                      <ul class="sub">
+                         <li class="{{ Request::is('admin/expense/add') ? 'active' : '' }}">
+                            <a  href="{{ route('expenseadd') }}">Add Expense</a>
+                          </li>
+                         
+                          <li class="{{ Request::is('admin/expense/list') ? 'active' : '' }}">
+                            <a  href="{{ route('expenselist') }}">Expense List</a>
+                          </li>
+                          
+                            
+                          
+                      </ul>
+                  </li>
+                  @endpermission
+                  @permission('account-list')
+
+
+
+                  <li>
+
+                      <a class="{{ Request::is('admin/account*') ? 'active' : '' }}" href=" {{ route('accounts') }}">
+
+                          <i class="fa fa-suitcase"></i>
+
+                          <span>Manage Accounts</span>
+
+                      </a>
+
+                  </li>  
+                  @endpermission
+                 
+                   {{-- <li>
+
+                      <a class="{{ Request::is('admin/shipment*') ? 'active' : '' }}" href="{{ route('shipmentlist') }}">
+
+                          <i class="fa fa-bus"></i>
+
+                          <span>Manage Shipment</span>
+
+                      </a>
+
+                  </li>     --}}   
+                  @permission('transporter-list')
+                  <li>
+
+                      <a class="{{ Request::is('admin/transporter*') ? 'active' : '' }}" href="{{ route('transporterlist') }}">
+
+                          <i class="fa fa-truck"></i>
+
+                          <span>Manage Transport</span>
+
+                      </a>
+
+                  </li>  
+
+                  @endpermission
+                  @permission('company-list')
+                  <li>
+
+                      <a class="{{ Request::is('admin/company*') ? 'active' : '' }}" href="{{ route('companylist') }}">
+
+                          <i class="fa fa-building"></i>
+
+                          <span>Manage Company</span>
+
+                      </a>
+
+                  </li> 
+                  @endpermission
+                  @permission('forwarder-list')
+                   <li>
+
+                      <a class="{{ Request::is('admin/forwarder*') ? 'active' : '' }}" href="{{ route('forwarderlist') }}">
+
+                          <i class="fa fa-university"></i>
+
+                          <span>Manage Forwarder</span>
+
+                      </a>
+
+                  </li>   
+                  @endpermission
+                  @permission('employee-list')
+                    <li>
+
+                      <a class="{{ Request::is('admin/employee*') ? 'active' : '' }}" href="{{ route('employeelist') }}">
+
+                          <i class="fa fa-users"></i>
+
+                          <span>Manage Employee</span>
+
+                      </a>
+
+                  </li> 
+                  @endpermission
+                  @permission('warehouse-list')
+                  <li>
+
+                      <a class="{{ Request::is('admin/warehouse*') ? 'active' : '' }}" href="{{ route('warehouselist') }}">
+
+                          <i class="fa fa-home"></i>
+
+                          <span>Manage Warehouse</span>
+
+                      </a>
+
+                  </li> 
+                  @endpermission
+                  @permission('driver-list')
+                   <li>
+
+                      <a class="{{ Request::is('admin/driver*') ? 'active' : '' }}" href="{{ route('driverlist') }}">
+
+                          <i class="fa fa-car"></i>
+
+                          <span>Manage Driver</span>
+
+                      </a>
+
+                  </li> 
+                  @endpermission
+                  @permission('roles-list')
+                    <li class="@if(Request::is('admin/roles') ||Request::is('admin/roles/*') ) active @endif treeview">
+                    <a href="{{url('admin/roles')}}">
+                    <i class="fa fa-globe"></i><span>Manage Roles</span>
+                    </a>
+                    </li>
+                    @endpermission
+                    @permission('roleuser-list')
+                        <li class="@if(Request::is('admin/roleuser') ||Request::is('admin/roleuser/*') ) active @endif treeview">
+                        <a href="{{url('admin/roleuser')}}">
+                        <i class="fa fa-user"></i><span>Manage Role Users</span>
+                        </a>
+                        </li>
+                        @endpermission
                         @endif
 
 

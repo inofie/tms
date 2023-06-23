@@ -71,7 +71,7 @@
                                 <div class="form">
                                     <form class="cmxform form-horizontal tasi-form" id="signupForm" method="post" action="{{ route('savetransporter') }}" enctype="multipart/form-data">
                                       @csrf
-                                      <input type="hidden" name="shipment_no" value="{{ $ship->shipment_no }}">
+                                      <input type="hidden" name="shipment_no" class="shipment_no" value="{{ $ship->shipment_no }}">
                                      
 
                                         <div class="form-group mytransporter">
@@ -131,7 +131,8 @@
                                 <thead>
                                 <tr>
                                     <th class="center">Sr.No</th>
-                                    <th class="center">Name</th>
+                                    <th class="center">Transporter Name</th>
+                                    <th class="center">Driver Name</th>
                                     <th class="center">Action</th>
                                 </tr>
                                 </thead>
@@ -142,6 +143,7 @@
                                 <tr>
                                     <td class="center"><?php echo $i = $i+1; ?></b></td>
                                     <td class="center">{{ $value->name }}</td>
+                                    <td class="center">{{ $value->driver_name }}</td>
                                     <td class="center"> <form action="{{ route('deleteshiptransporter') }}" method="post">
                                         @csrf
                                         <input type="hidden" name="id" value="{{ $value->id }}">
@@ -219,10 +221,11 @@
        var selected = $(this).find('option:selected');
        var no = selected.data('number'); 
        $('#truck_no').val(no);
+       var myshipment = $(".shipment_no").val();
        var mytransporter = $(this).val();
          $.ajax({
                     url: '{{route('shipmentdriverlist')}}',
-                    data: {"_token": "{{ csrf_token() }}","transporter_id":mytransporter},
+                    data: {"_token": "{{ csrf_token() }}","transporter_id":mytransporter,"shipment_no":myshipment},
                     type: 'post',
                     success: function(result)
                     {

@@ -31,7 +31,15 @@ class CompanyController extends Controller
     public function List(Request $Request)
     {	
         
-        $data = Company::all();
+        $data1 = Company::all();
+        $data= array();
+        foreach ($data1 as $key => $value) {
+
+            $data[$key]=$value;
+            $username = User::withTrashed()->findorfail($value->user_id);
+            $data[$key]->user_name=$username->username;
+
+        }
     	return view('admin.companylist',compact('data'));
     }
 
@@ -55,7 +63,7 @@ class CompanyController extends Controller
         'email'=>'required|email',
         'gst'=>'required',
         'username'=>'required',
-        'password'=>'required',
+        'password'=>'required|min:8',
         'logo'=>'mimes:jpeg,jpg,png',
 
          ],[
@@ -90,7 +98,7 @@ class CompanyController extends Controller
                 
                 $user->password = Hash::make($Request->password);
                 
-                $user->role = "admin";
+                $user->role = "company";
                 
                 $user->created_by=Auth::user()->id;
                 

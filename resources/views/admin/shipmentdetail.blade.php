@@ -67,7 +67,7 @@
                           <header class="panel-heading" style="border-bottom: 1px solid #2a3542;line-height: 30px;">
                             Shipment Detail
                              <div class="btn-group pull-right">
-                                 <a href="{{ route('shipmentlist') }}">
+                                 <a href="{{ URL::previous() }}">
                                   <button  class="btn btn-primary">
                                       <i class="fa fa-reply"></i> Back
                                   </button>
@@ -106,6 +106,10 @@
 
                                    <div class="form-group">
                                   <label class="control-label col-lg-12">Transporter : {{ $data->transporters_list }}</label>
+                                  </div>
+
+                                  <div class="form-group">
+                                  <label class="control-label col-lg-12">Driver : {{ $data->drivers_list }}</label>
                                   </div>
 
                                   <div class="form-group">
@@ -149,21 +153,39 @@
 										<th class="center">Damage Cargo Photo</th>
 										<th class="center">Document Received Photo</th>
 										<th class="center">Missing Pkg Photo</th>
-
+                    <th class="center">Hold Photo</th>
+                    <th class="center">Other Photo</th>
+                    <th class="center">TruckTransfer Rechatport</th>
+                    <th class="center">Rechatport</th>
+                    <th class="center">TruckTransfer Rechatcompany</th>
+                    <th class="center">Load Container</th>
+                    <th class="center">Load Cargo</th>
+                    <th class="center">Unload Container</th>
+                    <th class="center">Unload Cargo</th>
 									</tr>
 								</thead>
 								<tbody>
 									@foreach($trucks as $value)
 										<tr>
 											<td class="center" style="vertical-align: middle;">{{ $value->truck_no }}</td>   
-											<td class="center">@if($value->loaded_photo != "")<a target="_blank" href="{{ getenv('APP_URL') }}/public/uploads/{{ $value->loaded_photo }}"> <img src="{{ getenv('APP_URL') }}/public/uploads/{{ $value->loaded_photo }}" width="100px"></a>@endif</td>  
-											<td class="center">@if($value->loaded_photo != "")<a target="_blank" href="{{ getenv('APP_URL') }}/public/uploads/{{ $value->unloaded_photo }}"> <img src="{{ getenv('APP_URL') }}/public/uploads/{{ $value->unloaded_photo }}" width="100px"></a>@endif</td>
-											<td class="center">@if($value->pickup_conformation != "") <a target="_blank" href="{{ getenv('APP_URL') }}/public/uploads/{{ $value->pickup_conformation }}"> <img src="{{ getenv('APP_URL') }}/public/uploads/{{ $value->pickup_conformation }}" width="100px"></a>@endif</td>
-											<td class="center">@if($value->reach_company != "") <a target="_blank" href="{{ getenv('APP_URL') }}/public/uploads/{{ $value->reach_company }}"> <img src="{{ getenv('APP_URL') }}/public/uploads/{{ $value->reach_company }}" width="100px"></a>@endif</td>
-											<td class="center">@if($value->damage_cargo != "") <a target="_blank" href="{{ getenv('APP_URL') }}/public/uploads/{{ $value->damage_cargo }}"> <img src="{{ getenv('APP_URL') }}/public/uploads/{{ $value->damage_cargo }}" width="100px"></a>@endif</td>
-											<td class="center">@if($value->document_received != "") <a target="_blank" href="{{ getenv('APP_URL') }}/public/uploads/{{ $value->document_received }}"> <img src="{{ getenv('APP_URL') }}/public/uploads/{{ $value->document_received }}" width="100px"></a>@endif</td>
-											<td class="center">@if($value->missing_pkg != "") <a target="_blank" href="{{ getenv('APP_URL') }}/public/uploads/{{ $value->missing_pkg }}"> <img src="{{ getenv('APP_URL') }}/public/uploads/{{ $value->missing_pkg }}" width="100px"></a>@endif</td>
-										</tr>
+											<td class="center">@if($value->loaded_photo != "")<a target="_blank" href="{{ getenv('APP_URL') }}/uploads/{{ $value->loaded_photo }}"> <img src="{{ getenv('APP_URL') }}/uploads/{{ $value->loaded_photo }}" width="100px"></a>@endif</td>  
+											<td class="center">@if($value->unloaded_photo != "")<a target="_blank" href="{{ getenv('APP_URL') }}/uploads/{{ $value->unloaded_photo }}"> <img src="{{ getenv('APP_URL') }}/uploads/{{ $value->unloaded_photo }}" width="100px"></a>@endif</td>
+											<td class="center">@if($value->pickup_conformation != "") <a target="_blank" href="{{ getenv('APP_URL') }}/uploads/{{ $value->pickup_conformation }}"> <img src="{{ getenv('APP_URL') }}/uploads/{{ $value->pickup_conformation }}" width="100px"></a>@endif</td>
+											<td class="center">@if($value->reach_company != "") <a target="_blank" href="{{ getenv('APP_URL') }}/uploads/{{ $value->reach_company }}"> <img src="{{ getenv('APP_URL') }}/uploads/{{ $value->reach_company }}" width="100px"></a>@endif</td>
+											<td class="center">@if($value->damage_cargo != "") <a target="_blank" href="{{ getenv('APP_URL') }}/uploads/{{ $value->damage_cargo }}"> <img src="{{ getenv('APP_URL') }}/uploads/{{ $value->damage_cargo }}" width="100px"></a>@endif</td>
+											<td class="center">@if($value->document_received != "") <a target="_blank" href="{{ getenv('APP_URL') }}/uploads/{{ $value->document_received }}"> <img src="{{ getenv('APP_URL') }}/uploads/{{ $value->document_received }}" width="100px"></a>@endif</td>
+                      <td class="center">@if($value->missing_pkg != "") <a target="_blank" href="{{ getenv('APP_URL') }}/uploads/{{ $value->missing_pkg }}"> <img src="{{ getenv('APP_URL') }}/uploads/{{ $value->missing_pkg }}" width="100px"></a>@endif</td>
+											<td class="center">@if($value->hold_photo != "") <a target="_blank" href="{{ getenv('APP_URL') }}/uploads/{{ $value->hold_photo }}"> <img src="{{ getenv('APP_URL') }}/uploads/{{ $value->hold_photo}}" width="100px"></a>@endif</td>
+                      <td class="center">@if($value->other_photo != "") <a target="_blank" href="{{ getenv('APP_URL') }}/uploads/{{ $value->other_photo }}"> <img src="{{ getenv('APP_URL') }}/uploads/{{ $value->other_photo }}" width="100px"></a>@endif</td>
+                      <td class="center">@if($value->trucktransreachprt_photo != "") <a target="_blank" href="{{ getenv('APP_URL') }}/uploads/{{ $value->trucktransreachprt_photo }}"> <img src="{{ getenv('APP_URL') }}/uploads/{{ $value->trucktransreachprt_photo }}" width="100px"></a>@endif</td>
+                      <td class="center">@if($value->reachprt_photo != "") <a target="_blank" href="{{ getenv('APP_URL') }}/uploads/{{ $value->reachprt_photo }}"> <img src="{{ getenv('APP_URL') }}/uploads/{{ $value->reachprt_photo }}" width="100px"></a>@endif</td>
+                      <td class="center">@if($value->trucktransreachcompany_photo != "") <a target="_blank" href="{{ getenv('APP_URL') }}/uploads/{{ $value->trucktransreachcompany_photo }}"> <img src="{{ getenv('APP_URL') }}/uploads/{{ $value->trucktransreachcompany_photo }}" width="100px"></a>@endif</td>
+                      <td class="center">@if($value->loadcontainer_photo != "") <a target="_blank" href="{{ getenv('APP_URL') }}/uploads/{{ $value->loadcontainer_photo }}"> <img src="{{ getenv('APP_URL') }}/uploads/{{ $value->loadcontainer_photo }}" width="100px"></a>@endif</td>
+                      <td class="center">@if($value->loadcargo_photo != "") <a target="_blank" href="{{ getenv('APP_URL') }}/uploads/{{ $value->loadcargo_photo }}"> <img src="{{ getenv('APP_URL') }}/uploads/{{ $value->loadcargo_photo }}" width="100px"></a>@endif</td>
+                      <td class="center">@if($value->unloadcargo_photo != "") <a target="_blank" href="{{ getenv('APP_URL') }}/uploads/{{ $value->unloadcargo_photo }}"> <img src="{{ getenv('APP_URL') }}/uploads/{{ $value->unloadcargo_photo }}" width="100px"></a>@endif</td>
+                      <td class="center">@if($value->unloadedcontainer_photo != "") <a target="_blank" href="{{ getenv('APP_URL') }}/uploads/{{ $value->unloadedcontainer_photo }}"> <img src="{{ getenv('APP_URL') }}/uploads/{{ $value->unloadedcontainer_photo }}" width="100px"></a>@endif</td>
+                      
+                    </tr>
 									@endforeach
 								</tbody>
 							</table>

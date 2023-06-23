@@ -33,10 +33,16 @@ class TransporterController extends Controller
 
     public function List(Request $Request)
     {   
+        
+        $data1 = Transporter::all();
+        $data= array();
+        foreach ($data1 as $key => $value) {
 
-        $data = Transporter::all();
+            $data[$key]=$value;
+            $username = User::withTrashed()->findorfail($value->user_id);
+            $data[$key]->user_name=$username->username;
 
-
+        }
         
         return view('admin.transportlist',compact('data'));
     }
@@ -63,7 +69,7 @@ class TransporterController extends Controller
         'licence'=>'required|mimes:jpeg,jpg,png',
         'rcbook'=>'required|mimes:jpeg,jpg,png',
         'username'=>'required',
-        'password'=>'required',       
+        'password'=>'required|min:8',       
          ],[
          'name.required' => "Please Enter Name",
          'phone.required' => "Please Enter Phone Number",

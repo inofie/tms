@@ -105,9 +105,11 @@ All Transporter List | TMS
                               <thead>
                               <tr>
                                   <th>Full Name</th>
+                                  <th>User Name</th>
                                   <th>Phone Number</th>
                                   <th>Licence Number</th>
                                   <th>Truck Number</th>
+                                  <th>Created Date</th>
                                   <th>Pan Number</th>
                                   <th>R.c Book</th>
                                   <th>Pan Card</th>
@@ -122,13 +124,15 @@ All Transporter List | TMS
                               
                               <tr class="table_space">
                                   <td  id="change_color">{{ $value->name }}</td>
+                                  <td>{{ $value->user_name }}</td>
                                   <td>{{ $value->phone }}</td>
                                   <td>{{ $value->licence_no }}</td>
                                   <td>{{ $value->truck_no }}</td>
+                                  <td>{{ $value->created_at }}</td>
                                   <td>{{ $value->pan }}</td>
-                                  <td><img src="{{ asset('public/uploads') }}/{{ $value->rc_book }}" width="50px" alt="" class="zoom"></td>
-                                  <td><img src="{{ asset('public/uploads') }}/{{ $value->pan_card }}" width="50px" alt="" class="zoom"></td>
-                                  <td><img src="{{ asset('public/uploads') }}/{{ $value->licence }}" width="50px" alt="" class="zoom"></td>
+                                  <td><img src="{{ asset('/uploads') }}/{{ $value->rc_book }}" width="50px" alt="" class="zoom"></td>
+                                  <td><img src="{{ asset('/uploads') }}/{{ $value->pan_card }}" width="50px" alt="" class="zoom"></td>
+                                  <td><img src="{{ asset('/uploads') }}/{{ $value->licence }}" width="50px" alt="" class="zoom"></td>
                                   <td class="center">
                                   @if($value->status == 0 )Active  @else Blocked @endif
                                   </td>
@@ -176,7 +180,14 @@ All Transporter List | TMS
     }
   $(document).ready(function() {
     $('#editable-sample').DataTable( {
-       "aaSorting": [[ 4, "desc" ]],
+      "aaSorting": [[ 5, "desc" ]],
+       "columnDefs":
+           [
+               {
+                   "targets": [5],
+                   "visible": false, 
+               },
+           ],
        /* "lengthChange": true,
       "lengthMenu": [ 10, 25, 50, 75, 100 ],
         dom: 'Bfrtip',

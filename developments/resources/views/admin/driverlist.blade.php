@@ -91,9 +91,9 @@ All Driver List | TOT
                                   <td>{{ $value->truck_no }}</td>
                                   <td>{{ $value->pan }}</td>
                                   <td>{{ $value->transporter_name }}</td>
-                                  <td><img src="{{ asset('public/uploads') }}/{{ $value->rc_book }}" width="50px" alt="" class="zoom"></td>
-                                  <td><img src="{{ asset('public/uploads') }}/{{ $value->pan_card }}" width="50px" alt="" class="zoom"></td>
-                                  <td><img src="{{ asset('public/uploads') }}/{{ $value->licence }}" width="50px" alt="" class="zoom"></td>
+                                  <td><img src="{{ asset('/uploads') }}/{{ $value->rc_book }}" width="50px" alt="" class="zoom"></td>
+                                  <td><img src="{{ asset('/uploads') }}/{{ $value->pan_card }}" width="50px" alt="" class="zoom"></td>
+                                  <td><img src="{{ asset('/uploads') }}/{{ $value->licence }}" width="50px" alt="" class="zoom"></td>
                                   <td class="center">
                                   @if($value->status == 0 )Active  @else Blocked @endif
                                   </td>

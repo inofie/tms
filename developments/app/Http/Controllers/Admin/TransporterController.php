@@ -60,7 +60,7 @@ class TransporterController extends Controller
         'pan_card'=>'required|mimes:jpeg,jpg,png',
         'licence'=>'required|mimes:jpeg,jpg,png',
         'username'=>'required',
-        'password'=>'required',       
+        'password'=>'required|min:8',       
          ],[
          'name.required' => "Please Enter Name",
          'phone.required' => "Please Enter Phone Number",

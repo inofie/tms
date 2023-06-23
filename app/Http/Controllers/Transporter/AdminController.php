@@ -53,11 +53,38 @@ class AdminController extends Controller
         //$this->check();
         //dd(Auth::user()->id);
         $ff= Transporter::where('user_id',Auth::user()->id)->first();
-        $data['total'] = Shipment::where('all_transporter',$ff->id)->count();
 
-        // $data['pending'] = Shipment::where('status',0)->where('forwarder',$ff->id)->count();
+        $total = Shipment_Transporter::whereNull('deleted_at')->where('transporter_id', $ff->id)->get();
+        $total1 = array();
+        foreach ($total as $key => $value) {
+            $total1[$key] = Shipment::where('shipment_no', $value->shipment_no)->whereNull('deleted_at')->first();
+        }
+        $data['total'] = count($total1);
 
-        // $data['delivery'] = Shipment::where('status',2)->where('forwarder',$ff->id)->count();
+        $pending = Shipment_Transporter::where('status', 1)->whereNull('deleted_at')->where('transporter_id', $ff->id)->get();
+        $pending1 = array();
+        foreach ($pending as $key => $value) {
+            $pending1[$key] = Shipment::where('shipment_no', $value->shipment_no)->whereNull('deleted_at')->first();
+        }
+        $data['pending'] = count($pending1);
+
+        $ontheway = Shipment_Transporter::where('status', 2)->whereNull('deleted_at')->where('transporter_id', $ff->id)->get();
+        $ontheway1 = array();
+        foreach ($ontheway as $key => $value) {
+            $ontheway1[$key] = Shipment::where('shipment_no', $value->shipment_no)->whereNull('deleted_at')->first();
+        }
+        $data['ontheway'] = count($ontheway1);
+
+        $delivery = Shipment_Transporter::where('status', 3)->whereNull('deleted_at')->where('transporter_id', $ff->id)->get();
+        $delivery1 = array();
+        foreach ($delivery as $key => $value) {
+            $delivery1[$key] = Shipment::where('shipment_no', $value->shipment_no)->whereNull('deleted_at')->first();
+        }
+        $data['delivery'] = count($delivery1);
+
+        // $data['pending'] = Shipment::where('status',0)->whereNull('deleted_at')->whereRaw("find_in_set('$ff->id' , all_transporter)")->count();
+
+        //$data['delivery'] = Shipment::where('status',2)->whereNull('deleted_at')->whereRaw("find_in_set('$ff->id' , all_transporter)")->count();
 
         // $dataremain =Shipment::where('paid',0)->where('forwarder',$ff->id)->sum('invoice_amount');
         

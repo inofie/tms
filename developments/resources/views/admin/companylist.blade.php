@@ -87,7 +87,7 @@ All Company List | TOT
                                   <td>{{ $value->phone }}</td>
                                   <td>{{ $value->email }}</td>
                                   <td>{{ $value->gst_no }}</td>
-                                  <td><img src="{{ asset('public/uploads') }}/{{ $value->logo }}" width="50px" alt="" class="zoom"></td>
+                                  <td><img src="{{ asset('/uploads') }}/{{ $value->logo }}" width="50px" alt="" class="zoom"></td>
                                   <td class="center">
                                   @if($value->status == 0 )Active  @else Blocked @endif
                                   </td>

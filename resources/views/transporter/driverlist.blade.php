@@ -109,6 +109,7 @@ All Driver List | TOT
                                   <th>Phone Number</th>
                                   <th>Licence Number</th>
                                   <th>Truck Number</th>
+                                  <th>Created Date</th>
                                   <th>Pan Number</th>
                                   <th>Transport</th> 
                                   <th>R.c Book</th>
@@ -127,17 +128,24 @@ All Driver List | TOT
                                   <td>{{ $value->phone }}</td>
                                   <td>{{ $value->licence_no }}</td>
                                   <td>{{ $value->truck_no }}</td>
+                                  <td>{{ $value->created_at }}</td>
                                   <td>{{ $value->pan }}</td>
                                   <td>{{ $value->transporter_name }}</td>
-                                  <td><img src="{{ asset('public/uploads') }}/{{ $value->rc_book }}" width="50px" alt="" class="zoom"></td>
-                                  <td><img src="{{ asset('public/uploads') }}/{{ $value->pan_card }}" width="50px" alt="" class="zoom"></td>
-                                  <td><img src="{{ asset('public/uploads') }}/{{ $value->licence }}" width="50px" alt="" class="zoom"></td>
+                                  <td><img src="{{ asset('/uploads') }}/{{ $value->rc_book }}" width="50px" alt="" class="zoom"></td>
+                                  <td><img src="{{ asset('/uploads') }}/{{ $value->pan_card }}" width="50px" alt="" class="zoom"></td>
+                                  <td><img src="{{ asset('/uploads') }}/{{ $value->licence }}" width="50px" alt="" class="zoom"></td>
                                   <td class="center">
                                   @if($value->status == 0 )Active  @else Blocked @endif
                                   </td>
                                   <td class="edit_delete">
-                                    <a href="{{ route('transporterdriveredit',['id'=>$value->myid]) }}" class="btn btn-primary btn-xs"><i class="fa fa-pencil"></i></a>
-                                      <a href="{{ route('transporterdriverdelete',['id'=>$value->myid]) }}" class="btn btn-danger btn-xs"><i class="fa fa-trash-o "></i></a></td>
+                                    <a href="{{ route('driveredit',['id'=>$value->myid]) }}" class="btn btn-primary btn-xs"><i class="fa fa-pencil"></i></a>
+                                    <button onclick="deleteItem('{{ $value->myid }}')" class="btn btn-danger btn-xs"><i class="fa fa-trash-o "></i></button>
+                                      <form action="{{ route('driverdelete',['id'=>$value->myid]) }}" id="delete{{$value->myid}}" method="post">
+                                        @csrf
+                                        <input type="hidden" name="id" value="{{$value->myid}}">
+                                      </form>
+                                      <!-- <a href="{{ route('driverdelete',['id'=>$value->myid]) }}" class="btn btn-danger btn-xs"><i class="fa fa-trash-o "></i></a> -->
+                                    </td>
                                   <!-- <td class="center">super user</td>
                                   <td><a class="edit" href="javascript:;">Edit</a></td>
                                   
@@ -164,9 +172,25 @@ All Driver List | TOT
 
 
 <script type="text/javascript">
+  function deleteItem(id){
+
+var r = confirm("Are You Sure Delete It!");
+  if (r == true) {
+    $("#delete"+id).submit();  
+  } 
+
+}
+
   $(document).ready(function() {
     $('#editable-sample').DataTable( {
-       "aaSorting": [[ 4, "desc" ]],
+      "aaSorting": [[ 4, "desc" ]],
+       "columnDefs":
+           [
+               {
+                   "targets": [4],
+                   "visible": false, 
+               },
+           ],
        /* "lengthChange": true,
       "lengthMenu": [ 10, 25, 50, 75, 100 ],
         dom: 'Bfrtip',

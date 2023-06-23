@@ -27,7 +27,7 @@ class AdminController extends Controller
 
 	public function __construct()
     {
-       
+        // $this->middleware('permission:dashboard-list', ['only' => ['Dashboard']]);
     }
 
 
@@ -41,9 +41,9 @@ class AdminController extends Controller
                     
                     $to = date('Y-m-d');
 
-                    $total_credit1 = Account::where('to_company',$Request->company_id)->whereBetween('dates', [$from, $to])->sum('credit');
+                    $total_credit1 = Account::where('to_company',$Request->company_id)->whereNull('deleted_at')->whereBetween('dates', [$from, $to])->sum('credit');
 
-                    $total_credit2 = Account::where('to_company',$Request->company_id)->whereBetween('dates', [$from, $to])->sum('debit');
+                    $total_credit2 = Account::where('to_company',$Request->company_id)->whereNull('deleted_at')->whereBetween('dates', [$from, $to])->sum('debit');
 
                     $total_credit = $total_credit1 + $total_credit2;
 
@@ -51,11 +51,11 @@ class AdminController extends Controller
 
     		
 
-            $data['pending'] = Shipment::where('status',0)->where('company',$Request->company_id)->count();
+            $data['pending'] = Shipment::where('status',0)->whereNull('deleted_at')->where('company',$Request->company_id)->count();
 
-            $data['ontheway'] = Shipment::where('status',1)->where('company',$Request->company_id)->count();
+            $data['ontheway'] = Shipment::where('status',1)->whereNull('deleted_at')->where('company',$Request->company_id)->count();
 
-            $data['bill_status'] = Invoice::where('paid',0)->where('company_id',$Request->company_id)->count();
+            $data['bill_status'] = Invoice::where('paid',0)->whereNull('deleted_at')->where('company_id',$Request->company_id)->count();
 
             $company_id = $Request->company_id;
 
@@ -73,11 +73,11 @@ class AdminController extends Controller
 
             $data['pl_report'] = $total_credit;
 
-            $data['pending'] = Shipment::where('status',0)->count();
+            $data['pending'] = Shipment::where('status',0)->whereNull('deleted_at')->count();
 
-            $data['ontheway'] = Shipment::where('status',1)->count();
+            $data['ontheway'] = Shipment::where('status',1)->whereNull('deleted_at')->count();
 
-            $data['bill_status'] = Invoice::where('paid',0)->count();
+            $data['bill_status'] = Invoice::where('paid',0)->whereNull('deleted_at')->count();
 
             $company_id = 0;
 

@@ -26,7 +26,8 @@ use Mail;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\WebNotificationController;
 use Config;
-
+use Spatie\Permission\Models\Role;
+use Spatie\Permission\Models\Permission;
 
 
 class ShipmentController extends Controller
@@ -34,7 +35,7 @@ class ShipmentController extends Controller
 
 	public function __construct()
     {
-      
+        // $this->middleware('permission:shipment-list', ['only' => ['List','check','Add','save','']]);
     }
 
 
@@ -58,11 +59,16 @@ class ShipmentController extends Controller
     public function List(Request $Request)
     {  
          $this->check();
+        if(Auth::user()->role == "company") {
 
+        $ff= Company::where('user_id',Auth::user()->id)->first();
+        $data = Shipment::where("status","!=",3)->where('company',$ff->id)->whereRaw('DATEDIFF(CURDATE(),date) <= 6')->where('paid',0)->get();
+        
+        }
+        else{
         $data = Shipment::where("status","!=",3)->whereRaw('DATEDIFF(CURDATE(),date) <= 6')->where('paid',0)->get();
-
-
-
+        }
+     
         $warehouse = Warehouse::get();
         
     	return view('admin.shipmentlist',compact('data','warehouse'));
@@ -100,7 +106,7 @@ class ShipmentController extends Controller
 
 
         $this->validate($Request, [
-        'shipment_no'=>'required|unique:shipment,shipment_no',
+        //'shipment_no'=>'required|unique:shipment,shipment_no',
         'date' => 'required|date_format:d-m-Y',
         'company' => 'required',
         'from1' => 'required',
@@ -108,12 +114,12 @@ class ShipmentController extends Controller
         'forwarder' => 'required',
         'package' => 'required|numeric',
         'weight'=>'required|numeric',
-        'container_no'=>'required',
-        'seal_no'=>'required',
+        
+        
 
          ],[
-         'shipment_no.required'=>'Please Enter Shipment Number',
-         'shipment_no.unique'=>'This Number Already in System, Please Enter Another Shipment Number',
+         //'shipment_no.required'=>'Please Enter Shipment Number',
+         //'shipment_no.unique'=>'This Number Already in System, Please Enter Another Shipment Number',
          'date.required' => "Please Select Date",
          'company.required' => "Please Select Company",
          'from1.required' => "Please Enter From",
@@ -121,14 +127,14 @@ class ShipmentController extends Controller
          'forwarder.required' => "Please Select Forwarder",
          'package.required' => "Please Enter No. of Package",
          'weight.required' => "Please Enter Weight",
-         'container_no.required' => "Please Enter Container No",
-         'seal_no.required' => "Please Enter Seal No",
+        
+         
          ]);
 
       } else {
 
        $this->validate($Request, [
-        'shipment_no'=>'required|unique:shipment,shipment_no',
+       // 'shipment_no'=>'required|unique:shipment,shipment_no',
         'date' => 'required|date_format:d-m-Y',
         'company' => 'required',
         'from1' => 'required',
@@ -137,8 +143,8 @@ class ShipmentController extends Controller
         'package' => 'required|numeric',
         'weight'=>'required|numeric',
         ],[
-         'shipment_no.required'=>'Please Enter Shipment Number',
-         'shipment_no.unique'=>'This Number Already in System, Please Enter Another Shipment Number',
+         //'shipment_no.required'=>'Please Enter Shipment Number',
+         //'shipment_no.unique'=>'This Number Already in System, Please Enter Another Shipment Number',
          'date.required' => "Please Select Date",
          'company.required' => "Please Select Company",
          'from1.required' => "Please Enter From",
@@ -151,7 +157,7 @@ class ShipmentController extends Controller
     }
 
                 $data = new Shipment();
-
+    //dd(1);
                 $data->date = date('Y-m-d',strtotime($Request->date));
 
                 $data->company = $Request->company;
@@ -255,8 +261,9 @@ class ShipmentController extends Controller
 
             	$data->driver_name = $Request->driver_name;
 
+                $company = Company::findorfail($Request->company);
 
-                $shipment_no =$Request->shipment_no;
+                $shipment_no = $company->code.''.$company->last_no;
 
                 $data->shipment_no = $shipment_no;
 
@@ -379,90 +386,90 @@ class ShipmentController extends Controller
 
                 // For ALL Company Notification
 
-                $token =array();
+                // $token =array();
 
-                $all_company = Company::get(); 
+                // $all_company = Company::get(); 
 
-                foreach ($all_company as $key => $value) {
+                // foreach ($all_company as $key => $value) {
 
-                    $cuser = User::findorfail($value->user_id);
+                //     $cuser = User::findorfail($value->user_id);
 
-                    if($cuser->device_token != ""){
+                //     if($cuser->device_token != ""){
 
-                     array_push($token,$cuser->device_token);
-                    }
+                //      array_push($token,$cuser->device_token);
+                //     }
 
                     
-                }
+                // }
 
 
-                    $title = "New Shipment Generated";
+                //     $title = "New Shipment Generated";
 
-                     $message= $Request->shipment_no." shipment generated.";
+                //      $message= $Request->shipment_no." shipment generated.";
 
-                     $aa = new WebNotificationController();
+                //      $aa = new WebNotificationController();
 
-                     $aa->index($token,$title,$message,$Request->shipment_no);
-
-
-
-                  /// For Transporter
-
-                $token =array();
-
-                if($Request->transporter != null && $Request->transporter != '' && $Request->transporter != 'null') {
-
-                    $tras=Transporter::findorfail($Request->transporter);  
-
-                    $tuser = User::findorfail($tras->user_id);
-
-                    if($tuser->device_token != ""){
-
-                        array_push($token,$tuser->device_token);
-
-                     $title = "New Shipment Assigned.";
-
-                     $message= "We would like to inform, the shipment number ".$Request->shipment_no." is assigned to you.";
-
-                     $aa = new WebNotificationController();
-
-                     $aa->index($token,$title,$message,$Request->shipment_no);
-                    }
-                }
+                //      $aa->index($token,$title,$message,$Request->shipment_no);
 
 
 
-                 /// For Forwarder
+                //   /// For Transporter
 
-                $token =array();
+                // $token =array();
 
-                if($Request->forwarder != null && $Request->forwarder != '' && $Request->forwarder != 'null') {
+                // if($Request->transporter != null && $Request->transporter != '' && $Request->transporter != 'null') {
 
-                    $tt=Forwarder::findorfail($Request->forwarder);
+                //     $tras=Transporter::findorfail($Request->transporter);  
 
-                    $tuser = User::findorfail($tt->user_id);
+                //     $tuser = User::findorfail($tras->user_id);
 
-                    if($tuser->device_token != ""){
+                //     if($tuser->device_token != ""){
 
-                        array_push($token,$tuser->device_token);
+                //         array_push($token,$tuser->device_token);
 
-                     $title = "Your shipment order is generated.";
+                //      $title = "New Shipment Assigned.";
 
-                     $message= "We would like to inform you, Your order is placed & its shipment number is ".$Request->shipment_no;
+                //      $message= "We would like to inform, the shipment number ".$Request->shipment_no." is assigned to you.";
 
-                     $aa = new WebNotificationController();
+                //      $aa = new WebNotificationController();
 
-                     $aa->index($token,$title,$message,$Request->shipment_no);
-                    }
+                //      $aa->index($token,$title,$message,$Request->shipment_no);
+                //     }
+                // }
 
-                }
+
+
+                //  /// For Forwarder
+
+                // $token =array();
+
+                // if($Request->forwarder != null && $Request->forwarder != '' && $Request->forwarder != 'null') {
+
+                //     $tt=Forwarder::findorfail($Request->forwarder);
+
+                //     $tuser = User::findorfail($tt->user_id);
+
+                //     if($tuser->device_token != ""){
+
+                //         array_push($token,$tuser->device_token);
+
+                //      $title = "Your shipment order is generated.";
+
+                //      $message= "We would like to inform you, Your order is placed & its shipment number is ".$Request->shipment_no;
+
+                //      $aa = new WebNotificationController();
+
+                //      $aa->index($token,$title,$message,$Request->shipment_no);
+                //     }
+
+                // }
 
                 // Send LR Mail - Start //
 
                 if ($Request->forwarder != "" && $Request->forwarder != null && $Request->forwarder != 'null')
                 {
 
-                    $ship_data = Shipment::where('shipment_no', $Request->shipment_no)->first();
+                    $ship_data = Shipment::where('shipment_no', $data->shipment_no)->first();
 
                     $comp = Company::withTrashed()->findorfail($ship_data->company);
 
@@ -489,7 +496,7 @@ class ShipmentController extends Controller
 
                     }
 
-                    $tras_list = Shipment_Transporter::where('shipment_no', $Request->shipment_no)->get();
+                    $tras_list = Shipment_Transporter::where('shipment_no', $data->shipment_no)->get();
                     $t_list = "";
                     
                     foreach ($tras_list as $key => $value) {
@@ -502,7 +509,7 @@ class ShipmentController extends Controller
                     }
 
                         $ship_data->transporters_list = $t_list;
-                        $driver_list = Shipment_Driver::where('shipment_no', $Request->shipment_no)->get();
+                        $driver_list = Shipment_Driver::where('shipment_no', $data->shipment_no)->get();
                         $d_list = "";
 
                         foreach ($driver_list as $key2 => $value2) {
@@ -523,11 +530,11 @@ class ShipmentController extends Controller
 
                         $pdf = PDF::loadView('lr.yoginilr', compact('data', 'trucks'));
 
-                        file_put_contents("public/pdf/" . $Request->shipment_no . ".pdf", $pdf->output());
+                        file_put_contents("pdf/" . $data->shipment_no . ".pdf", $pdf->output());
 
-                        $path = env('APP_URL') . "/public/pdf/" . $Request->shipment_no . ".pdf";
+                        $path = env('APP_URL') . "pdf/" . $data->shipment_no . ".pdf";
 
-                        $shipment = $Request->shipment_no;
+                        $shipment = $data->shipment_no;
                         // $myemail = 'keyurdomadiya602@gmail.com';
 						$myemail = $for->email;
 
@@ -558,12 +565,12 @@ class ShipmentController extends Controller
 
                         $pdf = PDF::loadView('lr.ssilr', compact('data', 'trucks'));
 
-                        file_put_contents("public/pdf/" . $Request->shipment_no . ".pdf", $pdf->output());
+                        file_put_contents("pdf/" . $data->shipment_no . ".pdf", $pdf->output());
 
-                        $path = env('APP_URL') . "/public/pdf/" . $Request->shipment_no . ".pdf";
+                        $path = env('APP_URL') . "pdf/" . $data->shipment_no . ".pdf";
 
                         
-                        $shipment = $Request->shipment_no;
+                        $shipment = $data->shipment_no;
 
                         $myemail =  $for->email;
 
@@ -591,11 +598,11 @@ class ShipmentController extends Controller
 
                         $pdf = PDF::loadView('lr.hanshlr', compact('data', 'trucks'));
 
-                        file_put_contents("public/pdf/" . $Request->shipment_no . ".pdf", $pdf->output());
+                        file_put_contents("pdf/" . $data->shipment_no . ".pdf", $pdf->output());
 
-                        $path = env('APP_URL') . "/public/pdf/" . $Request->shipment_no . ".pdf";
+                        $path = env('APP_URL') . "pdf/" . $data->shipment_no . ".pdf";
 
-                        $shipment = $Request->shipment_no;
+                        $shipment = $data->shipment_no;
 
                         $myemail =  $for->email;
 
@@ -618,11 +625,11 @@ class ShipmentController extends Controller
 
                         $pdf = PDF::loadView('lr.bmflr', compact('data', 'trucks'));
 
-                        file_put_contents("public/pdf/" . $Request->shipment_no . ".pdf", $pdf->output());
+                        file_put_contents("pdf/" . $data->shipment_no . ".pdf", $pdf->output());
 
-                        $path = env('APP_URL') . "/public/pdf/" . $Request->shipment_no . ".pdf";
+                        $path = env('APP_URL') . "pdf/" . $data->shipment_no . ".pdf";
 
-                        $shipment = $Request->shipment_no;
+                        $shipment = $data->shipment_no;
                         $myemail =  $for->email;
 
                         $data2 = array('shipment_no'=>$shipment,'email'=>$myemail);
@@ -697,11 +704,24 @@ class ShipmentController extends Controller
                 $data->updated_by = Auth::id();
 
                 $data->save();
+                if($Request->status == "1"){
+
+                    $ss = Shipment::where('shipment_no',$data->shipment_no)->first();
+                    $ss->status = 0;
+                    // $ss->cargo_status = 0;
+                    $ss->save();
+
+                    $transp =Shipment_Transporter::where('shipment_no',$data->shipment_no)->where('transporter_id',$data->transporter_id)->first();
+                    $transp->status = 1;
+                    $transp->save();
+    
+                }
 
                 if($Request->status == "2"){
 
                 $ss =Shipment::where('shipment_no',$data->shipment_no)->first();
                 $ss->status =1;
+                // $ss->cargo_status = 1;
                 $ss->save();
 
                 $transp =Shipment_Transporter::where('shipment_no',$data->shipment_no)->where('transporter_id',$data->transporter_id)->first();
@@ -714,6 +734,14 @@ class ShipmentController extends Controller
                 if($Request->status == "3") {
                 $ss =Shipment::where('shipment_no',$data->shipment_no)->first();
                 $ss->status =1;
+                // $cargostatus = Shipment_Driver::where('shipment_no',$data->shipment_no)->latest()->take(1)->first();
+                // if($data->id == $cargostatus->id)
+                // {
+                //     $ss->cargo_status = 2;
+                // }
+                // else{
+                //     $ss->cargo_status = 1;
+                // }
                 $ss->save();
 
                 $get_all_shipment = Shipment_Driver::where('shipment_no',$data->shipment_no)->where('status',1)->orwhere('status',2)->where('deleted_at','')->count();
@@ -721,21 +749,58 @@ class ShipmentController extends Controller
                 if($get_all_shipment == 0) {
 
                 $transp =Shipment_Transporter::where('shipment_no',$data->shipment_no)->where('transporter_id',$data->transporter_id)->first();
-                $transp->status = 3;
+                $transp->status = 2;
                 $transp->save();
 
                 }
 
                }
+               if($Request->status == "17") {
+                $ss =Shipment::where('shipment_no',$data->shipment_no)->first();
+                $ss->status =1;
+                // $cargostatus = Shipment_Driver::where('shipment_no',$data->shipment_no)->latest()->take(1)->first();
+                // if($data->id == $cargostatus->id)
+                // {
+                //     $ss->cargo_status = 2;
+                // }
+                // else{
+                //     $ss->cargo_status = 1;
+                // }
+                $ss->save();
 
+                $get_all_shipment = Shipment_Driver::where('shipment_no',$data->shipment_no)->where('status',1)->orwhere('status',2)->where('deleted_at','')->count();
+                
+                if($get_all_shipment == 0) {
+
+                $transp =Shipment_Transporter::where('shipment_no',$data->shipment_no)->where('transporter_id',$data->transporter_id)->first();
+                $transp->status = 2;
+                $transp->save();
+
+                }
+
+               }
+               if($Request->status == "4" || $Request->status == "5" || $Request->status == "11"  || $Request->status == "12"  || $Request->status == "13"  || $Request->status == "14"
+               || $Request->status == "15"  || $Request->status == "18"){
+
+                $ss =Shipment::where('shipment_no',$data->shipment_no)->first();
+                $ss->status =1;
+                // $ss->cargo_status = 1;
+                $ss->save();
+
+                $transp =Shipment_Transporter::where('shipment_no',$data->shipment_no)->where('transporter_id',$data->transporter_id)->first();
+                $transp->status = 2;
+                $transp->save();
+
+                }
                if($Request->status == "6"){
 
                 $ss =Shipment::where('shipment_no',$data->shipment_no)->first();
                 $ss->status =1;
+                // $ss->cargo_status = 1;
                 $ss->save();
 
                 $transp =Shipment_Transporter::where('shipment_no',$data->shipment_no)->where('transporter_id',$data->transporter_id)->first();
-                $transp->status = 6;
+                $transp->status = 2;
                 $transp->save();
 
                 }
@@ -744,10 +809,11 @@ class ShipmentController extends Controller
 
                 $ss =Shipment::where('shipment_no',$data->shipment_no)->first();
                 $ss->status =1;
+                // $ss->cargo_status = 1;
                 $ss->save();
 
                 $transp =Shipment_Transporter::where('shipment_no',$data->shipment_no)->where('transporter_id',$data->transporter_id)->first();
-                $transp->status = 7;
+                $transp->status = 2;
                 $transp->save();
 
                 }
@@ -756,10 +822,11 @@ class ShipmentController extends Controller
 
                 $ss =Shipment::where('shipment_no',$data->shipment_no)->first();
                 $ss->status =1;
+                // $ss->cargo_status = 1;
                 $ss->save();
 
                 $transp =Shipment_Transporter::where('shipment_no',$data->shipment_no)->where('transporter_id',$data->transporter_id)->first();
-                $transp->status = 8;
+                $transp->status = 2;
                 $transp->save();
 
                 }
@@ -768,10 +835,11 @@ class ShipmentController extends Controller
 
                 $ss =Shipment::where('shipment_no',$data->shipment_no)->first();
                 $ss->status =1;
+                // $ss->cargo_status = 1;
                 $ss->save();
 
                 $transp =Shipment_Transporter::where('shipment_no',$data->shipment_no)->where('transporter_id',$data->transporter_id)->first();
-                $transp->status = 9;
+                $transp->status = 2;
                 $transp->save();
 
                 }
@@ -781,10 +849,11 @@ class ShipmentController extends Controller
 
                 $ss =Shipment::where('shipment_no',$data->shipment_no)->first();
                 $ss->status =1;
+                // $ss->cargo_status = 1;
                 $ss->save();
 
                 $transp =Shipment_Transporter::where('shipment_no',$data->shipment_no)->where('transporter_id',$data->transporter_id)->first();
-                $transp->status = 10;
+                $transp->status = 2;
                 $transp->save();
 
                 }
@@ -938,6 +1007,10 @@ class ShipmentController extends Controller
 
                     $shiptransporter[$key]->name= $tras->name;
 
+                    $driver = Driver::withTrashed()->findorfail($value->driver_id);
+
+                    $shiptransporter[$key]->driver_name= $driver->name;
+
                 }
 
 
@@ -978,6 +1051,8 @@ class ShipmentController extends Controller
 
                 $data->transporter_id = $tras->id;
 
+                $data->driver_id = $Request->driver_id;
+                
                 $data->name = $tras->name;
 
                 $data->created_by = Auth::id();
@@ -1114,16 +1189,17 @@ class ShipmentController extends Controller
     {
              $this->check();
 
-                $data =Shipment_Transporter::findorfail($Request->id);
-                $data->deleted_by = Auth::id();
-                $data->save();
+             $data =Shipment_Transporter::findorfail($Request->id);
+             $dd = Shipment_Transporter::where('id',$data->id)->delete();
+             // $data->deleted_by = Auth::id();
+             // $data->save();
 
-                $dd = Shipment_Driver::where('shipment_no',$data->shipment_no)->where('transporter_id',$data->transporter_id)->delete();
+             $dd2 = Shipment_Driver::where('shipment_no',$data->shipment_no)->where('driver_id',$data->driver_id)->delete();
 
 
 
-                $check =Shipment_Driver::where('shipment_no',$data->shipment_no)->count();
-
+                $check = Shipment_Driver::where('shipment_no',$data->shipment_no)->count();
+            
                 if($check == 0) {
                     
                     $ship = Shipment::where('shipment_no',$data->shipment_no)->first();
@@ -1386,8 +1462,21 @@ class ShipmentController extends Controller
                         $t_list = $t_list.", ".$tt->name; 
                      }
                 }
-
                 $data->transporters_list =  $t_list;
+
+                $driver_list = Shipment_Driver::where('shipment_no',$data2->shipment_no)->where('transporter_id',$Request->other_id)->get();
+                $d_list = "";
+                foreach ($tras_list as $key => $value) { 
+                    $tt = Driver::findorfail($value->driver_id);
+                     if($key == 0) {
+                        $d_list = $d_list."".$tt->name; 
+                    } else {
+
+                        $d_list = $d_list.", ".$tt->name; 
+                     }
+                }
+                $data->drivers_list =  $d_list;
+              
 
                 if($Request->role== "transporter"){
 
@@ -2430,8 +2519,13 @@ class ShipmentController extends Controller
          $this->check();
 
 
-        $data = Shipment::whereRaw('DATEDIFF(CURDATE(),date) >= 6')->get();
-
+            if(Auth::user()->role == "company") {
+            $ff= Company::where('user_id',Auth::user()->id)->first();
+            $data = Shipment::where('company',$ff->id)->whereRaw('DATEDIFF(CURDATE(),date) >= 6')->get();
+            }
+            else{
+            $data = Shipment::whereRaw('DATEDIFF(CURDATE(),date) >= 6')->get();
+            }
         //dd($data);
         
         $warehouse = Warehouse::get();
@@ -2439,7 +2533,15 @@ class ShipmentController extends Controller
         return view('admin.shipmentalllist',compact('data','warehouse'));
 
     }
+    public function ShipmentSummaryList(Request $Request)
+    {
+        $this->check();
 
+        $data = Shipment_Summary::where('shipment_no', $Request->shipment_no)->get();
+            
+        return view('admin.shipmentsummarylist',compact('data'));
+
+    }
 
     public function ShipmentAllDetails(Request $Request)
     {   
@@ -2544,11 +2646,22 @@ class ShipmentController extends Controller
 	public function MyFilter(Request $Request)
 	{
     	$data = array();
-        $tt = Shipment::get();
+        if(Auth::user()->role == "company") {
+            $ff= Company::where('user_id',Auth::user()->id)->first();
+            $tt = Shipment::where('company',$ff->id)->get();
+            }
+            else{
+            $tt = Shipment::get();
+            }
         if(isset($Request->shipment)){
             $ttt = $Request->shipment;
         } else {
             $ttt = '';
+        }
+        if(isset($Request->status)){
+            $tts = $Request->status;
+        } else {
+            $tts = '';
         }
         if(isset($Request->search)){
             $search = $Request->search;
@@ -2584,9 +2697,26 @@ class ShipmentController extends Controller
         $all_transporter =  Transporter::get();
 
         $all_forwarder = Forwarder::get();
+        if(Auth::user()->role == "company") {
+        $ff= Company::where('user_id',Auth::user()->id)->first();
+        $datas = Shipment::where('company',$ff->id);
+        }
+        else{
 		$datas = Shipment::query();
+        }
 		if($Request->shipment){
 			$datas = $datas->where('id',$Request->shipment);
+		}
+        if($Request->status){
+            if($Request->status == 'Pending'){
+			$datas = $datas->where('status',0);
+            }
+            if($Request->status == 'Ontheway'){
+                $datas = $datas->where('status',1);
+            }
+            if($Request->status == 'Delivered'){
+                $datas = $datas->where('status',2);
+            }
 		}
 		if($Request->transporter){
 			$datas = $datas->whereRaw("find_in_set('$Request->transporter' , all_transporter)");
@@ -2611,20 +2741,21 @@ class ShipmentController extends Controller
 			->orwhere('b_e_no','like','%'.$Request->search.'%');
 		}
 		//$datas->dd();
-		if($Request->search || $Request->shipment || $Request->transporter || $Request->month || $Request->year || $Request->forwarder || $Request->date){
+		if($Request->search || $Request->shipment || $Request->transporter || $Request->month || $Request->year || $Request->forwarder || $Request->date || $Request->status){
 			$data = $datas->orderby('shipment_no','desc')->get();
 		}
-		return view('admin.shipmentfilter', compact('tt','ttt','data','all_transporter','all_forwarder','search','transporter','forwarder','year','month','date'));
+		return view('admin.shipmentfilter', compact('tt','ttt','tts','data','all_transporter','all_forwarder','search','transporter','forwarder','year','month','date'));
 	}
 
      public function Driverlist(Request $Request)
     {  
 
         $this->check();
+        $old_driver = $Request->old_driver;
+        $shipmentdriver = Shipment_Driver::where('transporter_id',$Request->transporter_id)->where('shipment_no',$Request->shipment_no)->pluck('driver_id')->toArray();
+        $drivers = Driver::where('transporter_id',$Request->transporter_id)->whereNotIn('id',$shipmentdriver)->whereNull('deleted_at')->orderby('name','asc')->get();
 
-        $drivers = Driver::where('transporter_id',$Request->transporter_id)->orderby('name','asc')->get();
-
-        return view('admin.shipmentdriverlist',compact('drivers'));
+        return view('admin.shipmentdriverlist',compact('drivers','old_driver'));
 
     }
 

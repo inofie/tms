@@ -98,6 +98,25 @@ Shipment Filter | TMS
                                                 </select>
                                             </div>
                                         </div>
+                                        <div class="form-group ">
+                                            <label for="company_ids" class="control-label col-lg-2">Status :</label>
+                                            <div class="col-lg-10">
+                                            <?php 
+												                    $all_year = ['Pending','Ontheway','Delivered'];
+                                            ?>
+                                                <select class="form-control" name="status" id="status" > 
+                                                   <option value=""> -- Please Select Status -- </option>
+                                                      @foreach($all_year as $value)
+                                                      @if($tts == $value)
+                                                      <option selected="selected" value="{{ $value }}">{{ $value }}</option>
+                                                      @else
+                                                      <option value="{{ $value }}">{{ $value }}</option>
+                                                      @endif
+                                                      @endforeach
+
+                                                </select>
+                                            </div>
+                                        </div>
 
                                         <div class="form-group ">
                                             <label for="company_ids" class="control-label col-lg-2">Year :</label>
@@ -124,18 +143,23 @@ Shipment Filter | TMS
                                             <label for="company_ids" class="control-label col-lg-2">Month :</label>
                                             <div class="col-lg-2">
                                               <?php 
-												$all_month= ['1','2','3','4','5','6','7','8','9','10','11','12']; 
+												// $all_month= ['1','2','3','4','5','6','7','8','9','10','11','12']; 
 												//$all_month = range(1, 12);
 												?>
                                                 <select class="form-control" name="month" id="month" > 
                                                    <option value=""> -- Please Select Month -- </option>
-                                                      @foreach($all_month as $value)
-                                                      @if($month == $value)
-                                                      <option selected="selected" value="{{ $value }}">{{ $value }}</option>
-                                                      @else
-                                                      <option value="{{ $value }}">{{ $value }}</option>
-                                                      @endif
-                                                      @endforeach
+                                                   <option value='1'>January</option>
+                                                    <option value='2'>February</option>
+                                                    <option value='3'>March</option>
+                                                    <option value='4'>April</option>
+                                                    <option value='5'>May</option>
+                                                    <option value='6'>June</option>
+                                                    <option value='7'>July</option>
+                                                    <option value='8'>August</option>
+                                                    <option value='9'>September</option>
+                                                    <option value='10'>October</option>
+                                                    <option value='11'>November</option>
+                                                    <option value='12'>December</option>
 
                                                 </select>
                                             </div>

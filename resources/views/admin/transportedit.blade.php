@@ -120,10 +120,11 @@
                                         <div class="form-group">
                                             <label class="control-label col-md-2">R.C Book :</label>
                                             <div class="col-md-10">
-                                                <input type="file" name="rc_book" class="default">
-                                                 
-                                                <img src="{{ asset('public/uploads') }}/{{ $data->rc_book }}" style="margin-top: 1%;float: left;" width="100px" alt="" class="zoom">
-                                                 @error('rc_book')
+                                                <input type="file" name="rc_book" id="rc_book" class="item-img file2 ">
+                                                <div style=" overflow: hidden; width: 100px; ">
+                                                <img src="{{ asset('/uploads') }}/{{ $data->rc_book }}" id="item-img-output2" style="margin-top: 1%;float: left;" width="100px" alt="" class="zoom">
+                                                </div>
+                                                @error('rc_book')
                                                  <span class="text-danger"> {{ $message }} </span>
                                                 @enderror
                                             </div>
@@ -132,10 +133,13 @@
                                           <div class="form-group">
                                             <label class="control-label col-md-2">Pan Card :</label>
                                             <div class="col-md-10">
-                                                <input type="file" name="pan_card" class="default">
-                                                
-                                                <img src="{{ asset('public/uploads') }}/{{ $data->pan_card }}" style="margin-top: 1%;float: left;" width="100px" alt="" class="zoom">
-                                                 @error('pan_card')
+                                                <input type="file" name="pan_card"  id="pan_card" class="item-img file1 ">
+                                                <figure>
+                                                <div style=" overflow: hidden; width: 100px; ">
+                                                <img src="{{ asset('/uploads') }}/{{ $data->pan_card }}" id="item-img-output1" style="margin-top: 1%;float: left;" width="100px" alt="" class="zoom">
+                                                </div>
+                                            </figure>
+                                                @error('pan_card')
                                                  <span class="text-danger"> {{ $message }} </span>
                                                 @enderror
                                             </div>
@@ -144,14 +148,21 @@
                                            <div class="form-group">
                                             <label class="control-label col-md-2">Licence :</label>
                                             <div class="col-md-10">
-                                                <input type="file" name="licence" class="default">
+                                            <input type="file" name="licence" accept="image/png, image/jpeg, image/jpg" id="licence" class="item-img file ">
+                                                <figure>
+                                                <div style=" overflow: hidden; width: 100px; ">
+                                                <img src="{{ asset('/uploads') }}/{{ $data->licence }}" class="zoom" name="avatar" style="margin-top: 1%;float: left;" id="item-img-output" width="100px" alt="">
+                                                </div>
+                                            </figure>
                                                 
-                                                <img src="{{ asset('public/uploads') }}/{{ $data->licence }}" style="margin-top: 1%;float: left;" width="100px" alt="" class="zoom">
-                                                 @error('licence')
+                                                
+                                                @error('licence')
                                                  <span class="text-danger"> {{ $message }} </span>
                                                 @enderror
                                             </div>
                                         </div>
+
+                                     
 
                                         <div class="form-group ">
                                           <label for="cars" class="control-label col-lg-2">Status :</label>
@@ -256,6 +267,51 @@
 
       $("#row"+id).remove();
      }
+     function readURL(input) {
+        if (input.files && input.files[0]) {
+            var reader = new FileReader();
+
+            reader.onload = function (e) {
+                $('#item-img-output').attr('src', e.target.result);
+            }
+
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+
+    $("#licence").change(function () {
+        readURL(this);
+    });
+    function readURLL(input) {
+        if (input.files && input.files[0]) {
+            var reader = new FileReader();
+
+            reader.onload = function (e) {
+                $('#item-img-output2').attr('src', e.target.result);
+            }
+
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+
+    $("#rc_book").change(function () {
+        readURLL(this);
+    });
+    function readURLs(input) {
+        if (input.files && input.files[0]) {
+            var reader = new FileReader();
+
+            reader.onload = function (e) {
+                $('#item-img-output1').attr('src', e.target.result);
+            }
+
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+
+    $("#pan_card").change(function () {
+        readURLs(this);
+    });
 
 </script>
   @endsection

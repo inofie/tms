@@ -87,7 +87,7 @@ All Employee List | TOT
                                   <td>{{ $value->address }}</td>
                                   <td>{{ $value->phone }}</td>
                                   <td>{{ $value->email }}</td>
-                                  <td><img src="{{ asset('public/uploads') }}/{{ $value->pan_card }}" width="50px" alt="" class="zoom"></td>
+                                  <td><img src="{{ asset('/uploads') }}/{{ $value->pan_card }}" width="50px" alt="" class="zoom"></td>
                                   <td class="center">
                                   @if($value->status == 0 )Active  @else Blocked @endif
                                   </td>

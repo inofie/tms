@@ -150,7 +150,7 @@
                                             <div class="col-md-10">
                                                 <input type="file" name="rc_book" class="default">
                                                  
-                                                <img src="{{ asset('public/uploads') }}/{{ $data->rc_book }}" style="margin-top: 1%;float: left;" width="100px" alt="" class="zoom">
+                                                <img src="{{ asset('/uploads') }}/{{ $data->rc_book }}" style="margin-top: 1%;float: left;" width="100px" alt="" class="zoom">
                                                  @error('rc_book')
                                                  <span class="text-danger"> {{ $message }} </span>
                                                 @enderror
@@ -161,7 +161,7 @@
                                             <label class="control-label col-md-2">Pan Card :</label>
                                             <div class="col-md-10">
                                                 <input type="file" name="pan_card" class="default">
-                                                 <img src="{{ asset('public/uploads') }}/{{ $data->pan_card }}" style="margin-top: 1%;float: left;" width="100px" alt="" class="zoom">
+                                                 <img src="{{ asset('/uploads') }}/{{ $data->pan_card }}" style="margin-top: 1%;float: left;" width="100px" alt="" class="zoom">
                                                  @error('pan_card')
                                                  <span class="text-danger"> {{ $message }} </span>
                                                 @enderror
@@ -173,7 +173,7 @@
                                             <div class="col-md-10">
                                                 <input type="file" name="licence" class="default">
                                                 
-                                                <img src="{{ asset('public/uploads') }}/{{ $data->licence }}" style="margin-top: 1%;float: left;" width="100px" alt="" class="zoom">
+                                                <img src="{{ asset('/uploads') }}/{{ $data->licence }}" style="margin-top: 1%;float: left;" width="100px" alt="" class="zoom">
                                                  @error('licence')
                                                  <span class="text-danger"> {{ $message }} </span>
                                                 @enderror

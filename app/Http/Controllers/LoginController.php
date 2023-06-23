@@ -43,6 +43,60 @@ class LoginController extends Controller
 
 				return redirect()->route('forwarderdashboard');
 			}
+			else if(Auth::user()->role == 'warehouse') {
+
+				return redirect()->route('warehousedashboard');
+			}
+			else if(Auth::user()->role == 'company'){
+
+				return redirect()->route('companydashboard');
+			
+			}
+			else{
+                if(AUth::user()->can('dashboard-list')) {
+                    return redirect('admin/dashboard');
+                } 
+				elseif(AUth::user()->can('shipment-list')) {
+                    return redirect('admin/shipment');
+                } 
+                elseif(Auth::user()->can('invoice-list')) {
+                    return redirect('admin/invoice');
+                }
+                elseif(Auth::user()->can('voucher-list')) {
+                    return redirect('admin/voucher');
+                }
+                elseif(Auth::user()->can('expense-list')) {
+                    return redirect('admin/expense');
+                }
+                elseif(Auth::user()->can('account-list')) {
+                    return redirect('admin/account');
+                }
+                elseif(Auth::user()->can('transporter-list')) {
+                    return redirect('admin/transporter');
+                }
+                elseif(Auth::user()->can('company-list')) {
+                    return redirect('admin/company');
+                }
+                elseif(Auth::user()->can('forwarder-list')) {
+                    return redirect('admin/forwarder');
+                }
+                elseif(Auth::user()->can('employee-list')) {
+                    return redirect('admin/employee');
+                }
+				elseif(Auth::user()->can('roleuser-list')) {
+                    return redirect('admin/roleuser');
+                }
+				elseif(Auth::user()->can('roles-list')) {
+                    return redirect('admin/roles');
+                }
+				elseif(Auth::user()->can('driver-list')) {
+                    return redirect('admin/driver');
+                }
+				elseif(Auth::user()->can('warehouse-list')) {
+                    return redirect('admin/warehouse');
+                }
+               
+            }
 
 		} else {
 
@@ -97,7 +151,61 @@ class LoginController extends Controller
 
 					return redirect()->route('transporterdashboard'); 
 				
-			}              	
+			}   
+			elseif(Auth::user()->role == 'warehouse') {
+
+				return redirect()->route('warehousedashboard'); 
+			
+		}   
+		elseif(Auth::user()->role == 'company') {
+
+			return redirect()->route('companydashboard'); 
+		
+		}   else{
+			if(AUth::user()->can('dashboard-list')) {
+				return redirect()->route('admindashboard');
+			} 
+			elseif(AUth::user()->can('shipment-list')) {
+				return redirect('admin/shipment/list');
+			} 
+			elseif(Auth::user()->can('invoice-list')) {
+				return redirect('admin/invoice/list');
+			}
+			elseif(Auth::user()->can('voucher-list')) {
+				return redirect('admin/voucher/list');
+			}
+			elseif(Auth::user()->can('expense-list')) {
+				return redirect('admin/expense/list');
+			}
+			elseif(Auth::user()->can('account-list')) {
+				return redirect('admin/account/list');
+			}
+			elseif(Auth::user()->can('transporter-list')) {
+				return redirect('admin/transporter/list');
+			}
+			elseif(Auth::user()->can('company-list')) {
+				return redirect('admin/company/list');
+			}
+			elseif(Auth::user()->can('forwarder-list')) {
+				return redirect('admin/forwarder/list');
+			}
+			elseif(Auth::user()->can('employee-list')) {
+				return redirect('admin/employee/list');
+			}
+			elseif(Auth::user()->can('roleuser-list')) {
+				return redirect('admin/roleuser/list');
+			}
+			elseif(Auth::user()->can('roles-list')) {
+				return redirect('admin/roles/list');
+			}
+			elseif(Auth::user()->can('driver-list')) {
+				return redirect('admin/driver/list');
+			}
+			elseif(Auth::user()->can('warehouse-list')) {
+				return redirect('admin/warehouse/list');
+			}
+		   
+		}      	
 
         } else {
 

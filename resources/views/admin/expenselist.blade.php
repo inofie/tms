@@ -96,6 +96,8 @@ All Expenses List | Helard
                                    <th>Company Name</th>
                                    <th>Transporter Name</th>
                                    <th>Type</th>
+                                   <th>Created Date</th>
+                                   <th>Shipment No</th>
                                   <th class="center">Details</th>
                                   <th class="center">Amount</th>
                                  <th class="center">Action</th>
@@ -109,6 +111,8 @@ All Expenses List | Helard
                                   <td style="vertical-align: middle;">{{ $value->company_name }}</td>
                                   <td style="vertical-align: middle;">{{ $value->transporter_name }}</td>
                                   <td style="vertical-align: middle;">{{ $value->type }}</td>
+                                  <td style="vertical-align: middle;">{{ $value->created_at }}</td>
+                                  <td style="vertical-align: middle;">{{ $value->shipment_no }}</td>
                                   <td style="vertical-align: middle;">{{ $value->reason }}</td>
                                   <td class="center" style="vertical-align: middle;">{{ $value->amount }}</td>
                                   <td class="edit_delete center" style="vertical-align: middle;">
@@ -158,7 +162,14 @@ All Expenses List | Helard
   $(document).ready(function() {
    
     $('#editable-sample').DataTable( {
-       "aaSorting": [[ 0, "desc" ]],
+      "aaSorting": [[ 4, "desc" ]],
+       "columnDefs":
+           [
+               {
+                   "targets": [4],
+                   "visible": false, 
+               },
+           ],
        /* "lengthChange": true,
       "lengthMenu": [ 10, 25, 50, 75, 100 ],
         dom: 'Bfrtip',

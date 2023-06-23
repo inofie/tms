@@ -42,7 +42,15 @@ class InvoiceController extends Controller
  	public function UnpaidList(Request $Request)
  	{
 
- 		$data1 = Invoice::where('paid',0)->get();
+		if(Auth::user()->role == "company") {
+		$ff= Company::where('user_id',Auth::user()->id)->first();
+		$data1 = Invoice::where('company_id',$ff->id)->where('paid',0)->get();
+		}
+		else{
+		$data1 = Invoice::where('paid',0)->get();
+		}
+
+ 		
  		$data =array();
 
  		foreach ($data1 as $key => $value) {

@@ -4,7 +4,7 @@
       <select class="form-control mydriver" name="driver_id" id="mydriver" >
         <option value="">Choose Driver</option>
           @foreach($drivers as $value)
-            @if(old('driver_id') == $value->id)
+            @if($old_driver == $value->id)
               <option selected="selected" data-number="{{ $value->truck_no }}" value="{{ $value->id }}">{{ $value->name }}</option>
             @else  
               <option data-number="{{ $value->truck_no }}"  value="{{ $value->id }}">{{ $value->name }}</option>

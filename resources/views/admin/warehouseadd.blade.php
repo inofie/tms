@@ -169,7 +169,31 @@
                                           </select>
                                           </div>
                                       </div>
+                                      
+                                      <br>
+                                      <h4><u>Login Details</u></h4>
+                                      
 
+                                        <div class="form-group">
+                                            <label class="col-lg-2 control-label">Username :</label>
+                                            <div class="col-lg-10">
+                                                <input type="text" class="form-control" id="username" name="username" value="{{ old('username') }}" placeholder="Enter Username"/>
+                                                @error('username')
+                                                 <span class="text-danger"> {{ $message }} </span>
+                                                @enderror
+                                            </div>
+                                        </div>
+
+
+                                          <div class="form-group">
+                                            <label class="col-lg-2 control-label">Password :</label>
+                                            <div class="col-lg-10">
+                                                <input type="text" class="form-control" id="password " name="password" value="{{ old('password') }}" placeholder="Enter Password"/>
+                                                @error('password')
+                                                 <span class="text-danger"> {{ $message }} </span>
+                                                @enderror
+                                            </div>
+                                        </div>
 
 
                                         
@@ -183,7 +207,7 @@
                                         <div class="form-group save_cancle">
                                             <div class="col-lg-offset-10 col-lg-2">
                                                 <button class="btn btn-success" type="submit">Save</button>
-                                                <button class="btn btn-default" type="button">Cancel</button>
+                                                <a class="btn btn-default" href="{{ route('warehouselist') }}">Cancel</a>
                                             </div>
                                         </div>
                                     </form>

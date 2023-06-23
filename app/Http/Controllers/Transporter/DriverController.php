@@ -40,7 +40,7 @@ class DriverController extends Controller
         foreach ($data1 as $key => $value) {
 
             $data[$key]=$value;
-            $transporter = Transporter::findorfail($value->transporter_id);
+            $transporter = Transporter::withTrashed()->findorfail($value->transporter_id);
             $data[$key]->transporter_name=$transporter->name;
         
         }
@@ -62,11 +62,11 @@ class DriverController extends Controller
         $this->validate($Request, [
            
         'name' => 'required',
-        'phone' => 'required|numeric',
+        'phone' => 'required|numeric|digits:10',
         'licence_no' => 'required',
         'truck_no'=>'required',
         'pan'=>'required',
-        'password' => 'required',
+        'password' => 'required|min:8',
         'rc_book'=>'required|mimes:jpeg,jpg,png',
         'pan_card'=>'required|mimes:jpeg,jpg,png',
         'licence'=>'required|mimes:jpeg,jpg,png',
@@ -133,7 +133,7 @@ class DriverController extends Controller
 
                  if($comapny->save()){
 
-                     return redirect()->route('transporterdriverlist')->with('success','Transporter Added successfully.');
+                     return redirect()->route('transporterdriverlist')->with('success','Driver Added successfully.');
 
                 }
 
@@ -160,7 +160,7 @@ class DriverController extends Controller
         $this->validate($Request, [
            
         'name' => 'required',
-        'phone' => 'required|numeric',
+        'phone' => 'required|numeric|digits:10',
         'licence_no' => 'required',
         'truck_no'=>'required',
         'pan'=>'required',
@@ -224,7 +224,7 @@ class DriverController extends Controller
 
                  if($comapny->save()){
 
-                     return redirect()->route('transporterdriverlist')->with('success','Transporter Updated successfully.');
+                     return redirect()->route('transporterdriverlist')->with('success','Driver Updated successfully.');
 
                 }
     }
@@ -236,7 +236,7 @@ class DriverController extends Controller
         $data->deleted_by =Auth::user()->id;
         $data->save();
         $data->delete();
-        return redirect()->route('transporterdriverlist')->with('success','Transporter deleted successfully.');
+        return redirect()->route('transporterdriverlist')->with('success','Driver deleted successfully.');
 
     }
 

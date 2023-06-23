@@ -32,8 +32,16 @@ class ForwarderController extends Controller
     public function List(Request $Request)
     {	
 
-        $data = Forwarder::all();
-    	
+        $data1 = Forwarder::all();
+    	foreach ($data1 as $key => $value) {
+
+            $data[$key]=$value;
+            
+            $username = User::withTrashed()->findorfail($value->user_id);
+            $data[$key]->user_name=$username->username;
+
+            # code...
+        }
     	return view('admin.forwarderlist',compact('data'));
     }
 
@@ -56,7 +64,7 @@ class ForwarderController extends Controller
         'email'=>'required|email',
         'gst'=>'required',
         'username'=>'required',
-        'password'=>'required',       
+        'password'=>'required|min:8',       
          ],[
          'name.required' => "Please Enter Name",
          'phone.required' => "Please Enter Phone Number",

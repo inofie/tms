@@ -18,7 +18,7 @@
         <table border="0" style="width: 100%">
         <tbody><tr style="height: 20px;">
         <td style="width: 25%;padding: 0px 10px 0px 0px"> 
-            <img src="{{asset('public/uploads/yogi.png')}}" alt="" style="width: 80%">
+            <img src="{{asset('uploads/yogi.png')}}" alt="" style="width: 80%">
         </td> 
        <td style="width: 35%;font-size: 10px;font-family:Helvetica Neue;">
              <p>L/22,Swatantra Senaninagar,Opp.Nava Vadaj Bus Stop,Nava Vadaj,Ahmedabad-380013</p>
@@ -223,7 +223,7 @@
                     <!--- <p style="padding: 0px;margin: 0;font-size: 10px;">Authorised</p>
                     <p style="padding: 0px;margin: 0;font-size: 10px;">Yogini Transport</p> --->
 					  	@if($data->qr_code)
-							<img src="{{ asset('public/Qr_code') }}/{{ $data->qr_code }}" width="100%">
+							<img src="{{ asset('Qr_code') }}/{{ $data->qr_code }}" width="100%">
 						@endif
                    </td>
                    

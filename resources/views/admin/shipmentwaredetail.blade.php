@@ -67,7 +67,7 @@
                           <header class="panel-heading" style="border-bottom: 1px solid #2a3542;line-height: 30px;">
                             Shipment Detail
                              <div class="btn-group pull-right">
-                                 <a href="{{ route('warehouseshiplist') }}">
+                                 <a href="{{ URL::previous() }}">
                                   <button  class="btn btn-primary">
                                       <i class="fa fa-reply"></i> Back
                                   </button>
@@ -190,7 +190,7 @@
                                           <div class="col-lg-12" style="text-align: center;">
                                               <button class="btn btn-success" id="msubmit" >Save</button>
                                               <button style="display: none;"  id="sform" class="btn btn-success" type="submit">Save</button>
-                                              <button class="btn btn-default" type="button">Cancel</button>
+                                              <a href="{{ URL::previous() }}" class="btn btn-default">Cancel</a>
                                           </div>
                                       </div>
 

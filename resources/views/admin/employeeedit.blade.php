@@ -142,10 +142,11 @@
                                         <div class="form-group">
                                             <label class="control-label col-md-2">PAN Card :</label>
                                             <div class="col-md-10">
-                                                <input type="file" name="pan_card" class="default">
-                                                
-                                                <img src="{{ asset('public/uploads') }}/{{ $data->pan_card }}" style="margin-top: 1%;float: left;" width="100px" alt="" class="zoom">
-                                                 @error('pan_card')
+                                                <input type="file" name="pan_card" id="pan_card" class="item-img file ">
+                                                <div style=" overflow: hidden; width: 100px; ">
+                                                <img src="{{ asset('/uploads') }}/{{ $data->pan_card }}" id="item-img-output" style="margin-top: 1%;float: left;" width="100px" alt="" class="zoom">
+                                                </div>
+                                                @error('pan_card')
                                                  <span class="text-danger"> {{ $message }} </span>
                                                 @enderror
                                             </div>
@@ -253,6 +254,20 @@
 
       $("#row"+id).remove();
      }
+     function readURL(input) {
+        if (input.files && input.files[0]) {
+            var reader = new FileReader();
 
+            reader.onload = function (e) {
+                $('#item-img-output').attr('src', e.target.result);
+            }
+
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+
+    $("#pan_card").change(function () {
+        readURL(this);
+    });
 </script>
   @endsection

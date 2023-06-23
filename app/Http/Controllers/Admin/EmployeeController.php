@@ -37,8 +37,10 @@ class EmployeeController extends Controller
         foreach ($data1 as $key => $value) {
 
             $data[$key]=$value;
-            $company = Company::findorfail($value->company_id);
+            $company = Company::withTrashed()->findorfail($value->company_id);
             $data[$key]->company_name=$company->name;
+            $username = User::withTrashed()->findorfail($value->user_id);
+            $data[$key]->user_name=$username->username;
 
             # code...
         }
@@ -63,7 +65,7 @@ class EmployeeController extends Controller
         'email'=>'required|email',
         'address' => 'required',
         'username'=>'required',
-        'password'=>'required',
+        'password'=>'required|min:8',
         'company'=>'required',
         'pan_card'=>'required|mimes:jpeg,jpg,png',
 

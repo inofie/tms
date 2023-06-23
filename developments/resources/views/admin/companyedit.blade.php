@@ -131,7 +131,7 @@
                                             <div class="col-md-10">
                                                 <input type="file" name="logo" class="default">
                                                 
-                                                <img src="{{ asset('public/uploads') }}/{{ $data->logo }}" style="margin-top: 1%;float: left;" width="100px" alt="" class="zoom">
+                                                <img src="{{ asset('/uploads') }}/{{ $data->logo }}" style="margin-top: 1%;float: left;" width="100px" alt="" class="zoom">
                                                  @error('logo')
                                                  <span class="text-danger"> {{ $message }} </span>
                                                 @enderror

@@ -62,7 +62,7 @@ class EmployeeController extends Controller
         'email'=>'required|email',
         'address' => 'required',
         'username'=>'required',
-        'password'=>'required',
+        'password'=>'required|min:8',
         'company'=>'required',
         'pan_card'=>'required|mimes:jpeg,jpg,png',
 

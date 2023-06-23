@@ -66,6 +66,10 @@ Route::get('/pushmsg', 'WebNotificationController@sendWebNotification')->name('p
 
 Route::get('/updateExpenseDate', 'PDFController@updateExpenseDate');
 
+Route::get('/permission', 'PermissionController@index');
+Route::post('/permission/save', 'PermissionController@store');
+Route::post('/permission/getPermissions', 'PermissionController@getPermissions');
+
 Route::group(['namespace' => 'Admin','prefix' =>'admin' , 'middleware' => 'auth'], function () {
 
 	Route::get('/dashboard','AdminController@Dashboard')->name('admindashboard');
@@ -89,8 +93,21 @@ Route::group(['namespace' => 'Admin','prefix' =>'admin' , 'middleware' => 'auth'
 	Route::get('/forwarder/edit/{id}','ForwarderController@Edit')->name('forwarderedit');
 	Route::post('/forwarder/update','ForwarderController@Update')->name('forwarderupdate');
 	Route::post('/forwarder/delete','ForwarderController@Delete')->name('forwarderdelete');
+	
 
+	Route::get('/roleuser','RoleUserController@index')->name('roleuserslist');
+	Route::get('/roleuser/add','RoleUserController@ADD')->name('roleusersadd');
+	Route::post('/roleuser/save','RoleUserController@Save')->name('roleuserssave');
+	Route::get('/roleuser/edit/{id}','RoleUserController@Edit')->name('roleusersedit');
+	Route::post('/roleuser/update','RoleUserController@Update')->name('roleusersupdate');
+	Route::post('/roleuser/delete/{id}','RoleUserController@Delete')->name('roleusersdelete');
 
+	Route::get('/roles','RoleController@index')->name('roleslist');
+	Route::get('/roles/add','RoleController@ADD')->name('rolesadd');
+	Route::post('/roles/save','RoleController@Save')->name('rolessave');
+	Route::get('/roles/edit/{id}','RoleController@Edit')->name('rolesedit');
+	Route::post('/roles/update','RoleController@Update')->name('rolesupdate');
+	Route::post('/roles/delete/{id}','RoleController@Delete')->name('rolesdelete');
 
 	Route::get('/company/list','CompanyController@List')->name('companylist');
 	Route::get('/company/add','CompanyController@ADD')->name('companyadd');
@@ -118,18 +135,18 @@ Route::group(['namespace' => 'Admin','prefix' =>'admin' , 'middleware' => 'auth'
 	Route::post('/driver/save','DriverController@Save')->name('driversave');
 	Route::get('/driver/edit/{id}','DriverController@Edit')->name('driveredit');
 	Route::post('/driver/update','DriverController@Update')->name('driverupdate');
-	Route::get('/driver/delete/{id}','DriverController@Delete')->name('driverdelete');
+	Route::post('/driver/delete/{id}','DriverController@Delete')->name('driverdelete');
 
 	Route::get('/shipment/list','ShipmentController@List')->name('shipmentlist');
 	Route::get('/shipment/add','ShipmentController@Add')->name('shipmentadd');
 	Route::post('/shipment/save','ShipmentController@Save')->name('shipmentsave');
 	Route::get('/shipment/{id}','ShipmentController@Detail')->name('shipmentdetail');
-	Route::get('/shipment/trucks/list/{id}','ShipmentController@TruckList')->name('shipmenttrucklist');
+	Route::get('/shipment/trucks/list/{id}','ShipmentController@TruckList')->name('shipmenttrucklists');
 	Route::post('/shipment/change/truckstatus','ShipmentController@ChangeTruckStatus')->name('changetruckstatusadmin');
 	Route::post('/shipment/truck/delete','ShipmentController@DeleteTruckStatus')->name('deletetruckstatusadmin');
 	Route::get('/shipment/expense/add/{id}','ShipmentController@AddExpense')->name('addexpensebyadmin');
 	Route::post('/shipment/expense/save','ShipmentController@SaveExpense')->name('expensesave1');
-	Route::get('/shipment/transporter/add/{id}','ShipmentController@AddTransporter')->name('shipmenttransporter');
+	Route::get('/shipment/transporter/add/{id}','ShipmentController@AddTransporter')->name('shipmenttransporters');
 	Route::post('/shipment/transporter/save','ShipmentController@SaveTransporter')->name('savetransporter');
 	Route::post('/shipment/transporter/delete','ShipmentController@DeleteTransporter')->name('deleteshiptransporter');
 	Route::get('/lr/download/{id}','ShipmentController@DownloadLR')->name('downloadlr');
@@ -154,7 +171,7 @@ Route::group(['namespace' => 'Admin','prefix' =>'admin' , 'middleware' => 'auth'
 	Route::post('/shipment/get/newid','ShipmentController@ShipmentNewID')->name('shipmentnewid');
 	Route::post('/shipment/newshipment','ShipmentController@NewShipment')->name('newshipment');
 	Route::get('/shipment/all/filter','ShipmentController@MyFilter')->name('myfilter');
-
+	Route::get('/shipment/summary/list','ShipmentController@ShipmentSummaryList')->name('allshipmentsummarylist');
 	Route::get('/shipment/all/list','ShipmentController@ShipmentAllList')->name('allshipmentlist');
 	Route::get('/shipment/old/detail/{id}','ShipmentController@ShipmentAllDetails')->name('shipalldetail');
 
@@ -217,8 +234,6 @@ Route::group(['namespace' => 'Transporter','prefix' =>'transporter' , 'middlewar
 	Route::get('/dashboard','AdminController@Dashboard')->name('transporterdashboard');
 
 	Route::get('/shipment/list','ShipmentController@List')->name('shipmentlisttransporter');
-	Route::get('/shipment/add','ShipmentController@Add')->name('shipmentadd');
-	Route::post('/shipment/save','ShipmentController@Save')->name('shipmentsave');
 	Route::get('/shipment/{id}','ShipmentController@Detail')->name('shipmentdetail');
 	Route::get('/shipment/trucks/list/{id}','ShipmentController@TruckList')->name('shipmenttrucklist');
 	Route::post('/shipment/change/truckstatus','ShipmentController@ChangeTruckStatus')->name('changetruckstatusadmin');
@@ -229,11 +244,11 @@ Route::group(['namespace' => 'Transporter','prefix' =>'transporter' , 'middlewar
 	Route::post('/shipment/transporter/save','ShipmentController@SaveTransporter')->name('savetransporter');
 	Route::post('/shipment/transporter/delete','ShipmentController@DeleteTransporter')->name('deleteshiptransporter');
 	Route::get('/lr/download/{id}','ShipmentController@DownloadLR')->name('downloadlr');
-	Route::get('/shipment/detail/{id}','ShipmentController@ShipmentDetails')->name('shipmentdetails');
+	Route::get('/shipment/detail/{id}','ShipmentController@ShipmentDetails')->name('shipmentdetailstransporter');
 	Route::post('/shipment/amount/update','ShipmentController@ShipmentAmount')->name('shipmentamount');
-	Route::get('/shipment/edit/{id}','ShipmentController@ShipmentEdit')->name('shipmentedit');
-	Route::post('/shipment/update','ShipmentController@ShipmentUpdate')->name('shipmentupdate');
-	Route::post('/shipment/delete','ShipmentController@ShipmentDelete')->name('shipmentdelete');
+	Route::get('/shipment/edit/{id}','ShipmentController@ShipmentEdit')->name('shipmentedittransporter');
+	Route::post('/shipment/update','ShipmentController@ShipmentUpdate')->name('shipmentupdatetransporter');
+	Route::post('/shipment/delete','ShipmentController@ShipmentDelete')->name('shipmentdeletetransporter');
 	Route::post('/shipment/add/warehouse','ShipmentController@WarehouseAdd')->name('shipwarehousein');
 	Route::post('/shipment/delivered','ShipmentController@ShipmentDelivered')->name('shipmentdelivered');
 	Route::any('/shipment/driverlist','ShipmentController@Driverlist')->name('shipmentdriverlist');
@@ -246,8 +261,8 @@ Route::group(['namespace' => 'Transporter','prefix' =>'transporter' , 'middlewar
 	Route::post('/shipment/ontheway','ShipmentController@ShipmentOntheway')->name('shipmentontheway');
 	Route::post('/shipment/get/newid','ShipmentController@ShipmentNewID')->name('shipmentnewid');
 	Route::post('/shipment/newshipment','ShipmentController@NewShipment')->name('newshipment');
-	Route::get('/shipment/all/filter','ShipmentController@MyFilter')->name('myfilter');
-
+	Route::get('/shipment/all/filter','ShipmentController@MyFilter')->name('myfiltertransporter');
+	Route::get('/shipment/summary/list','ShipmentController@ShipmentSummaryList')->name('allshipmentsummarylisttransporter');
 	Route::get('/shipment/all/list','ShipmentController@ShipmentAllList')->name('allshipmentlisttransporter');
 	Route::get('/shipment/old/detail/{id}','ShipmentController@ShipmentAllDetails')->name('shipalldetail');
 	Route::get('/driver/list','DriverController@List')->name('transporterdriverlist');
@@ -255,7 +270,30 @@ Route::group(['namespace' => 'Transporter','prefix' =>'transporter' , 'middlewar
 	Route::post('/driver/save','DriverController@Save')->name('transporterdriversave');
 	Route::get('/driver/edit/{id}','DriverController@Edit')->name('transporterdriveredit');
 	Route::post('/driver/update','DriverController@Update')->name('transporterdriverupdate');
-	Route::get('/driver/delete/{id}','DriverController@Delete')->name('transporterdriverdelete');
+	Route::post('/driver/delete/{id}','DriverController@Delete')->name('transporterdriverdelete');
+});
+Route::group(['namespace' => 'Warehouse','prefix' =>'warehouse' , 'middleware' => 'auth'], function () {
+
+	Route::get('/dashboard','AdminController@Dashboard')->name('warehousedashboard');
+	Route::get('/shipment/warehouse/list','ShipmentController@WarehouseShipmentList')->name('warehouseshiplistwarehouse');
+	Route::get('/shipment/warehouse/transporter/add/{id}','ShipmentController@AddWareTransporter')->name('shipmentWarewarehouse');
+	Route::post('/shipment/warehouse/tansporter/save','ShipmentController@SaveWareTransporter')->name('savewarewarehouse');
+	Route::get('/shipment/warehouse/edit/{id}','ShipmentController@ShipmentWareEdit')->name('shipmentwareeditwarehouse');
+	Route::post('/shipment/warehouse/update','ShipmentController@ShipmentWareUpdate')->name('shipmentwareupdatewarehouse');
+	Route::get('/shipment/warehouse/detail/{id}','ShipmentController@ShipmentWareDetails')->name('shipmentwaredetailswarehouse');
+	Route::post('/shipment/ontheway','ShipmentController@ShipmentOntheway')->name('shipmentonthewaywarehouse');
+	Route::post('/shipment/get/newid','ShipmentController@ShipmentNewID')->name('shipmentnewidwarehouse');
+	Route::post('/shipment/newshipment','ShipmentController@NewShipment')->name('newshipmentwarehouse');
+	Route::get('/shipment/all/filter','ShipmentController@MyFilter')->name('myfilterwarehouse');
 });
 
+Route::group(['namespace' => 'Company','prefix' =>'company' , 'middleware' => 'auth'], function () {
+Route::get('/dashboard','AdminController@Dashboard')->name('companydashboard');
+Route::get('/employee/list','EmployeeController@List')->name('employeelistcompany');
+Route::get('/employee/add','EmployeeController@ADD')->name('employeeaddcompany');
+Route::post('/employee/save','EmployeeController@Save')->name('employeesavecompany');
+Route::get('/employee/edit/{id}','EmployeeController@Edit')->name('employeeeditcompany');
+Route::post('/employee/update','EmployeeController@Update')->name('employeeupdatecompany');
+Route::post('/employee/delete','EmployeeController@Delete')->name('employeedeletecompany');
+});
 

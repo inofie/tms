@@ -105,6 +105,7 @@ All WareHouse List | TOT
                               <thead>
                               <tr>
                                   <th style="width:12.11%; ">Full Name</th>
+                                  <th style="width:12.11%; ">User Name</th>
                                   <th style="width:12.11%; ">Company</th>
                                   <th style="width:12.11%; ">Address</th>
                                   <th style="width:9.11%; ">Add Proof</th>
@@ -121,9 +122,10 @@ All WareHouse List | TOT
 
                                <tr class="table_space">
                                   <td  id="change_color">{{ $value->name }}</td>
+                                  <td>{{ $value->user_name }}</td>
                                   <td>{{ $value->company_name }}</td>
                                   <td>{{ $value->address }}</td>
-                                  <td><img src="{{ asset('public/uploads') }}/{{ $value->address_proof }}" width="50px" alt="" class="zoom"></td>
+                                  <td><img src="{{ asset('/uploads') }}/{{ $value->address_proof }}" width="50px" alt="" class="zoom"></td>
                                   <td>{{ $value->phone }}</td>
                                   <td>{{ $value->gst }}</td>
                                   <td>{{ $value->pan }}</td> 

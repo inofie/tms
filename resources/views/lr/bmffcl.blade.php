@@ -109,7 +109,7 @@
       <table style="width: 100%">
         <tr>
           <td>
-            <img style="width: 100%;" src="{{ asset('public/uploads/33y.jpg')}}">
+            <img style="width: 100%;" src="{{ asset('uploads/33y.jpg')}}">
           </td>
         </tr>
       </table>
@@ -262,7 +262,7 @@
         <td style=" text-align: center; font-size: 12px; font-weight: 700; background-color: #e6e6e6;  width:5%; line-height: 1; padding: 5px; border-radius: 5px;" rowspan="3">N.B.</td>
         <td style=" text-align: left; font-size: 10px; font-weight: 700; width: 82%; line-height: 1;  padding: 5px; border-radius: 5px;"> • This G.C. Note Issued Under Terms &amp; Condition Printed Overleaf.</td>
 	  @if($data->qr_code)
-					<td style="width:13%; line-height: 1;" rowspan="3"><img src="{{ asset('public/Qr_code') }}/{{ $data->qr_code }}" width="100%"></td>
+					<td style="width:13%; line-height: 1;" rowspan="3"><img src="{{ asset('Qr_code') }}/{{ $data->qr_code }}" width="100%"></td>
 				@endif
         </tr>
         <tr>
