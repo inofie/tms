@@ -15,19 +15,7 @@ Dashboard | TMS
           <section class="wrapper">
               <!--state overview start-->
               <div class="row state-overview">
-                  <div class="col-lg-3 col-sm-6">
-                      <section class="panel">
-                          <div class="symbol terques">
-                              <i class="fa fa-truck"></i>
-                          </div>
-                          <div class="value">
-                              <h1 class="count">
-                                  0
-                              </h1>
-                              <p>Total Shipment</p>
-                          </div>
-                      </section>
-                  </div>
+                
                   <div class="col-lg-3 col-sm-6">
                     <a href="{{ route('shipmentlisttransporter')}}">
                       <section class="panel">
@@ -35,7 +23,7 @@ Dashboard | TMS
                               <i class="fa fa-tags"></i>
                           </div>
                           <div class="value">
-                              <h1 class="count2">
+                              <h1 class=" count2">
                                   0
                               </h1>
                               <p>Pending Shipment</p>
@@ -49,7 +37,7 @@ Dashboard | TMS
                               <i class="fa fa-shopping-cart"></i>
                           </div>
                           <div class="value">
-                              <h1 class="count3">
+                              <h1 class=" count3">
                                   0
                               </h1>
                               <p>OnTheWay Shipment</p>
@@ -64,8 +52,8 @@ Dashboard | TMS
                               <i class="fa fa-shopping-cart"></i>
                           </div>
                           <div class="value">
-                              <h1 class="count4">
-                                  0
+                              <h1>{{$data['delivery']}}
+                                  
                               </h1>
                               <p>Delivered Shipment</p>
                           </div>
@@ -110,7 +98,7 @@ Dashboard | TMS
      countUp({{ $data['total'] }});
      countUp2({{ $data['pending'] }});
      countUp3({{ $data['ontheway'] }});
-     countUp4({{ $data['delivery'] }});
+     
    </script>
     <script src="{{ asset('js/flot-chart.js')}}"></script>
     

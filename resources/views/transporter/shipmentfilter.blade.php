@@ -254,9 +254,11 @@ Shipment Filter | TMS
                                     <td id="{{ $value->shipment_no }}" style="vertical-align: middle;text-align: center;">
                                       @if($value->status == 1) 
                                         <span style="color: blue">Pending</span> 
-                                      @elseif($value->status == 2) 
+                                        @elseif($value->status == 2 || $value->status == 4 || $value->status == 5 || $value->status == 6 ||$value->status == 7
+							                        ||$value->status == 8 ||$value->status == 9 || $value->status == 10 || $value->status == 11 || $value->status == 12
+							                        ||$value->status == 13 ||$value->status == 14 || $value->status == 15 || $value->status == 18) 
                                         <span style="color: orange">Ontheway</span>
-                                      @elseif($value->status == 3)
+                                      @elseif($value->status == 3 || $value->status == 17) 
                                         <span style="color: green">Delivered</span>
                                      
                                       @endif

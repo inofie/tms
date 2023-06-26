@@ -28,6 +28,8 @@ use App\Http\Controllers\WebNotificationController;
 use Config;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
+use App\Helper\GlobalHelper;
+use App\Notification;
 
 
 class ShipmentController extends Controller
@@ -310,14 +312,12 @@ class ShipmentController extends Controller
                     $transs->myid = uniqid();
                     $transs->save(); 
 
-                    $summary = new Shipment_Summary();
-                    $summary->shipment_no = $shipment_no;
-                    $summary->flag = "create";
-                    $summary->transporter_id = $Request->transporter;
-                    $summary->description = "Add Transporter";
-                    $summary->save();
-
-
+                    // $summary = new Shipment_Summary();
+                    // $summary->shipment_no = $shipment_no;
+                    // $summary->flag = "create";
+                    // $summary->transporter_id = $Request->transporter;
+                    // $summary->description = "Add Transporter";
+                    // $summary->save();
                 }
 
                /* if($Request->truck_no != null && $Request->truck_no != '' && $Request->truck_no != 'null') {
@@ -376,6 +376,59 @@ class ShipmentController extends Controller
                         $summary->transporter_id = $Request->transporter;
                         $summary->description = "Add Driver. \n" . $mytruckno . "(Co.No." . $tt->phone . ").";
                         $summary->save();
+
+                         //driver
+                    if($driver->driver_id){
+                        $from_user = User::find(1);
+                        $to_user = Driver::find($driver->driver_id);
+                        if($from_user['id'] != $to_user['id'] && $from_user && $to_user) {
+                            $notification = new Notification();
+                            $notification->notification_from = $from_user->id;
+                            $notification->notification_to = $to_user->id;
+                            $notification->shipment_id = $data->id;
+                            $id = $data->shipment_no;
+                            $title= "New Shipment" .' '. $driver->shipment_no .' '. "Added";
+                            $message= "New Shipment" .' '. $driver->shipment_no .' '. "Added";
+                            $notification->title = $title;
+                            $notification->message = $message;
+                            $notification->notification_type = '1';
+                            $notification->save();
+                            // if($to_user->notification_status=='1'){
+                                if($to_user->device_type == 'ios'){
+                                    GlobalHelper::sendFCMIOS($title, $message, $to_user->device_token,$notification->notification_type,$id);
+                                }else{
+                                    GlobalHelper::sendFCM($notification->title, $notification->message, $to_user->device_token,$notification->notification_type,$id);
+                                }
+                            // }
+                        }
+                    }
+
+                        //transporter
+                        if($driver->transporter_id){
+                            $transporter=Transporter::where('id',$driver->transporter_id)->first();
+                            $from_user = User::find(1);
+                            $to_user = User::find($transporter['user_id']);
+                            if($from_user['id'] != $to_user['id'] && $from_user && $to_user) {
+                                $notification = new Notification();
+                                $notification->notification_from = $from_user->id;
+                                $notification->notification_to = $to_user->id;
+                                $notification->shipment_id = $data->id;
+                                $id = $data->shipment_no;
+                                $title= "New Shipment" .' '. $driver->shipment_no .' '. "Added";
+                                $message= "New Shipment" .' '. $driver->shipment_no .' '. "Added";
+                                $notification->title = $title;
+                                $notification->message = $message;
+                                $notification->notification_type = '1';
+                                $notification->save();
+                                // if($to_user->notification_status=='1'){
+                                    if($to_user->device_type == 'ios'){
+                                        GlobalHelper::sendFCMIOS($title, $message, $to_user->device_token,$notification->notification_type,$id);
+                                    }else{
+                                        GlobalHelper::sendFCM($notification->title, $notification->message, $to_user->device_token,$notification->notification_type,$id);
+                                    }
+                                // }
+                            }
+                        }
                 
             }
 
@@ -868,6 +921,56 @@ class ShipmentController extends Controller
                 $summary->created_by = Auth::id();      
                 $summary->save(); 
 
+                //transportor
+                $transporter=Transporter::where('id',$data->transporter_id)->first();
+                $from_user = User::find(Auth::id());
+                $to_user = User::find($transporter['user_id']);
+                $user=User::where('id',Auth::id())->first();
+                $getStatus=Cargostatus::where('id',$data->status)->first();
+                if($from_user['id'] != $to_user['id'] && $from_user && $to_user) {
+                    $notification = new Notification();
+                    $notification->notification_from = $from_user->id;
+                    $notification->notification_to = $to_user->id;
+                    $notification->shipment_id = $data->id;
+                    $id = $data->shipment_no;
+                    $title= "Status changed";
+                    // "New Shipment" .' '. $driver->shipment_no .' '. "Added";
+                    $message= $data["shipment_no"].' '."is".' '.$getStatus['name'].' ' ."by".' '.$user['username'];
+                    $notification->title = $title;
+                    $notification->message = $message;
+                    $notification->notification_type = '2';
+                    $notification->save();
+                    if($to_user->device_type == 'ios'){
+                        GlobalHelper::sendFCMIOS($title, $message, $to_user->device_token,$notification->notification_type,$id);
+                    }else{
+                        GlobalHelper::sendFCM($notification->title, $notification->message, $to_user->device_token,$notification->notification_type,$id);
+                        }
+                }
+
+                //admin
+
+                $from_user1 = User::find(Auth::id());
+                $to_user1 = User::find(1);
+                $user1=User::where('id',Auth::id())->first();
+                $getStatus1=Cargostatus::where('id',$data->status)->first();
+                if($from_user1['id'] != $to_user1['id'] && $from_user1 && $to_user1) {
+                $notification = new Notification();
+                $notification->notification_from = $from_user1->id;
+                $notification->notification_to = $to_user1->id;
+                $notification->shipment_id = $data->id;
+                $id = $data->shipment_no;
+                $title= "Status changed";
+                $message= $data["shipment_no"].' '."is".' '.$getStatus1['name'].' ' ."by".' '.$user1['username'];
+                $notification->title = $title;
+                $notification->message = $message;
+                $notification->notification_type = '2';
+                $notification->save();
+                if($to_user->device_type == 'ios'){
+                    GlobalHelper::sendFCMIOS($title, $message, $to_user->device_token,$notification->notification_type,$id);
+                }else{
+                    GlobalHelper::sendFCM($notification->title, $notification->message, $to_user->device_token,$notification->notification_type,$id);
+                    }
+                }
                 return redirect()->back()->with('success', ' Truck status change successfully');
 
 
@@ -1087,13 +1190,13 @@ class ShipmentController extends Controller
 
                             array_push($token,$mydriverdetails->device_token);
 
-                         $title = "New Shipment Assigned.";
+                        //  $title = "New Shipment Assigned.";
 
-                         $message= "We would like to inform, the shipment number ".$Request->shipment_no." is assigned to you.";
+                        //  $message= "We would like to inform, the shipment number ".$Request->shipment_no." is assigned to you.";
 
-                         $aa = new WebNotificationController();
+                        //  $aa = new WebNotificationController();
 
-                         $aa->index($token,$title,$message,$Request->shipment_no);
+                        //  $aa->index($token,$title,$message,$Request->shipment_no);
 
                         }
 
@@ -1111,13 +1214,13 @@ class ShipmentController extends Controller
 
                             array_push($token,$mydriverdetails->device_token);
 
-                         $title = "New Shipment Assigned.";
+                        //  $title = "New Shipment Assigned.";
 
-                         $message= "We would like to inform, the shipment number ".$Request->shipment_no." is assigned to you.";
+                        //  $message= "We would like to inform, the shipment number ".$Request->shipment_no." is assigned to you.";
 
-                         $aa = new WebNotificationController();
+                        //  $aa = new WebNotificationController();
 
-                         $aa->index($token,$title,$message,$Request->shipment_no);
+                        //  $aa->index($token,$title,$message,$Request->shipment_no);
 
                         } 
                     }
@@ -1153,6 +1256,59 @@ class ShipmentController extends Controller
                         $summary1->transporter_id = $Request->transporter_id;
                         $summary1->description = "Add Driver & Truck No. ".$mytruckno;
                         $summary1->save(); 
+
+                        //driver
+                        if($driver->driver_id){
+                            $from_user = User::find(Auth::id());
+                            $to_user = Driver::find($driver->driver_id);
+                            if($from_user['id'] != $to_user['id'] && $from_user && $to_user) {
+                                $notification = new Notification();
+                                $notification->notification_from = $from_user->id;
+                                $notification->notification_to = $to_user->id;
+                                $notification->shipment_id = $data->shipment_id;
+                                $id = $data->shipment_no;
+                                $title= "New driver added in Shipment" .' '. $driver->shipment_no;
+                                $message= "New driver added in Shipment" .' '. $driver->shipment_no;
+                                $notification->title = $title;
+                                $notification->message = $message;
+                                $notification->notification_type = '3';
+                                $notification->save();
+                                // if($to_user->notification_status=='1'){
+                                    if($to_user->device_type == 'ios'){
+                                        GlobalHelper::sendFCMIOS($title, $message, $to_user->device_token,$notification->notification_type,$id);
+                                    }else{
+                                        GlobalHelper::sendFCM($notification->title, $notification->message, $to_user->device_token,$notification->notification_type,$id);
+                                    }
+                                // }
+                            }
+                        }
+
+                            //transporter
+                            if($driver->transporter_id){
+                                $transporter=Transporter::where('id',$driver->transporter_id)->first();
+                                $from_user = User::find(Auth::id());
+                                $to_user = User::find($transporter['user_id']);
+                                if($from_user['id'] != $to_user['id'] && $from_user && $to_user) {
+                                    $notification = new Notification();
+                                    $notification->notification_from = $from_user->id;
+                                    $notification->notification_to = $to_user->id;
+                                    $notification->shipment_id = $data->shipment_id;
+                                    $id = $data->shipment_no;
+                                    $title= "New driver added in Shipment" .' '. $driver->shipment_no;
+                                    $message= "New driver added in Shipment" .' '. $driver->shipment_no;
+                                    $notification->title = $title;
+                                    $notification->message = $message;
+                                    $notification->notification_type = '3';
+                                    $notification->save();
+                                    // if($to_user->notification_status=='1'){
+                                        if($to_user->device_type == 'ios'){
+                                            GlobalHelper::sendFCMIOS($title, $message, $to_user->device_token,$notification->notification_type,$id);
+                                        }else{
+                                            GlobalHelper::sendFCM($notification->title, $notification->message, $to_user->device_token,$notification->notification_type,$id);
+                                        }
+                                    // }
+                                }
+                            }
 
                 
             }
@@ -2538,8 +2694,10 @@ class ShipmentController extends Controller
         $this->check();
 
         $data = Shipment_Summary::where('shipment_no', $Request->shipment_no)->get();
-            
-        return view('admin.shipmentsummarylist',compact('data'));
+        $datas = Shipment_Summary::where('shipment_no', $Request->shipment_no)->first();
+        $shipment_no = $datas->shipment_no;
+
+        return view('admin.shipmentsummarylist',compact('data','shipment_no'));
 
     }
 

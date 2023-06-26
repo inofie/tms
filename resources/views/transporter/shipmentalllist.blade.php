@@ -128,38 +128,47 @@ Shipment List | TMS
                                   
                                    
                                     <td id="{{ $value->shipment_no }}mystatus" style="vertical-align: middle;text-align: center;">
-                                      @if($value->status == 0) 
+                                      @if($value->status == 1) 
                                         <span style="color: blue">Pending</span> 
-                                      @elseif($value->status == 1) 
+                                      @elseif($value->status == 2 || $value->status == 4 || $value->status == 5 || $value->status == 6 ||$value->status == 7
+							                        ||$value->status == 8 ||$value->status == 9 || $value->status == 10 || $value->status == 11 || $value->status == 12
+							                        ||$value->status == 13 ||$value->status == 14 || $value->status == 15 || $value->status == 18) 
                                         <span style="color: orange">Ontheway</span>
-                                      @elseif($value->status == 2 ) 
+                                      @elseif($value->status == 3 || $value->status == 17) 
                                         <span style="color: green">Delivered</span>
-                                      @elseif($value->status == 4) 
-                                        <span style="color: pink">Warehouse</span>
+                                  
                                       @endif
                                     </td>
                                    
                                     
                                    {{--  <td style="width: 18%;text-align: center;vertical-align: middle;">
                                       <div style="width: 100%;float: left;" class="{{ $value->shipment_no }}hide">
-                                        @if($value->status ==1)
+                                      @if( $value->status == 1 || $value->status == 2 || $value->status == 4 || $value->status == 5 || $value->status == 6 ||$value->status == 7
+							                        ||$value->status == 8 ||$value->status == 9 || $value->status == 10 || $value->status == 11 || $value->status == 12
+							                        ||$value->status == 13 ||$value->status == 14 || $value->status == 15 || $value->status == 18)
                                          <a href="{{ route('shipmenttrucklist',['id'=>$value->myid]) }}" style="margin-top: 2%;width: auto; margin:1%;width:auto;" class="btn btn-primary btn-xs"><i class="fa fa-truck"></i> Trucks
                                          </a>
                                          @endif
-                                         @if($value->status == 1)
+                                         @if( $value->status == 1 || $value->status == 2 || $value->status == 4 || $value->status == 5 || $value->status == 6 ||$value->status == 7
+							                        ||$value->status == 8 ||$value->status == 9 || $value->status == 10 || $value->status == 11 || $value->status == 12
+							                        ||$value->status == 13 ||$value->status == 14 || $value->status == 15 || $value->status == 18)
                                           <a data-id="{{ $value->shipment_no }}" style="margin-top: 2%;width: auto; margin:1%;width:auto;background: #047fb9; color: #fff;" class="btn btn-xs delivered"><i class="fa fa-bus"></i> Delivered</i>
                                           </a>
                                        @endif 
                                       </div>
                                       <div style="width: 100%;float: left;">
                                         <a href="{{ route('addexpensebyadmin',['id'=>$value->myid]) }}" style="margin-top: 2%;width: auto; margin:1%;width:auto;background-color: #673ab7;border-color: #673ab7;color: #fff"  class="btn expense btn-xs"><i class="fa fa-plus"></i> Expense </a>
-                                          @if($value->status == 0 || $value->status == 1)
+                                        @if( $value->status == 1 || $value->status == 2 || $value->status == 4 || $value->status == 5 || $value->status == 6 ||$value->status == 7
+							                        ||$value->status == 8 ||$value->status == 9 || $value->status == 10 || $value->status == 11 || $value->status == 12
+							                        ||$value->status == 13 ||$value->status == 14 || $value->status == 15 || $value->status == 18)
                                        <a href="{{ route('shipmenttransporter',['id'=>$value->myid]) }}" style="margin-top: 2%;width: auto; margin:1%;width:auto;" class="btn btn-warning btn-xs {{ $value->shipment_no }}hide"><i class="fa fa-plus"></i> Transporter</i></a> 
                                        @endif                         
                                       </div>
                                         
                                       <div style="width: 100%;float: left;" class="{{ $value->shipment_no }}hide">
-                                        @if($value->status == 0 || $value->status == 1)
+                                      @if( $value->status == 1 || $value->status == 2 || $value->status == 4 || $value->status == 5 || $value->status == 6 ||$value->status == 7
+							                        ||$value->status == 8 ||$value->status == 9 || $value->status == 10 || $value->status == 11 || $value->status == 12
+							                        ||$value->status == 13 ||$value->status == 14 || $value->status == 15 || $value->status == 18)
                                         <a  data-id="{{ $value->shipment_no }}" style="margin-top: 2%;width: auto; margin:1%;width:auto;background: #7ca00f; color: #fff;" class="btn btn-xs warehouse {{ $value->shipment_no }}hide"><i class="fa fa-plus"></i> Add in Warehouse</i></a>
 
                                            <a href="{{ route('downloadlr',['id'=>$value->myid]) }}" style="margin-top: 2%;width: auto; margin:1%;width:auto;" class="btn btn-danger btn-xs {{ $value->shipment_no }}hide "><i class="fa fa-download "></i> LR</i></a>
@@ -171,11 +180,13 @@ Shipment List | TMS
                                     	
 										<div style="width: 100%;float: left;" class="{{ $value->shipment_no }}hide">
 											<a href="{{ route('shipalldetail',['id'=>$value->myid]) }}" style="margin-top: 3%;width: auto;min-width: 48%;background-color: #047fb9;border-color: #047fb9;color: #fff" class="btn  btn-xs "><i class="fa fa-eye"></i> View</a>
-                      <a href="{{ route('allshipmentsummarylisttransporter',['shipment_no'=>$value->shipment_no]) }}" style="margin-top: 3%;width: auto;min-width: 60%;background-color: #673ab7;border-color: #673ab7;color: #fff" class="btn  btn-xs "><i class="fa fa-eye"></i> Shipment Summary</a>
+                      <!-- <a href="{{ route('allshipmentsummarylisttransporter',['shipment_no'=>$value->shipment_no]) }}" style="margin-top: 3%;width: auto;min-width: 60%;background-color: #673ab7;border-color: #673ab7;color: #fff" class="btn  btn-xs "><i class="fa fa-eye"></i> Shipment Summary</a> -->
 											<!-- <a href="{{ route('downloadlr',['id'=>$value->myid]) }}" style="margin-top: 3%;width: auto;min-width: 48%; width:auto;" class="btn btn-danger btn-xs {{ $value->shipment_no }}hide "><i class="fa fa-download "></i> LR</i></a> -->
-										 <a href="{{ route('shipmentedittransporter',['id'=>$value->myid]) }}" style="margin-top: 3%;width: auto;min-width: 48%;"  class="btn btn-success btn-xs {{ $value->shipment_no }}hide"><i class="fa fa-pencil"></i> Edit</a>
+										 <!-- <a href="{{ route('shipmentedittransporter',['id'=>$value->myid]) }}" style="margin-top: 3%;width: auto;min-width: 48%;"  class="btn btn-success btn-xs {{ $value->shipment_no }}hide"><i class="fa fa-pencil"></i> Edit</a> -->
 										 <!-- <a href="{{ route('addexpensebyadmin',['id'=>$value->myid]) }}" style="margin-top: 2%;width: auto; margin:1%;width:auto;background-color: #673ab7;border-color: #673ab7;color: #fff"  class="btn expense btn-xs"><i class="fa fa-plus"></i> Expense </a> -->
-                                        	@if($value->status == 0 || $value->status == 1)
+                                        	@if( $value->status == 1 || $value->status == 2 || $value->status == 4 || $value->status == 5 || $value->status == 6 ||$value->status == 7
+							                        ||$value->status == 8 ||$value->status == 9 || $value->status == 10 || $value->status == 11 || $value->status == 12
+							                        ||$value->status == 13 ||$value->status == 14 || $value->status == 15 || $value->status == 18)
 												
                                         		<a  data-id="{{ $value->shipment_no }}" style="margin-top: 3%; width: auto; margin:1%;width:auto;background: #7ca00f; color: #fff;" class="btn btn-xs warehouse {{ $value->shipment_no }}hide"><i class="fa fa-plus"></i> Add in Warehouse</i></a>
                                           {{--  <a href="{{ route('downloadlr',['id'=>$value->myid]) }}" style="margin-top: 2%;width: auto; margin:1%;width:auto;" class="btn btn-danger btn-xs {{ $value->shipment_no }}hide "><i class="fa fa-download "></i> LR</i></a>--}}

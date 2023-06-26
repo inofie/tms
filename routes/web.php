@@ -236,12 +236,12 @@ Route::group(['namespace' => 'Transporter','prefix' =>'transporter' , 'middlewar
 	Route::get('/shipment/list','ShipmentController@List')->name('shipmentlisttransporter');
 	Route::get('/shipment/{id}','ShipmentController@Detail')->name('shipmentdetail');
 	Route::get('/shipment/trucks/list/{id}','ShipmentController@TruckList')->name('shipmenttrucklist');
-	Route::post('/shipment/change/truckstatus','ShipmentController@ChangeTruckStatus')->name('changetruckstatusadmin');
+	Route::post('/shipment/change/truckstatus','ShipmentController@ChangeTruckStatus')->name('changetruckstatusadmins');
 	Route::post('/shipment/truck/delete','ShipmentController@DeleteTruckStatus')->name('deletetruckstatusadmin');
 	Route::get('/shipment/expense/add/{id}','ShipmentController@AddExpense')->name('addexpensebyadmin');
 	Route::post('/shipment/expense/save','ShipmentController@SaveExpense')->name('expensesave1');
 	Route::get('/shipment/transporter/add/{id}','ShipmentController@AddTransporter')->name('shipmenttransporter');
-	Route::post('/shipment/transporter/save','ShipmentController@SaveTransporter')->name('savetransporter');
+	Route::post('/shipment/transporter/save','ShipmentController@SaveTransporter')->name('savetransporters');
 	Route::post('/shipment/transporter/delete','ShipmentController@DeleteTransporter')->name('deleteshiptransporter');
 	Route::get('/lr/download/{id}','ShipmentController@DownloadLR')->name('downloadlr');
 	Route::get('/shipment/detail/{id}','ShipmentController@ShipmentDetails')->name('shipmentdetailstransporter');

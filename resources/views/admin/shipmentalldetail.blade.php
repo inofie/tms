@@ -156,9 +156,9 @@
                                     <th class="center">Missing Pkg Photo</th>
                                     <th class="center">Hold Photo</th>
                                     <th class="center">Other Photo</th>
-                                    <th class="center">TruckTransfer Rechatport</th>
-                                    <th class="center">Rechatport</th>
-                                    <th class="center">TruckTransfer Rechatcompany</th>
+                                    <th class="center">TruckTransfer Reach at port</th>
+                                    <th class="center">Reach at port</th>
+                                    <th class="center">TruckTransfer Reach at company</th>
                                     <th class="center">Load Container</th>
                                     <th class="center">Load Cargo</th>
                                     <th class="center">Unload Container</th>

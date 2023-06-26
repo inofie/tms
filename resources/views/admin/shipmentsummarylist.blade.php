@@ -65,7 +65,9 @@ Shipment Summary | TMS
                     @endif
                     <section class="panel">
                         <header class="panel-heading" style="border-bottom: 1px solid #2a3542;line-height: 30px;">
-                          Shipment Summary List
+                        
+                          Shipment Summary ({{$shipment_no}})
+                          
                            <div class="btn-group pull-right">
                                <a href="{{ URL::previous() }}">
                                 <button  class="btn btn-primary">
@@ -78,36 +80,38 @@ Shipment Summary | TMS
                             <div class="form">
                                 
                               <form class="cmxform form-horizontal tasi-form" >
+
+                              <div class="adv-table" style="padding: 1%;">
+                             <table class="table table-striped table-hover table-bordered" id="editable-sample">
+                                <thead>
+                                <tr>
+                                    <!-- <th>Shipment No</th> -->
+                                    <th>Description</th>
+                                    <th>Flag</th>
+                                    <th>Time</th>
+                                    <th>Time Difference</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+
                               @foreach($data as $value)
-                                <div class="form-group">
-                                <label class="control-label col-lg-6">Shipment No : <b>{{ $value->shipment_no }}</b></label>
                                
-                                 </div>
-
-                                
-                                 <div class="form-group">
-                                <label class="control-label col-lg-12">Description : {{ $value->description }}</label>
-                                </div>
-
-                                <div class="form-group">
-                                <label class="control-label col-lg-12">Flag : {{ $value->flag }}</label>
-                                </div>
-
-                                <div class="form-group">
-                                <label class="control-label col-lg-12">Time : {{ ($value->created_at->format('d-m-Y h:i A')) }}</label>
-                                </div>
-
-
-                            
-                                 <div class="form-group" ></div>
+                              <!-- <td class="center" style="vertical-align: middle;"><b>{{ $value->shipment_no }}</b></td> -->
+                              
+                              <td  style="vertical-align: middle;">{{ $value->description }}</td>
+                              <td  style="vertical-align: middle;">{{ $value->flag }}</td>
+                      
+                              <td  style="vertical-align: middle;">{{ ($value->created_at->format('d-m-Y h:i A')) }}</td>
+                              
+                              </td>
+                                </tr>
                                  @endforeach
                                 </form>
-                            
+                         
+                                </tbody>
+                            </table>
 
-             
-                      
-
-                                
+                        </div>
                             </div>
 
                             
