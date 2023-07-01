@@ -192,7 +192,7 @@ Shipment List | TMS
                                     </td>
                                      <td class="center" style="vertical-align: middle;">
                                      <a href="{{ route('shipmentdetails',['id'=>$value->myid]) }}" style="margin-top: 3%;width: auto;min-width: 80%;background-color: #047fb9;border-color: #047fb9;color: #fff" class="btn  btn-xs "><i class="fa fa-eye"></i> View</a>
-                                     <!-- <a href="{{ route('allshipmentsummarylist',['shipment_no'=>$value->shipment_no]) }}" style="margin-top: 3%;width: auto;min-width: 60%;background-color: #673ab7;border-color: #673ab7;color: #fff" class="btn  btn-xs "><i class="fa fa-eye"></i> Shipment Summary</a> -->
+                                     <a href="{{ route('allshipmentsummarylist',['shipment_no'=>$value->shipment_no]) }}" style="margin-top: 3%;width: auto;min-width: 60%;background-color: #673ab7;border-color: #673ab7;color: #fff" class="btn  btn-xs "><i class="fa fa-eye"></i> Shipment Summary</a>
                                      @if($value->status == 0 || $value->status == 1)
                                      <br><a href="{{ route('shipmentedit',['id'=>$value->myid]) }}" style="margin-top: 3%;width: auto;min-width: 80%;"  class="btn btn-success btn-xs {{ $value->shipment_no }}hide"><i class="fa fa-pencil"></i> Edit</a><br>
                                      <form method="post" action="{{ route('shipmentdelete') }}">

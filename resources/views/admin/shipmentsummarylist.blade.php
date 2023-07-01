@@ -87,7 +87,7 @@ Shipment Summary | TMS
                                 <tr>
                                     <!-- <th>Shipment No</th> -->
                                     <th>Description</th>
-                                    <th>Flag</th>
+                                    <th>Title</th>
                                     <th>Time</th>
                                     <th>Time Difference</th>
                                 </tr>
