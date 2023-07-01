@@ -231,6 +231,12 @@
                         </a>
                         </li>
 
+                    <!-- <li>
+                    <a class="{{ Request::is('admin/notifications*') ? 'active' : '' }}" href="{{ route('notificationlist') }}">
+                    <i class="fa fa-building"></i>
+                    <span>Notifications</span>
+                </a>
+                </li> -->
                   @elseif(Auth::user()->role == 'company' )
                   <li>
                       <a class="{{ Request::is('company/dashboard*') ? 'active' : '' }}" href="{{ route('companydashboard') }}">
@@ -696,8 +702,22 @@
                           <span>Manage Driver</span>
                         </a>
                         </li>
-                        </li>
 
+                        <li>
+                        <a class="{{ Request::is('transporter/account*') ? 'active' : '' }}" href=" {{ route('transporteraccounts') }}">
+                            <i class="fa fa-suitcase"></i>
+                            <span>Manage Accounts</span>
+                        </a>
+                        </li> 
+
+                        </li>
+                        
+                        <!-- <li>
+                            <a class="{{ Request::is('admin/notifications*') ? 'active' : '' }}" href="{{ route('notificationlist') }}">
+                            <i class="fa fa-building"></i>
+                            <span>Notifications</span>
+                        </a>
+                        </li> -->
 
                         @elseif(Auth::user()->role == 'warehouse')
                         <li>

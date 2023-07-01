@@ -188,7 +188,7 @@ class GlobalHelper
      * Date         :
      * Description  : Send FCM For android
      */
-    public static function sendFCM($title, $message, $target = 0, $notification_type,$id=0,$data = NULL)
+    public static function sendFCM($title, $message, $target = 0, $notification_type,$id=0,$notification_id=0,$data = NULL)
     {
       // dd($title);
       // fVOK2RqfQOer-_jzbuq7G1:APA91bHxYxV2NABSqUvow4huv9zkBPIYGGDoH1aOQVWZ_Czb7RE1C5rB9x1tUzb1XM_bAVMUDtEryI3R7Jk6fACiF-FRp6qB_o-hVgCU7CHj6v27ROVqzNrTUqs6yJ-rdh9AJwUhzdwz
@@ -210,9 +210,10 @@ class GlobalHelper
         $fields['data']['title'] = $title;
         $fields['data']['notification_type'] = $notification_type;
         $fields['data']['id'] = $id;
+        $fields['data']['notification_id'] = $notification_id;
         $fields['data']['data'] = $data;
 
-        $fields['data']['click_action'] = '.MainActivity';
+        $fields['data']['click_action'] = 'FLUTTER_NOTIFICATION_CLICK';
         $fields['data']['sound'] = 'default';
         // if(is_array($target)){
         // $fields['registration_ids'] = $target;
@@ -242,7 +243,7 @@ class GlobalHelper
         return $result;
     }
 
-    public static function sendFCMIOS($title, $message, $target = 0, $notification_type,$id=0,$data = NULL)
+    public static function sendFCMIOS($title, $message, $target = 0, $notification_type,$id=0,$notification_id=0,$data = NULL)
     {
         //$baseurl="http://".url();
         //FCM api URL
@@ -256,11 +257,12 @@ class GlobalHelper
         $fields['notification']['title'] = $title;
         $fields['notification']['notification_type'] = $notification_type;
         $fields['notification']['id'] = $id;
+        $fields['data']['notification_id'] = $notification_id;
         $fields['notification']['data'] = $data;
         // if($image != ""){
         //   $fields['notification']['image'] = $image;
         // }
-        $fields['notification']['click_action'] = '.MainActivity';
+        $fields['notification']['click_action'] = 'FLUTTER_NOTIFICATION_CLICK';
         $fields['notification']['sound'] = 'default';
         $fields['notification']['aps']['alert']['body'] = $message;
         $fields['notification']['aps']['alert']['title'] = $title;
@@ -273,9 +275,10 @@ class GlobalHelper
         $fields['data']['title'] = $title;
         $fields['data']['notification_type'] = $notification_type;
         $fields['data']['id'] = $id;
+        $fields['data']['notification_id'] = $notification_id;
         $fields['data']['data'] = $data;
 
-        $fields['data']['click_action'] = '.MainActivity';
+        $fields['data']['click_action'] = 'FLUTTER_NOTIFICATION_CLICK';
         $fields['data']['sound'] = 'default';
         // if(is_array($target)){
         // $fields['registration_ids'] = $target;

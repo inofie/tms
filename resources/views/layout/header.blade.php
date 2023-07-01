@@ -28,7 +28,7 @@
               <a href="" class="logo" ><span>T</span>M<span>S</span></a>
 
           @endif
-
+          
           
           <!--logo end-->
 
@@ -51,9 +51,9 @@
                       <input type="text" class="form-control search" placeholder="Search">
 
                   </li> --}}
-
+                  <li><a href="{{ route('notificationlist') }}"> <i class="fa fa-bell-o"></i></a></li>
                   <!-- user login dropdown start-->
-
+                   
                   <li class="dropdown">
 
                       <a data-toggle="dropdown" class="dropdown-toggle" href="#">
@@ -65,6 +65,7 @@
                           <b class="caret"></b>
 
                       </a>
+                      
 
                       <ul class="dropdown-menu extended logout">
 
@@ -72,9 +73,9 @@
 
                        {{--    <li class="text-center" style="width: 100%"><a href="{{ route('changepassword') }}"><i class=" fa fa-key"></i>Change Password</a></li> --}}
 
-                          {{-- <li><a href="#"><i class="fa fa-cog"></i> Settings</a></li>
+                           <!-- <li><a href="#"><i class="fa fa-cog"></i> Settings</a></li>
 
-                          <li><a href="#"><i class="fa fa-bell-o"></i> Notification</a></li> --}}
+                          <li><a href="#"><i class="fa fa-bell-o"></i> Notification</a></li>  -->
 
                           <li><a href="{{ route('logout') }}"><i class="fa fa-user"></i> Log Out</a></li>
 

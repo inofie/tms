@@ -22,6 +22,7 @@ use App\Cargostatus;
 use App\Account;
 use Hash;
 use PDF;
+use Carbon\Carbon;
 use Mail;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\WebNotificationController;
@@ -812,6 +813,7 @@ class ShipmentController extends Controller
                 $data->updated_by = Auth::id();
 
                 $data->save();
+                $ship =Shipment::where('shipment_no',$data->shipment_no)->first();
                 if($Request->status == "1"){
 
                     $ss =Shipment::where('shipment_no',$data->shipment_no)->first();
@@ -991,7 +993,7 @@ class ShipmentController extends Controller
                     $notification = new Notification();
                     $notification->notification_from = $from_user->id;
                     $notification->notification_to = $to_user->id;
-                    $notification->shipment_id = $data->id;
+                    $notification->shipment_id = $ship->id;
                     $id = $data->shipment_no;
                     $title= "Status changed";
                     // "New Shipment" .' '. $driver->shipment_no .' '. "Added";
@@ -1000,10 +1002,11 @@ class ShipmentController extends Controller
                     $notification->message = $message;
                     $notification->notification_type = '2';
                     $notification->save();
+                    $notification_id = $notification->id;
                     if($to_user->device_type == 'ios'){
-                        GlobalHelper::sendFCMIOS($title, $message, $to_user->device_token,$notification->notification_type,$id);
+                        GlobalHelper::sendFCMIOS($title, $message, $to_user->device_token,$notification->notification_type,$id,$notification_id);
                     }else{
-                        GlobalHelper::sendFCM($notification->title, $notification->message, $to_user->device_token,$notification->notification_type,$id);
+                        GlobalHelper::sendFCM($notification->title, $notification->message, $to_user->device_token,$notification->notification_type,$id,$notification_id);
                         }
                 }
 
@@ -1016,7 +1019,7 @@ class ShipmentController extends Controller
                 $notification = new Notification();
                 $notification->notification_from = $from_user1->id;
                 $notification->notification_to = $to_user1->id;
-                $notification->shipment_id = $data->id;
+                $notification->shipment_id = $ship->id;
                 $id = $data->shipment_no;
                 $title= "Status changed";
                 $message= $data["shipment_no"].' '."is".' '.$getStatus1['name'].' ' ."by".' '.$user1['username'];
@@ -1024,10 +1027,11 @@ class ShipmentController extends Controller
                 $notification->message = $message;
                 $notification->notification_type = '2';
                 $notification->save();
+                $notification_id = $notification->id;
 				if($to_user->device_type == 'ios'){
-                    GlobalHelper::sendFCMIOS($title, $message, $to_user->device_token,$notification->notification_type,$id);
+                    GlobalHelper::sendFCMIOS($title, $message, $to_user->device_token,$notification->notification_type,$id,$notification_id);
                 }else{
-                    GlobalHelper::sendFCM($notification->title, $notification->message, $to_user->device_token,$notification->notification_type,$id);
+                    GlobalHelper::sendFCM($notification->title, $notification->message, $to_user->device_token,$notification->notification_type,$id,$notification_id);
                     }
             }
 
@@ -2714,9 +2718,37 @@ class ShipmentController extends Controller
         $data = Shipment_Summary::where('shipment_no', $Request->shipment_no)->get();
         $datas = Shipment_Summary::where('shipment_no', $Request->shipment_no)->first();
         $shipment_no = $datas->shipment_no;
+        $count = $data->count();
+        $i=0;
+        //dd($data[1]['created_at']);
+       
+        $diff = $data[1]['created_at']->getTimestamp() - $data[0]['created_at']->getTimestamp();
+        $totalHour = (int)($diff / 60);
+        $totalMinutes = (int)($diff % 60);
+        $finalMinutes = $totalMinutes.''.'m';
+        $days = (int)($totalHour /24);
+        $otherHour = (int)($totalHour  % 24);
+
+        $finalDays = '';
+        $finalHours = '';
+
+        if ($days > 0) {
+        $finalDays = $days.''.'d';
+        }
+      
+        if($otherHour > 0) {
+        $finalHours = $otherHour.''.'h';
+        }
+        $finaldiff = $finalDays.' '.$finalHours.' '.$finalMinutes;
+        foreach ($data as $key => $value) {
+
+            $data[$key]=$value;
+            $data[$key]['timedifference']=$finaldiff;
         
-            
-        return view('admin.shipmentsummarylist',compact('data','shipment_no'));
+        }
+        
+
+        return view('admin.shipmentsummarylist',compact('data','shipment_no','finaldiff'));
 
     }
     public function ShipmentAllDetails(Request $Request)
@@ -2872,40 +2904,44 @@ class ShipmentController extends Controller
         $ff= Transporter::where('user_id',Auth::user()->id)->first();
        
         // $datas = Shipment_Transporter::withTrashed()->whereNull('deleted_at')->where('transporter_id', $ff->id);
-        $datas = Shipment_Transporter::where('transporter_id', $ff->id)->whereNull('deleted_at')->groupBy('shipment_no')->get();
-        
-        foreach ($datas as $key => $value) {
-            $data1 = Shipment::withTrashed()->findorfail($value->shipment_id);
-           
+        $data2 = Shipment_Driver::withTrashed()->where('transporter_id', $ff->id)->whereNull('deleted_at')
+				->whereRaw('id IN (select MAX(id) FROM shipment_driver GROUP BY shipment_no)')->orderby('id','desc')->get();
+       
+        $ids = array();
+        foreach ($data2 as $key => $value){
+            if($value->status == "1" ){
+                array_push($ids,$value->id);
+            }
+        }
+        $data2 = Shipment_Driver::withTrashed()->wherein('id', $ids)->whereNull('deleted_at')->orderby('id','desc')->get();
+        //dd($data2);
+		$data = array();
+		
+        foreach ($data2 as $key => $value) {
+            $data1 = Shipment::withTrashed()->where('shipment_no', $value->shipment_no)->first();
+            $data[$key] = $data1;
             $data3 = Shipment_Driver::withTrashed()->where('shipment_no', $value->shipment_no)->
             where('transporter_id', $ff->id)->orderBy('id','desc')->first();
-            $data[$key]=$data1;
-            $data[$key]['status'] = $data3->status;
+            if($data3){
+                $data[$key]['status'] = $data3->status;
+               }
         }
+            // dd($data[$key]);
+        $data = $data[$key]->whereYear('created_at', $Request->year)->whereMonth('created_at', $Request->month)->orderby('shipment_no','desc')->get();
         
-        if($Request->status == "" && $Request->month == null && $Request->year == null){
-            if($Request->status == 'Pending'){
-			$data = $data[$key]->where('status',1)->orderby('shipment_no','desc')->get();
-            }
-            if($Request->status == 'Ontheway'){
-                $data = $data[$key]->where('status',2)->orderby('shipment_no','desc')->get();
-            }
-            if($Request->status == 'Delivered'){
-                $data = $data[$key]->where('status',3)->orderby('shipment_no','desc')->get();
-            }
+        // if($Request->status == "" && $Request->month == null && $Request->year == null){
+        //     if($Request->status == 'Pending'){
+		// 	$data = $data[$key]->where('status',1)->orderby('shipment_no','desc')->get();
+        //     }
+        //     if($Request->status == 'Ontheway'){
+        //         $data = $data[$key]->where('status',2)->orderby('shipment_no','desc')->get();
+        //     }
+        //     if($Request->status == 'Delivered'){
+        //         $data = $data[$key]->where('status',3)->orderby('shipment_no','desc')->get();
+        //     }
            
-		}
-        if($Request->month && $Request->year){
-            $data = $data[$key]->whereYear('created_at', $Request->year)->whereMonth('created_at', $Request->month)->orderby('shipment_no','desc')->get();
-        }
-		if($Request->year == "" && $Request->month == null){
-			$data = $data[$key]->whereYear('created_at', $Request->year)->orderby('shipment_no','desc')->get();
-		}
-		if($Request->month == "" && $Request->year == null){
-			$data = $data[$key]->whereMonth('created_at', $Request->month)->orderby('shipment_no','desc')->get();
-		}
+		// }
        
-        
 		
 		return view('transporter.shipmentfilter', compact('tt','ttt','tts','data','all_transporter','all_forwarder','search','transporter','forwarder','year','month','date'));
 	}

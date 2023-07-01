@@ -92,6 +92,10 @@ class NotificationController extends Controller
               $resultList=Notification::where('notification_to',$request['user_id'])->orderBy('id','desc');
               $resultList=$resultList->paginate($perPage);
               foreach ($resultList as $key => $value) {
+                $shipmentno = Shipment::where('id',$value['shipment_id'])->first();
+                if($shipmentno){
+                $resultList[$key]['shipment_no']=$shipmentno->shipment_no;
+                }
                 $resultList[$key]['date']=Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $value['created_at'])->format('Y-m-d');
                 $lastSeen = GlobalHelper::getTimeAgo($value['created_at']);
                 $resultList[$key]['ago'] = $lastSeen;
@@ -111,6 +115,10 @@ class NotificationController extends Controller
         else{
             $resultList=Notification::where('notification_to',$request['user_id'])->orderBy('id','desc')->get();
             foreach ($resultList as $key => $value) {
+                $shipmentno = Shipment::where('id',$value['shipment_id'])->first();
+                if($shipmentno){
+                $resultList[$key]['shipment_no']=$shipmentno->shipment_no;
+                }
                 $resultList[$key]['date']=Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $value['created_at'])->format('Y-m-d');
                 $lastSeen = GlobalHelper::getTimeAgo($value['created_at']);
                 $resultList[$key]['ago'] = $lastSeen;
@@ -128,12 +136,15 @@ class NotificationController extends Controller
 
     public function readAllNotifications(Request $request){
         try{
+            
+        
             $check = $this->checkversion($request->version);
 			if ($check == 1) {
 				return response()->json(['status' => 'failed', 'message' => 'Please Update This Application.', 'data' => json_decode('{}'), 'code' => '500'], 200);
 			}
             $notification = Notification::where('notification_to', $request['user_id'])->update(['read_status' => 'read']);
-            return $this->APIResponse->respondWithMessage('All Notifications marked as read');
+            
+            return response()->json(['status' => 'success', 'message' => 'All Notifications marked as read.', 'data' =>json_decode('{}'), 'code' => '200'], 200);
         }catch (\Exception $e) {
           return $this->APIResponse->handleAndResponseException($e);
         }
@@ -162,6 +173,7 @@ class NotificationController extends Controller
                     if($notification){
                         $notification->delete();
                         return $this->APIResponse->respondWithMessage('Notification delete');
+                        
                     }else{
                         return $this->APIResponse->respondNotFound('Oops! No Notification Found');
                     }
@@ -214,7 +226,8 @@ class NotificationController extends Controller
                     if($notification){
                         $notification->read_status = 'read';
                         $notification->save();
-                        return $this->APIResponse->respondWithMessage('Notification marked as read');
+                        
+                        return response()->json(['status' => 'success', 'message' => 'Notification marked as read.', 'data' => json_decode('{}'), 'code' => '200'], 200);
                     }else{
                         return $this->APIResponse->respondNotFound('Oops! No Notification Found');
                     }

@@ -75,6 +75,24 @@ class ApiController extends Controller {
 				return response()->json(['status' => 'failed', 'message' => 'Your Are Blocked By Admin. Please Contact To Administrator.', 'data' => json_decode('{}'), 'code' => '420'], 200);
 
 			}
+			if ($Request->role != 'driver'){
+			$user->device_token = $Request->device_token;
+			$user->device_type = $Request->device_type;
+			$user->save();
+			}
+
+			if ($Request->role == 'driver'){
+				$driver = Driver::withTrashed()->findorfail($Request->user_id);
+
+				if ($driver->status == 1) {
+	
+					return response()->json(['status' => 'failed', 'message' => 'Your Are Blocked By Admin. Please Contact To Administrator.', 'data' => json_decode('{}'), 'code' => '420'], 200);
+	
+				}
+				$driver->device_token = $Request->device_token;
+				$driver->device_type = $Request->device_type;
+				$driver->save();
+			}
 
 			if ($Request->role == 'admin' || $Request->role == 'company') {
 
@@ -125,8 +143,8 @@ class ApiController extends Controller {
 				}
 
 			}
-
-			return response()->json(['status' => 'success', 'message' => 'Successfully.', 'data' => json_decode('{}'), 'code' => '200'], 200);
+			$otherData['unread_count']=Notification::where('notification_to',$Request->user_id)->where('read_status','unread')->count();
+			return response()->json(['status' => 'success', 'message' => 'Successfully.', 'data' => $otherData, 'code' => '200'], 200);
 
 		} catch (\Exception $e) {
 
@@ -323,7 +341,7 @@ class ApiController extends Controller {
 
 						$driver_data = Driver::where('device_token', $Request->device_token)->first();
 
-						$driver_data->device_token ='';
+						$driver_data->device_token = null;
 
 						$driver_data->save();
 
@@ -344,7 +362,7 @@ class ApiController extends Controller {
 
 						$user_data = User::where('device_token', $Request->device_token)->first();
 
-						$user_data->device_token ='';
+						$user_data->device_token = null;
 
 						$user_data->save();
 
@@ -2848,11 +2866,12 @@ class ApiController extends Controller {
                                 $notification->message = $message;
                                 $notification->notification_type = '3';
                                 $notification->save();
+								$notification_id = $notification->id;
                                 // if($to_user->notification_status=='1'){
                                     if($to_user->device_type == 'ios'){
-                                        GlobalHelper::sendFCMIOS($title, $message, $to_user->device_token,$notification->notification_type,$id);
+                                        GlobalHelper::sendFCMIOS($title, $message, $to_user->device_token,$notification->notification_type,$id,$notification_id);
                                     }else{
-                                        GlobalHelper::sendFCM($notification->title, $notification->message, $to_user->device_token,$notification->notification_type,$id);
+                                        GlobalHelper::sendFCM($notification->title, $notification->message, $to_user->device_token,$notification->notification_type,$id,$notification_id);
                                     }
                                 // }
                             }
@@ -2875,11 +2894,12 @@ class ApiController extends Controller {
                                     $notification->message = $message;
                                     $notification->notification_type = '3';
                                     $notification->save();
+									$notification_id = $notification->id;
                                     // if($to_user->notification_status=='1'){
                                         if($to_user->device_type == 'ios'){
-                                            GlobalHelper::sendFCMIOS($title, $message, $to_user->device_token,$notification->notification_type,$id);
+                                            GlobalHelper::sendFCMIOS($title, $message, $to_user->device_token,$notification->notification_type,$id,$notification_id);
                                         }else{
-                                            GlobalHelper::sendFCM($notification->title, $notification->message, $to_user->device_token,$notification->notification_type,$id);
+                                            GlobalHelper::sendFCM($notification->title, $notification->message, $to_user->device_token,$notification->notification_type,$id,$notification_id);
                                         }
                                     // }
                                 }
@@ -3008,8 +3028,9 @@ class ApiController extends Controller {
 			//$data[$key]['name']= $tras->name;
 
 			//}
+			$shipmentdriver = Shipment_Driver::where('transporter_id',$Request->other_id)->where('shipment_no',$Request->shipment_no)->pluck('driver_id')->toArray();
 
-			$data2 = Driver::where('transporter_id', $Request->other_id)->get();
+			$data2 = Driver::where('transporter_id', $Request->other_id)->whereNotIn('id',$shipmentdriver)->get();
 
 			if (count($data2) > 0) {
 
@@ -3093,11 +3114,12 @@ class ApiController extends Controller {
 					$notification->message = $message;
 					$notification->notification_type = '3';
 					$notification->save();
+					$notification_id = $notification->id;
 					// if($to_user->notification_status=='1'){
 						if($to_user->device_type == 'ios'){
-							GlobalHelper::sendFCMIOS($title, $message, $to_user->device_token,$notification->notification_type,$id);
+							GlobalHelper::sendFCMIOS($title, $message, $to_user->device_token,$notification->notification_type,$id,$notification_id);
 						}else{
-							GlobalHelper::sendFCM($notification->title, $notification->message, $to_user->device_token,$notification->notification_type,$id);
+							GlobalHelper::sendFCM($notification->title, $notification->message, $to_user->device_token,$notification->notification_type,$id,$notification_id);
 						}
 					// }
 				}
@@ -3120,11 +3142,12 @@ class ApiController extends Controller {
 						$notification->message = $message;
 						$notification->notification_type = '3';
 						$notification->save();
+						$notification_id = $notification->id;
 						// if($to_user->notification_status=='1'){
 							if($to_user->device_type == 'ios'){
-								GlobalHelper::sendFCMIOS($title, $message, $to_user->device_token,$notification->notification_type,$id);
+								GlobalHelper::sendFCMIOS($title, $message, $to_user->device_token,$notification->notification_type,$id,$notification_id);
 							}else{
-								GlobalHelper::sendFCM($notification->title, $notification->message, $to_user->device_token,$notification->notification_type,$id);
+								GlobalHelper::sendFCM($notification->title, $notification->message, $to_user->device_token,$notification->notification_type,$id,$notification_id);
 							}
 						// }
 					}
@@ -3299,21 +3322,81 @@ class ApiController extends Controller {
 					$data1 = Shipment::where('status', 0)->whereNull('deleted_at')->orderby('created_at', 'desc');
 	
 					$data = array();
+					$data1 = $data1->paginate($perPage);
+					foreach ($data1 as $key => $value) {
+	
+						$data1[$key] = $value;
+	
+						$com = Company::withTrashed()->findorfail($value->company);
+						$data1[$key]['company'] = $com->name;
+						$forw = Forwarder::withTrashed()->findorfail($value->forwarder);
+						$data1[$key]['forwarder'] = $forw->name;
+						if($value->trucktype !='' && $value->trucktype != 'null' && $value->trucktype != null) {
+						$tk = Truck::withTrashed()->findorfail($value->trucktype);
+						$data1[$key]['vehicle'] = $tk->name;
+						} else {
+							$data1[$key]['vehicle'] = '';
+	
+						}
+					}
 	
 				}
 				
 				if ($Request->role == "transporter") {
-					$data1 = Shipment_Transporter::leftJoin('shipment','shipment.id','=','shipment_transporter.shipment_id')->where('shipment_transporter.transporter_id', $Request->other_id)->whereNull('shipment_transporter.deleted_at')->where('shipment_transporter.status', 1)->orderby('shipment_transporter.created_at', 'desc');
+					$data2 = Shipment_Driver::withTrashed()->where('transporter_id', $Request->other_id)->whereNull('deleted_at')
+					->whereRaw('id IN (select MAX(id) FROM shipment_driver GROUP BY shipment_no)')
+					->orderby('id','desc')->get();
 					//dd($data2);
+					$ids = array();
+					foreach ($data2 as $key => $value){
+						if($value->status == "1"){
+							array_push($ids,$value->id);
+						}
+					}
+				
+					$data1 = Shipment_Driver::withTrashed()->whereIn('id', $ids)->whereNull('deleted_at')->orderby('id','desc')->paginate($perPage);
 					$data = array();
+					foreach ($data1  as $key => $value) {
+
+					$data[$key] = Shipment::withTrashed()->where('shipment_no', $value->shipment_no)->first();
+					//dd($data[$key]);
+					$data1[$key]['id'] = $data[$key]->id ;
+					$data1[$key]['myid'] = $data[$key]->myid ;
+					$data1[$key]['status'] = $data[$key]->status ;
+					$data1[$key]['from1'] = $data[$key]->from1 ;
+					$data1[$key]['to1'] = $data[$key]->to1 ;
+					$data1[$key]['to2'] = $data[$key]->to2 ;
+					$data1[$key] = $value;
+					$data1[$key]['expense'] = $value->expense;
+					
+				//}
+			}
 
 				}
 				if ($Request->role == "driver") {
 					
 
-					$data1 = Shipment_Driver::leftJoin('shipment','shipment.shipment_no','=','shipment_driver.shipment_no')->where('shipment_driver.driver_id', $Request->user_id)->whereNull('shipment_driver.deleted_at')->where('shipment_driver.status', 1);
+					$data1 = Shipment_Driver::leftJoin('shipment','shipment.shipment_no','=','shipment_driver.shipment_no')->where('shipment_driver.driver_id', $Request->user_id)->where('shipment_driver.transporter_id', $Request->other_id)->whereNull('shipment_driver.deleted_at')->where('shipment_driver.status', 1)
+					->orderby('shipment_driver.created_at', 'desc');
 					
 					$data = array();
+					$data1 = $data1->paginate($perPage);
+					foreach ($data1 as $key => $value) {
+	
+						$data1[$key] = $value;
+	
+						$com = Company::withTrashed()->findorfail($value->company);
+						$data1[$key]['company'] = $com->name;
+						$forw = Forwarder::withTrashed()->findorfail($value->forwarder);
+						$data1[$key]['forwarder'] = $forw->name;
+						if($value->trucktype !='' && $value->trucktype != 'null' && $value->trucktype != null) {
+						$tk = Truck::withTrashed()->findorfail($value->trucktype);
+						$data1[$key]['vehicle'] = $tk->name;
+						} else {
+							$data1[$key]['vehicle'] = '';
+	
+						}
+					}
 					
 				}
 	
@@ -3321,28 +3404,25 @@ class ApiController extends Controller {
 	
 					$data1 = Shipment::where('status', 0)->whereNull('deleted_at')->where('forwarder', $Request->other_id);
 					$data = array();
-		
-				}
-				
-				$data1 = $data1->paginate($perPage);
-				
-				foreach ($data1 as $key => $value) {
+					$data1 = $data1->paginate($perPage);
+					foreach ($data1 as $key => $value) {
 	
-					$data1[$key] = $value;
-
-					$com = Company::withTrashed()->findorfail($value->company);
-					$data1[$key]['company'] = $com->name;
-					$forw = Forwarder::withTrashed()->findorfail($value->forwarder);
-					$data1[$key]['forwarder'] = $forw->name;
-					if($value->trucktype !='' && $value->trucktype != 'null' && $value->trucktype != null) {
-					$tk = Truck::withTrashed()->findorfail($value->trucktype);
-					$data1[$key]['vehicle'] = $tk->name;
-					} else {
-						$data1[$key]['vehicle'] = '';
-
+						$data1[$key] = $value;
+	
+						$com = Company::withTrashed()->findorfail($value->company);
+						$data1[$key]['company'] = $com->name;
+						$forw = Forwarder::withTrashed()->findorfail($value->forwarder);
+						$data1[$key]['forwarder'] = $forw->name;
+						if($value->trucktype !='' && $value->trucktype != 'null' && $value->trucktype != null) {
+						$tk = Truck::withTrashed()->findorfail($value->trucktype);
+						$data1[$key]['vehicle'] = $tk->name;
+						} else {
+							$data1[$key]['vehicle'] = '';
+	
+						}
 					}
 				}
-
+			
 				if (!empty($data1)) {
 					$message = 'Shipment List Successfully.';
 					$dataa = $data1;
@@ -3383,32 +3463,53 @@ class ApiController extends Controller {
 			}
 			
 			if ($Request->role == "transporter") {
-				$data2 = Shipment_Transporter::where('transporter_id', $Request->other_id)->whereNull('deleted_at')->where('status', 1)->orderby('created_at', 'desc')->get();
-				//dd($data2);
-				$data = array();
-				
-				foreach ($data2 as $key => $value) {
-					
-					$data1 = Shipment::withTrashed()->where('shipment_no', $value->shipment_no)->first();
-					$data[$key] = $data1;
-					$com = Company::withTrashed()->findorfail($data1->company);
-					if($com && $data1->company != 3 && $data1->company != 1){
-					}
-					$data[$key]['company'] = $com->name;
-					$forw = Forwarder::withTrashed()->findorfail($data1->forwarder);
-					$data[$key]['forwarder'] = $forw->name;
-					if($data1->trucktype !='' && $data1->trucktype != 'null' && $data1->trucktype != null) {
-						$tk = Truck::withTrashed()->findorfail($data1->trucktype);
-						$data[$key]['vehicle'] = $tk->name;
-					} else {
-						$data[$key]['vehicle'] = '';
+				$data2 = Shipment_Driver::withTrashed()->where('transporter_id', $Request->other_id)->whereNull('deleted_at')
+				->whereRaw('id IN (select MAX(id) FROM shipment_driver GROUP BY shipment_no)')
+				->orderby('id','desc')->get();
+				$ids = array();
+				foreach ($data2 as $key => $value){
+					if($value->status == "1"){
+						array_push($ids,$value->id);
 					}
 				}
+				$data2 = Shipment_Driver::withTrashed()->wherein('id', $ids)->whereNull('deleted_at')->orderby('id','desc')->get();
+				$data = array();
+			
+				foreach ($data2 as $key => $value) {
+						$data1 = Shipment::withTrashed()->where('shipment_no', $value->shipment_no)->first();
+						//dd($data1);
+						
+					   $data[$key] = $data1;
+						
+						$data[$key]['expense'] = $value->expense;
+						if($data1){
+						$com = Company::withTrashed()->findorfail($data1->company);
+						$data[$key]['company'] = $com->name;
+						}
+						else{
+							$data[$key]['company'] = '';
+						}
+						//dd($data[$key]['company']);
+						if($data1){
+						$forw = Forwarder::withTrashed()->findorfail($data1->forwarder);
+						
+						$data[$key]['forwarder'] = $forw->name;
+						}
+						else{
+							$data[$key]['forwarder'] = '';
+						}
 
+						if(isset($data1->trucktype) && $data1->trucktype !='' && $data1->trucktype != 'null' && $data1->trucktype != null) {
+						$tk = Truck::withTrashed()->findorfail($data1->trucktype);
+						$data[$key]['vehicle'] = $tk->name;
+						} else {
+							$data[$key]['vehicle'] = '';
+						}
+					}
 			}
 			if ($Request->role == "driver") {
 
-				$data2 = Shipment_Driver::where('driver_id', $Request->user_id)->whereNull('deleted_at')->where('status', 1)->orderby('created_at', 'desc')->get();
+				$data2 = Shipment_Driver::where('driver_id', $Request->user_id)->where('transporter_id', $Request->other_id)->whereNull('deleted_at')->where('status', 1)->orderby('created_at', 'desc')->get();
 				//dd($Request->user_id,$data2);
 				$data = array();
 
@@ -3492,30 +3593,7 @@ class ApiController extends Controller {
 				if ($Request->role == "admin" || $Request->role == 'company') {
 					$data1 = Shipment::where('status', 1)->whereNull('deleted_at')->orderby('created_at', 'desc');
 					$data = array();
-				}
-	
-				if ($Request->role == "transporter") {
-					$data1 = Shipment_Transporter::leftJoin('shipment','shipment.id','=','shipment_transporter.shipment_id')->where('shipment_transporter.transporter_id', $Request->other_id)->whereNull('shipment_transporter.deleted_at')->where('shipment_transporter.status', 2)->orderby('shipment_transporter.created_at', 'desc');
-					$data = array();	
-				}
-	
-				if ($Request->role == "driver") {
-	
-					$data1 = Shipment_Driver::leftJoin('shipment','shipment.shipment_no','=','shipment_driver.shipment_no')
-					->where('shipment_driver.driver_id', $Request->user_id)->whereNull('shipment_driver.deleted_at')
-					->where('shipment_driver.transporter_id', $Request->other_id)->whereIn('shipment_driver.status', [2,4,5,6,7,8,9,10,11,12,13,14,15,18]);
-					$data = array();
-	
-				}
-	
-				if ($Request->role == "forwarder") {
-	
-					$data1 = Shipment::where('status', 1)->whereNull('deleted_at')->where('forwarder', $Request->other_id)->get();
-	
-					$data = array();
-	
-				}
-				$data1 = $data1->paginate($perPage);
+					$data1 = $data1->paginate($perPage);
 
 				foreach ($data1 as $key => $value) {
 	
@@ -3540,6 +3618,104 @@ class ApiController extends Controller {
 					}
 
 				}
+				}
+	
+				if ($Request->role == "transporter") {
+					$data2 = Shipment_Driver::withTrashed()->where('transporter_id', $Request->other_id)->whereNull('deleted_at')
+				->whereRaw('id IN (select MAX(id) FROM shipment_driver GROUP BY shipment_no)')
+				->orderby('id','desc')->get();
+				$ids = array();
+				foreach ($data2 as $key => $value){
+					if($value->status == "2" || $value->status == "4" || $value->status == "5" || $value->status == "18"
+					|| $value->status == "6" || $value->status == "7" || $value->status == "8" || $value->status == "9" || $value->status == "10"
+					|| $value->status == "11" || $value->status == "12" || $value->status == "13" || $value->status == "14" || $value->status == "15"){
+						array_push($ids,$value->id);
+					}
+				}
+				$data1 = Shipment_Driver::withTrashed()->wherein('id', $ids)->whereNull('deleted_at')->orderby('id','desc')->paginate($perPage);
+				$data = array();
+				foreach ($data1 as $key => $value) {
+					$data[$key] = Shipment::withTrashed()->where('shipment_no', $value->shipment_no)->first();
+					$data1[$key]['id'] = $data[$key]->id ;
+					$data1[$key]['myid'] = $data[$key]->myid ;
+					$data1[$key]['status'] = $data[$key]->status ;
+					$data1[$key]['from1'] = $data[$key]->from1 ;
+					$data1[$key]['to1'] = $data[$key]->to1 ;
+					$data1[$key]['to2'] = $data[$key]->to2 ;
+					$data1[$key] = $value;
+					$data1[$key]['expense'] = $value->expense;
+					
+				//}
+			}
+				}
+	
+				if ($Request->role == "driver") {
+	
+					$data1 = Shipment_Driver::leftJoin('shipment','shipment.shipment_no','=','shipment_driver.shipment_no')
+					->where('shipment_driver.driver_id', $Request->user_id)->whereNull('shipment_driver.deleted_at')
+					->where('shipment_driver.transporter_id', $Request->other_id)->whereIn('shipment_driver.status', [2,4,5,6,7,8,9,10,11,12,13,14,15,18])
+					->orderby('shipment_driver.created_at', 'desc');
+					$data = array();
+					$data1 = $data1->paginate($perPage);
+
+				foreach ($data1 as $key => $value) {
+	
+					$data1[$key] = $value;
+
+					$com = Company::withTrashed()->findorfail($value->company);
+					
+					$data1[$key]['company'] = $com->name;
+					
+					$forw = Forwarder::withTrashed()->findorfail($value->forwarder);
+					
+					$data1[$key]['forwarder'] = $forw->name;
+					
+					if($value->trucktype != 'null' && $value->trucktype != '' && $value->trucktype != null ){
+					
+						$tk = Truck::withTrashed()->findorfail($value->trucktype);
+						
+						$data1[$key]['vehicle'] = $tk->name;
+					} else {
+
+						$data1[$key]['vehicle'] = '';
+					}
+
+				}
+	
+				}
+	
+				if ($Request->role == "forwarder") {
+	
+					$data1 = Shipment::where('status', 1)->whereNull('deleted_at')->where('forwarder', $Request->other_id)->get();
+	
+					$data = array();
+					$data1 = $data1->paginate($perPage);
+
+					foreach ($data1 as $key => $value) {
+		
+						$data1[$key] = $value;
+	
+						$com = Company::withTrashed()->findorfail($value->company);
+						
+						$data1[$key]['company'] = $com->name;
+						
+						$forw = Forwarder::withTrashed()->findorfail($value->forwarder);
+						
+						$data1[$key]['forwarder'] = $forw->name;
+						
+						if($value->trucktype != 'null' && $value->trucktype != '' && $value->trucktype != null ){
+						
+							$tk = Truck::withTrashed()->findorfail($value->trucktype);
+							
+							$data1[$key]['vehicle'] = $tk->name;
+						} else {
+	
+							$data1[$key]['vehicle'] = '';
+						}
+	
+					}
+				}
+				
 				if (!empty($data1)) {
 					$message = 'Shipment List Successfully.';
 					$dataa = $data1;
@@ -3586,27 +3762,56 @@ class ApiController extends Controller {
 			}
 
 			if ($Request->role == "transporter") {
-				$data2 = Shipment_Transporter::where('transporter_id', $Request->other_id)->whereNull('deleted_at')->where('status', 2)->orderby('created_at', 'desc')->get();
-				$data = array();
-				foreach ($data2 as $key => $value) {
-					$data1 = Shipment::where('shipment_no', $value->shipment_no)->first();
-					$data[$key] = $data1;
-					$com = Company::withTrashed()->findorfail($data1->company);
-					$data[$key]['company'] = $com->name;
-					$forw = Forwarder::withTrashed()->findorfail($data1->forwarder);
-					$data[$key]['forwarder'] = $forw->name;
-					if($data1->trucktype != 'null' && $data1->trucktype != '' && $data1->trucktype != null ){
-						$tk = Truck::withTrashed()->findorfail($data1->trucktype);
-						$data[$key]['vehicle'] = $tk->name;
-					} else {
-						$data[$key]['vehicle'] = '';
+				$data2 = Shipment_Driver::withTrashed()->where('transporter_id', $Request->other_id)->whereNull('deleted_at')
+				->whereRaw('id IN (select MAX(id) FROM shipment_driver GROUP BY shipment_no)')
+				->orderby('id','desc')->get();
+				$ids = array();
+				foreach ($data2 as $key => $value){
+					if($value->status == "2" || $value->status == "4" || $value->status == "5" || $value->status == "18"
+					|| $value->status == "6" || $value->status == "7" || $value->status == "8" || $value->status == "9" || $value->status == "10"
+					|| $value->status == "11" || $value->status == "12" || $value->status == "13" || $value->status == "14" || $value->status == "15"){
+						array_push($ids,$value->id);
 					}
 				}
+				$data2 = Shipment_Driver::withTrashed()->wherein('id', $ids)->whereNull('deleted_at')->orderby('id','desc')->get();
+				$data = array();
+			
+				foreach ($data2 as $key => $value) {
+						$data1 = Shipment::withTrashed()->where('shipment_no', $value->shipment_no)->first();
+						//dd($data1);
+						
+					   $data[$key] = $data1;
+						
+						$data[$key]['expense'] = $value->expense;
+						if($data1){
+						$com = Company::withTrashed()->findorfail($data1->company);
+						$data[$key]['company'] = $com->name;
+						}
+						else{
+							$data[$key]['company'] = '';
+						}
+						//dd($data[$key]['company']);
+						if($data1){
+						$forw = Forwarder::withTrashed()->findorfail($data1->forwarder);
+						
+						$data[$key]['forwarder'] = $forw->name;
+						}
+						else{
+							$data[$key]['forwarder'] = '';
+						}
+
+						if(isset($data1->trucktype) && $data1->trucktype !='' && $data1->trucktype != 'null' && $data1->trucktype != null) {
+						$tk = Truck::withTrashed()->findorfail($data1->trucktype);
+						$data[$key]['vehicle'] = $tk->name;
+						} else {
+							$data[$key]['vehicle'] = '';
+						}
+					}
 			}
 
 			if ($Request->role == "driver") {
 
-				$data2 = Shipment_Driver::where('driver_id', $Request->user_id)->whereNull('deleted_at')->where('transporter_id', $Request->other_id)->whereIn('status', [2,4,5,6,7,8,9,10,11,12,13,14,15,18])->orderby('created_at', 'desc')->get();
+				$data2 = Shipment_Driver::where('driver_id', $Request->user_id)->where('transporter_id', $Request->other_id)->whereNull('deleted_at')->whereIn('status', [2,4,5,6,7,8,9,10,11,12,13,14,15,18])->orderby('created_at', 'desc')->get();
 
 				$data = array();
 
@@ -3741,7 +3946,7 @@ class ApiController extends Controller {
 				$data1 = Shipment_Driver::withTrashed()->wherein('id', $ids)->whereNull('deleted_at')->orderby('id','desc')->paginate($perPage);
 				$data = array();
 				foreach ($data1 as $key => $value) {
-					$data[$key] = Shipment::where('shipment_no', $value->shipment_no)->first();
+					$data[$key] = Shipment::withTrashed()->where('shipment_no', $value->shipment_no)->first();
 					$data1[$key]['id'] = $data[$key]->id ;
 					$data1[$key]['myid'] = $data[$key]->myid ;
 					$data1[$key]['status'] = $data[$key]->status ;
@@ -3758,7 +3963,7 @@ class ApiController extends Controller {
 			if ($Request->role == "driver") {
 				
 
-				$data1 = Shipment::rightJoin('shipment_driver','shipment_driver.shipment_no','=','shipment.shipment_no')->where('shipment_driver.transporter_id', $Request->other_id)->whereNull('shipment_driver.deleted_at')->where('shipment_driver.driver_id', $Request->user_id)->orderby('shipment_driver.created_at', 'desc')->whereIn('shipment_driver.status', ['3','17']);
+				$data1 = Shipment::rightJoin('shipment_driver','shipment_driver.shipment_no','=','shipment.shipment_no')->where('shipment_driver.transporter_id', $Request->other_id)->where('shipment_driver.driver_id', $Request->user_id)->whereNull('shipment_driver.deleted_at')->orderby('shipment_driver.created_at', 'desc')->whereIn('shipment_driver.status', ['3','17']);
 				$data = array();
 				$data1 = $data1->paginate($perPage);
 				foreach ($data1 as $key => $value) {
@@ -3917,7 +4122,7 @@ class ApiController extends Controller {
 			}
 
 			if ($Request->role == "driver") {
-				$data2 = Shipment_Driver::where('driver_id', $Request->user_id)->whereNull('deleted_at')->where('transporter_id', $Request->other_id)->whereIn('status', ['3','17'])->orderby('created_at', 'desc')->get();
+				$data2 = Shipment_Driver::where('driver_id', $Request->user_id)->where('transporter_id', $Request->other_id)->whereNull('deleted_at')->whereIn('status', ['3','17'])->orderby('created_at', 'desc')->get();
 				$data = array();
 				foreach ($data2 as $key => $value) {
 					
@@ -4045,6 +4250,54 @@ class ApiController extends Controller {
 			}
 
 			$data->transporters_list = $t_list;
+
+			if ($Request->role == "transporter") {
+				
+				$data2 = Shipment_Driver::withTrashed()->where('shipment_no',$Request->shipment_no)->where('transporter_id', $Request->other_id)->whereNull('deleted_at')
+				->orderby('id','desc')->first();
+			
+			foreach($data as $key => $value){
+				if($data2->status == 3 || $data2->status == 17){
+				$data->status = 2;
+				}
+				if($data2->status == 1){
+					$data->status = 0;
+				}
+				if($data2->status == 2 || $data2->status == 4 || $data2->status == 5 || $data2->status == 6 || $data2->status == 7
+				|| $data2->status == 8 || $data2->status == 9 || $data2->status == 10 || $data2->status == 11 || $data2->status == 12 
+				|| $data2->status == 13 || $data2->status == 14 || $data2->status == 15 || $data2->status == 18){
+				$data->status = 1;
+				}
+			}
+			}
+			if ($Request->role == "driver") {
+				$dd = Shipment_Driver::withTrashed()->where('shipment_no',$Request->shipment_no)->where('transporter_id', $Request->other_id)
+				->where('driver_id',$Request->user_id)->whereNull('deleted_at')
+				->orderby('id','desc')->get();
+				$ids = array();
+				foreach ($dd as $key => $value){
+					if($value->status == 1 || $value->status == 2 || $value->status == 4 || $value->status == 5 || $value->status == 6 || $value->status == 7
+					|| $value->status == 8 || $value->status == 9 || $value->status == 10 || $value->status == 11 || $value->status == 12 
+					|| $value->status == 13 || $value->status == 14 || $value->status == 15 || $value->status == 18 || $value->status == 3 || $value->status == 17){
+						array_push($ids,$value->id);
+					}
+				}
+
+		   	$data2 = Shipment_Driver::withTrashed()->where('id', $ids)->first();
+			foreach($data as $key => $value){
+				if($data2->status == 3 || $data2->status == 17){
+				$data->status = 2;
+				}
+				if($data2->status == 1){
+					$data->status = 0;
+				}
+				if($data2->status == 2 || $data2->status == 4 || $data2->status == 5 || $data2->status == 6 || $data2->status == 7
+				|| $data2->status == 8 || $data2->status == 9 || $data2->status == 10 || $data2->status == 11 || $data2->status == 12 
+				|| $data2->status == 13 || $data2->status == 14 || $data2->status == 15 || $data2->status == 18){
+				$data->status = 1;
+				}
+			}
+			}
 			
 			if ($Request->role == "transporter") {
 			
@@ -4209,6 +4462,70 @@ class ApiController extends Controller {
 		}
 
 	}
+	//changestatus
+	public static function changeStatus(Request $request,$id)
+	{
+		$date = date('Y-m-d H:i:s');
+		$data = Shipment_Driver::where('id',$id)->where('status','1');
+		// $data_difference = strtotime($date) - strtotime($data['updated_at']);
+      	// $data_differencetime = 900;
+
+		$to_time = strtotime($date);
+		$from_time = strtotime($data['updated_at']);
+		$differnce= round(abs($to_time - $from_time) / 60,2). " minute";
+      	if($data && $differnce <= 60) {
+			$transporter=Transporter::where('id',$data->transporter_id)->first();
+			$from_user = User::find($data->updated_by);
+            $to_user = User::find($transporter['user_id']);
+			$user=User::where('id',$data->updated_by)->first();
+			$getStatus=Cargostatus::where('id',$data->status)->first();
+            if($from_user['id'] != $to_user['id'] && $from_user && $to_user) {
+                $notification = new Notification();
+                $notification->notification_from = $from_user->id;
+                $notification->notification_to = $to_user->id;
+                $notification->shipment_id = $data->id;
+				$id = $data->shipment_no;
+                $title= "Status changed";
+				// "New Shipment" .' '. $driver->shipment_no .' '. "Added";
+                $message= $data["shipment_no"].' '."is".' '.$getStatus['name'].' ' ."by".' '.$user['username'];
+				$notification->title = $title;
+                $notification->message = $message;
+                $notification->notification_type = '2';
+                $notification->save();
+				$notification_id = $notification->id;
+				if($to_user->device_type == 'ios'){
+                    GlobalHelper::sendFCMIOS($title, $message, $to_user->device_token,$notification->notification_type,$id,$notification_id);
+                }else{
+                    GlobalHelper::sendFCM($notification->title, $notification->message, $to_user->device_token,$notification->notification_type,$id,$notification_id);
+                    }
+            }
+
+			$from_user1 = User::find($data->updated_by);
+            $to_user1 = User::find(1);
+			$user1=User::where('id',$data->updated_by)->first();
+			$getStatus1=Cargostatus::where('id',$data->status)->first();
+            if($from_user1['id'] != $to_user1['id'] && $from_user1 && $to_user1) {
+                $notification = new Notification();
+                $notification->notification_from = $from_user1->id;
+                $notification->notification_to = $to_user1->id;
+                $notification->shipment_id = $data->id;
+				$id = $data->shipment_no;
+                $title= "Status changed";
+                $message= $data["shipment_no"].' '."is".' '.$getStatus['name'].' ' ."by".' '.$user['username'];
+				$notification->title = $title;
+                $notification->message = $message;
+                $notification->notification_type = '2';
+                $notification->save();
+				$notification_id = $notification->id;
+				if($to_user->device_type == 'ios'){
+                    GlobalHelper::sendFCMIOS($title, $message, $to_user->device_token,$notification->notification_type,$id,$notification_id);
+                }else{
+                    GlobalHelper::sendFCM($notification->title, $notification->message, $to_user->device_token,$notification->notification_type,$id,$notification_id);
+                    }
+            }
+		}
+		return 1;
+	}
 	//49
 	public function ShipmentChangeStatusTransporter(Request $Request) {
 
@@ -4221,7 +4538,8 @@ class ApiController extends Controller {
 				return response()->json(['status' => 'failed', 'message' => 'Please Update This Application.', 'data' => json_decode('{}'), 'code' => '500'], 200);
 			}
 
-			$data = Shipment_Driver::findorfail($Request->id);
+			$data = Shipment_Driver::withTrashed()->findorfail($Request->id);
+			//dd($data->shipment_no);
 
 			$data->status = $Request->status;
 
@@ -4253,7 +4571,7 @@ class ApiController extends Controller {
 
 				$data->unload_time = date('Y-m-d H:i');
 
-				$ss = Shipment::where('shipment_no', $data->shipment_no)->first();
+				$ss = Shipment::withTrashed()->where('shipment_no', $data->shipment_no)->first();
 				$ss->status = 1;
 
 				// $cargostatus = Shipment_Driver::where('shipment_no',$data->shipment_no)->latest()->take(1)->first();
@@ -4287,7 +4605,7 @@ class ApiController extends Controller {
 
 				$data->unloadcontainer_time = date('Y-m-d H:i');
 
-				$ss = Shipment::where('shipment_no', $data->shipment_no)->first();
+				$ss = Shipment::withTrashed()->where('shipment_no', $data->shipment_no)->first();
 				$ss->status = 1;
 
 				// $cargostatus = Shipment_Driver::where('shipment_no',$data->shipment_no)->latest()->take(1)->first();
@@ -4322,7 +4640,7 @@ class ApiController extends Controller {
 			
 				$data->hold_time = date('Y-m-d H:i');
 
-				$ss =Shipment::where('shipment_no',$data->shipment_no)->first();
+				$ss =Shipment::withTrashed()->where('shipment_no',$data->shipment_no)->first();
                 $ss->status =1;
                 // $ss->cargo_status = 1;
                 $ss->save();
@@ -4341,7 +4659,7 @@ class ApiController extends Controller {
 			
 				$data->other_time = date('Y-m-d H:i');
 
-				$ss =Shipment::where('shipment_no',$data->shipment_no)->first();
+				$ss =Shipment::withTrashed()->where('shipment_no',$data->shipment_no)->first();
                 $ss->status =1;
                 // $ss->cargo_status = 1;
                 $ss->save();
@@ -4360,7 +4678,7 @@ class ApiController extends Controller {
 			
 				$data->truck_reachport_time = date('Y-m-d H:i');
 
-				$ss =Shipment::where('shipment_no',$data->shipment_no)->first();
+				$ss =Shipment::withTrashed()->where('shipment_no',$data->shipment_no)->first();
                 $ss->status =1;
                 // $ss->cargo_status = 1;
                 $ss->save();
@@ -4379,7 +4697,7 @@ class ApiController extends Controller {
 			
 				$data->reachatport_time = date('Y-m-d H:i');
 
-				$ss =Shipment::where('shipment_no',$data->shipment_no)->first();
+				$ss =Shipment::withTrashed()->where('shipment_no',$data->shipment_no)->first();
                 $ss->status =1;
                 // $ss->cargo_status = 1;
                 $ss->save();
@@ -4396,7 +4714,7 @@ class ApiController extends Controller {
 			}
 			if($Request->status == "13"){
 
-				$ss =Shipment::where('shipment_no',$data->shipment_no)->first();
+				$ss =Shipment::withTrashed()->where('shipment_no',$data->shipment_no)->first();
                 $ss->status =1;
                 // $ss->cargo_status = 1;
                 $ss->save();
@@ -4412,7 +4730,7 @@ class ApiController extends Controller {
 				}
 			}
 			if($Request->status == "14"){ 
-				$ss =Shipment::where('shipment_no',$data->shipment_no)->first();
+				$ss =Shipment::withTrashed()->where('shipment_no',$data->shipment_no)->first();
                 $ss->status =1;
                 // $ss->cargo_status = 1;
                 $ss->save();
@@ -4429,7 +4747,7 @@ class ApiController extends Controller {
 			}
 			if($Request->status == "15"){ 
 
-				$ss =Shipment::where('shipment_no',$data->shipment_no)->first();
+				$ss =Shipment::withTrashed()->where('shipment_no',$data->shipment_no)->first();
                 $ss->status =1;
                 // $ss->cargo_status = 1;
                 $ss->save();
@@ -4447,7 +4765,7 @@ class ApiController extends Controller {
 			}
 			if($Request->status == "18"){ 
 
-				$ss =Shipment::where('shipment_no',$data->shipment_no)->first();
+				$ss =Shipment::withTrashed()->where('shipment_no',$data->shipment_no)->first();
                 $ss->status =1;
                 // $ss->cargo_status = 1;
                 $ss->save();
@@ -4472,7 +4790,8 @@ class ApiController extends Controller {
 				$transp->status = 2;
 				$transp->save();*/
 
-				$ss = Shipment::where('shipment_no', $data->shipment_no)->first();
+				$ss = Shipment::withTrashed()->where('shipment_no', $data->shipment_no)->first();
+				//dd($ss);
 				$ss->status = 1;
 				// $ss->cargo_status = 1;
 				$ss->save();
@@ -4501,7 +4820,7 @@ class ApiController extends Controller {
 				$transp->status = 2;
 				$transp->save();
 
-				$ss = Shipment::where('shipment_no', $data->shipment_no)->first();
+				$ss = Shipment::withTrashed()->where('shipment_no', $data->shipment_no)->first();
 				$ss->status = 1;
 				// $ss->cargo_status = 1;
 				$ss->save();
@@ -4527,7 +4846,7 @@ class ApiController extends Controller {
 				
 				$transp->save();
 
-				$ss = Shipment::where('shipment_no', $data->shipment_no)->first();
+				$ss = Shipment::withTrashed()->where('shipment_no', $data->shipment_no)->first();
 				$ss->status = 1;
 				// $ss->cargo_status = 1;
 				$ss->save();
@@ -4552,7 +4871,7 @@ class ApiController extends Controller {
 				$transp->status = 2;
 				$transp->save();
 
-				$ss = Shipment::where('shipment_no', $data->shipment_no)->first();
+				$ss = Shipment::withTrashed()->where('shipment_no', $data->shipment_no)->first();
 				$ss->status = 1;
 				// $ss->cargo_status = 1;
 				$ss->save();
@@ -4578,7 +4897,7 @@ class ApiController extends Controller {
 				$transp->status = 2;
 				$transp->save();
 
-				$ss = Shipment::where('shipment_no', $data->shipment_no)->first();
+				$ss = Shipment::withTrashed()->where('shipment_no', $data->shipment_no)->first();
 				$ss->status = 1;
 				// $ss->cargo_status = 1;
 				$ss->save();
@@ -4623,7 +4942,7 @@ class ApiController extends Controller {
                 $notification = new Notification();
                 $notification->notification_from = $from_user->id;
                 $notification->notification_to = $to_user->id;
-                $notification->shipment_id = $data->id;
+                $notification->shipment_id = $ss->id;
 				$id = $data->shipment_no;
                 $title= "Status changed";
 				// "New Shipment" .' '. $driver->shipment_no .' '. "Added";
@@ -4632,10 +4951,11 @@ class ApiController extends Controller {
                 $notification->message = $message;
                 $notification->notification_type = '2';
                 $notification->save();
+				$notification_id = $notification->id;
 				if($to_user->device_type == 'ios'){
-                    GlobalHelper::sendFCMIOS($title, $message, $to_user->device_token,$notification->notification_type,$id);
+                    GlobalHelper::sendFCMIOS($title, $message, $to_user->device_token,$notification->notification_type,$id,$notification_id);
                 }else{
-                    GlobalHelper::sendFCM($notification->title, $notification->message, $to_user->device_token,$notification->notification_type,$id);
+                    GlobalHelper::sendFCM($notification->title, $notification->message, $to_user->device_token,$notification->notification_type,$id,$notification_id);
                     }
             }
 			//admin
@@ -4647,7 +4967,7 @@ class ApiController extends Controller {
                 $notification = new Notification();
                 $notification->notification_from = $from_user1->id;
                 $notification->notification_to = $to_user1->id;
-                $notification->shipment_id = $data->id;
+                $notification->shipment_id = $ss->id;
 				$id = $data->shipment_no;
                 $title= "Status changed";
                 $message= $data["shipment_no"].' '."is".' '.$getStatus['name'].' ' ."by".' '.$user['username'];
@@ -4655,17 +4975,18 @@ class ApiController extends Controller {
                 $notification->message = $message;
                 $notification->notification_type = '2';
                 $notification->save();
+				$notification_id = $notification->id;
 				if($to_user->device_type == 'ios'){
-                    GlobalHelper::sendFCMIOS($title, $message, $to_user->device_token,$notification->notification_type,$id);
+                    GlobalHelper::sendFCMIOS($title, $message, $to_user->device_token,$notification->notification_type,$id,$notification_id);
                 }else{
-                    GlobalHelper::sendFCM($notification->title, $notification->message, $to_user->device_token,$notification->notification_type,$id);
+                    GlobalHelper::sendFCM($notification->title, $notification->message, $to_user->device_token,$notification->notification_type,$id,$notification_id);
                     }
             }
 
 			return response()->json(['status' => 'success', 'message' => 'Shipment Status Changed Successfully.', 'data' => $data, 'code' => '200'], 200);
 
 		} catch (\Exception $e) {
-
+			dd($e);
 			return response()->json(['status' => 'failed', 'message' => $e->getMessage(), 'data' => json_decode('{}'), 'code' => '500'], 200);
 		}
 
@@ -6549,13 +6870,13 @@ class ApiController extends Controller {
 						$data1 = Shipment::rightJoin('shipment_transporter','shipment_transporter.shipment_no','=','shipment.shipment_no')
 						->where('shipment_transporter.transporter_id', $Request->other_id)->whereYear('shipment_transporter.created_at', $Request->year)
 						->whereMonth('shipment_transporter.created_at', $Request->month)->whereIn('shipment.status',['0','1','2'])->whereNull('shipment_transporter.deleted_at')
-						->groupBy('shipment_transporter.shipment_no');
+						->groupBy('shipment_transporter.shipment_no')->orderBy('shipment.id', 'desc');
 
 						$data1 = $data1->paginate($perPage);
 					
 						$data = array();
 						foreach ($data1 as $key => $value) {
-							$data[$key] = Shipment::where('shipment_no', $value->shipment_no)->first();
+							$data[$key] = Shipment::where('shipment_no', $value->shipment_no)->orderBy('shipment_no', 'desc')->first();
 							$data1[$key]['id'] = $data[$key]->id ;
 							$data1[$key]['myid'] = $data[$key]->myid ;
 
@@ -7107,11 +7428,11 @@ class ApiController extends Controller {
 					
 
 					$data1 = Shipment_Transporter::where('transporter_id', $Request->other_id)->whereYear('created_at', $Request->year)
-					->whereNull('deleted_at')->whereMonth('created_at', $Request->month)->groupBy('shipment_no')->get();
+					->whereNull('deleted_at')->whereMonth('created_at', $Request->month)->orderBy('shipment_id','desc')->groupBy('shipment_no')->get();
 						
 						$data = array();
 						foreach ($data1 as $key => $value) {
-							$data1 = Shipment::withTrashed()->where('shipment_no', $value->shipment_no)->orderby('id', 'desc')->whereIn('status',['0','1','2'])->first();
+							$data1 = Shipment::withTrashed()->where('shipment_no', $value->shipment_no)->orderBy('id', 'desc')->whereIn('status',['0','1','2'])->first();
 							$data[$key] = $data1;
 							$data3 = Shipment_Driver::withTrashed()->where('shipment_no', $value->shipment_no)->
 							where('transporter_id', $Request->other_id)->orderBy('id','desc')->first();
@@ -7133,7 +7454,7 @@ class ApiController extends Controller {
 						}
 							
 						}
-
+						
 				}
 
 			} 
@@ -8354,6 +8675,862 @@ class ApiController extends Controller {
                 ->handleAndResponseException($e);
         }
     }
+	public function AccountData(Request $Request) {
 
+		try {
+
+			$check = $this->checkversion($Request->version);
+			$all = $Request->all();
+			//dd($all);
+			if ($check == 1) {
+
+				return response()->json(['status' => 'failed', 'message' => 'Please Update This Application.', 'data' => json_decode('{}'), 'code' => '500'], 200);
+			}
+			if (isset($all['page']) && ($all['offset'])) {
+				//pagination coding
+				$page = 1;
+				$perPage = 10;
+				if (isset($all['page']) && !empty($all['page'])) {
+					$page = $all['page'];
+				}
+				if (isset($all['offset']) && !empty($all['offset'])) {
+					$perPage = $all['offset'];
+				}
+				$offset = ($page - 1) * $perPage;
+				if($Request->from_date != ''){
+					$from_date = date('Y-m-d',strtotime($Request->from_date));
+				} else {
+					$from_date = date('Y-m-d');
+				}
+				if($Request->to != ''){
+					$to_date = date('Y-m-d',strtotime($Request->to_date));
+				} else {
+					$to_date = date('Y-m-d');
+				}
+				if ($Request->role == 'transporter') {
+					$total_credit1 = Account::where('to_transporter',$Request->other_id)->whereBetween('dates', [$from_date, $to_date])->sum('credit');
+					$total_credit2 = Account::where('to_transporter',$Request->other_id)->whereBetween('dates', [$from_date, $to_date])->sum('debit');
+					$total_credit = $total_credit1 + $total_credit2;
+	
+					$total_debit1 = Account::where('from_transporter',$Request->other_id)->whereBetween('dates', [$from_date, $to_date])->sum('debit');
+					$total_debit2 = Account::where('from_transporter',$Request->other_id)->whereBetween('dates', [$from_date, $to_date])->sum('credit');
+					$total_debit = $total_debit1 + $total_debit2;
+				
+					$nyllist = array();
+			
+					$expense = array();
+					$nyllist = Account::whereBetween('dates', [$from_date, $to_date])
+						->where(function($query) use($Request)
+							{
+								$query->where('to_transporter', $Request->other_id)
+									  ->orWhere('from_transporter', $Request->other_id);
+							})
+						->orderby('dates','asc')->paginate($perPage);
+				
+	
+				$cc = Account::whereBetween('dates', [$from_date, $to_date])
+						->where(function($query) use($Request)
+							{
+								$query->where('to_transporter', $Request->other_id)
+									  ->orWhere('from_transporter', $Request->other_id);
+							})
+						->sum('credit');
+	
+				$dd = Account::whereBetween('dates', [$from_date, $to_date])
+						->where(function($query) use($Request)
+							{
+								$query->where('to_transporter', $Request->other_id)
+									  ->orWhere('from_transporter', $Request->other_id);
+							})
+						->sum('debit');
+	
+				foreach ($nyllist as $key => $value) {
+						if($value->v_type == 'credit'){
+							if($value->from_company != '' && $value->from_company != null){
+								$nyllist[$key]=$value;
+								$com = Company::withTrashed()->findorfail($value->from_company);
+								if($value->type == 'invoice'){
+									$invoice = Invoice::findorfail($value->invoice_list);
+									$nyllist[$key]['detailss'] = "By: ".$com->name." (".$invoice->invoice_no.")";
+								} else {
+									$nyllist[$key]['detailss'] = "By: ".$com->name." (".$value->description.")";
+								}
+								//$nyllist[$key]['detailss'] = $com->name;
+								$nyllist[$key]['datess'] = date('d-m-Y',strtotime($value->dates));
+								// $nyllist[$key]['total_credit'] = $cc;
+								// $nyllist[$key]['total_debit'] = $dd;
+								$nyllist[$key]['amount'] = $value->credit;
+								// $nyllist[$key]['debitst'] = '';
+							}
+	
+							if($value->from_transporter != '' && $value->from_transporter != null){
+								$com = Transporter::withTrashed()->findorfail($value->from_transporter);
+								$nyllist[$key]=$value;
+								if($value->type == 'invoice'){
+									$invoice = Invoice::findorfail($value->invoice_list);
+									$nyllist[$key]['detailss'] = "By: ".$com->name." (".$invoice->invoice_no.")";
+								} else {
+									$nyllist[$key]['detailss'] = "By: ".$com->name." (".$value->description.")";
+								}
+								//$nyllist[$key]['detailss'] = $com->name;
+								$nyllist[$key]['datess'] = date('d-m-Y',strtotime($value->dates));
+								// $nyllist[$key]['total_credit'] = $cc;
+								// $nyllist[$key]['total_debit'] = $dd;
+								 $nyllist[$key]['amount'] = $value->credit;
+								// $nyllist[$key]['debitst'] = '';
+							}
+	
+							if($value->from_forwarder != '' && $value->from_forwarder != null){
+								$com = Forwarder::withTrashed()->findorfail($value->from_forwarder);
+								$nyllist[$key]=$value;
+								if($value->type == 'invoice'){
+									$invoice = Invoice::findorfail($value->invoice_list);
+									$nyllist[$key]['detailss'] = "By: ".$com->name." (".$invoice->invoice_no.")";
+								} else {
+									$nyllist[$key]['detailss'] = "By: ".$com->name." (".$value->description.")";
+								}
+								//$nyllist[$key]['detailss'] = $com->name;
+								
+								$nyllist[$key]['datess'] = date('d-m-Y',strtotime($value->dates));
+								// $nyllist[$key]['total_credit'] = $cc;
+								// $nyllist[$key]['total_debit'] = $dd;
+								 $nyllist[$key]['amount'] = $value->credit;
+								// $nyllist[$key]['debitst'] = '';
+							}
+						}
+	
+						if($value->v_type == 'debit'){
+							if($value->to_transporter != '' && $value->to_transporter != null){
+								$com = Transporter::withTrashed()->findorfail($value->to_transporter);
+								$nyllist[$key]=$value;
+								if($value->type == 'invoice'){
+									$invoice = Invoice::findorfail($value->invoice_list);
+									$nyllist[$key]['detailss'] = "To: ".$com->name." (".$invoice->invoice_no.")";
+								} else {
+									$nyllist[$key]['detailss'] = "To: ".$com->name." (".$value->description.")";
+								}
+								//$nyllist[$key]['detailss'] = $com->name;
+								$nyllist[$key]['datess'] = date('d-m-Y',strtotime($value->dates));
+								// $nyllist[$key]['total_credit'] = $cc;
+								// $nyllist[$key]['total_debit'] = $dd;
+								// $nyllist[$key]['creditt'] = '';
+								 $nyllist[$key]['amount'] = $value->debit;
+							}
+	
+							if($value->to_company != '' && $value->to_company != null){
+								$com = Company::withTrashed()->findorfail($value->to_company);
+								$nyllist[$key]=$value;
+								if($value->type == 'invoice'){
+									$invoice = Invoice::findorfail($value->invoice_list);
+									$nyllist[$key]['detailss'] = "To: ".$com->name." (".$invoice->invoice_no.")";
+								} else {
+									$nyllist[$key]['detailss'] = "To: ".$com->name." (".$value->description.")";
+								}
+								//$nyllist[$key]['detailss'] = $com->name;
+								$nyllist[$key]['datess'] = date('d-m-Y',strtotime($value->dates));
+								// $nyllist[$key]['total_credit'] = $cc;
+								// $nyllist[$key]['total_debit'] = $dd;
+								// $nyllist[$key]['creditt'] = '';
+								$nyllist[$key]['amount'] = $value->debit;
+							}
+						}
+				}
+			}
+				
+			if($Request->role == 'company'){
+		 
+				$total_credit1 = Account::where('to_company',$Request->other_id)->whereBetween('dates', [$from_date, $to_date])->sum('credit');
+	
+			 	$total_credit2 = Account::where('to_company',$Request->other_id)->whereBetween('dates', [$from_date, $to_date])->sum('debit');
+			 	$total_credit = $total_credit1 + $total_credit2;
+
+				$total_debit1 = Account::where('from_company',$Request->other_id)->whereBetween('dates', [$from_date, $to_date])->sum('debit');
+			 	$total_debit2 = Account::where('from_company',$Request->other_id)->whereBetween('dates', [$from_date, $to_date])->sum('credit');
+				$total_debit = $total_debit1 + $total_debit2;
+
+				$nyllist = Account::whereBetween('dates', [$from_date, $to_date])
+				->where(function($query) use($Request)
+					{
+						$query->where('to_company', $Request->other_id)
+							  ->orWhere('from_company', $Request->other_id);
+					})
+				->orderby('dates','asc')->paginate($perPage);
+				
+			
+		$cc = Account::whereBetween('dates', [$from_date, $to_date])
+				->where(function($query) use($Request)
+					{
+						$query->where('to_company', $Request->other_id)
+							  ->orWhere('from_company', $Request->other_id);
+					})
+				->sum('credit');
+		$dd = Account::whereBetween('dates', [$from_date, $to_date])
+				->where(function($query) use($Request)
+					{
+						$query->where('to_company', $Request->other_id)
+							  ->orWhere('from_company', $Request->other_id);
+					})
+				->sum('debit');
+
+				
+				$expense = array();
+		foreach ($nyllist as $key => $value) {
+			if($value->v_type == 'credit'){
+				if($value->from_company != '' && $value->from_company != null){
+					$nyllist[$key]=$value;
+					$com = Company::withTrashed()->findorfail($value->from_company);
+					if($value->type == 'invoice'){
+						$invoice = Invoice::findorfail($value->invoice_list);
+						$nyllist[$key]['detailss'] = "By: ".$com->name." (".$invoice->invoice_no.")";
+					} else {
+						$nyllist[$key]['detailss'] = "By: ".$com->name." (".$value->description.")";
+					}
+					//$nyllist[$key]['detailss'] = "By: ".$com->name;
+					$nyllist[$key]['datess'] = date('d-m-Y',strtotime($value->dates));
+					// $nyllist[$key]['total_credit'] = $cc;
+					// 		$nyllist[$key]['total_debit'] = $dd;
+					// $nyllist[$key]['creditt'] = $value->credit;
+					// $nyllist[$key]['debitst'] = '';
+				}
+				if($value->from_transporter != '' && $value->from_transporter != null){
+					$com = Transporter::withTrashed()->findorfail($value->from_transporter);
+					$nyllist[$key]=$value;
+					if($value->type == 'invoice'){
+						$invoice = Invoice::findorfail($value->invoice_list);
+						$nyllist[$key]['detailss'] = "By: ".$com->name." (".$invoice->invoice_no.")";
+					} else {
+						$nyllist[$key]['detailss'] = "By: ".$com->name." (".$value->description.")";
+					}
+					//$nyllist[$key]['detailss'] = "By: ".$com->name;
+					$nyllist[$key]['datess'] = date('d-m-Y',strtotime($value->dates));
+					// $nyllist[$key]['total_credit'] = $cc;
+					// 		$nyllist[$key]['total_debit'] = $dd;
+					// $nyllist[$key]['creditt'] = $value->credit;
+					// $nyllist[$key]['debitst'] = '';
+				}
+				if($value->from_forwarder != '' && $value->from_forwarder != null){
+					$com = Forwarder::withTrashed()->findorfail($value->from_forwarder);
+					$nyllist[$key]=$value;
+					if($value->type == 'invoice'){
+						$invoice = Invoice::findorfail($value->invoice_list);
+						$nyllist[$key]['detailss'] = "By: ".$com->name." (".$invoice->invoice_no.")";
+					} else {
+						$nyllist[$key]['detailss'] = "By: ".$com->name." (".$value->description.")";
+					}
+					$nyllist[$key]['datess'] = date('d-m-Y',strtotime($value->dates));
+					// $nyllist[$key]['total_credit'] = $cc;
+					// 		$nyllist[$key]['total_debit'] = $dd;
+					// $nyllist[$key]['creditt'] = $value->credit;
+					// $nyllist[$key]['debitst'] = '';
+				}
+			}
+
+			if($value->v_type == 'debit'){
+				if($value->to_transporter != '' && $value->to_transporter != null){
+					$com = Transporter::withTrashed()->findorfail($value->to_transporter);
+					$nyllist[$key]=$value;
+					if($value->type == 'invoice'){
+						$invoice = Invoice::findorfail($value->invoice_list);
+						$nyllist[$key]['detailss'] = "To: ".$com->name." (".$invoice->invoice_no.")";
+					} else {
+						$nyllist[$key]['detailss'] = "To: ".$com->name." (".$value->description.")";
+					}
+					//$nyllist[$key]['detailss'] = "To: ".$com->name;
+					$nyllist[$key]['datess'] = date('d-m-Y',strtotime($value->dates));
+					// $nyllist[$key]['total_credit'] = $cc;
+					// 		$nyllist[$key]['total_debit'] = $dd;
+					// $nyllist[$key]['creditt'] = '';
+					// $nyllist[$key]['debitst'] = $value->debit;
+				}
+
+				if($value->to_forwarder != '' && $value->to_forwarder != null){
+					$com = Forwarder::withTrashed()->findorfail($value->to_forwarder);
+					$nyllist[$key]=$value;
+					if($value->type == 'invoice'){
+						$invoice = Invoice::findorfail($value->invoice_list);
+						$nyllist[$key]['detailss'] = "To: ".$com->name." (".$invoice->invoice_no.")";
+					} else {
+						$nyllist[$key]['detailss'] = "To: ".$com->name." (".$value->description.")";
+					}
+					//$nyllist[$key]['detailss'] = "To: ".$com->name;
+					$nyllist[$key]['datess'] = date('d-m-Y',strtotime($value->dates));
+					// $nyllist[$key]['total_credit'] = $cc;
+					// 		$nyllist[$key]['total_debit'] = $dd;
+					// $nyllist[$key]['creditt'] = '';
+					// $nyllist[$key]['debitst'] = $value->debit;
+				}
+			}
+
+			if($value->v_type == 'expense'){
+				$nyllist[$key]=$value;
+				if($value->type == 'invoice'){
+					$invoice = Invoice::findorfail($value->invoice_list);
+					$nyllist[$key]['detailss'] = "To: ".$value->description." (".$invoice->invoice_no.")";
+				} else {
+					$nyllist[$key]['detailss'] = "To: ".$value->description;
+				}
+				//$nyllist[$key]['detailss'] = "To: ".$value->description;
+				$nyllist[$key]['datess'] = date('d-m-Y',strtotime($value->dates));
+				// $nyllist[$key]['total_credit'] = $cc;
+				// $nyllist[$key]['total_debit'] = $dd;
+				// $nyllist[$key]['creditt'] = '';
+				// $nyllist[$key]['debitst'] = $value->debit;
+			}
+		}
+
+	  	}
+		  if($Request->role == 'forwarder') {
+			$total_credit1 = Account::where('to_forwarder',$Request->other_id)->whereBetween('dates', [$from_date, $to_date])->sum('credit');
+			$total_credit2 = Account::where('to_forwarder',$Request->other_id)->whereBetween('dates', [$from_date, $to_date])->sum('debit');
+			$total_credit = $total_credit1 + $total_credit2;
+
+		   	$total_debit1 = Account::where('from_forwarder',$Request->other_id)->whereBetween('dates', [$from_date, $to_date])->sum('debit');
+			$total_debit2 = Account::where('from_forwarder',$Request->other_id)->whereBetween('dates', [$from_date, $to_date])->sum('credit');
+		   $total_debit = $total_debit1 + $total_debit2;
+		   $nyllist = array();
+
+			$expense = array();
+			$nyllist = Account::whereBetween('dates', [$from_date, $to_date])
+					->where(function($query) use($Request)
+						{
+							$query->where('to_forwarder', $Request->other_id)
+								  ->orWhere('from_forwarder', $Request->other_id);
+						})
+					->orderby('dates','asc')->paginate($perPage);
+					
+					
+			$cc = Account::whereBetween('dates', [$from_date, $to_date])
+					->where(function($query) use($Request)
+						{
+							$query->where('to_forwarder', $Request->other_id)
+								  ->orWhere('from_forwarder', $Request->other_id);
+						})
+					->sum('credit');
+			$dd = Account::whereBetween('dates', [$from_date, $to_date])
+					->where(function($query) use($Request)
+						{
+							$query->where('to_forwarder', $Request->other_id)
+								  ->orWhere('from_forwarder', $Request->other_id);
+						})
+					->sum('debit');
+
+			foreach ($nyllist as $key => $value) {
+				if($value->v_type == 'credit'){
+					if($value->to_company != '' && $value->to_company != null){
+						$nyllist[$key]=$value;
+						$com = Company::withTrashed()->findorfail($value->to_company);
+						if($value->type == 'invoice'){
+							$invoice = Invoice::findorfail($value->invoice_list);
+							$nyllist[$key]['detailss'] = "To: ".$com->name." (".$invoice->invoice_no.")";
+						} else {
+							$nyllist[$key]['detailss'] = "To: ".$com->name." (".$value->description.")";
+						}
+						$nyllist[$key]['datess'] = date('d-m-Y',strtotime($value->dates));
+						// $nyllist[$key]['total_credit'] = $cc;
+						// 	$nyllist[$key]['total_debit'] = $dd;
+						// $nyllist[$key]['creditt'] = '';
+						// $nyllist[$key]['debitst'] = $value->credit;
+					}
+
+					if($value->to_transporter != '' && $value->to_transporter != null){
+						$com = Transporter::withTrashed()->findorfail($value->to_transporter);
+						$nyllist[$key]=$value;
+						if($value->type == 'invoice'){
+							$invoice = Invoice::findorfail($value->invoice_list);
+							$nyllist[$key]['detailss'] = "To: ".$com->name." (".$invoice->invoice_no.")";
+						} else {
+							$nyllist[$key]['detailss'] = "To: ".$com->name." (".$value->description.")";
+						}
+						//$nyllist[$key]['detailss'] = "To: ".$com->name;
+						$nyllist[$key]['datess'] = date('d-m-Y',strtotime($value->dates));
+						// $nyllist[$key]['total_credit'] = $cc;
+						// 	$nyllist[$key]['total_debit'] = $dd;
+						// $nyllist[$key]['creditt'] = '';
+						// $nyllist[$key]['debitst'] = $value->credit;
+					}
+
+					if($value->to_forwarder != '' && $value->to_forwarder != null){
+						$com = Forwarder::withTrashed()->findorfail($value->to_forwarder);
+						$nyllist[$key]=$value;
+						if($value->type == 'invoice'){
+							$invoice = Invoice::findorfail($value->invoice_list);
+							$nyllist[$key]['detailss'] = "To: ".$com->name." (".$invoice->invoice_no.")";
+						} else {
+							$nyllist[$key]['detailss'] = "To: ".$com->name." (".$value->description.")";
+						}
+						$nyllist[$key]['datess'] = date('d-m-Y',strtotime($value->dates));
+						// $nyllist[$key]['total_credit'] = $cc;
+						// 	$nyllist[$key]['total_debit'] = $dd;
+						// $nyllist[$key]['creditt'] = '';
+						// $nyllist[$key]['debitst'] = $value->credit;
+					}
+				}
+
+				if($value->v_type == 'debit'){
+					if($value->from_forwarder != '' && $value->from_forwarder != null){
+						$com = Forwarder::withTrashed()->findorfail($value->from_forwarder);
+						$nyllist[$key]=$value;
+						if($value->type == 'invoice'){
+							$invoice = Invoice::findorfail($value->invoice_list);
+							$nyllist[$key]['detailss'] = "By: ".$com->name." (".$invoice->invoice_no.")";
+						} else {
+							$nyllist[$key]['detailss'] = "By: ".$com->name." (".$value->description.")";
+						}
+						$nyllist[$key]['datess'] = date('d-m-Y',strtotime($value->dates));
+						// $nyllist[$key]['total_credit'] = $cc;
+						// 	$nyllist[$key]['total_debit'] = $dd;
+						// $nyllist[$key]['creditt'] = $value->debit;
+						// $nyllist[$key]['debitst'] = '';
+					}
+
+					if($value->from_company != '' && $value->from_company != null){
+						$com = Company::withTrashed()->findorfail($value->from_company);
+						$nyllist[$key]=$value;
+						if($value->type == 'invoice'){
+							$invoice = Invoice::findorfail($value->invoice_list);
+							$nyllist[$key]['detailss'] = "By: ".$com->name." (".$invoice->invoice_no.")";
+						} else {
+							$nyllist[$key]['detailss'] = "By: ".$com->name." (".$value->description.")";
+						}
+						$nyllist[$key]['datess'] = date('d-m-Y',strtotime($value->dates));
+						// $nyllist[$key]['total_credit'] = $cc;
+						// 	$nyllist[$key]['total_debit'] = $dd;
+						// $nyllist[$key]['creditt'] = $value->debit;
+						// $nyllist[$key]['debitst'] = '';
+					}
+				}
+			}
+
+	 	}
+	
+				if (!empty($nyllist)) {
+					$message = 'Account Data List Successfully.';
+					$dataa = $nyllist;
+					$total_credit = $cc;
+					$total_debit = $dd;
+					return $this->APIResponse->successWithPaginationaccountlist($message, $dataa,$total_credit,$total_debit);
+				}
+			
+			  else {
+					return $this->APIResponse->respondNotFound(__('No Record Found'));
+				}
+
+			}
+			else{
+				
+				if($Request->from_date != ''){
+					$from_date = date('Y-m-d',strtotime($Request->from_date));
+				} else {
+					$from_date = date('Y-m-d');
+				}
+				if($Request->to != ''){
+					$to_date = date('Y-m-d',strtotime($Request->to_date));
+				} else {
+					$to_date = date('Y-m-d');
+				}
+
+			if ($Request->role == 'transporter') {
+
+				$total_credit1 = Account::where('to_transporter',$Request->other_id)->whereBetween('dates', [$from_date, $to_date])->sum('credit');
+				$total_credit2 = Account::where('to_transporter',$Request->other_id)->whereBetween('dates', [$from_date, $to_date])->sum('debit');
+				$total_credit = $total_credit1 + $total_credit2;
+
+				$total_debit1 = Account::where('from_transporter',$Request->other_id)->whereBetween('dates', [$from_date, $to_date])->sum('debit');
+				$total_debit2 = Account::where('from_transporter',$Request->other_id)->whereBetween('dates', [$from_date, $to_date])->sum('credit');
+				$total_debit = $total_debit1 + $total_debit2;
+				
+				
+		
+				$nyllist = array();
+		
+				$expense = array();
+				$data12 = Account::whereBetween('dates', [$from_date, $to_date])
+					->where(function($query) use($Request)
+						{
+							$query->where('to_transporter', $Request->other_id)
+								  ->orWhere('from_transporter', $Request->other_id);
+						})
+					->orderby('dates','asc')->get();
+			
+
+			$cc = Account::whereBetween('dates', [$from_date, $to_date])
+					->where(function($query) use($Request)
+						{
+							$query->where('to_transporter', $Request->other_id)
+								  ->orWhere('from_transporter', $Request->other_id);
+						})
+					->sum('credit');
+
+			$dd = Account::whereBetween('dates', [$from_date, $to_date])
+					->where(function($query) use($Request)
+						{
+							$query->where('to_transporter', $Request->other_id)
+								  ->orWhere('from_transporter', $Request->other_id);
+						})
+					->sum('debit');
+					
+			foreach ($data12 as $key => $value) {
+					if($value->v_type == 'credit'){
+						if($value->from_company != '' && $value->from_company != null){
+							$nyllist[$key]=$value;
+							$com = Company::withTrashed()->findorfail($value->from_company);
+							if($value->type == 'invoice'){
+								$invoice = Invoice::findorfail($value->invoice_list);
+								$nyllist[$key]['detailss'] = "By: ".$com->name." (".$invoice->invoice_no.")";
+							} else {
+								$nyllist[$key]['detailss'] = "By: ".$com->name." (".$value->description.")";
+							}
+							//$nyllist[$key]['detailss'] = $com->name;
+							$nyllist[$key]['datess'] = date('d-m-Y',strtotime($value->dates));
+							
+							 $nyllist[$key]['amount'] = $value->credit;
+							// $nyllist[$key]['debitst'] = '';
+						}
+
+						if($value->from_transporter != '' && $value->from_transporter != null){
+							$com = Transporter::withTrashed()->findorfail($value->from_transporter);
+							$nyllist[$key]=$value;
+							if($value->type == 'invoice'){
+								$invoice = Invoice::findorfail($value->invoice_list);
+								$nyllist[$key]['detailss'] = "By: ".$com->name." (".$invoice->invoice_no.")";
+							} else {
+								$nyllist[$key]['detailss'] = "By: ".$com->name." (".$value->description.")";
+							}
+							//$nyllist[$key]['detailss'] = $com->name;
+							$nyllist[$key]['datess'] = date('d-m-Y',strtotime($value->dates));
+							
+							 $nyllist[$key]['amount'] = $value->credit;
+							// $nyllist[$key]['debitst'] = '';
+						}
+
+						if($value->from_forwarder != '' && $value->from_forwarder != null){
+							$com = Forwarder::withTrashed()->findorfail($value->from_forwarder);
+							$nyllist[$key]=$value;
+							if($value->type == 'invoice'){
+								$invoice = Invoice::findorfail($value->invoice_list);
+								$nyllist[$key]['detailss'] = "By: ".$com->name." (".$invoice->invoice_no.")";
+							} else {
+								$nyllist[$key]['detailss'] = "By: ".$com->name." (".$value->description.")";
+							}
+							//$nyllist[$key]['detailss'] = $com->name;
+							
+							$nyllist[$key]['datess'] = date('d-m-Y',strtotime($value->dates));
+						
+							$nyllist[$key]['amount'] = $value->credit;
+							// $nyllist[$key]['debitst'] = '';
+						}
+					}
+
+					if($value->v_type == 'debit'){
+						if($value->to_transporter != '' && $value->to_transporter != null){
+							$com = Transporter::withTrashed()->findorfail($value->to_transporter);
+							$nyllist[$key]=$value;
+							if($value->type == 'invoice'){
+								$invoice = Invoice::findorfail($value->invoice_list);
+								$nyllist[$key]['detailss'] = "To: ".$com->name." (".$invoice->invoice_no.")";
+							} else {
+								$nyllist[$key]['detailss'] = "To: ".$com->name." (".$value->description.")";
+							}
+							//$nyllist[$key]['detailss'] = $com->name;
+							$nyllist[$key]['datess'] = date('d-m-Y',strtotime($value->dates));
+							
+							// $nyllist[$key]['creditt'] = '';
+							$nyllist[$key]['amount'] = $value->debit;
+						}
+
+						if($value->to_company != '' && $value->to_company != null){
+							$com = Company::withTrashed()->findorfail($value->to_company);
+							$nyllist[$key]=$value;
+							if($value->type == 'invoice'){
+								$invoice = Invoice::findorfail($value->invoice_list);
+								$nyllist[$key]['detailss'] = "To: ".$com->name." (".$invoice->invoice_no.")";
+							} else {
+								$nyllist[$key]['detailss'] = "To: ".$com->name." (".$value->description.")";
+							}
+							//$nyllist[$key]['detailss'] = $com->name;
+							$nyllist[$key]['datess'] = date('d-m-Y',strtotime($value->dates));
+							
+							// $nyllist[$key]['creditt'] = '';
+							 $nyllist[$key]['amount'] = $value->debit;
+						}
+					}
+			}
+			
+		}
+		if($Request->role == 'company'){
+		 
+				$total_credit1 = Account::where('to_company',$Request->other_id)->whereBetween('dates', [$from_date, $to_date])->sum('credit');
+	
+			 	$total_credit2 = Account::where('to_company',$Request->other_id)->whereBetween('dates', [$from_date, $to_date])->sum('debit');
+			 	$total_credit = $total_credit1 + $total_credit2;
+
+				$total_debit1 = Account::where('from_company',$Request->other_id)->whereBetween('dates', [$from_date, $to_date])->sum('debit');
+			 	$total_debit2 = Account::where('from_company',$Request->other_id)->whereBetween('dates', [$from_date, $to_date])->sum('credit');
+				$total_debit = $total_debit1 + $total_debit2;
+
+				$data12 = Account::whereBetween('dates', [$from_date, $to_date])
+				->where(function($query) use($Request)
+					{
+						$query->where('to_company', $Request->other_id)
+							  ->orWhere('from_company', $Request->other_id);
+					})
+				->orderby('dates','asc')->get();
+				
+			
+		$cc = Account::whereBetween('dates', [$from_date, $to_date])
+				->where(function($query) use($Request)
+					{
+						$query->where('to_company', $Request->other_id)
+							  ->orWhere('from_company', $Request->other_id);
+					})
+				->sum('credit');
+		$dd = Account::whereBetween('dates', [$from_date, $to_date])
+				->where(function($query) use($Request)
+					{
+						$query->where('to_company', $Request->other_id)
+							  ->orWhere('from_company', $Request->other_id);
+					})
+				->sum('debit');
+
+				$nyllist = array();
+				$expense = array();
+		foreach ($data12 as $key => $value) {
+			if($value->v_type == 'credit'){
+				if($value->from_company != '' && $value->from_company != null){
+					$nyllist[$key]=$value;
+					$com = Company::withTrashed()->findorfail($value->from_company);
+					if($value->type == 'invoice'){
+						$invoice = Invoice::findorfail($value->invoice_list);
+						$nyllist[$key]['detailss'] = "By: ".$com->name." (".$invoice->invoice_no.")";
+					} else {
+						$nyllist[$key]['detailss'] = "By: ".$com->name." (".$value->description.")";
+					}
+					//$nyllist[$key]['detailss'] = "By: ".$com->name;
+					$nyllist[$key]['datess'] = date('d-m-Y',strtotime($value->dates));
+					// $nyllist[$key]['total_credit'] = $cc;
+					// 		$nyllist[$key]['total_debit'] = $dd;
+					// $nyllist[$key]['creditt'] = $value->credit;
+					// $nyllist[$key]['debitst'] = '';
+				}
+				if($value->from_transporter != '' && $value->from_transporter != null){
+					$com = Transporter::withTrashed()->findorfail($value->from_transporter);
+					$nyllist[$key]=$value;
+					if($value->type == 'invoice'){
+						$invoice = Invoice::findorfail($value->invoice_list);
+						$nyllist[$key]['detailss'] = "By: ".$com->name." (".$invoice->invoice_no.")";
+					} else {
+						$nyllist[$key]['detailss'] = "By: ".$com->name." (".$value->description.")";
+					}
+					//$nyllist[$key]['detailss'] = "By: ".$com->name;
+					$nyllist[$key]['datess'] = date('d-m-Y',strtotime($value->dates));
+					// $nyllist[$key]['total_credit'] = $cc;
+					// 		$nyllist[$key]['total_debit'] = $dd;
+					// $nyllist[$key]['creditt'] = $value->credit;
+					// $nyllist[$key]['debitst'] = '';
+				}
+				if($value->from_forwarder != '' && $value->from_forwarder != null){
+					$com = Forwarder::withTrashed()->findorfail($value->from_forwarder);
+					$nyllist[$key]=$value;
+					if($value->type == 'invoice'){
+						$invoice = Invoice::findorfail($value->invoice_list);
+						$nyllist[$key]['detailss'] = "By: ".$com->name." (".$invoice->invoice_no.")";
+					} else {
+						$nyllist[$key]['detailss'] = "By: ".$com->name." (".$value->description.")";
+					}
+					$nyllist[$key]['datess'] = date('d-m-Y',strtotime($value->dates));
+					// $nyllist[$key]['total_credit'] = $cc;
+					// 		$nyllist[$key]['total_debit'] = $dd;
+					// $nyllist[$key]['creditt'] = $value->credit;
+					// $nyllist[$key]['debitst'] = '';
+				}
+			}
+
+			if($value->v_type == 'debit'){
+				if($value->to_transporter != '' && $value->to_transporter != null){
+					$com = Transporter::withTrashed()->findorfail($value->to_transporter);
+					$nyllist[$key]=$value;
+					if($value->type == 'invoice'){
+						$invoice = Invoice::findorfail($value->invoice_list);
+						$nyllist[$key]['detailss'] = "To: ".$com->name." (".$invoice->invoice_no.")";
+					} else {
+						$nyllist[$key]['detailss'] = "To: ".$com->name." (".$value->description.")";
+					}
+					//$nyllist[$key]['detailss'] = "To: ".$com->name;
+					$nyllist[$key]['datess'] = date('d-m-Y',strtotime($value->dates));
+					// $nyllist[$key]['total_credit'] = $cc;
+					// 		$nyllist[$key]['total_debit'] = $dd;
+					// $nyllist[$key]['creditt'] = '';
+					// $nyllist[$key]['debitst'] = $value->debit;
+				}
+
+				if($value->to_forwarder != '' && $value->to_forwarder != null){
+					$com = Forwarder::withTrashed()->findorfail($value->to_forwarder);
+					$nyllist[$key]=$value;
+					if($value->type == 'invoice'){
+						$invoice = Invoice::findorfail($value->invoice_list);
+						$nyllist[$key]['detailss'] = "To: ".$com->name." (".$invoice->invoice_no.")";
+					} else {
+						$nyllist[$key]['detailss'] = "To: ".$com->name." (".$value->description.")";
+					}
+					//$nyllist[$key]['detailss'] = "To: ".$com->name;
+					$nyllist[$key]['datess'] = date('d-m-Y',strtotime($value->dates));
+					// $nyllist[$key]['total_credit'] = $cc;
+					// 		$nyllist[$key]['total_debit'] = $dd;
+					// $nyllist[$key]['creditt'] = '';
+					// $nyllist[$key]['debitst'] = $value->debit;
+				}
+			}
+
+			if($value->v_type == 'expense'){
+				$nyllist[$key]=$value;
+				if($value->type == 'invoice'){
+					$invoice = Invoice::findorfail($value->invoice_list);
+					$nyllist[$key]['detailss'] = "To: ".$value->description." (".$invoice->invoice_no.")";
+				} else {
+					$nyllist[$key]['detailss'] = "To: ".$value->description;
+				}
+				//$nyllist[$key]['detailss'] = "To: ".$value->description;
+				$nyllist[$key]['datess'] = date('d-m-Y',strtotime($value->dates));
+				// $nyllist[$key]['total_credit'] = $cc;
+				// $nyllist[$key]['total_debit'] = $dd;
+				// $nyllist[$key]['creditt'] = '';
+				// $nyllist[$key]['debitst'] = $value->debit;
+			}
+		}
+
+	  	}
+		  if($Request->role == 'forwarder') {
+			$total_credit1 = Account::where('to_forwarder',$Request->other_id)->whereBetween('dates', [$from_date, $to_date])->sum('credit');
+			$total_credit2 = Account::where('to_forwarder',$Request->other_id)->whereBetween('dates', [$from_date, $to_date])->sum('debit');
+			$total_credit = $total_credit1 + $total_credit2;
+
+		   	$total_debit1 = Account::where('from_forwarder',$Request->other_id)->whereBetween('dates', [$from_date, $to_date])->sum('debit');
+			$total_debit2 = Account::where('from_forwarder',$Request->other_id)->whereBetween('dates', [$from_date, $to_date])->sum('credit');
+		   $total_debit = $total_debit1 + $total_debit2;
+		   $nyllist = array();
+
+			$expense = array();
+			$data12 = Account::whereBetween('dates', [$from_date, $to_date])
+					->where(function($query) use($Request)
+						{
+							$query->where('to_forwarder', $Request->other_id)
+								  ->orWhere('from_forwarder', $Request->other_id);
+						})
+					->orderby('dates','asc')->get();
+					
+					
+			$cc = Account::whereBetween('dates', [$from_date, $to_date])
+					->where(function($query) use($Request)
+						{
+							$query->where('to_forwarder', $Request->other_id)
+								  ->orWhere('from_forwarder', $Request->other_id);
+						})
+					->sum('credit');
+			$dd = Account::whereBetween('dates', [$from_date, $to_date])
+					->where(function($query) use($Request)
+						{
+							$query->where('to_forwarder', $Request->other_id)
+								  ->orWhere('from_forwarder', $Request->other_id);
+						})
+					->sum('debit');
+
+			foreach ($data12 as $key => $value) {
+				if($value->v_type == 'credit'){
+					if($value->to_company != '' && $value->to_company != null){
+						$nyllist[$key]=$value;
+						$com = Company::withTrashed()->findorfail($value->to_company);
+						if($value->type == 'invoice'){
+							$invoice = Invoice::findorfail($value->invoice_list);
+							$nyllist[$key]['detailss'] = "To: ".$com->name." (".$invoice->invoice_no.")";
+						} else {
+							$nyllist[$key]['detailss'] = "To: ".$com->name." (".$value->description.")";
+						}
+						$nyllist[$key]['datess'] = date('d-m-Y',strtotime($value->dates));
+						// $nyllist[$key]['total_credit'] = $cc;
+						// 	$nyllist[$key]['total_debit'] = $dd;
+						// $nyllist[$key]['creditt'] = '';
+						// $nyllist[$key]['debitst'] = $value->credit;
+					}
+
+					if($value->to_transporter != '' && $value->to_transporter != null){
+						$com = Transporter::withTrashed()->findorfail($value->to_transporter);
+						$nyllist[$key]=$value;
+						if($value->type == 'invoice'){
+							$invoice = Invoice::findorfail($value->invoice_list);
+							$nyllist[$key]['detailss'] = "To: ".$com->name." (".$invoice->invoice_no.")";
+						} else {
+							$nyllist[$key]['detailss'] = "To: ".$com->name." (".$value->description.")";
+						}
+						//$nyllist[$key]['detailss'] = "To: ".$com->name;
+						$nyllist[$key]['datess'] = date('d-m-Y',strtotime($value->dates));
+						// $nyllist[$key]['total_credit'] = $cc;
+						// 	$nyllist[$key]['total_debit'] = $dd;
+						// $nyllist[$key]['creditt'] = '';
+						// $nyllist[$key]['debitst'] = $value->credit;
+					}
+
+					if($value->to_forwarder != '' && $value->to_forwarder != null){
+						$com = Forwarder::withTrashed()->findorfail($value->to_forwarder);
+						$nyllist[$key]=$value;
+						if($value->type == 'invoice'){
+							$invoice = Invoice::findorfail($value->invoice_list);
+							$nyllist[$key]['detailss'] = "To: ".$com->name." (".$invoice->invoice_no.")";
+						} else {
+							$nyllist[$key]['detailss'] = "To: ".$com->name." (".$value->description.")";
+						}
+						$nyllist[$key]['datess'] = date('d-m-Y',strtotime($value->dates));
+						// $nyllist[$key]['total_credit'] = $cc;
+						// 	$nyllist[$key]['total_debit'] = $dd;
+						// $nyllist[$key]['creditt'] = '';
+						// $nyllist[$key]['debitst'] = $value->credit;
+					}
+				}
+
+				if($value->v_type == 'debit'){
+					if($value->from_forwarder != '' && $value->from_forwarder != null){
+						$com = Forwarder::withTrashed()->findorfail($value->from_forwarder);
+						$nyllist[$key]=$value;
+						if($value->type == 'invoice'){
+							$invoice = Invoice::findorfail($value->invoice_list);
+							$nyllist[$key]['detailss'] = "By: ".$com->name." (".$invoice->invoice_no.")";
+						} else {
+							$nyllist[$key]['detailss'] = "By: ".$com->name." (".$value->description.")";
+						}
+						$nyllist[$key]['datess'] = date('d-m-Y',strtotime($value->dates));
+						// $nyllist[$key]['total_credit'] = $cc;
+						// 	$nyllist[$key]['total_debit'] = $dd;
+						// $nyllist[$key]['creditt'] = $value->debit;
+						// $nyllist[$key]['debitst'] = '';
+					}
+
+					if($value->from_company != '' && $value->from_company != null){
+						$com = Company::withTrashed()->findorfail($value->from_company);
+						$nyllist[$key]=$value;
+						if($value->type == 'invoice'){
+							$invoice = Invoice::findorfail($value->invoice_list);
+							$nyllist[$key]['detailss'] = "By: ".$com->name." (".$invoice->invoice_no.")";
+						} else {
+							$nyllist[$key]['detailss'] = "By: ".$com->name." (".$value->description.")";
+						}
+						$nyllist[$key]['datess'] = date('d-m-Y',strtotime($value->dates));
+						// $nyllist[$key]['total_credit'] = $cc;
+						// 	$nyllist[$key]['total_debit'] = $dd;
+						// $nyllist[$key]['creditt'] = $value->debit;
+						// $nyllist[$key]['debitst'] = '';
+					}
+				}
+			}
+
+	 	}
+
+}
+	return response()->json(['status' => 'success', 'message' => 'Account Data List Successfully.', 'data' => $nyllist,'total_credit'=> $cc,'total_debit'=> $dd, 'code' => '200'], 200);
+	}
+	catch (\Exception $e) {
+		//dd($e);
+			return response()->json(['status' => 'failed', 'message' => $e->getMessage(), 'data' => json_decode('{}'), 'code' => '500'], 200);
+		}
+
+	}
 
 }

@@ -207,7 +207,7 @@ Route::group(['namespace' => 'Admin','prefix' =>'admin' , 'middleware' => 'auth'
 	Route::get('/account','AccountController@Account')->name('accounts');
 	Route::post('/account','AccountController@AccountPDF')->name('accountspdf');
 	Route::post('/account/list','AccountController@AccountData')->name('accountdata');
-
+	Route::get('/notifications/list','NotificationController@List')->name('notificationlist');
 
 });
 
@@ -239,7 +239,7 @@ Route::group(['namespace' => 'Transporter','prefix' =>'transporter' , 'middlewar
 	Route::post('/shipment/change/truckstatus','ShipmentController@ChangeTruckStatus')->name('changetruckstatusadmins');
 	Route::post('/shipment/truck/delete','ShipmentController@DeleteTruckStatus')->name('deletetruckstatusadmin');
 	Route::get('/shipment/expense/add/{id}','ShipmentController@AddExpense')->name('addexpensebyadmin');
-	Route::post('/shipment/expense/save','ShipmentController@SaveExpense')->name('expensesave1');
+	Route::post('/shipment/expense/save','ShipmentController@SaveExpense')->name('expensesave2');
 	Route::get('/shipment/transporter/add/{id}','ShipmentController@AddTransporter')->name('shipmenttransporter');
 	Route::post('/shipment/transporter/save','ShipmentController@SaveTransporter')->name('savetransporters');
 	Route::post('/shipment/transporter/delete','ShipmentController@DeleteTransporter')->name('deleteshiptransporter');
@@ -271,6 +271,11 @@ Route::group(['namespace' => 'Transporter','prefix' =>'transporter' , 'middlewar
 	Route::get('/driver/edit/{id}','DriverController@Edit')->name('transporterdriveredit');
 	Route::post('/driver/update','DriverController@Update')->name('transporterdriverupdate');
 	Route::post('/driver/delete/{id}','DriverController@Delete')->name('transporterdriverdelete');
+
+	Route::get('/account','AccountController@Account')->name('transporteraccounts');
+	Route::post('/account','AccountController@AccountPDF')->name('transporteraccountspdf');
+	Route::post('/account/list','AccountController@AccountData')->name('transporteraccountdata');
+
 });
 Route::group(['namespace' => 'Warehouse','prefix' =>'warehouse' , 'middleware' => 'auth'], function () {
 

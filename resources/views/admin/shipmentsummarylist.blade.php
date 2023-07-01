@@ -102,7 +102,8 @@ Shipment Summary | TMS
                               <td  style="vertical-align: middle;">{{ $value->flag }}</td>
                       
                               <td  style="vertical-align: middle;">{{ ($value->created_at->format('d-m-Y h:i A')) }}</td>
-                              
+                              <td  style="vertical-align: middle;">{{ $value->timedifference }}</td>
+                             
                               </td>
                                 </tr>
                                  @endforeach
@@ -143,7 +144,7 @@ Shipment Summary | TMS
 <script type="text/javascript">
 $(document).ready(function() {
   $('#editable-sample').DataTable( {
-     "aaSorting": [[ 0, "desc" ]],
+     "aaSorting": [[ 2, "asc" ]],
       "bPaginate": false,
       "bLengthChange": true,
       "bFilter": false,

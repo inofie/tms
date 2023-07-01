@@ -559,7 +559,7 @@ class VoucherController extends Controller
 
 		//print_r($Request);
 
-		//dd($Request);
+		//dd($Request->all());
 		
 		$company = $Request->company_id;
 

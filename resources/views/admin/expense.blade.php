@@ -76,7 +76,7 @@
                             </header>
                             <div class="panel-body">
                                 <div class="form">
-                                    <form class="cmxform form-horizontal tasi-form" method="POST" action="{{ route('expensesave') }}">
+                                    <form class="cmxform form-horizontal tasi-form" method="post" action="{{ route('expensesave') }}">
                                       @csrf
 
                                         <div class="form-group ">
@@ -94,9 +94,7 @@
 
                                                 </select>
 
-                                                @error('company_id')
-                                                 <span class="text-danger"> {{ $message }} </span>
-                                                @enderror
+                                               
                                             </div>
                                         </div>
 
@@ -123,9 +121,7 @@
                                                   @endif
                                                 </select>
 
-                                                @error('type')
-                                                 <span class="text-danger"> {{ $message }} </span>
-                                                @enderror
+                                               
                                             </div>
                                         </div>
 
@@ -143,9 +139,7 @@
                                                     
 
                                                     @endif
-                                                    @error('date')
-                                                      <span class="text-danger"> {{ $message }} </span>
-                                                    @enderror
+                                                    
                                                 </div>
                                             </div>  
 

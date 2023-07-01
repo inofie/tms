@@ -392,12 +392,13 @@ class ShipmentController extends Controller
                             $notification->title = $title;
                             $notification->message = $message;
                             $notification->notification_type = '1';
+                            $notification_id = $notification->id;
                             $notification->save();
                             // if($to_user->notification_status=='1'){
                                 if($to_user->device_type == 'ios'){
-                                    GlobalHelper::sendFCMIOS($title, $message, $to_user->device_token,$notification->notification_type,$id);
+                                    GlobalHelper::sendFCMIOS($title, $message, $to_user->device_token,$notification->notification_type,$id,$notification_id);
                                 }else{
-                                    GlobalHelper::sendFCM($notification->title, $notification->message, $to_user->device_token,$notification->notification_type,$id);
+                                    GlobalHelper::sendFCM($notification->title, $notification->message, $to_user->device_token,$notification->notification_type,$id,$notification_id);
                                 }
                             // }
                         }
@@ -420,11 +421,12 @@ class ShipmentController extends Controller
                                 $notification->message = $message;
                                 $notification->notification_type = '1';
                                 $notification->save();
+                                $notification_id = $notification->id;
                                 // if($to_user->notification_status=='1'){
                                     if($to_user->device_type == 'ios'){
-                                        GlobalHelper::sendFCMIOS($title, $message, $to_user->device_token,$notification->notification_type,$id);
+                                        GlobalHelper::sendFCMIOS($title, $message, $to_user->device_token,$notification->notification_type,$id,$notification_id);
                                     }else{
-                                        GlobalHelper::sendFCM($notification->title, $notification->message, $to_user->device_token,$notification->notification_type,$id);
+                                        GlobalHelper::sendFCM($notification->title, $notification->message, $to_user->device_token,$notification->notification_type,$id,$notification_id);
                                     }
                                 // }
                             }
@@ -757,6 +759,7 @@ class ShipmentController extends Controller
                 $data->updated_by = Auth::id();
 
                 $data->save();
+                $ship = Shipment::where('shipment_no',$data->shipment_no)->first();
                 if($Request->status == "1"){
 
                     $ss = Shipment::where('shipment_no',$data->shipment_no)->first();
@@ -931,7 +934,7 @@ class ShipmentController extends Controller
                     $notification = new Notification();
                     $notification->notification_from = $from_user->id;
                     $notification->notification_to = $to_user->id;
-                    $notification->shipment_id = $data->id;
+                    $notification->shipment_id = $ship->id;
                     $id = $data->shipment_no;
                     $title= "Status changed";
                     // "New Shipment" .' '. $driver->shipment_no .' '. "Added";
@@ -940,10 +943,11 @@ class ShipmentController extends Controller
                     $notification->message = $message;
                     $notification->notification_type = '2';
                     $notification->save();
+                    $notification_id = $notification->id;
                     if($to_user->device_type == 'ios'){
-                        GlobalHelper::sendFCMIOS($title, $message, $to_user->device_token,$notification->notification_type,$id);
+                        GlobalHelper::sendFCMIOS($title, $message, $to_user->device_token,$notification->notification_type,$id,$notification_id);
                     }else{
-                        GlobalHelper::sendFCM($notification->title, $notification->message, $to_user->device_token,$notification->notification_type,$id);
+                        GlobalHelper::sendFCM($notification->title, $notification->message, $to_user->device_token,$notification->notification_type,$id,$notification_id);
                         }
                 }
 
@@ -957,7 +961,7 @@ class ShipmentController extends Controller
                 $notification = new Notification();
                 $notification->notification_from = $from_user1->id;
                 $notification->notification_to = $to_user1->id;
-                $notification->shipment_id = $data->id;
+                $notification->shipment_id = $ship->id;
                 $id = $data->shipment_no;
                 $title= "Status changed";
                 $message= $data["shipment_no"].' '."is".' '.$getStatus1['name'].' ' ."by".' '.$user1['username'];
@@ -965,10 +969,11 @@ class ShipmentController extends Controller
                 $notification->message = $message;
                 $notification->notification_type = '2';
                 $notification->save();
+                $notification_id = $notification->id;
                 if($to_user->device_type == 'ios'){
-                    GlobalHelper::sendFCMIOS($title, $message, $to_user->device_token,$notification->notification_type,$id);
+                    GlobalHelper::sendFCMIOS($title, $message, $to_user->device_token,$notification->notification_type,$id,$notification_id);
                 }else{
-                    GlobalHelper::sendFCM($notification->title, $notification->message, $to_user->device_token,$notification->notification_type,$id);
+                    GlobalHelper::sendFCM($notification->title, $notification->message, $to_user->device_token,$notification->notification_type,$id,$notification_id);
                     }
                 }
                 return redirect()->back()->with('success', ' Truck status change successfully');
@@ -1273,11 +1278,12 @@ class ShipmentController extends Controller
                                 $notification->message = $message;
                                 $notification->notification_type = '3';
                                 $notification->save();
+                                $notification_id = $notification->id;
                                 // if($to_user->notification_status=='1'){
                                     if($to_user->device_type == 'ios'){
-                                        GlobalHelper::sendFCMIOS($title, $message, $to_user->device_token,$notification->notification_type,$id);
+                                        GlobalHelper::sendFCMIOS($title, $message, $to_user->device_token,$notification->notification_type,$id,$notification_id);
                                     }else{
-                                        GlobalHelper::sendFCM($notification->title, $notification->message, $to_user->device_token,$notification->notification_type,$id);
+                                        GlobalHelper::sendFCM($notification->title, $notification->message, $to_user->device_token,$notification->notification_type,$id,$notification_id);
                                     }
                                 // }
                             }
@@ -1300,11 +1306,12 @@ class ShipmentController extends Controller
                                     $notification->message = $message;
                                     $notification->notification_type = '3';
                                     $notification->save();
+                                    $notification_id = $notification->id;
                                     // if($to_user->notification_status=='1'){
                                         if($to_user->device_type == 'ios'){
-                                            GlobalHelper::sendFCMIOS($title, $message, $to_user->device_token,$notification->notification_type,$id);
+                                            GlobalHelper::sendFCMIOS($title, $message, $to_user->device_token,$notification->notification_type,$id,$notification_id);
                                         }else{
-                                            GlobalHelper::sendFCM($notification->title, $notification->message, $to_user->device_token,$notification->notification_type,$id);
+                                            GlobalHelper::sendFCM($notification->title, $notification->message, $to_user->device_token,$notification->notification_type,$id,$notification_id);
                                         }
                                     // }
                                 }
@@ -1593,7 +1600,7 @@ class ShipmentController extends Controller
 
                 } 
                  if($data->transporter != "" && $data->transporter != null && $data->transporter != 'null'){
-                $tra = Transporter::findorfail($data->transporter);
+                $tra = Transporter::withTrashed()->findorfail($data->transporter);
                 $data->transporter_name = $tra->name;
                 } else {
                     $data->transporter_name ="";
@@ -1601,13 +1608,13 @@ class ShipmentController extends Controller
                 } 
 
                 if($data->trucktype != "" && $data->trucktype != null && $data->trucktype != 'null'){
-                $truck = Truck::findorfail($data->trucktype);
+                $truck = Truck::withTrashed()->findorfail($data->trucktype);
                 $data->trucktype_name = $truck->name;
                 } else {
                     $data->trucktype_name ="";
 
                 } 
-                $tras_list =Shipment_Transporter::where('shipment_no',$data2->shipment_no)->get();
+                $tras_list =Shipment_Transporter::withTrashed()->where('shipment_no',$data2->shipment_no)->get();
                 $t_list = "";
                 foreach ($tras_list as $key => $value) { 
                     $tt =Transporter::findorfail($value->transporter_id);
@@ -1620,7 +1627,7 @@ class ShipmentController extends Controller
                 }
                 $data->transporters_list =  $t_list;
 
-                $driver_list = Shipment_Driver::where('shipment_no',$data2->shipment_no)->where('transporter_id',$Request->other_id)->get();
+                $driver_list = Shipment_Driver::withTrashed()->where('shipment_no',$data2->shipment_no)->where('transporter_id',$Request->other_id)->get();
                 $d_list = "";
                 foreach ($tras_list as $key => $value) { 
                     $tt = Driver::findorfail($value->driver_id);
@@ -1636,7 +1643,7 @@ class ShipmentController extends Controller
 
                 if($Request->role== "transporter"){
 
-                     $driver_list =Shipment_Driver::where('shipment_no',$data2->shipment_no)->where('transporter_id',$Request->other_id)->get();
+                     $driver_list =Shipment_Driver::withTrashed()->where('shipment_no',$data2->shipment_no)->where('transporter_id',$Request->other_id)->get();
                 $d_list = "";
 
                 foreach ($driver_list as $key2 => $value2) { 
@@ -1654,7 +1661,7 @@ class ShipmentController extends Controller
 
                 } else {
 
-                    $driver_list =Shipment_Driver::where('shipment_no',$data2->shipment_no)->get();
+                    $driver_list =Shipment_Driver::withTrashed()->where('shipment_no',$data2->shipment_no)->get();
                     $d_list = "";
 
                     foreach ($driver_list as $key2 => $value2) { 
@@ -1672,7 +1679,7 @@ class ShipmentController extends Controller
 
                 }
 
-                $trucks = Shipment_Driver::where('shipment_no',$data->shipment_no)->get();
+                $trucks = Shipment_Driver::withTrashed()->where('shipment_no',$data->shipment_no)->get();
 
 				//dd($data['exports']);
 

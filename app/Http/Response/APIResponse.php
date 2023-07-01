@@ -500,6 +500,65 @@ class APIResponse
 
         return response()->json($response);
     }
+    public function successWithPaginationaccountlist(
+        // int $apiStatus,
+        string $apiMessage = '',
+       
+        LengthAwarePaginator $apiData = null,$total_credit = 0,$total_debit = 0
+    ): JsonResponse {
+        // $response['status'] = $apiStatus;
+         //dd($apiData->count());
+        // Check response data have pagination or not? Pagination response parameter sets
+        if ($apiData->count()) {
+            $apiData->appends(['perPage' => $apiData->perPage()]);
+
+            if ($apiData->currentPage() !== $apiData->lastPage()) {
+                $nextPage = $apiData->currentPage() + 1;
+            } else {
+                $nextPage = '';
+            }
+            $response['data']['list'] = GlobalHelper::removeNull($this->objectToArray($apiData->toArray()['data']));
+            $response['code'] = '200';
+            $response['data']['total'] = $apiData->total();
+            $response['data']['limit'] =(int) $apiData->perPage();
+            $response['data']['page'] =$apiData->currentPage();
+            $response['data']['pages'] = $apiData->lastPage();
+            if($total_credit >= 0) {
+                $response["total_credit"] = $total_credit;
+            }
+            if($total_debit >= 0) {
+                $response["total_debit"] = $total_debit;
+            }
+           
+            
+        } else {
+            $response['data']['list'] = [];
+            $response['code'] = '200';
+            $response['data']['total'] = $apiData->total();
+            $response['data']['limit'] =(int) $apiData->count();
+            $response['data']['page'] =$apiData->currentPage();
+            $response['data']['pages'] = $apiData->lastPage();
+            if($total_credit >= 0 ) {
+                $response["total_credit"] = $total_credit;
+            }
+            if($total_debit >= 0 ) {
+                $response["total_debit"] = $total_debit;
+            }
+        }
+
+        if ($apiMessage) {
+            $response['message'] = $apiMessage;
+        }
+        if ($total_credit) {
+            $response['total_credit'] = $total_credit;
+        }
+        if ($total_debit) {
+            $response['total_debit'] = $total_debit;
+        }
+
+        return response()->json($response);
+    }
+
     function objectToArray(&$object)
 {
     return json_decode(json_encode($object), true);

@@ -180,8 +180,9 @@ Route::post('forwarder/list',"API\ForwarderController@List");
 
 Route::post('forwarder/detail',"API\ForwarderController@Details");
 
-//notification
+Route::post('/account/list','API\ApiController@AccountData');
+
 Route::post('notificationList', 'API\NotificationController@notificationList');
-Route::get('/readAllNotifications', 'API\NotificationController@readAllNotifications');
+Route::post('/readAllNotifications', 'API\NotificationController@readAllNotifications');
 Route::post('/readSingleNotifications', 'API\NotificationController@readSingleNotifications');
 Route::post('testNotification',"API\ApiController@testNotification");
