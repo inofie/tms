@@ -186,3 +186,4 @@ Route::post('notificationList', 'API\NotificationController@notificationList');
 Route::post('/readAllNotifications', 'API\NotificationController@readAllNotifications');
 Route::post('/readSingleNotifications', 'API\NotificationController@readSingleNotifications');
 Route::post('testNotification',"API\ApiController@testNotification");
+Route::get('changestatus',"API\ApiController@changeStatus");
