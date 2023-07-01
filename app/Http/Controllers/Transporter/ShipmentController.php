@@ -23,7 +23,7 @@ use App\Account;
 use Hash;
 use PDF;
 use Carbon\Carbon;
-use Mail;
+use Mail,DateTime;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\WebNotificationController;
 use Config;
@@ -2715,40 +2715,32 @@ class ShipmentController extends Controller
     {
         $this->check();
 
+        $shipment_no = $Request->shipment_no;
         $data = Shipment_Summary::where('shipment_no', $Request->shipment_no)->get();
-        $datas = Shipment_Summary::where('shipment_no', $Request->shipment_no)->first();
-        $shipment_no = $datas->shipment_no;
         $count = $data->count();
-        $i=0;
-        //dd($data[1]['created_at']);
-       
-        $diff = $data[1]['created_at']->getTimestamp() - $data[0]['created_at']->getTimestamp();
-        $totalHour = (int)($diff / 60);
-        $totalMinutes = (int)($diff % 60);
-        $finalMinutes = $totalMinutes.''.'m';
-        $days = (int)($totalHour /24);
-        $otherHour = (int)($totalHour  % 24);
 
-        $finalDays = '';
-        $finalHours = '';
-
-        if ($days > 0) {
-        $finalDays = $days.''.'d';
-        }
-      
-        if($otherHour > 0) {
-        $finalHours = $otherHour.''.'h';
-        }
-        $finaldiff = $finalDays.' '.$finalHours.' '.$finalMinutes;
-        foreach ($data as $key => $value) {
-
-            $data[$key]=$value;
-            $data[$key]['timedifference']=$finaldiff;
-        
-        }
-        
-
-        return view('admin.shipmentsummarylist',compact('data','shipment_no','finaldiff'));
+        $old_time = "";
+        foreach($data as $key => $value) {
+            if($key > 0) {
+                $datetime1 = new DateTime($value->created_at);
+                $datetime2 = new DateTime($old_time);
+                $interval = $datetime1->diff($datetime2);
+               if($interval->format('%d') > 0){
+                $elapsed = $interval->format('%d')."d ".$interval->format('%h')."h ".$interval->format('%i')."m";
+               }
+               else{
+                if( $interval->format('%h') > 0){
+                    $elapsed = $interval->format('%h')."h ".$interval->format('%i')."m";
+                }
+                else{
+                    $elapsed = $interval->format('%i')."m";
+                }
+               }
+                $data[$key]['timedifference'] = $elapsed;
+            }
+            $old_time = $value->created_at;
+        }   
+        return view('admin.shipmentsummarylist',compact('data','shipment_no'));
 
     }
     public function ShipmentAllDetails(Request $Request)
@@ -2905,42 +2897,38 @@ class ShipmentController extends Controller
        
         // $datas = Shipment_Transporter::withTrashed()->whereNull('deleted_at')->where('transporter_id', $ff->id);
         $data2 = Shipment_Driver::withTrashed()->where('transporter_id', $ff->id)->whereNull('deleted_at')
-				->whereRaw('id IN (select MAX(id) FROM shipment_driver GROUP BY shipment_no)')->orderby('id','desc')->get();
-       
-        $ids = array();
-        foreach ($data2 as $key => $value){
-            if($value->status == "1" ){
-                array_push($ids,$value->id);
-            }
+				->whereRaw('id IN (select MAX(id) FROM shipment_driver GROUP BY shipment_no)');
+        if($month) {
+            $data2 = $data2->whereMonth('created_at', $month);
         }
-        $data2 = Shipment_Driver::withTrashed()->wherein('id', $ids)->whereNull('deleted_at')->orderby('id','desc')->get();
-        //dd($data2);
+        if($year) {
+            $data2 = $data2->whereYear('created_at', $year);
+        }
+         if($Request->status){
+            if($Request->status == 'Pending'){
+                $data2 = $data2->where('status',1);
+            }
+            if($Request->status == 'Ontheway'){
+                $data2 = $data2->whereIn('status',[2,4,5,6,7,8,9,10,11,12,13,14,15,18]);
+            }
+            if($Request->status == 'Delivered'){
+                $data2 = $data2->whereIn('status',[3,17]);
+            }
+		}
+        $data2 = $data2->orderby('id','desc')->orderby('shipment_no','desc')->get();
 		$data = array();
 		
         foreach ($data2 as $key => $value) {
             $data1 = Shipment::withTrashed()->where('shipment_no', $value->shipment_no)->first();
             $data[$key] = $data1;
-            $data3 = Shipment_Driver::withTrashed()->where('shipment_no', $value->shipment_no)->
-            where('transporter_id', $ff->id)->orderBy('id','desc')->first();
-            if($data3){
-                $data[$key]['status'] = $data3->status;
-               }
+            if($value->status){
+                $data[$key]['status'] = $value->status;
+            }
         }
             // dd($data[$key]);
-        $data = $data[$key]->whereYear('created_at', $Request->year)->whereMonth('created_at', $Request->month)->orderby('shipment_no','desc')->get();
+        // $data = $data[$key]->get();
         
-        // if($Request->status == "" && $Request->month == null && $Request->year == null){
-        //     if($Request->status == 'Pending'){
-		// 	$data = $data[$key]->where('status',1)->orderby('shipment_no','desc')->get();
-        //     }
-        //     if($Request->status == 'Ontheway'){
-        //         $data = $data[$key]->where('status',2)->orderby('shipment_no','desc')->get();
-        //     }
-        //     if($Request->status == 'Delivered'){
-        //         $data = $data[$key]->where('status',3)->orderby('shipment_no','desc')->get();
-        //     }
-           
-		// }
+       
        
 		
 		return view('transporter.shipmentfilter', compact('tt','ttt','tts','data','all_transporter','all_forwarder','search','transporter','forwarder','year','month','date'));
