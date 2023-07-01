@@ -14,6 +14,7 @@ class Kernel extends ConsoleKernel
      */
     protected $commands = [
         //
+        Commands\ChangeStatus::class,
     ];
 
     /**
@@ -24,8 +25,8 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        // $schedule->command('inspire')
-        //          ->hourly();
+        $ChangeStatus = 'cron:ChangeStatus.log';
+        $schedule->command('cron:ChangeStatus')->everyMinute()->appendOutputTo(storage_path('logs/'.$ChangeStatus));
     }
 
     /**

@@ -8289,12 +8289,12 @@ class ApiController extends Controller {
 						
      			$mail_service = env('MAIL_SERVICE');
 					if($mail_service == 'on'){
-				 Mail::send('yoginimail', $data2, function($message) use ($data2) {
-         			$message->to($data2['email'])->subject('REGARDING LR DETAILS - '.$data2['shipment_no']);
-         			$message->attach( public_path('/pdf').'/'.$data2['shipment_no'].'.pdf');
-      			});
+				//  Mail::send('yoginimail', $data2, function($message) use ($data2) {
+         		// 	$message->to($data2['email'])->subject('REGARDING LR DETAILS - '.$data2['shipment_no']);
+         		// 	$message->attach( public_path('/pdf').'/'.$data2['shipment_no'].'.pdf');
+      			// });
 				
-				//dispatch(new CertificateApproveJob($data2));
+				dispatch(new CertificateApproveJob($data2));
 				}
       			
 				return response()->json(['status' => 'success', 'message' => 'LR Send on Mail successfull.', 'data' => $path, 'code' => '200'], 200);
@@ -8325,12 +8325,12 @@ class ApiController extends Controller {
 				 $mail_service = env('MAIL_SERVICE');
 				if($mail_service == 'on'){  
 
-				 Mail::send('ssimail', $data2, function($message) use ($data2) {
-         			$message->to($data2['email'])->subject('REGARDING LR DETAILS - '.$data2['shipment_no']);
-         			$message->attach( public_path('/pdf').'/'.$data2['shipment_no'].'.pdf');
-      			});	
+				//  Mail::send('ssimail', $data2, function($message) use ($data2) {
+         		// 	$message->to($data2['email'])->subject('REGARDING LR DETAILS - '.$data2['shipment_no']);
+         		// 	$message->attach( public_path('/pdf').'/'.$data2['shipment_no'].'.pdf');
+      			// });	
 				
-			//	dispatch(new CertificateApproveJob($data2));
+				dispatch(new CertificateApproveJob($data2));
 				}
 					
 
@@ -8357,12 +8357,12 @@ class ApiController extends Controller {
 
 				if($mail_service == 'on'){   
 
-				 Mail::send('hanshmail', $data2, function($message) use ($data2) {
-         			$message->to($data2['email'])->subject('REGARDING LR DETAILS - '.$data2['shipment_no']);
-         			$message->attach( public_path('/pdf').'/'.$data2['shipment_no'].'.pdf');
-      			});
+				//  Mail::send('hanshmail', $data2, function($message) use ($data2) {
+         		// 	$message->to($data2['email'])->subject('REGARDING LR DETAILS - '.$data2['shipment_no']);
+         		// 	$message->attach( public_path('/pdf').'/'.$data2['shipment_no'].'.pdf');
+      			// });
 			
-				  //dispatch(new CertificateApproveJob($data2));
+				  dispatch(new CertificateApproveJob($data2));
       			}		
 				
 				return response()->json(['status' => 'success', 'message' => 'LR Send on Mail successfull.', 'data' => $path, 'code' => '200'], 200);
@@ -8383,12 +8383,12 @@ class ApiController extends Controller {
      			$mail_service = env('MAIL_SERVICE');
 				if($mail_service == 'on'){   
 
-				 Mail::send('bmfmail', $data2, function($message) use ($data2) {
-         			$message->to($data2['email'])->subject('REGARDING LR DETAILS - '.$data2['shipment_no']);
-         			$message->attach( public_path('/pdf').'/'.$data2['shipment_no'].'.pdf');
-      			});	
+				//  Mail::send('bmfmail', $data2, function($message) use ($data2) {
+         		// 	$message->to($data2['email'])->subject('REGARDING LR DETAILS - '.$data2['shipment_no']);
+         		// 	$message->attach( public_path('/pdf').'/'.$data2['shipment_no'].'.pdf');
+      			// });	
 			
-				 // dispatch(new CertificateApproveJob($data2));
+				  dispatch(new CertificateApproveJob($data2));
       			}				
 				
 				return response()->json(['status' => 'success', 'message' => 'LR Send on Mail successfull.', 'data' => $path, 'code' => '200'], 200);
