@@ -206,8 +206,8 @@ class GlobalHelper
         $fields = array();
         $fields['content_available'] = true;
         $fields['data'] = array();
-        $fields['data']['body'] = $message;
-        $fields['data']['title'] = $title;
+        $fields['notification']['body'] = $message;
+        $fields['notification']['title'] = $title;
         $fields['data']['notification_type'] = $notification_type;
         $fields['data']['id'] = $id;
         $fields['data']['notification_id'] = $notification_id;
@@ -215,12 +215,14 @@ class GlobalHelper
 
         $fields['data']['click_action'] = 'FLUTTER_NOTIFICATION_CLICK';
         $fields['data']['sound'] = 'default';
+
         // if(is_array($target)){
         // $fields['registration_ids'] = $target;
         // }else{
         $fields['to'] = (string)$target;
         // }
         $fields['priority'] = "high";
+        // dd($fields);
         $headers = array(
             'Content-Type:application/json',
             'Authorization:key=' . $server_key
@@ -239,7 +241,7 @@ class GlobalHelper
             die('FCM Send Error: ' . curl_error($ch));
         }
         curl_close($ch);
-        // dd($result);
+        //dd($result);
         return $result;
     }
 
@@ -257,7 +259,7 @@ class GlobalHelper
         $fields['notification']['title'] = $title;
         $fields['notification']['notification_type'] = $notification_type;
         $fields['notification']['id'] = $id;
-        $fields['data']['notification_id'] = $notification_id;
+        $fields['notification']['notification_id'] = $notification_id;
         $fields['notification']['data'] = $data;
         // if($image != ""){
         //   $fields['notification']['image'] = $image;

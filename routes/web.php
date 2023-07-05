@@ -237,7 +237,7 @@ Route::group(['namespace' => 'Transporter','prefix' =>'transporter' , 'middlewar
 	Route::get('/shipment/{id}','ShipmentController@Detail')->name('shipmentdetail');
 	Route::get('/shipment/trucks/list/{id}','ShipmentController@TruckList')->name('shipmenttrucklist');
 	Route::post('/shipment/change/truckstatus','ShipmentController@ChangeTruckStatus')->name('changetruckstatusadmins');
-	Route::post('/shipment/truck/delete','ShipmentController@DeleteTruckStatus')->name('deletetruckstatusadmin');
+	Route::post('/shipment/truck/delete','ShipmentController@DeleteTruckStatus')->name('deletetruckstatusadmins');
 	Route::get('/shipment/expense/add/{id}','ShipmentController@AddExpense')->name('addexpensebyadmin');
 	Route::post('/shipment/expense/save','ShipmentController@SaveExpense')->name('expensesave2');
 	Route::get('/shipment/transporter/add/{id}','ShipmentController@AddTransporter')->name('shipmenttransporter');

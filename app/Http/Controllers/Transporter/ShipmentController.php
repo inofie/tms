@@ -1050,6 +1050,9 @@ class ShipmentController extends Controller
         //dd($Request);
 
         $data =Shipment_Driver::findorfail($Request->id);
+        $transporter = Shipment_Transporter::where('driver_id',$data->driver_id)->where('shipment_no',$data->shipment_no)->first();
+        $transporter->delete();
+        
         $data->deleted_by = Auth::id();
         $data->save();
         $data->delete();
@@ -1162,7 +1165,7 @@ class ShipmentController extends Controller
         $data = Transporter::get();
 
 
-        $data1 = Shipment_Transporter::where('shipment_no', $ship->shipment_no)->get();
+        $data1 = Shipment_Transporter::withTrashed()->where('shipment_no', $ship->shipment_no)->whereNull('deleted_at')->get();
 
                 $shiptransporter = array();
 
@@ -1173,11 +1176,10 @@ class ShipmentController extends Controller
                     $tras = Transporter::withTrashed()->findorfail($value->transporter_id);
 
                     $shiptransporter[$key]->name= $tras->name;
-
+                    if($value->driver_id){
                     $driver = Driver::withTrashed()->findorfail($value->driver_id);
-
                     $shiptransporter[$key]->driver_name= $driver->name;
-
+                    }
                 }
 
 

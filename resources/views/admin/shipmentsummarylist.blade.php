@@ -7,14 +7,31 @@ Shipment Summary | TMS
 @endsection
 
 @section('css2')
-   <link rel="stylesheet" type="text/css" href="{{ asset('assets/bootstrap-fileupload/bootstrap-fileupload.css') }}" />
-  <link rel="stylesheet" type="text/css" href="{{ asset('assets/bootstrap-wysihtml5/bootstrap-wysihtml5.css') }}" />
-  <link rel="stylesheet" type="text/css" href="{{ asset('assets/bootstrap-datepicker/css/datepicker.css') }}" />
-  <link rel="stylesheet" type="text/css" href="{{ asset('assets/bootstrap-timepicker/compiled/timepicker.css') }}" />
-  <link rel="stylesheet" type="text/css" href="{{ asset('assets/bootstrap-colorpicker/css/colorpicker.css') }}" />
-  <link rel="stylesheet" type="text/css" href="{{ asset('assets/bootstrap-daterangepicker/daterangepicker-bs3.css') }}" />
-  <link rel="stylesheet" type="text/css" href="{{ asset('assets/bootstrap-datetimepicker/css/datetimepicker.css') }}" />
-  <link rel="stylesheet" type="text/css" href="{{ asset('assets/jquery-multi-select/css/multi-select.css') }}" />
+<link href="{{ asset('assets/advanced-datatable/media/css/demo_page.css')}}" rel="stylesheet" />
+
+<link href="{{ asset('assets/advanced-datatable/media/css/demo_table.css')}}" rel="stylesheet" />
+
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.20/css/jquery.dataTables.min.css">
+
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/buttons/1.6.1/css/buttons.dataTables.min.css">
+
+<script type="text/javascript" src="https://code.jquery.com/jquery-3.3.1.js"></script>
+
+<script type="text/javascript" src="https://cdn.datatables.net/1.10.20/js/jquery.dataTables.min.js"></script>
+
+<script type="text/javascript" src="https://cdn.datatables.net/buttons/1.6.1/js/dataTables.buttons.min.js"></script>
+
+<script type="text/javascript" src="https://cdn.datatables.net/buttons/1.6.1/js/buttons.flash.min.js"></script>
+
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
+
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script>
+
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
+
+<script type="text/javascript" src="https://cdn.datatables.net/buttons/1.6.1/js/buttons.html5.min.js"></script>
+
+<script type="text/javascript" src="https://cdn.datatables.net/buttons/1.6.1/js/buttons.print.min.js"></script>
 @endsection
 
 
@@ -88,8 +105,11 @@ Shipment Summary | TMS
                                     <!-- <th>Shipment No</th> -->
                                     <th>Description</th>
                                     <th>Title</th>
+                                    <th>Created Date</th>
                                     <th>Time</th>
                                     <th>Time Difference</th>
+                                    
+                                    
                                 </tr>
                                 </thead>
                                 <tbody>
@@ -100,9 +120,10 @@ Shipment Summary | TMS
                               
                               <td  style="vertical-align: middle;">{{ $value->description }}</td>
                               <td  style="vertical-align: middle;">{{ $value->flag }}</td>
-                      
+                              <td style="vertical-align: middle;">{{ $value->created_at }}</td>
                               <td  style="vertical-align: middle;">{{ ($value->created_at->format('d-m-Y h:i A')) }}</td>
                               <td  style="vertical-align: middle;">{{ $value->timedifference }}</td>
+                              
                              
                               </td>
                                 </tr>
@@ -127,24 +148,19 @@ Shipment Summary | TMS
 
 @endsection
 
-@section('js1')
-
-<script type="text/javascript" language="javascript" src="{{ asset('js/jquery.js')}}"></script>
-<script type="text/javascript" language="javascript" src="{{ asset('assets/advanced-datatable/media/js/jquery.js') }}"></script>
-
-@endsection
-
-@section('js3')
-
-<script type="text/javascript" language="javascript" src="{{ asset('assets/advanced-datatable/media/js/jquery.dataTables.js') }}"></script>
-<script type="text/javascript" src="{{ asset('assets/data-tables/DT_bootstrap.js') }}"></script>
-@endsection
 @section('js4')
 
 <script type="text/javascript">
 $(document).ready(function() {
   $('#editable-sample').DataTable( {
-     "aaSorting": [[ 2, "asc" ]],
+    "aaSorting": [[ 2, "asc" ]],
+       "columnDefs":
+           [
+               {
+                   "targets": [2],
+                   "visible": false, 
+               },
+           ],
       "bPaginate": false,
       "bLengthChange": true,
       "bFilter": false,

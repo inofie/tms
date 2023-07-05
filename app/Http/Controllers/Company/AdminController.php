@@ -8,6 +8,8 @@ use Illuminate\Support\Facades\DB;
 use App\User;
 use App\Company;
 use App\Driver;
+use App\Account;
+use App\Invoice;
 use App\Employee;
 use App\Forwarder;
 use App\Shipment;
@@ -52,19 +54,31 @@ class AdminController extends Controller
 
         //$this->check();
         //dd(Auth::user()->id);
-        $ff= Company::where('user_id',Auth::user()->id)->first();
-        $data['total'] = Shipment::where('company',$ff->id)->count();
+        // $ff= Company::where('user_id',Auth::user()->id)->first();
+        // $data['total'] = Shipment::where('company',$ff->id)->count();
 
-        $data['pending'] = Shipment::where('status',0)->where('company',$ff->id)->count();
+        // $data['pending'] = Shipment::where('status',0)->where('company',$ff->id)->count();
 
-        $data['delivery'] = Shipment::where('status',2)->where('company',$ff->id)->count();
+        // $data['delivery'] = Shipment::where('status',2)->where('company',$ff->id)->count();
 
-        // $dataremain =Shipment::where('paid',0)->where('forwarder',$ff->id)->sum('invoice_amount');
-        
-        // $data['remaining'] = (int)$dataremain;
+            $from = date('Y-04-01');
+                        
+            $to = date('Y-m-d');
+            $total_credit1 = Account::whereBetween('dates', [$from, $to])->sum('credit');
 
-        //dd($data);
+            $total_credit2 = Account::whereBetween('dates', [$from, $to])->sum('debit');
+
+            $total_credit = $total_credit1 + $total_credit2;
+
+            $data['pl_report'] = $total_credit;
+
+            $data['pending'] = Shipment::where('status',0)->whereNull('deleted_at')->count();
+
+            $data['ontheway'] = Shipment::where('status',1)->whereNull('deleted_at')->count();
+
+            $data['bill_status'] = Invoice::where('paid',0)->whereNull('deleted_at')->count();
     	
+
     	return view('company.dashboard',compact('data'));
     }
 

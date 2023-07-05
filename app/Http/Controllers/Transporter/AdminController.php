@@ -57,30 +57,40 @@ class AdminController extends Controller
         $total = Shipment_Driver::withTrashed()->where('transporter_id', $ff->id)->whereNull('deleted_at')
         ->whereRaw('id IN (select MAX(id) FROM shipment_driver GROUP BY shipment_no)')
         ->orderby('id','desc')->get();
+        //dd($total);
         $ids = array();
-        foreach ($total as $key => $value){
-            if($value->status == "1" || $value->status == "2" || $value->status == "3" || $value->status == "4" || $value->status == "5"
-            || $value->status == "6" || $value->status == "7" || $value->status == "8" || $value->status == "9" || $value->status == "10"
-            || $value->status == "11" || $value->status == "12" || $value->status == "13" || $value->status == "14" || $value->status == "15"
-            || $value->status == "17" || $value->status == "18" ){
-                array_push($ids,$value->id);
+        if(!$total->count()){
+            $data['total'] = 0;
+        }else{
+            foreach ($total as $key => $value){
+                if($value->status == "1" || $value->status == "2" || $value->status == "3" || $value->status == "4" || $value->status == "5"
+                || $value->status == "6" || $value->status == "7" || $value->status == "8" || $value->status == "9" || $value->status == "10"
+                || $value->status == "11" || $value->status == "12" || $value->status == "13" || $value->status == "14" || $value->status == "15"
+                || $value->status == "17" || $value->status == "18" ){
+                    array_push($ids,$value->id);
+                }
             }
+            $total = Shipment_Driver::withTrashed()->wherein('id', $ids)->whereNull('deleted_at')->orderby('id','desc')->get();
+            
+            foreach ($total as $key => $value) {
+                $total1[$key] = Shipment::withTrashed()->where('shipment_no', $value->shipment_no)->first();	
+               
+            }
+            $data['total'] = count($total1);
         }
-        $total = Shipment_Driver::withTrashed()->wherein('id', $ids)->whereNull('deleted_at')->orderby('id','desc')->get();
-       
-        foreach ($total as $key => $value) {
-            $total1[$key] = Shipment::withTrashed()->where('shipment_no', $value->shipment_no)->first();	
-              
-        }
-        $data['total'] = count($total1);
-       
+    
 
         //dd($data['total']);
 
         $pending = Shipment_Driver::withTrashed()->where('transporter_id', $ff->id)->whereNull('deleted_at')
         ->whereRaw('id IN (select MAX(id) FROM shipment_driver GROUP BY shipment_no)')
         ->orderby('id','desc')->get();
+        
         $ids = array();
+        $pending1 = array();
+        if(!$pending->count()){
+            $data['pending'] = 0;
+        }else{
         foreach ($pending as $key => $value){
             if($value->status == "1" ){
                 array_push($ids,$value->id);
@@ -93,11 +103,16 @@ class AdminController extends Controller
               
         }
         $data['pending'] = count($pending1);
-       
+        }
+
         $ontheway = Shipment_Driver::withTrashed()->where('transporter_id', $ff->id)->whereNull('deleted_at')
         ->whereRaw('id IN (select MAX(id) FROM shipment_driver GROUP BY shipment_no)')
         ->orderby('id','desc')->get();
         $ids = array();
+        $ontheway1 = array();
+        if(!$ontheway->count()){
+            $data['ontheway'] = 0;
+        }else{
         foreach ($ontheway as $key => $value){
             if($value->status == "2" || $value->status == "4" || $value->status == "5" || $value->status == "18"
             || $value->status == "6" || $value->status == "7" || $value->status == "8" || $value->status == "9" || $value->status == "10"
@@ -112,12 +127,16 @@ class AdminController extends Controller
               
         }
         $data['ontheway'] = count($ontheway1);
-
+    }
 
         $delivery = Shipment_Driver::withTrashed()->where('transporter_id', $ff->id)->whereNull('deleted_at')
 				->whereRaw('id IN (select MAX(id) FROM shipment_driver GROUP BY shipment_no)')
 				->orderby('id','desc')->get();
 				$ids = array();
+                $delivery1 = array();
+                if(!$delivery->count()){
+                    $data['delivery'] = 0;
+                }else{
 				foreach ($delivery as $key => $value){
 					if($value->status == "3" || $value->status == "17"){
 						array_push($ids,$value->id);
@@ -131,7 +150,8 @@ class AdminController extends Controller
 					  
                 }
         $data['delivery'] = count($delivery1);
-      
+    }
+    
     	
     	return view('transporter.dashboard',compact('data'));
     }

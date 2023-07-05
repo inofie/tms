@@ -87,7 +87,7 @@ All Forwarder List | TOT
                                   <td>{{ $value->email }}</td>
                                   <td>{{ $value->gst_no }}</td>
                                   <td class="center">
-                                  @if($value->status == 0 )Active  @else Blocked @endif
+                                  @if($value->status == 0 )Active  @else Deactivated @endif
                                   </td>
                                   <td class="edit_delete">
                                     <a href="{{ route('forwarderedit',['id'=>$value->myid]) }}" class="btn btn-primary btn-xs"><i class="fa fa-pencil"></i></a>

@@ -65,7 +65,7 @@ class NotificationController extends Controller
         try{
             $check = $this->checkversion($request->version);
 			if ($check == 1) {
-				return response()->json(['status' => 'failed', 'message' => 'Please Update This Application.', 'data' => json_decode('{}'), 'code' => '500'], 200);
+				return response()->json(['status' => 'failed', 'message' => 'Please update this application.', 'data' => json_decode('{}'), 'code' => '500'], 200);
 			}
             $rules = array(
                 'page' => 'numeric',
@@ -140,7 +140,7 @@ class NotificationController extends Controller
         
             $check = $this->checkversion($request->version);
 			if ($check == 1) {
-				return response()->json(['status' => 'failed', 'message' => 'Please Update This Application.', 'data' => json_decode('{}'), 'code' => '500'], 200);
+				return response()->json(['status' => 'failed', 'message' => 'Please update this application.', 'data' => json_decode('{}'), 'code' => '500'], 200);
 			}
             $notification = Notification::where('notification_to', $request['user_id'])->update(['read_status' => 'read']);
             
@@ -155,7 +155,7 @@ class NotificationController extends Controller
         try{
             $check = $this->checkversion($request->version);
 			if ($check == 1) {
-				return response()->json(['status' => 'failed', 'message' => 'Please Update This Application.', 'data' => json_decode('{}'), 'code' => '500'], 200);
+				return response()->json(['status' => 'failed', 'message' => 'Please update this application.', 'data' => json_decode('{}'), 'code' => '500'], 200);
 			}
             if(empty($data)){
                 return $this->APIResponse->respondNotFound(__('Data key not found or Empty'));
@@ -188,7 +188,7 @@ class NotificationController extends Controller
         try{
             $check = $this->checkversion($request->version);
 			if ($check == 1) {
-				return response()->json(['status' => 'failed', 'message' => 'Please Update This Application.', 'data' => json_decode('{}'), 'code' => '500'], 200);
+				return response()->json(['status' => 'failed', 'message' => 'Please update this application.', 'data' => json_decode('{}'), 'code' => '500'], 200);
 			}
             $checkNotification = Notification::where('notification_to', $request['user_id'])->get();
             if(count($checkNotification) != 0){
@@ -208,7 +208,7 @@ class NotificationController extends Controller
         try{
             $check = $this->checkversion($request->version);
 			if ($check == 1) {
-				return response()->json(['status' => 'failed', 'message' => 'Please Update This Application.', 'data' => json_decode('{}'), 'code' => '500'], 200);
+				return response()->json(['status' => 'failed', 'message' => 'Please update this application.', 'data' => json_decode('{}'), 'code' => '500'], 200);
 			}
             if(empty($data)){
                 return $this->APIResponse->respondNotFound(__('Data key not found or Empty'));

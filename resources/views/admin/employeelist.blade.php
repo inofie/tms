@@ -129,7 +129,7 @@ All Employee List | TOT
                                   <td>{{ $value->email }}</td>
                                   <td><img src="{{ asset('/uploads') }}/{{ $value->pan_card }}" width="50px" alt="" class="zoom"></td>
                                   <td class="center">
-                                  @if($value->status == 0 )Active  @else Blocked @endif
+                                  @if($value->status == 0 )Active  @else Deactivated @endif
                                   </td>
                                   <td class="edit_delete">
                                     <a href="{{ route('employeeedit',['id'=>$value->myid]) }}" class="btn btn-primary btn-xs"><i class="fa fa-pencil"></i></a>

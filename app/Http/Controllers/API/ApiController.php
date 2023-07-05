@@ -65,14 +65,14 @@ class ApiController extends Controller {
 
 			if ($check == 1) {
 
-				return response()->json(['status' => 'failed', 'message' => 'Please Update This Application.', 'data' => json_decode('{}'), 'code' => '420'], 200);
+				return response()->json(['status' => 'failed', 'message' => 'Please update this application.', 'data' => json_decode('{}'), 'code' => '420'], 200);
 			}
 
 			$user = User::withTrashed()->findorfail($Request->user_id);
 
 			if ($user->status == 1) {
 
-				return response()->json(['status' => 'failed', 'message' => 'Your Are Blocked By Admin. Please Contact To Administrator.', 'data' => json_decode('{}'), 'code' => '420'], 200);
+				return response()->json(['status' => 'failed', 'message' => 'Your account is deactivated. Please contact admin to active your account.', 'data' => json_decode('{}'), 'code' => '420'], 200);
 
 			}
 			if ($Request->role != 'driver'){
@@ -86,7 +86,7 @@ class ApiController extends Controller {
 
 				if ($driver->status == 1) {
 	
-					return response()->json(['status' => 'failed', 'message' => 'Your Are Blocked By Admin. Please Contact To Administrator.', 'data' => json_decode('{}'), 'code' => '420'], 200);
+					return response()->json(['status' => 'failed', 'message' => 'Your account is deactivated. Please contact admin to active your account.', 'data' => json_decode('{}'), 'code' => '420'], 200);
 	
 				}
 				$driver->device_token = $Request->device_token;
@@ -100,7 +100,7 @@ class ApiController extends Controller {
 
 				if ($comp->status == 1) {
 
-					return response()->json(['status' => 'failed', 'message' => 'Your Are Blocked By Admin. Please Contact To Administrator.', 'data' => json_decode('{}'), 'code' => '420'], 200);
+					return response()->json(['status' => 'failed', 'message' => 'Your account is deactivated. Please contact admin to active your account.', 'data' => json_decode('{}'), 'code' => '420'], 200);
 
 				}
 
@@ -110,7 +110,7 @@ class ApiController extends Controller {
 
 				if ($trans->status == 1) {
 
-					return response()->json(['status' => 'failed', 'message' => 'Your Are Blocked By Admin. Please Contact To Administrator.', 'data' => json_decode('{}'), 'code' => '420'], 200);
+					return response()->json(['status' => 'failed', 'message' => 'Your account is deactivated. Please contact admin to active your account.', 'data' => json_decode('{}'), 'code' => '420'], 200);
 
 				}
 
@@ -120,7 +120,7 @@ class ApiController extends Controller {
 
 				if ($forwa->status == 1) {
 
-					return response()->json(['status' => 'failed', 'message' => 'Your Are Blocked By Admin. Please Contact To Administrator.', 'data' => json_decode('{}'), 'code' => '420'], 200);
+					return response()->json(['status' => 'failed', 'message' => 'Your account is deactivated. Please contact admin to active your account.', 'data' => json_decode('{}'), 'code' => '420'], 200);
 
 				}
 
@@ -130,7 +130,7 @@ class ApiController extends Controller {
 
 				if ($emp->status == 1) {
 
-					return response()->json(['status' => 'failed', 'message' => 'Your Are Blocked By Admin. Please Contact To Administrator.', 'data' => json_decode('{}'), 'code' => '420'], 200);
+					return response()->json(['status' => 'failed', 'message' => 'Your account is deactivated. Please contact admin to active your account.', 'data' => json_decode('{}'), 'code' => '420'], 200);
 
 				}
 
@@ -138,7 +138,7 @@ class ApiController extends Controller {
 
 				if ($comp->status == 1) {
 
-					return response()->json(['status' => 'failed', 'message' => 'Your Are Blocked By Admin. Please Contact To Administrator.', 'data' => json_decode('{}'), 'code' => '420'], 200);
+					return response()->json(['status' => 'failed', 'message' => 'Your account is deactivated. Please contact admin to active your account.', 'data' => json_decode('{}'), 'code' => '420'], 200);
 
 				}
 
@@ -184,7 +184,7 @@ class ApiController extends Controller {
 
 			if ($check == 1) {
 
-				return response()->json(['status' => 'failed', 'message' => 'Please Update This Application.', 'data' => json_decode('{}'), 'code' => '500'], 200);
+				return response()->json(['status' => 'failed', 'message' => 'Please update this application.', 'data' => json_decode('{}'), 'code' => '500'], 200);
 			}
 
 			$ucount = User::where('username', $Request->username)->count();
@@ -197,7 +197,7 @@ class ApiController extends Controller {
 
 				if ($dcount == 0) {
 
-					return response()->json(['status' => 'failed', 'message' => 'Username Not Registered.', 'data' => json_decode('{}'), 'code' => '500'], 200);
+					return response()->json(['status' => 'failed', 'message' => 'Username not registered.', 'data' => json_decode('{}'), 'code' => '500'], 200);
 				}
 
 			}
@@ -208,7 +208,7 @@ class ApiController extends Controller {
 
 				if ($data->status == 1) {
 
-					return response()->json(['status' => 'failed', 'message' => 'This User Blocked By Admin ot Transporter, Please Contact to Administrator Or Transporter.', 'data' => json_decode('{}'), 'code' => '500'], 200);
+					return response()->json(['status' => 'failed', 'message' => 'Your account is deactivated. Please contact admin to active your account.', 'data' => json_decode('{}'), 'code' => '500'], 200);
 
 				}
 
@@ -227,7 +227,9 @@ class ApiController extends Controller {
 					if ($data->role == "admin" || $data->role == "company") {
 
 						$com = Company::where('user_id', $data->id)->first();
-
+						if ($comp->status == 1) {
+							return response()->json(['status' => 'failed', 'message' => 'Your account is deactivated. Please contact admin to active your account.', 'data' => json_decode('{}'), 'code' => '500'], 200);
+						}
 						$data['other_id'] = $com->id;
 
 					}
@@ -237,7 +239,9 @@ class ApiController extends Controller {
 						$emp = Employee::where('user_id', $data->id)->first();
 
 						$com = Company::where('user_id', $emp->company_id)->first();
-
+						if ($emp->status == 1) {
+							return response()->json(['status' => 'failed', 'message' => 'Your account is deactivated. Please contact admin to active your account.', 'data' => json_decode('{}'), 'code' => '500'], 200);
+						}
 						// $data['other_id']=$com->id;
 						$data['other_id'] = $emp->company_id;
 
@@ -246,7 +250,9 @@ class ApiController extends Controller {
 					if ($data->role == "transporter") {
 
 						$detail = Transporter::where("user_id", $data->id)->first();
-
+						if ($detail->status == 1) {
+							return response()->json(['status' => 'failed', 'message' => 'Your account is deactivated. Please contact admin to active your account.', 'data' => json_decode('{}'), 'code' => '500'], 200);
+						}
 						$data['other_id'] = $detail->id;
 
 					}
@@ -254,7 +260,9 @@ class ApiController extends Controller {
 					if ($data->role == "forwarder") {
 
 						$detail = Forwarder::where("user_id", $data->id)->first();
-
+						if ($detail->status == 1) {
+							return response()->json(['status' => 'failed', 'message' => 'Your account is deactivated. Please contact admin to active your account.', 'data' => json_decode('{}'), 'code' => '500'], 200);
+						}
 						$data['other_id'] = $detail->id;
 
 					}
@@ -281,7 +289,7 @@ class ApiController extends Controller {
 
 				if ($data2->status == 1) {
 
-					return response()->json(['status' => 'failed', 'message' => 'This User Blocked By Admin ot Transporter, Please Contact to Administrator Or Transporter.', 'data' => json_decode('{}'), 'code' => '500'], 200);
+					return response()->json(['status' => 'failed', 'message' => 'Your account is deactivated. Please contact admin to active your account.', 'data' => json_decode('{}'), 'code' => '500'], 200);
 
 				}
 
@@ -307,17 +315,17 @@ class ApiController extends Controller {
 
 					$mydata['role'] = 'driver';
 
-					return response()->json(['status' => 'success', 'message' => 'Login Successfully.', 'data' => $mydata, 'code' => '200'], 200);
+					return response()->json(['status' => 'success', 'message' => 'Login successfully.', 'data' => $mydata, 'code' => '200'], 200);
 
 				} else {
 
-					return response()->json(['status' => 'failed', 'message' => 'Username & Password Are Wrong.', 'data' => json_decode('{}'), 'code' => '500'], 200);
+					return response()->json(['status' => 'failed', 'message' => 'Username & password are wrong.', 'data' => json_decode('{}'), 'code' => '500'], 200);
 
 				}
 
 			}
 
-			return response()->json(['status' => 'failed', 'message' => 'Username & Password Are Wrong.', 'data' => json_decode('{}'), 'code' => '500'], 200);
+			return response()->json(['status' => 'failed', 'message' => 'Username & password are wrong.', 'data' => json_decode('{}'), 'code' => '500'], 200);
 		}
 		} catch (\Exception $e) {
 
@@ -394,7 +402,7 @@ class ApiController extends Controller {
 			//dd($all);
 			if ($check == 1) {
 
-				return response()->json(['status' => 'failed', 'message' => 'Please Update This Application.', 'data' => json_decode('{}'), 'code' => '500'], 200);
+				return response()->json(['status' => 'failed', 'message' => 'Please update this application.', 'data' => json_decode('{}'), 'code' => '500'], 200);
 			}
 			if (isset($all['page']) && ($all['offset'])) {
 				//pagination coding
@@ -430,7 +438,7 @@ class ApiController extends Controller {
 			}
 
 			else{
-				return response()->json(['status' => 'success', 'message' => 'This User Have Not Permission.', 'data' => json_decode('{}'), 'code' => '500'], 200);
+				return response()->json(['status' => 'success', 'message' => 'This user have not permission.', 'data' => json_decode('{}'), 'code' => '500'], 200);
 			}
 
 		} 
@@ -464,14 +472,14 @@ class ApiController extends Controller {
 
 			if ($check == 1) {
 
-				return response()->json(['status' => 'failed', 'message' => 'Please Update This Application.', 'data' => json_decode('{}'), 'code' => '500'], 200);
+				return response()->json(['status' => 'failed', 'message' => 'Please update this application.', 'data' => json_decode('{}'), 'code' => '500'], 200);
 			}
 
 			$data = User::where('username', $Request->username)->count();
 
 			if ($data > 0) {
 
-				return response()->json(['status' => 'failed', 'message' => 'This Username Already Registred In Our System.', 'data' => json_decode('{}'), 'code' => '500'], 200);
+				return response()->json(['status' => 'failed', 'message' => 'This username already registred in our system.', 'data' => json_decode('{}'), 'code' => '500'], 200);
 
 			} else {
 
@@ -509,7 +517,7 @@ class ApiController extends Controller {
 
 			} else {
 
-				return response()->json(['status' => 'failed', 'message' => 'Something Wrong.', 'data' => json_decode('{}'), 'code' => '500'], 200);
+				return response()->json(['status' => 'failed', 'message' => 'Something wrong.', 'data' => json_decode('{}'), 'code' => '500'], 200);
 
 			}
 		}
@@ -529,7 +537,7 @@ class ApiController extends Controller {
 
 			if ($check == 1) {
 
-				return response()->json(['status' => 'failed', 'message' => 'Please Update This Application.', 'data' => json_decode('{}'), 'code' => '500'], 200);
+				return response()->json(['status' => 'failed', 'message' => 'Please update this application.', 'data' => json_decode('{}'), 'code' => '500'], 200);
 			}
 
 			$data = Company::findorfail($Request->id);
@@ -553,14 +561,14 @@ class ApiController extends Controller {
 
 			if ($check == 1) {
 
-				return response()->json(['status' => 'failed', 'message' => 'Please Update This Application.', 'data' => json_decode('{}'), 'code' => '500'], 200);
+				return response()->json(['status' => 'failed', 'message' => 'Please update this application.', 'data' => json_decode('{}'), 'code' => '500'], 200);
 			}
 
 			$data = User::where('username', $Request->username)->where('id', '!=', $Request->user_id2)->count();
 
 			if ($data > 0) {
 
-				return response()->json(['status' => 'failed', 'message' => 'This Username Already Registred In Our System.', 'data' => json_decode('{}'), 'code' => '500'], 200);
+				return response()->json(['status' => 'failed', 'message' => 'This username already registred in our system.', 'data' => json_decode('{}'), 'code' => '500'], 200);
 
 			}
 
@@ -595,7 +603,7 @@ class ApiController extends Controller {
 
 			} else {
 
-				return response()->json(['status' => 'failed', 'message' => 'Something Wrong.', 'data' => json_decode('{}'), 'code' => '500'], 200);
+				return response()->json(['status' => 'failed', 'message' => 'Something wrong.', 'data' => json_decode('{}'), 'code' => '500'], 200);
 
 			}
 
@@ -615,14 +623,14 @@ class ApiController extends Controller {
 
 			if ($check == 1) {
 
-				return response()->json(['status' => 'failed', 'message' => 'Please Update This Application.', 'data' => json_decode('{}'), 'code' => '500'], 200);
+				return response()->json(['status' => 'failed', 'message' => 'Please update this application.', 'data' => json_decode('{}'), 'code' => '500'], 200);
 			}
 
 			$aa = Shipment::where('status', 0)->orwhere('status', 1)->where('company', $Request->id)->count();
 
 			if ($aa > 0) {
 
-				return response()->json(['status' => 'failed', 'message' => 'Unable To Delete.', 'data' => json_decode('{}'), 'code' => '500'], 200);
+				return response()->json(['status' => 'failed', 'message' => 'Unable to delete.', 'data' => json_decode('{}'), 'code' => '500'], 200);
 			}
 
 			$data = Company::findorfail($Request->id);
@@ -663,7 +671,7 @@ class ApiController extends Controller {
 
 			} else {
 
-				return response()->json(['status' => 'failed', 'message' => 'Something Wrong.', 'data' => json_decode('{}'), 'code' => '500'], 200);
+				return response()->json(['status' => 'failed', 'message' => 'Something wrong.', 'data' => json_decode('{}'), 'code' => '500'], 200);
 
 			}
 
@@ -683,7 +691,7 @@ class ApiController extends Controller {
 
 			if ($check == 1) {
 
-				return response()->json(['status' => 'failed', 'message' => 'Please Update This Application.', 'data' => json_decode('{}'), 'code' => '500'], 200);
+				return response()->json(['status' => 'failed', 'message' => 'Please update this application.', 'data' => json_decode('{}'), 'code' => '500'], 200);
 			}
 			if (isset($all['page']) && ($all['offset'])) {
 				//pagination coding
@@ -747,14 +755,14 @@ class ApiController extends Controller {
 
 			if ($check == 1) {
 
-				return response()->json(['status' => 'failed', 'message' => 'Please Update This Application.', 'data' => json_decode('{}'), 'code' => '500'], 200);
+				return response()->json(['status' => 'failed', 'message' => 'Please update this application.', 'data' => json_decode('{}'), 'code' => '500'], 200);
 			}
 
 			$data = User::where('username', $Request->username)->count();
 
 			if ($data > 0) {
 
-				return response()->json(['status' => 'failed', 'message' => 'This Username Already Registred In Our System.', 'data' => json_decode('{}'), 'code' => '500'], 200);
+				return response()->json(['status' => 'failed', 'message' => 'This username already registred in our system.', 'data' => json_decode('{}'), 'code' => '500'], 200);
 
 			} else {
 
@@ -795,7 +803,7 @@ class ApiController extends Controller {
 
 			} else {
 
-				return response()->json(['status' => 'failed', 'message' => 'Something Wrong.', 'data' => json_decode('{}'), 'code' => '500'], 200);
+				return response()->json(['status' => 'failed', 'message' => 'Something wrong.', 'data' => json_decode('{}'), 'code' => '500'], 200);
 
 			}
 		}
@@ -814,7 +822,7 @@ class ApiController extends Controller {
 
 			if ($check == 1) {
 
-				return response()->json(['status' => 'failed', 'message' => 'Please Update This Application.', 'data' => json_decode('{}'), 'code' => '500'], 200);
+				return response()->json(['status' => 'failed', 'message' => 'Please update this application.', 'data' => json_decode('{}'), 'code' => '500'], 200);
 			}
 
 			$data = Forwarder::findorfail($Request->id);
@@ -839,7 +847,7 @@ class ApiController extends Controller {
 
 			if ($check == 1) {
 
-				return response()->json(['status' => 'failed', 'message' => 'Please Update This Application.', 'data' => json_decode('{}'), 'code' => '500'], 200);
+				return response()->json(['status' => 'failed', 'message' => 'Please update this application.', 'data' => json_decode('{}'), 'code' => '500'], 200);
 			}
 
 			$comapny = Forwarder::findorfail($Request->id);
@@ -852,7 +860,7 @@ class ApiController extends Controller {
 
 				if ($data > 0) {
 
-					return redirect()->back()->withInput()->with('error', 'This Username Allready Registred in Our System.');
+					return redirect()->back()->withInput()->with('error', 'This username already registred in our system.');
 				}
 
 				$user = User::withTrashed()->findorfail($comapny->user_id);
@@ -899,7 +907,7 @@ class ApiController extends Controller {
 
 			} else {
 
-				return response()->json(['status' => 'failed', 'message' => 'Something Wrong.', 'data' => json_decode('{}'), 'code' => '500'], 200);
+				return response()->json(['status' => 'failed', 'message' => 'Something wrong.', 'data' => json_decode('{}'), 'code' => '500'], 200);
 
 			}
 
@@ -919,14 +927,14 @@ class ApiController extends Controller {
 
 			if ($check == 1) {
 
-				return response()->json(['status' => 'failed', 'message' => 'Please Update This Application.', 'data' => json_decode('{}'), 'code' => '500'], 200);
+				return response()->json(['status' => 'failed', 'message' => 'Please update this application.', 'data' => json_decode('{}'), 'code' => '500'], 200);
 			}
 
 			$aa = Shipment::where('status', 0)->orwhere('status', 1)->where('forwarder', $Request->id)->count();
 
 			if ($aa > 0) {
 
-				return response()->json(['status' => 'failed', 'message' => 'Unable To Delete.', 'data' => json_decode('{}'), 'code' => '500'], 200);
+				return response()->json(['status' => 'failed', 'message' => 'Unable to delete.', 'data' => json_decode('{}'), 'code' => '500'], 200);
 			}
 
 			$data = Forwarder::findorfail($Request->id);
@@ -942,7 +950,7 @@ class ApiController extends Controller {
 
 			} else {
 
-				return response()->json(['status' => 'failed', 'message' => 'Something Wrong.', 'data' => json_decode('{}'), 'code' => '500'], 200);
+				return response()->json(['status' => 'failed', 'message' => 'Something wrong.', 'data' => json_decode('{}'), 'code' => '500'], 200);
 
 			}
 
@@ -961,7 +969,7 @@ class ApiController extends Controller {
 			$all = $Request->all();
 			if ($check == 1) {
 
-				return response()->json(['status' => 'failed', 'message' => 'Please Update This Application.', 'data' => json_decode('{}'), 'code' => '500'], 200);
+				return response()->json(['status' => 'failed', 'message' => 'Please update this application.', 'data' => json_decode('{}'), 'code' => '500'], 200);
 			}
 			if (isset($all['page']) && ($all['offset'])) {
 				//pagination coding
@@ -1011,7 +1019,7 @@ class ApiController extends Controller {
 
 			if ($check == 1) {
 
-				return response()->json(['status' => 'failed', 'message' => 'Please Update This Application.', 'data' => json_decode('{}'), 'code' => '500'], 200);
+				return response()->json(['status' => 'failed', 'message' => 'Please update this application.', 'data' => json_decode('{}'), 'code' => '500'], 200);
 			}
 
 			$data = Truck::findorfail($Request->id);
@@ -1034,7 +1042,7 @@ class ApiController extends Controller {
 			$all = $Request->all();
 			if ($check == 1) {
 
-				return response()->json(['status' => 'failed', 'message' => 'Please Update This Application.', 'data' => json_decode('{}'), 'code' => '500'], 200);
+				return response()->json(['status' => 'failed', 'message' => 'Please update this application.', 'data' => json_decode('{}'), 'code' => '500'], 200);
 			}
 			if (isset($all['page']) && ($all['offset'])) {
 				//pagination coding
@@ -1084,7 +1092,7 @@ class ApiController extends Controller {
 
 			if ($check == 1) {
 
-				return response()->json(['status' => 'failed', 'message' => 'Please Update This Application.', 'data' => json_decode('{}'), 'code' => '500'], 200);
+				return response()->json(['status' => 'failed', 'message' => 'Please update this application.', 'data' => json_decode('{}'), 'code' => '500'], 200);
 			}
 
 			$data = Transporter::findorfail($Request->id);
@@ -1122,14 +1130,14 @@ class ApiController extends Controller {
 
 			if ($check == 1) {
 
-				return response()->json(['status' => 'failed', 'message' => 'Please Update This Application.', 'data' => json_decode('{}'), 'code' => '500'], 200);
+				return response()->json(['status' => 'failed', 'message' => 'Please update this application.', 'data' => json_decode('{}'), 'code' => '500'], 200);
 			}
 
 			$data = User::where('username', $Request->username)->count();
 
 			if ($data > 0) {
 
-				return response()->json(['status' => 'failed', 'message' => 'This Username Already Registred In Our System.', 'data' => json_decode('{}'), 'code' => '500'], 200);
+				return response()->json(['status' => 'failed', 'message' => 'This username already registred in our system.', 'data' => json_decode('{}'), 'code' => '500'], 200);
 
 			} else {
 
@@ -1227,7 +1235,7 @@ class ApiController extends Controller {
 
 			} else {
 
-				return response()->json(['status' => 'failed', 'message' => 'Something Wrong.', 'data' => json_decode('{}'), 'code' => '500'], 200);
+				return response()->json(['status' => 'failed', 'message' => 'Something wrong.', 'data' => json_decode('{}'), 'code' => '500'], 200);
 
 			}
 		}
@@ -1247,7 +1255,7 @@ class ApiController extends Controller {
 
 			if ($check == 1) {
 
-				return response()->json(['status' => 'failed', 'message' => 'Please Update This Application.', 'data' => json_decode('{}'), 'code' => '500'], 200);
+				return response()->json(['status' => 'failed', 'message' => 'Please update this application.', 'data' => json_decode('{}'), 'code' => '500'], 200);
 			}
 
 			$comapny = Transporter::findorfail($Request->id);
@@ -1305,7 +1313,7 @@ class ApiController extends Controller {
 
 			} else {
 
-				return response()->json(['status' => 'failed', 'message' => 'Something Wrong.', 'data' => json_decode('{}'), 'code' => '500'], 200);
+				return response()->json(['status' => 'failed', 'message' => 'Something wrong.', 'data' => json_decode('{}'), 'code' => '500'], 200);
 
 			}
 
@@ -1325,7 +1333,7 @@ class ApiController extends Controller {
 
 			if ($check == 1) {
 
-				return response()->json(['status' => 'failed', 'message' => 'Please Update This Application.', 'data' => json_decode('{}'), 'code' => '500'], 200);
+				return response()->json(['status' => 'failed', 'message' => 'Please update this application.', 'data' => json_decode('{}'), 'code' => '500'], 200);
 			}
 
 			$data = Transporter::findorfail($Request->id);
@@ -1357,7 +1365,7 @@ class ApiController extends Controller {
 
 			} else {
 
-				return response()->json(['status' => 'failed', 'message' => 'Something Wrong.', 'data' => json_decode('{}'), 'code' => '500'], 200);
+				return response()->json(['status' => 'failed', 'message' => 'Something wrong.', 'data' => json_decode('{}'), 'code' => '500'], 200);
 
 			}
 
@@ -1377,7 +1385,7 @@ class ApiController extends Controller {
 			$all = $Request->all();
 			if ($check == 1) {
 
-				return response()->json(['status' => 'failed', 'message' => 'Please Update This Application.', 'data' => json_decode('{}'), 'code' => '500'], 200);
+				return response()->json(['status' => 'failed', 'message' => 'Please update this application.', 'data' => json_decode('{}'), 'code' => '500'], 200);
 			}
 			if (isset($all['page']) && ($all['offset'])) {
 				//pagination coding
@@ -1443,7 +1451,7 @@ class ApiController extends Controller {
 
 			if ($check == 1) {
 
-				return response()->json(['status' => 'failed', 'message' => 'Please Update This Application.', 'data' => json_decode('{}'), 'code' => '500'], 200);
+				return response()->json(['status' => 'failed', 'message' => 'Please update this application.', 'data' => json_decode('{}'), 'code' => '500'], 200);
 			}
 
 			$data = Warehouse::findorfail($Request->id);
@@ -1483,13 +1491,13 @@ class ApiController extends Controller {
 
 			if ($check == 1) {
 
-				return response()->json(['status' => 'failed', 'message' => 'Please Update This Application.', 'data' => json_decode('{}'), 'code' => '500'], 200);
+				return response()->json(['status' => 'failed', 'message' => 'Please update this application.', 'data' => json_decode('{}'), 'code' => '500'], 200);
 			}
 			$data = User::where('username', $Request->username)->count();
 
 			if ($data > 0) {
 
-				return response()->json(['status' => 'failed', 'message' => 'This Username Already Registred In Our System.', 'data' => json_decode('{}'), 'code' => '500'], 200);
+				return response()->json(['status' => 'failed', 'message' => 'This username already registred in our system.', 'data' => json_decode('{}'), 'code' => '500'], 200);
 
 			} else {
 
@@ -1540,7 +1548,7 @@ class ApiController extends Controller {
 
 			} else {
 
-				return response()->json(['status' => 'failed', 'message' => 'Something Wrong.', 'data' => json_decode('{}'), 'code' => '500'], 200);
+				return response()->json(['status' => 'failed', 'message' => 'Something wrong.', 'data' => json_decode('{}'), 'code' => '500'], 200);
 
 			}
 		}
@@ -1560,7 +1568,7 @@ class ApiController extends Controller {
 
 			if ($check == 1) {
 
-				return response()->json(['status' => 'failed', 'message' => 'Please Update This Application.', 'data' => json_decode('{}'), 'code' => '500'], 200);
+				return response()->json(['status' => 'failed', 'message' => 'Please update this application.', 'data' => json_decode('{}'), 'code' => '500'], 200);
 			}
 
 			$comapny = Warehouse::findorfail($Request->id);
@@ -1589,11 +1597,11 @@ class ApiController extends Controller {
 
 			if ($comapny->save()) {
 
-				return response()->json(['status' => 'success', 'message' => 'Warehouse Upadated Successfully.', 'data' => $comapny, 'code' => '200'], 200);
+				return response()->json(['status' => 'success', 'message' => 'Warehouse Updated Successfully.', 'data' => $comapny, 'code' => '200'], 200);
 
 			} else {
 
-				return response()->json(['status' => 'failed', 'message' => 'Something Wrong.', 'data' => json_decode('{}'), 'code' => '500'], 200);
+				return response()->json(['status' => 'failed', 'message' => 'Something wrong.', 'data' => json_decode('{}'), 'code' => '500'], 200);
 
 			}
 
@@ -1613,7 +1621,7 @@ class ApiController extends Controller {
 
 			if ($check == 1) {
 
-				return response()->json(['status' => 'failed', 'message' => 'Please Update This Application.', 'data' => json_decode('{}'), 'code' => '500'], 200);
+				return response()->json(['status' => 'failed', 'message' => 'Please update this application.', 'data' => json_decode('{}'), 'code' => '500'], 200);
 			}
 
 			$data = Warehouse::findorfail($Request->id);
@@ -1626,7 +1634,7 @@ class ApiController extends Controller {
 
 			} else {
 
-				return response()->json(['status' => 'failed', 'message' => 'Something Wrong.', 'data' => json_decode('{}'), 'code' => '500'], 200);
+				return response()->json(['status' => 'failed', 'message' => 'Something wrong.', 'data' => json_decode('{}'), 'code' => '500'], 200);
 
 			}
 
@@ -1644,10 +1652,10 @@ class ApiController extends Controller {
 
 			$check = $this->checkversion($Request->version);
 			$all = $Request->all();
-			// if ($check == 1) {
+			if ($check == 1) {
 
-			// 	return response()->json(['status' => 'failed', 'message' => 'Please Update This Application.', 'data' => json_decode('{}'), 'code' => '500'], 200);
-			// }
+				return response()->json(['status' => 'failed', 'message' => 'Please update this application.', 'data' => json_decode('{}'), 'code' => '500'], 200);
+			}
 			if (isset($all['page']) && ($all['offset'])) {
 				//pagination coding
 				$page = 1;
@@ -1686,7 +1694,7 @@ class ApiController extends Controller {
 				}
 			
 			  else {
-					return $this->APIResponse->respondNotFound(__('No Record Found'));
+					return $this->APIResponse->respondNotFound(__('No record found'));
 				}
 
 			}
@@ -1735,7 +1743,7 @@ class ApiController extends Controller {
 
 			if ($check == 1) {
 
-				return response()->json(['status' => 'failed', 'message' => 'Please Update This Application.', 'data' => json_decode('{}'), 'code' => '500'], 200);
+				return response()->json(['status' => 'failed', 'message' => 'Please update this application.', 'data' => json_decode('{}'), 'code' => '500'], 200);
 			}
 
 			$data = Driver::withTrashed()->findorfail($Request->id);
@@ -1759,7 +1767,7 @@ class ApiController extends Controller {
 
 			if ($check == 1) {
 
-				return response()->json(['status' => 'failed', 'message' => 'Please Update This Application.', 'data' => json_decode('{}'), 'code' => '500'], 200);
+				return response()->json(['status' => 'failed', 'message' => 'Please update this application.', 'data' => json_decode('{}'), 'code' => '500'], 200);
 			}
 
 			$comapny = new Driver();
@@ -1808,7 +1816,7 @@ class ApiController extends Controller {
 
 			} else {
 
-				return response()->json(['status' => 'failed', 'message' => 'Something Wrong.', 'data' => json_decode('{}'), 'code' => '500'], 200);
+				return response()->json(['status' => 'failed', 'message' => 'Something wrong.', 'data' => json_decode('{}'), 'code' => '500'], 200);
 
 			}
 
@@ -1827,7 +1835,7 @@ class ApiController extends Controller {
 
 			if ($check == 1) {
 
-				return response()->json(['status' => 'failed', 'message' => 'Please Update This Application.', 'data' => json_decode('{}'), 'code' => '500'], 200);
+				return response()->json(['status' => 'failed', 'message' => 'Please update this application.', 'data' => json_decode('{}'), 'code' => '500'], 200);
 			}
 
 			$comapny = Driver::findorfail($Request->id);
@@ -1879,7 +1887,7 @@ class ApiController extends Controller {
 
 			} else {
 
-				return response()->json(['status' => 'failed', 'message' => 'Something Wrong.', 'data' => json_decode('{}'), 'code' => '500'], 200);
+				return response()->json(['status' => 'failed', 'message' => 'Something wrong.', 'data' => json_decode('{}'), 'code' => '500'], 200);
 
 			}
 
@@ -1898,7 +1906,7 @@ class ApiController extends Controller {
 
 			if ($check == 1) {
 
-				return response()->json(['status' => 'failed', 'message' => 'Please Update This Application.', 'data' => json_decode('{}'), 'code' => '500'], 200);
+				return response()->json(['status' => 'failed', 'message' => 'Please update this application.', 'data' => json_decode('{}'), 'code' => '500'], 200);
 			}
 
 			$data = Driver::findorfail($Request->id);
@@ -1911,7 +1919,7 @@ class ApiController extends Controller {
 
 			} else {
 
-				return response()->json(['status' => 'failed', 'message' => 'Something Wrong.', 'data' => json_decode('{}'), 'code' => '500'], 200);
+				return response()->json(['status' => 'failed', 'message' => 'Something wrong.', 'data' => json_decode('{}'), 'code' => '500'], 200);
 
 			}
 
@@ -1931,7 +1939,7 @@ class ApiController extends Controller {
 			$all = $Request->all();
 			if ($check == 1) {
 
-				return response()->json(['status' => 'failed', 'message' => 'Please Update This Application.', 'data' => json_decode('{}'), 'code' => '500'], 200);
+				return response()->json(['status' => 'failed', 'message' => 'Please update this application.', 'data' => json_decode('{}'), 'code' => '500'], 200);
 			}
 			if (isset($all['page']) && ($all['offset'])) {
 				//pagination coding
@@ -1996,7 +2004,7 @@ class ApiController extends Controller {
 
 			if ($check == 1) {
 
-				return response()->json(['status' => 'failed', 'message' => 'Please Update This Application.', 'data' => json_decode('{}'), 'code' => '500'], 200);
+				return response()->json(['status' => 'failed', 'message' => 'Please update this application.', 'data' => json_decode('{}'), 'code' => '500'], 200);
 			}
 
 			$data = Employee::findorfail($Request->id);
@@ -2041,14 +2049,14 @@ class ApiController extends Controller {
 
 			if ($check == 1) {
 
-				return response()->json(['status' => 'failed', 'message' => 'Please Update This Application.', 'data' => json_decode('{}'), 'code' => '500'], 200);
+				return response()->json(['status' => 'failed', 'message' => 'Please update this application.', 'data' => json_decode('{}'), 'code' => '500'], 200);
 			}
 
 			$data = User::where('username', $Request->username)->count();
 
 			if ($data > 0) {
 
-				return response()->json(['status' => 'failed', 'message' => 'This Username Already Registred In Our System.', 'data' => json_decode('{}'), 'code' => '500'], 200);
+				return response()->json(['status' => 'failed', 'message' => 'This username already registred in our system.', 'data' => json_decode('{}'), 'code' => '500'], 200);
 
 			} else {
 
@@ -2094,7 +2102,7 @@ class ApiController extends Controller {
 
 			} else {
 
-				return response()->json(['status' => 'failed', 'message' => 'Something Wrong.', 'data' => json_decode('{}'), 'code' => '500'], 200);
+				return response()->json(['status' => 'failed', 'message' => 'Something wrong.', 'data' => json_decode('{}'), 'code' => '500'], 200);
 
 			}
 		}
@@ -2114,7 +2122,7 @@ class ApiController extends Controller {
 
 			if ($check == 1) {
 
-				return response()->json(['status' => 'failed', 'message' => 'Please Update This Application.', 'data' => json_decode('{}'), 'code' => '500'], 200);
+				return response()->json(['status' => 'failed', 'message' => 'Please update this application.', 'data' => json_decode('{}'), 'code' => '500'], 200);
 			}
 
 			$comapny = Employee::findorfail($Request->id);
@@ -2153,11 +2161,11 @@ class ApiController extends Controller {
 
 			if ($comapny->save()) {
 
-				return response()->json(['status' => 'success', 'message' => 'Driver Updated Successfully.', 'data' => $comapny, 'code' => '200'], 200);
+				return response()->json(['status' => 'success', 'message' => 'Employee Updated Successfully.', 'data' => $comapny, 'code' => '200'], 200);
 
 			} else {
 
-				return response()->json(['status' => 'failed', 'message' => 'Something Wrong.', 'data' => json_decode('{}'), 'code' => '500'], 200);
+				return response()->json(['status' => 'failed', 'message' => 'Something wrong.', 'data' => json_decode('{}'), 'code' => '500'], 200);
 
 			}
 
@@ -2176,7 +2184,7 @@ class ApiController extends Controller {
 
 			if ($check == 1) {
 
-				return response()->json(['status' => 'failed', 'message' => 'Please Update This Application.', 'data' => json_decode('{}'), 'code' => '500'], 200);
+				return response()->json(['status' => 'failed', 'message' => 'Please update this application.', 'data' => json_decode('{}'), 'code' => '500'], 200);
 			}
 
 			$data = Employee::findorfail($Request->id);
@@ -2191,7 +2199,7 @@ class ApiController extends Controller {
 
 			} else {
 
-				return response()->json(['status' => 'failed', 'message' => 'Something Wrong.', 'data' => json_decode('{}'), 'code' => '500'], 200);
+				return response()->json(['status' => 'failed', 'message' => 'Something wrong.', 'data' => json_decode('{}'), 'code' => '500'], 200);
 
 			}
 
@@ -2210,7 +2218,7 @@ class ApiController extends Controller {
 
 			if ($check == 1) {
 
-				return response()->json(['status' => 'failed', 'message' => 'Please Update This Application.', 'data' => json_decode('{}'), 'code' => '500'], 200);
+				return response()->json(['status' => 'failed', 'message' => 'Please update this application.', 'data' => json_decode('{}'), 'code' => '500'], 200);
 			}
 
 			$data = array();
@@ -2238,14 +2246,14 @@ class ApiController extends Controller {
 
 			if ($check == 1) {
 
-				return response()->json(['status' => 'failed', 'message' => 'Please Update This Application.', 'data' => json_decode('{}'), 'code' => '500'], 200);
+				return response()->json(['status' => 'failed', 'message' => 'Please update this application.', 'data' => json_decode('{}'), 'code' => '500'], 200);
 			}
 
 			$ship_check = Shipment::where('shipment_no', $Request->shipment_no)->count();
 
 			if ($ship_check > 0) {
 
-				return response()->json(['status' => 'success', 'message' => 'Shipment Number Already Registred.', 'data' => json_decode('{}'), 'code' => '500'], 200);
+				return response()->json(['status' => 'success', 'message' => 'Shipment number already registred.', 'data' => json_decode('{}'), 'code' => '500'], 200);
 			}
 
 			$data = new Shipment();
@@ -2696,7 +2704,7 @@ class ApiController extends Controller {
 			$all = $Request->all();
 			if ($check == 1) {
 
-				return response()->json(['status' => 'failed', 'message' => 'Please Update This Application.', 'data' => json_decode('{}'), 'code' => '500'], 200);
+				return response()->json(['status' => 'failed', 'message' => 'Please update this application.', 'data' => json_decode('{}'), 'code' => '500'], 200);
 			}
 			if (isset($all['page']) && ($all['offset'])) {
 				//pagination coding
@@ -2961,7 +2969,7 @@ class ApiController extends Controller {
 
 			}
 
-			return response()->json(['status' => 'success', 'message' => 'Shipment Transporter Addedd Successfully.', 'data' => $data, 'code' => '200'], 200);
+			return response()->json(['status' => 'success', 'message' => 'Shipment Transporter Added Successfully.', 'data' => $data, 'code' => '200'], 200);
 
 		} catch (\Exception $e) {
 
@@ -2977,7 +2985,7 @@ class ApiController extends Controller {
 			$check = $this->checkversion($Request->version);
 
 			if ($check == 1) {
-				return response()->json(['status' => 'failed', 'message' => 'Please Update This Application.', 'data' => json_decode('{}'), 'code' => '500'], 200);
+				return response()->json(['status' => 'failed', 'message' => 'Please update this application.', 'data' => json_decode('{}'), 'code' => '500'], 200);
 			}
 
 			$data = Shipment_Transporter::findorfail($Request->id);
@@ -3010,10 +3018,10 @@ class ApiController extends Controller {
 
 			$check = $this->checkversion($Request->version);
 
-			// if ($check == 1) {
+			if ($check == 1) {
 
-			// 	return response()->json(['status' => 'failed', 'message' => 'Please Update This Application.', 'data' => json_decode('{}'), 'code' => '500'], 200);
-			// }
+				return response()->json(['status' => 'failed', 'message' => 'Please update this application.', 'data' => json_decode('{}'), 'code' => '500'], 200);
+			}
 
 			$data1 = Shipment_Driver::where('shipment_no', $Request->shipment_no)->where('transporter_id', $Request->other_id)->orderby('created_at', 'desc')->whereNull('deleted_at')->get();
 
@@ -3069,7 +3077,7 @@ class ApiController extends Controller {
 
 			if ($check == 1) {
 
-				return response()->json(['status' => 'failed', 'message' => 'Please Update This Application.', 'data' => json_decode('{}'), 'code' => '500'], 200);
+				return response()->json(['status' => 'failed', 'message' => 'Please update this application.', 'data' => json_decode('{}'), 'code' => '500'], 200);
 			}
 
 			$ship = Shipment::where('shipment_no', $Request->shipment_no)->first();
@@ -3176,7 +3184,7 @@ class ApiController extends Controller {
 
 			// }
 
-			return response()->json(['status' => 'success', 'message' => 'Shipment Driver Addedd Successfully.', 'data' => $data, 'code' => '200'], 200);
+			return response()->json(['status' => 'success', 'message' => 'Shipment Driver Added Successfully.', 'data' => $data, 'code' => '200'], 200);
 
 		} catch (\Exception $e) {
 			dd($e);
@@ -3195,7 +3203,7 @@ class ApiController extends Controller {
 
 			if ($check == 1) {
 
-				return response()->json(['status' => 'failed', 'message' => 'Please Update This Application.', 'data' => json_decode('{}'), 'code' => '500'], 200);
+				return response()->json(['status' => 'failed', 'message' => 'Please update this application.', 'data' => json_decode('{}'), 'code' => '500'], 200);
 			}
 
 			if ($Request->role == "transporter") {
@@ -3249,7 +3257,7 @@ class ApiController extends Controller {
 
 			if ($check == 1) {
 
-				return response()->json(['status' => 'failed', 'message' => 'Please Update This Application.', 'data' => json_decode('{}'), 'code' => '500'], 200);
+				return response()->json(['status' => 'failed', 'message' => 'Please update this application.', 'data' => json_decode('{}'), 'code' => '500'], 200);
 			}
 
 			$shipment_data = Shipment::where('shipment_no', $Request->shipment_no)->first();
@@ -3285,7 +3293,7 @@ class ApiController extends Controller {
 			$summary->description = "Add Expense. " . $Request->reason;
 			$summary->save();
 
-			return response()->json(['status' => 'success', 'message' => 'Expense Addedd Successfully.', 'data' => $expense, 'code' => '200'], 200);
+			return response()->json(['status' => 'success', 'message' => 'Expense Added Successfully.', 'data' => $expense, 'code' => '200'], 200);
 
 		} catch (\Exception $e) {
 
@@ -3303,7 +3311,7 @@ class ApiController extends Controller {
 			$all = $Request->all();
 			if ($check == 1) {
 
-				return response()->json(['status' => 'failed', 'message' => 'Please Update This Application.', 'data' => json_decode('{}'), 'code' => '500'], 200);
+				return response()->json(['status' => 'failed', 'message' => 'Please update this application.', 'data' => json_decode('{}'), 'code' => '500'], 200);
 			}
 			if (isset($all['page']) && ($all['offset'])) {
 				//pagination coding
@@ -3576,7 +3584,7 @@ class ApiController extends Controller {
 			$all = $Request->all();
 			if ($check == 1) {
 
-				return response()->json(['status' => 'failed', 'message' => 'Please Update This Application.', 'data' => json_decode('{}'), 'code' => '500'], 200);
+				return response()->json(['status' => 'failed', 'message' => 'Please update this application.', 'data' => json_decode('{}'), 'code' => '500'], 200);
 			}
 			if (isset($all['page']) && ($all['offset'])) {
 				//pagination coding
@@ -3881,7 +3889,7 @@ class ApiController extends Controller {
 			$all = $Request->all();
 			if ($check == 1) {
 
-				return response()->json(['status' => 'failed', 'message' => 'Please Update This Application.', 'data' => json_decode('{}'), 'code' => '500'], 200);
+				return response()->json(['status' => 'failed', 'message' => 'Please update this application.', 'data' => json_decode('{}'), 'code' => '500'], 200);
 			}
 			if (isset($all['page']) && ($all['offset'])) {
 				//pagination coding
@@ -4198,7 +4206,7 @@ class ApiController extends Controller {
 
 			if ($check == 1) {
 
-				return response()->json(['status' => 'failed', 'message' => 'Please Update This Application.', 'data' => json_decode('{}'), 'code' => '500'], 200);
+				return response()->json(['status' => 'failed', 'message' => 'Please update this application.', 'data' => json_decode('{}'), 'code' => '500'], 200);
 			}
 
 			$data = Shipment::withTrashed()->where('shipment_no', $Request->shipment_no)->first();
@@ -4395,7 +4403,7 @@ class ApiController extends Controller {
 
 			if ($check == 1) {
 
-				return response()->json(['status' => 'failed', 'message' => 'Please Update This Application.', 'data' => json_decode('{}'), 'code' => '500'], 200);
+				return response()->json(['status' => 'failed', 'message' => 'Please update this application.', 'data' => json_decode('{}'), 'code' => '500'], 200);
 			}
 
 			$data = Shipment_Driver::findorfail($Request->id);
@@ -4535,7 +4543,7 @@ class ApiController extends Controller {
 
 			if ($check == 1) {
 
-				return response()->json(['status' => 'failed', 'message' => 'Please Update This Application.', 'data' => json_decode('{}'), 'code' => '500'], 200);
+				return response()->json(['status' => 'failed', 'message' => 'Please update this application.', 'data' => json_decode('{}'), 'code' => '500'], 200);
 			}
 
 			$data = Shipment_Driver::withTrashed()->findorfail($Request->id);
@@ -5001,7 +5009,7 @@ class ApiController extends Controller {
 
 			if ($check == 1) {
 
-				return response()->json(['status' => 'failed', 'message' => 'Please Update This Application.', 'data' => json_decode('{}'), 'code' => '500'], 200);
+				return response()->json(['status' => 'failed', 'message' => 'Please update this application.', 'data' => json_decode('{}'), 'code' => '500'], 200);
 			}
 
 			$data = Shipment::where('shipment_no', $Request->shipment_no)->first();
@@ -5149,7 +5157,7 @@ class ApiController extends Controller {
 
 			if ($check == 1) {
 
-				return response()->json(['status' => 'failed', 'message' => 'Please Update This Application.', 'data' => json_decode('{}'), 'code' => '500'], 200);
+				return response()->json(['status' => 'failed', 'message' => 'Please update this application.', 'data' => json_decode('{}'), 'code' => '500'], 200);
 			}
 
 			$data = Shipment::where('shipment_no', $Request->shipment_no)->first();
@@ -5178,7 +5186,7 @@ class ApiController extends Controller {
 
 			if ($check == 1) {
 
-				return response()->json(['status' => 'failed', 'message' => 'Please Update This Application.', 'data' => json_decode('{}'), 'code' => '500'], 200);
+				return response()->json(['status' => 'failed', 'message' => 'Please update this application.', 'data' => json_decode('{}'), 'code' => '500'], 200);
 			}
 
 			$data = Shipment::where('shipment_no', $Request->shipment_no)->first();
@@ -5204,7 +5212,7 @@ class ApiController extends Controller {
 
 			if ($check == 1) {
 
-				return response()->json(['status' => 'failed', 'message' => 'Please Update This Application.', 'data' => json_decode('{}'), 'code' => '500'], 200);
+				return response()->json(['status' => 'failed', 'message' => 'Please update this application.', 'data' => json_decode('{}'), 'code' => '500'], 200);
 			}
 
 			$data = Shipment::where('shipment_no', $Request->shipment_no)->first();
@@ -5354,7 +5362,7 @@ class ApiController extends Controller {
 			$all = $Request->all();
 			if ($check == 1) {
 
-				return response()->json(['status' => 'failed', 'message' => 'Please Update This Application.', 'data' => json_decode('{}'), 'code' => '500'], 200);
+				return response()->json(['status' => 'failed', 'message' => 'Please update this application.', 'data' => json_decode('{}'), 'code' => '500'], 200);
 			}
 			if (isset($all['page']) && ($all['offset'])) {
 				//pagination coding
@@ -5448,7 +5456,7 @@ class ApiController extends Controller {
 
 			if ($check == 1) {
 
-				return response()->json(['status' => 'failed', 'message' => 'Please Update This Application.', 'data' => json_decode('{}'), 'code' => '500'], 200);
+				return response()->json(['status' => 'failed', 'message' => 'Please update this application.', 'data' => json_decode('{}'), 'code' => '500'], 200);
 			}
 
 			$data = Shipment::where('shipment_no', $Request->shipment_no)->first();
@@ -5474,7 +5482,7 @@ class ApiController extends Controller {
 
 			if ($check == 1) {
 
-				return response()->json(['status' => 'failed', 'message' => 'Please Update This Application.', 'data' => json_decode('{}'), 'code' => '500'], 200);
+				return response()->json(['status' => 'failed', 'message' => 'Please update this application.', 'data' => json_decode('{}'), 'code' => '500'], 200);
 			}
 
 			$data = Shipment::where('shipment_no', $Request->shipment_no)->first();
@@ -5499,7 +5507,7 @@ class ApiController extends Controller {
 
 			if ($check == 1) {
 
-				return response()->json(['status' => 'failed', 'message' => 'Please Update This Application.', 'data' => json_decode('{}'), 'code' => '500'], 200);
+				return response()->json(['status' => 'failed', 'message' => 'Please update this application.', 'data' => json_decode('{}'), 'code' => '500'], 200);
 			}
 
 			$shipment_data = Shipment::where('shipment_no', $Request->shipment_no)->first();
@@ -5555,7 +5563,7 @@ class ApiController extends Controller {
 			$all = $Request->all();
 			if ($check == 1) {
 
-				return response()->json(['status' => 'failed', 'message' => 'Please Update This Application.', 'data' => json_decode('{}'), 'code' => '500'], 200);
+				return response()->json(['status' => 'failed', 'message' => 'Please update this application.', 'data' => json_decode('{}'), 'code' => '500'], 200);
 			}
 			if (isset($all['page']) && ($all['offset'])) {
 				//pagination coding
@@ -5843,7 +5851,7 @@ class ApiController extends Controller {
 			$all = $Request->all();
 			if ($check == 1) {
 
-				return response()->json(['status' => 'failed', 'message' => 'Please Update This Application.', 'data' => json_decode('{}'), 'code' => '500'], 200);
+				return response()->json(['status' => 'failed', 'message' => 'Please update this application.', 'data' => json_decode('{}'), 'code' => '500'], 200);
 			}
 			if (isset($all['page']) && ($all['offset'])) {
 				//pagination coding
@@ -5954,7 +5962,7 @@ class ApiController extends Controller {
 
 			if ($check == 1) {
 
-				return response()->json(['status' => 'failed', 'message' => 'Please Update This Application.', 'data' => json_decode('{}'), 'code' => '500'], 200);
+				return response()->json(['status' => 'failed', 'message' => 'Please update this application.', 'data' => json_decode('{}'), 'code' => '500'], 200);
 			}
 
 			$data = Shipment::where('shipment_no', $Request->shipment_no)->first();
@@ -6011,7 +6019,7 @@ class ApiController extends Controller {
 
 			if ($check == 1) {
 
-				return response()->json(['status' => 'failed', 'message' => 'Please Update This Application.', 'data' => json_decode('{}'), 'code' => '500'], 200);
+				return response()->json(['status' => 'failed', 'message' => 'Please update this application.', 'data' => json_decode('{}'), 'code' => '500'], 200);
 			}
 
 			$data = Shipment_Summary::where('shipment_no', $Request->shipment_no)->get();
@@ -6033,7 +6041,7 @@ class ApiController extends Controller {
 
 			if ($check == 1) {
 
-				return response()->json(['status' => 'failed', 'message' => 'Please Update This Application.', 'data' => json_decode('{}'), 'code' => '500'], 200);
+				return response()->json(['status' => 'failed', 'message' => 'Please update this application.', 'data' => json_decode('{}'), 'code' => '500'], 200);
 			}
 
 			$ship_check = Shipment::where('shipment_no', $Request->new_shipment_no)->count();
@@ -6240,7 +6248,7 @@ class ApiController extends Controller {
 
 			if ($check == 1) {
 
-				return response()->json(['status' => 'failed', 'message' => 'Please Update This Application.', 'data' => json_decode('{}'), 'code' => '500'], 200);
+				return response()->json(['status' => 'failed', 'message' => 'Please update this application.', 'data' => json_decode('{}'), 'code' => '500'], 200);
 			}
 
 			$data = array();
@@ -6340,11 +6348,15 @@ class ApiController extends Controller {
 
 			} 
 			
-			else if ($Request->role == "transporter") {
-				$pending = Shipment_Driver::withTrashed()->where('transporter_id', $Request->other_id)->whereNull('deleted_at')
+		else if ($Request->role == "transporter") {
+		$pending = Shipment_Driver::withTrashed()->where('transporter_id', $Request->other_id)->whereNull('deleted_at')
         ->whereRaw('id IN (select MAX(id) FROM shipment_driver GROUP BY shipment_no)')
         ->orderby('id','desc')->get();
         $ids = array();
+		$pending1 = array();
+		if(!$pending->count()){
+            $data['pending'] = 0;
+        }else{
         foreach ($pending as $key => $value){
             if($value->status == "1" ){
                 array_push($ids,$value->id);
@@ -6357,11 +6369,16 @@ class ApiController extends Controller {
               
         }
         $data['pending'] = count($pending1);
-       
+		}
+
         $ontheway = Shipment_Driver::withTrashed()->where('transporter_id', $Request->other_id)->whereNull('deleted_at')
         ->whereRaw('id IN (select MAX(id) FROM shipment_driver GROUP BY shipment_no)')
         ->orderby('id','desc')->get();
         $ids = array();
+		$ontheway1 = array();
+		if(!$ontheway->count()){
+            $data['ontheway'] = 0;
+        }else{
         foreach ($ontheway as $key => $value){
             if($value->status == "2" || $value->status == "4" || $value->status == "5" || $value->status == "18"
             || $value->status == "6" || $value->status == "7" || $value->status == "8" || $value->status == "9" || $value->status == "10"
@@ -6376,10 +6393,16 @@ class ApiController extends Controller {
               
         }
         $data['ontheway'] = count($ontheway1);
+		}
+
         $delivery = Shipment_Driver::withTrashed()->where('transporter_id', $Request->other_id)->whereNull('deleted_at')
 				->whereRaw('id IN (select MAX(id) FROM shipment_driver GROUP BY shipment_no)')
 				->orderby('id','desc')->get();
 				$ids = array();
+				$delivery1 = array();
+				if(!$delivery->count()){
+                    $data['delivery'] = 0;
+                }else{
 				foreach ($delivery as $key => $value){
 					if($value->status == "3" || $value->status == "17"){
 						array_push($ids,$value->id);
@@ -6391,9 +6414,9 @@ class ApiController extends Controller {
                     $delivery1[$key] = Shipment::withTrashed()->where('shipment_no', $value->shipment_no)->first();	
 					  
                 }
-        $data['delivery'] = count($delivery1);
+        	$data['delivery'] = count($delivery1);
 			} 
-			
+		}
 			else if ($Request->role == "forwarder") {
 
 				$data['total'] = Shipment::where('forwarder', $Request->other_id)->whereNull('deleted_at')->count();
@@ -6408,7 +6431,7 @@ class ApiController extends Controller {
 			return response()->json(['status' => 'success', 'message' => 'Dashboard Data Success.', 'data' => $data, 'code' => '200'], 200);
 
 		} catch (\Exception $e) {
-
+			dd($e);
 			return response()->json(['status' => 'failed', 'message' => $e->getMessage(), 'data' => json_decode('{}'), 'code' => '500'], 200);
 		}
 
@@ -6423,7 +6446,7 @@ class ApiController extends Controller {
 			$all = $Request->all();
 			if ($check == 1) {
 
-				return response()->json(['status' => 'failed', 'message' => 'Please Update This Application.', 'data' => json_decode('{}'), 'code' => '500'], 200);
+				return response()->json(['status' => 'failed', 'message' => 'Please update this application.', 'data' => json_decode('{}'), 'code' => '500'], 200);
 			}
 			if (isset($all['page']) && ($all['offset'])) {
 				//pagination coding
@@ -6504,7 +6527,7 @@ class ApiController extends Controller {
 			$all = $Request->all();
 			if ($check == 1) {
 
-				return response()->json(['status' => 'failed', 'message' => 'Please Update This Application.', 'data' => json_decode('{}'), 'code' => '500'], 200);
+				return response()->json(['status' => 'failed', 'message' => 'Please update this application.', 'data' => json_decode('{}'), 'code' => '500'], 200);
 			}
 			if (isset($all['page']) && ($all['offset'])) {
 				//pagination coding
@@ -7637,7 +7660,7 @@ class ApiController extends Controller {
 
 			if ($check == 1) {
 
-				return response()->json(['status' => 'failed', 'message' => 'Please Update This Application.', 'data' => json_decode('{}'), 'code' => '500'], 200);
+				return response()->json(['status' => 'failed', 'message' => 'Please update this application.', 'data' => json_decode('{}'), 'code' => '500'], 200);
 			}
 
 			$data = Shipment::whereNull('deleted_at')->get();
@@ -7660,7 +7683,7 @@ class ApiController extends Controller {
 
 			if ($check == 1) {
 
-				return response()->json(['status' => 'failed', 'message' => 'Please Update This Application.', 'data' => json_decode('{}'), 'code' => '500'], 200);
+				return response()->json(['status' => 'failed', 'message' => 'Please update this application.', 'data' => json_decode('{}'), 'code' => '500'], 200);
 			}
 
 			$data = array();
@@ -7717,7 +7740,7 @@ class ApiController extends Controller {
 
 			if ($check == 1) {
 
-				return response()->json(['status' => 'failed', 'message' => 'Please Update This Application.', 'data' => json_decode('{}'), 'code' => '500'], 200);
+				return response()->json(['status' => 'failed', 'message' => 'Please update this application.', 'data' => json_decode('{}'), 'code' => '500'], 200);
 			}
 
 			$data = array();
@@ -7790,7 +7813,7 @@ class ApiController extends Controller {
 
 			if ($check == 1) {
 
-				return response()->json(['status' => 'failed', 'message' => 'Please Update This Application.', 'data' => json_decode('{}'), 'code' => '500'], 200);
+				return response()->json(['status' => 'failed', 'message' => 'Please update this application.', 'data' => json_decode('{}'), 'code' => '500'], 200);
 			}
 
 			$data = array();
@@ -7830,7 +7853,7 @@ class ApiController extends Controller {
 			$all = $Request->all();
 			if ($check == 1) {
 
-				return response()->json(['status' => 'failed', 'message' => 'Please Update This Application.', 'data' => json_decode('{}'), 'code' => '500'], 200);
+				return response()->json(['status' => 'failed', 'message' => 'Please update this application.', 'data' => json_decode('{}'), 'code' => '500'], 200);
 			}
 			if (isset($all['page']) && ($all['offset'])) {
 				//pagination coding
@@ -7883,7 +7906,7 @@ class ApiController extends Controller {
 
 			if ($check == 1) {
 
-				return response()->json(['status' => 'failed', 'message' => 'Please Update This Application.', 'data' => json_decode('{}'), 'code' => '500'], 200);
+				return response()->json(['status' => 'failed', 'message' => 'Please update this application.', 'data' => json_decode('{}'), 'code' => '500'], 200);
 			}
 
 			$data = array();
@@ -7933,7 +7956,7 @@ class ApiController extends Controller {
 
 			if ($check == 1) {
 
-				return response()->json(['status' => 'failed', 'message' => 'Please Update This Application.', 'data' => json_decode('{}'), 'code' => '500'], 200);
+				return response()->json(['status' => 'failed', 'message' => 'Please update this application.', 'data' => json_decode('{}'), 'code' => '500'], 200);
 			}
 
 			
@@ -8188,7 +8211,7 @@ class ApiController extends Controller {
 
 			if ($check == 1) {
 
-				return response()->json(['status' => 'failed', 'message' => 'Please Update This Application.', 'data' => json_decode('{}'), 'code' => '500'], 200);
+				return response()->json(['status' => 'failed', 'message' => 'Please update this application.', 'data' => json_decode('{}'), 'code' => '500'], 200);
 			}
 
 
@@ -8289,12 +8312,12 @@ class ApiController extends Controller {
 						
      			$mail_service = env('MAIL_SERVICE');
 					if($mail_service == 'on'){
-				//  Mail::send('yoginimail', $data2, function($message) use ($data2) {
-         		// 	$message->to($data2['email'])->subject('REGARDING LR DETAILS - '.$data2['shipment_no']);
-         		// 	$message->attach( public_path('/pdf').'/'.$data2['shipment_no'].'.pdf');
-      			// });
+				 Mail::send('yoginimail', $data2, function($message) use ($data2) {
+         			$message->to($data2['email'])->subject('REGARDING LR DETAILS - '.$data2['shipment_no']);
+         			$message->attach( public_path('/pdf').'/'.$data2['shipment_no'].'.pdf');
+      			});
 				
-				dispatch(new CertificateApproveJob($data2));
+				//dispatch(new CertificateApproveJob($data2));
 				}
       			
 				return response()->json(['status' => 'success', 'message' => 'LR Send on Mail successfull.', 'data' => $path, 'code' => '200'], 200);
@@ -8325,12 +8348,12 @@ class ApiController extends Controller {
 				 $mail_service = env('MAIL_SERVICE');
 				if($mail_service == 'on'){  
 
-				//  Mail::send('ssimail', $data2, function($message) use ($data2) {
-         		// 	$message->to($data2['email'])->subject('REGARDING LR DETAILS - '.$data2['shipment_no']);
-         		// 	$message->attach( public_path('/pdf').'/'.$data2['shipment_no'].'.pdf');
-      			// });	
+				 Mail::send('ssimail', $data2, function($message) use ($data2) {
+         			$message->to($data2['email'])->subject('REGARDING LR DETAILS - '.$data2['shipment_no']);
+         			$message->attach( public_path('/pdf').'/'.$data2['shipment_no'].'.pdf');
+      			});	
 				
-				dispatch(new CertificateApproveJob($data2));
+			//	dispatch(new CertificateApproveJob($data2));
 				}
 					
 
@@ -8357,12 +8380,12 @@ class ApiController extends Controller {
 
 				if($mail_service == 'on'){   
 
-				//  Mail::send('hanshmail', $data2, function($message) use ($data2) {
-         		// 	$message->to($data2['email'])->subject('REGARDING LR DETAILS - '.$data2['shipment_no']);
-         		// 	$message->attach( public_path('/pdf').'/'.$data2['shipment_no'].'.pdf');
-      			// });
+				 Mail::send('hanshmail', $data2, function($message) use ($data2) {
+         			$message->to($data2['email'])->subject('REGARDING LR DETAILS - '.$data2['shipment_no']);
+         			$message->attach( public_path('/pdf').'/'.$data2['shipment_no'].'.pdf');
+      			});
 			
-				  dispatch(new CertificateApproveJob($data2));
+				  //dispatch(new CertificateApproveJob($data2));
       			}		
 				
 				return response()->json(['status' => 'success', 'message' => 'LR Send on Mail successfull.', 'data' => $path, 'code' => '200'], 200);
@@ -8383,12 +8406,12 @@ class ApiController extends Controller {
      			$mail_service = env('MAIL_SERVICE');
 				if($mail_service == 'on'){   
 
-				//  Mail::send('bmfmail', $data2, function($message) use ($data2) {
-         		// 	$message->to($data2['email'])->subject('REGARDING LR DETAILS - '.$data2['shipment_no']);
-         		// 	$message->attach( public_path('/pdf').'/'.$data2['shipment_no'].'.pdf');
-      			// });	
+				 Mail::send('bmfmail', $data2, function($message) use ($data2) {
+         			$message->to($data2['email'])->subject('REGARDING LR DETAILS - '.$data2['shipment_no']);
+         			$message->attach( public_path('/pdf').'/'.$data2['shipment_no'].'.pdf');
+      			});	
 			
-				  dispatch(new CertificateApproveJob($data2));
+				 // dispatch(new CertificateApproveJob($data2));
       			}				
 				
 				return response()->json(['status' => 'success', 'message' => 'LR Send on Mail successfull.', 'data' => $path, 'code' => '200'], 200);
@@ -8684,7 +8707,7 @@ class ApiController extends Controller {
 			//dd($all);
 			if ($check == 1) {
 
-				return response()->json(['status' => 'failed', 'message' => 'Please Update This Application.', 'data' => json_decode('{}'), 'code' => '500'], 200);
+				return response()->json(['status' => 'failed', 'message' => 'Please update this application.', 'data' => json_decode('{}'), 'code' => '500'], 200);
 			}
 			if (isset($all['page']) && ($all['offset'])) {
 				//pagination coding
@@ -8702,7 +8725,7 @@ class ApiController extends Controller {
 				} else {
 					$from_date = date('Y-m-d');
 				}
-				if($Request->to != ''){
+				if($Request->to_date != ''){
 					$to_date = date('Y-m-d',strtotime($Request->to_date));
 				} else {
 					$to_date = date('Y-m-d');
@@ -9123,7 +9146,7 @@ class ApiController extends Controller {
 				} else {
 					$from_date = date('Y-m-d');
 				}
-				if($Request->to != ''){
+				if($Request->to_date != ''){
 					$to_date = date('Y-m-d',strtotime($Request->to_date));
 				} else {
 					$to_date = date('Y-m-d');

@@ -125,7 +125,7 @@ All Paid Invoice List | TOT
                                   <td>{{ $value->gst }}</td>
                                   <td>{{ $value->pan }}</td> 
                                   <td class="center">
-                                  @if($value->status == 0 )Active  @else Blocked @endif
+                                  @if($value->status == 0 )Active  @else Deactivated @endif
                                   </td>
                                   <td class="edit_delete">
                                     <a href="{{ route('warehouseedit',['id'=>$value->myid]) }}" class="btn btn-primary btn-xs"><i class="fa fa-pencil"></i></a>

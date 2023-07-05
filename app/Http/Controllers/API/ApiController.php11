@@ -54,7 +54,7 @@ class ApiController extends Controller
 
                 if($check == 1){
 
-                     return response()->json(['status' => 'failed','message' => 'Please Update This Application.','data' => json_decode('{}'),'code' => '500'],200);  
+                     return response()->json(['status' => 'failed','message' => 'Please update this application.','data' => json_decode('{}'),'code' => '500'],200);  
                 }
 
 
@@ -140,7 +140,7 @@ class ApiController extends Controller
 
                 if($check == 1){
 
-                     return response()->json(['status' => 'failed','message' => 'Please Update This Application.','data' => json_decode('{}'),'code' => '500'],200);  
+                     return response()->json(['status' => 'failed','message' => 'Please update this application.','data' => json_decode('{}'),'code' => '500'],200);  
                 }
 
                 $data = Company::all();
@@ -166,7 +166,7 @@ class ApiController extends Controller
 
                 if($check == 1){
 
-                     return response()->json(['status' => 'failed','message' => 'Please Update This Application.','data' => json_decode('{}'),'code' => '500'],200);  
+                     return response()->json(['status' => 'failed','message' => 'Please update this application.','data' => json_decode('{}'),'code' => '500'],200);  
                 }
 
                 $data = User::where('username',$Request->username)->count();
@@ -235,7 +235,7 @@ class ApiController extends Controller
 
                 if($check == 1){
 
-                     return response()->json(['status' => 'failed','message' => 'Please Update This Application.','data' => json_decode('{}'),'code' => '500'],200);  
+                     return response()->json(['status' => 'failed','message' => 'Please update this application.','data' => json_decode('{}'),'code' => '500'],200);  
                 }
 
 
@@ -263,7 +263,7 @@ class ApiController extends Controller
 
                 if($check == 1){
 
-                     return response()->json(['status' => 'failed','message' => 'Please Update This Application.','data' => json_decode('{}'),'code' => '500'],200);  
+                     return response()->json(['status' => 'failed','message' => 'Please update this application.','data' => json_decode('{}'),'code' => '500'],200);  
                 }
 
 
@@ -322,7 +322,7 @@ class ApiController extends Controller
 
                 if($check == 1){
 
-                     return response()->json(['status' => 'failed','message' => 'Please Update This Application.','data' => json_decode('{}'),'code' => '500'],200);  
+                     return response()->json(['status' => 'failed','message' => 'Please update this application.','data' => json_decode('{}'),'code' => '500'],200);  
                 }
 
                 $data = Company::findorfail($Request->id);
@@ -359,7 +359,7 @@ class ApiController extends Controller
 
                 if($check == 1){
 
-                     return response()->json(['status' => 'failed','message' => 'Please Update This Application.','data' => json_decode('{}'),'code' => '500'],200);  
+                     return response()->json(['status' => 'failed','message' => 'Please update this application.','data' => json_decode('{}'),'code' => '500'],200);  
                 }
 
                 $data = Forwarder::all();
@@ -384,7 +384,7 @@ class ApiController extends Controller
 
                 if($check == 1){
 
-                     return response()->json(['status' => 'failed','message' => 'Please Update This Application.','data' => json_decode('{}'),'code' => '500'],200);  
+                     return response()->json(['status' => 'failed','message' => 'Please update this application.','data' => json_decode('{}'),'code' => '500'],200);  
                 }
 
 
@@ -456,7 +456,7 @@ class ApiController extends Controller
 
                 if($check == 1){
 
-                     return response()->json(['status' => 'failed','message' => 'Please Update This Application.','data' => json_decode('{}'),'code' => '500'],200);  
+                     return response()->json(['status' => 'failed','message' => 'Please update this application.','data' => json_decode('{}'),'code' => '500'],200);  
                 }
 
 
@@ -485,7 +485,7 @@ class ApiController extends Controller
 
                 if($check == 1){
 
-                     return response()->json(['status' => 'failed','message' => 'Please Update This Application.','data' => json_decode('{}'),'code' => '500'],200);  
+                     return response()->json(['status' => 'failed','message' => 'Please update this application.','data' => json_decode('{}'),'code' => '500'],200);  
                 }
 
 
@@ -532,7 +532,7 @@ class ApiController extends Controller
 
                 if($check == 1){
 
-                     return response()->json(['status' => 'failed','message' => 'Please Update This Application.','data' => json_decode('{}'),'code' => '500'],200);  
+                     return response()->json(['status' => 'failed','message' => 'Please update this application.','data' => json_decode('{}'),'code' => '500'],200);  
                 }
 
                 $data = Forwarder::findorfail($Request->id);
@@ -567,7 +567,7 @@ class ApiController extends Controller
 
                 if($check == 1){
 
-                     return response()->json(['status' => 'failed','message' => 'Please Update This Application.','data' => json_decode('{}'),'code' => '500'],200);  
+                     return response()->json(['status' => 'failed','message' => 'Please update this application.','data' => json_decode('{}'),'code' => '500'],200);  
                 }
 
                 $data = Truck::where('status',0)->get();
@@ -589,7 +589,7 @@ class ApiController extends Controller
 
                 if($check == 1){
 
-                     return response()->json(['status' => 'failed','message' => 'Please Update This Application.','data' => json_decode('{}'),'code' => '500'],200);  
+                     return response()->json(['status' => 'failed','message' => 'Please update this application.','data' => json_decode('{}'),'code' => '500'],200);  
                 }
 
                 $data = Truck::findorfail($Request->id);
@@ -617,7 +617,7 @@ class ApiController extends Controller
 
                 if($check == 1){
 
-                     return response()->json(['status' => 'failed','message' => 'Please Update This Application.','data' => json_decode('{}'),'code' => '500'],200);  
+                     return response()->json(['status' => 'failed','message' => 'Please update this application.','data' => json_decode('{}'),'code' => '500'],200);  
                 }
 
                 $data = Transporter::all();
@@ -642,7 +642,7 @@ class ApiController extends Controller
 
                 if($check == 1){
 
-                     return response()->json(['status' => 'failed','message' => 'Please Update This Application.','data' => json_decode('{}'),'code' => '500'],200);  
+                     return response()->json(['status' => 'failed','message' => 'Please update this application.','data' => json_decode('{}'),'code' => '500'],200);  
                 }
 
                 $data = Transporter::findorfail($Request->id);
@@ -664,7 +664,7 @@ class ApiController extends Controller
 
                 if($check == 1){
 
-                     return response()->json(['status' => 'failed','message' => 'Please Update This Application.','data' => json_decode('{}'),'code' => '500'],200);  
+                     return response()->json(['status' => 'failed','message' => 'Please update this application.','data' => json_decode('{}'),'code' => '500'],200);  
                 }
 
                 $data = User::where('username',$Request->username)->count();
@@ -754,7 +754,7 @@ class ApiController extends Controller
 
                 if($check == 1){
 
-                     return response()->json(['status' => 'failed','message' => 'Please Update This Application.','data' => json_decode('{}'),'code' => '500'],200);  
+                     return response()->json(['status' => 'failed','message' => 'Please update this application.','data' => json_decode('{}'),'code' => '500'],200);  
                 }
 
                
@@ -822,7 +822,7 @@ class ApiController extends Controller
 
                 if($check == 1){
 
-                     return response()->json(['status' => 'failed','message' => 'Please Update This Application.','data' => json_decode('{}'),'code' => '500'],200);  
+                     return response()->json(['status' => 'failed','message' => 'Please update this application.','data' => json_decode('{}'),'code' => '500'],200);  
                 }
 
                 $data = Transporter::findorfail($Request->id);
@@ -869,7 +869,7 @@ class ApiController extends Controller
 
                 if($check == 1){
 
-                     return response()->json(['status' => 'failed','message' => 'Please Update This Application.','data' => json_decode('{}'),'code' => '500'],200);  
+                     return response()->json(['status' => 'failed','message' => 'Please update this application.','data' => json_decode('{}'),'code' => '500'],200);  
                 }
 
                 $data = array();
@@ -904,7 +904,7 @@ class ApiController extends Controller
 
                 if($check == 1){
 
-                     return response()->json(['status' => 'failed','message' => 'Please Update This Application.','data' => json_decode('{}'),'code' => '500'],200);  
+                     return response()->json(['status' => 'failed','message' => 'Please update this application.','data' => json_decode('{}'),'code' => '500'],200);  
                 }
 
                 $data = Warehouse::findorfail($Request->id);
@@ -931,7 +931,7 @@ class ApiController extends Controller
 
                 if($check == 1){
 
-                     return response()->json(['status' => 'failed','message' => 'Please Update This Application.','data' => json_decode('{}'),'code' => '500'],200);  
+                     return response()->json(['status' => 'failed','message' => 'Please update this application.','data' => json_decode('{}'),'code' => '500'],200);  
                 }
                
                
@@ -992,7 +992,7 @@ class ApiController extends Controller
 
                 if($check == 1){
 
-                     return response()->json(['status' => 'failed','message' => 'Please Update This Application.','data' => json_decode('{}'),'code' => '500'],200);  
+                     return response()->json(['status' => 'failed','message' => 'Please update this application.','data' => json_decode('{}'),'code' => '500'],200);  
                 }
 
                
@@ -1049,7 +1049,7 @@ class ApiController extends Controller
 
                 if($check == 1){
 
-                     return response()->json(['status' => 'failed','message' => 'Please Update This Application.','data' => json_decode('{}'),'code' => '500'],200);  
+                     return response()->json(['status' => 'failed','message' => 'Please update this application.','data' => json_decode('{}'),'code' => '500'],200);  
                 }
 
                 $data = Warehouse::findorfail($Request->id);
@@ -1082,7 +1082,7 @@ class ApiController extends Controller
 
                 if($check == 1){
 
-                     return response()->json(['status' => 'failed','message' => 'Please Update This Application.','data' => json_decode('{}'),'code' => '500'],200);  
+                     return response()->json(['status' => 'failed','message' => 'Please update this application.','data' => json_decode('{}'),'code' => '500'],200);  
                 }
 
                 $data =array();
@@ -1116,7 +1116,7 @@ class ApiController extends Controller
 
                 if($check == 1){
 
-                     return response()->json(['status' => 'failed','message' => 'Please Update This Application.','data' => json_decode('{}'),'code' => '500'],200);  
+                     return response()->json(['status' => 'failed','message' => 'Please update this application.','data' => json_decode('{}'),'code' => '500'],200);  
                 }
 
                 $data = Driver::withTrashed()->findorfail($Request->id);
@@ -1140,7 +1140,7 @@ class ApiController extends Controller
 
                 if($check == 1){
 
-                     return response()->json(['status' => 'failed','message' => 'Please Update This Application.','data' => json_decode('{}'),'code' => '500'],200);  
+                     return response()->json(['status' => 'failed','message' => 'Please update this application.','data' => json_decode('{}'),'code' => '500'],200);  
                 }
 
                
@@ -1210,7 +1210,7 @@ class ApiController extends Controller
 
                 if($check == 1){
 
-                     return response()->json(['status' => 'failed','message' => 'Please Update This Application.','data' => json_decode('{}'),'code' => '500'],200);  
+                     return response()->json(['status' => 'failed','message' => 'Please update this application.','data' => json_decode('{}'),'code' => '500'],200);  
                 }
 
                
@@ -1280,7 +1280,7 @@ class ApiController extends Controller
 
                 if($check == 1){
 
-                     return response()->json(['status' => 'failed','message' => 'Please Update This Application.','data' => json_decode('{}'),'code' => '500'],200);  
+                     return response()->json(['status' => 'failed','message' => 'Please update this application.','data' => json_decode('{}'),'code' => '500'],200);  
                 }
 
                 $data = Driver::findorfail($Request->id);
@@ -1315,7 +1315,7 @@ class ApiController extends Controller
 
                 if($check == 1){
 
-                     return response()->json(['status' => 'failed','message' => 'Please Update This Application.','data' => json_decode('{}'),'code' => '500'],200);  
+                     return response()->json(['status' => 'failed','message' => 'Please update this application.','data' => json_decode('{}'),'code' => '500'],200);  
                 }
 
                 $data= array();
@@ -1348,7 +1348,7 @@ class ApiController extends Controller
 
                 if($check == 1){
 
-                     return response()->json(['status' => 'failed','message' => 'Please Update This Application.','data' => json_decode('{}'),'code' => '500'],200);  
+                     return response()->json(['status' => 'failed','message' => 'Please update this application.','data' => json_decode('{}'),'code' => '500'],200);  
                 }
 
                 $data = Employee::findorfail($Request->id);
@@ -1374,7 +1374,7 @@ class ApiController extends Controller
 
                 if($check == 1){
 
-                     return response()->json(['status' => 'failed','message' => 'Please Update This Application.','data' => json_decode('{}'),'code' => '500'],200);  
+                     return response()->json(['status' => 'failed','message' => 'Please update this application.','data' => json_decode('{}'),'code' => '500'],200);  
                 }
 
 
@@ -1452,7 +1452,7 @@ class ApiController extends Controller
 
                 if($check == 1){
 
-                     return response()->json(['status' => 'failed','message' => 'Please Update This Application.','data' => json_decode('{}'),'code' => '500'],200);  
+                     return response()->json(['status' => 'failed','message' => 'Please update this application.','data' => json_decode('{}'),'code' => '500'],200);  
                 }
 
                
@@ -1505,7 +1505,7 @@ class ApiController extends Controller
 
                 if($check == 1){
 
-                     return response()->json(['status' => 'failed','message' => 'Please Update This Application.','data' => json_decode('{}'),'code' => '500'],200);  
+                     return response()->json(['status' => 'failed','message' => 'Please update this application.','data' => json_decode('{}'),'code' => '500'],200);  
                 }
 
                 $data = Employee::findorfail($Request->id);
@@ -1544,7 +1544,7 @@ class ApiController extends Controller
 
                 if($check == 1){
 
-                     return response()->json(['status' => 'failed','message' => 'Please Update This Application.','data' => json_decode('{}'),'code' => '500'],200);  
+                     return response()->json(['status' => 'failed','message' => 'Please update this application.','data' => json_decode('{}'),'code' => '500'],200);  
                 }
 
 
@@ -1577,7 +1577,7 @@ class ApiController extends Controller
 
                 if($check == 1){
 
-                     return response()->json(['status' => 'failed','message' => 'Please Update This Application.','data' => json_decode('{}'),'code' => '500'],200);  
+                     return response()->json(['status' => 'failed','message' => 'Please update this application.','data' => json_decode('{}'),'code' => '500'],200);  
                 }
 
 
@@ -1737,7 +1737,7 @@ class ApiController extends Controller
 
                 if($check == 1){
 
-                     return response()->json(['status' => 'failed','message' => 'Please Update This Application.','data' => json_decode('{}'),'code' => '500'],200);  
+                     return response()->json(['status' => 'failed','message' => 'Please update this application.','data' => json_decode('{}'),'code' => '500'],200);  
                 }
 
 
@@ -1811,7 +1811,7 @@ class ApiController extends Controller
 
                 if($check == 1){
 
-                     return response()->json(['status' => 'failed','message' => 'Please Update This Application.','data' => json_decode('{}'),'code' => '500'],200);  
+                     return response()->json(['status' => 'failed','message' => 'Please update this application.','data' => json_decode('{}'),'code' => '500'],200);  
                 }
 
                 
@@ -1837,7 +1837,7 @@ class ApiController extends Controller
 
                 if($check == 1){
 
-                     return response()->json(['status' => 'failed','message' => 'Please Update This Application.','data' => json_decode('{}'),'code' => '500'],200);  
+                     return response()->json(['status' => 'failed','message' => 'Please update this application.','data' => json_decode('{}'),'code' => '500'],200);  
                 }
 
 
@@ -1880,7 +1880,7 @@ class ApiController extends Controller
 
                 if($check == 1){
 
-                     return response()->json(['status' => 'failed','message' => 'Please Update This Application.','data' => json_decode('{}'),'code' => '500'],200);  
+                     return response()->json(['status' => 'failed','message' => 'Please update this application.','data' => json_decode('{}'),'code' => '500'],200);  
                 }
 
                 $ship =Shipment::where('shipment_no',$Request->shipment_no)->first();    
@@ -1918,7 +1918,7 @@ class ApiController extends Controller
 
                 if($check == 1){
 
-                     return response()->json(['status' => 'failed','message' => 'Please Update This Application.','data' => json_decode('{}'),'code' => '500'],200);  
+                     return response()->json(['status' => 'failed','message' => 'Please update this application.','data' => json_decode('{}'),'code' => '500'],200);  
                 }
 
                 
@@ -1944,7 +1944,7 @@ class ApiController extends Controller
 
                 if($check == 1){
 
-                     return response()->json(['status' => 'failed','message' => 'Please Update This Application.','data' => json_decode('{}'),'code' => '500'],200);  
+                     return response()->json(['status' => 'failed','message' => 'Please update this application.','data' => json_decode('{}'),'code' => '500'],200);  
                 }
 
                 $expense = new Expense();
@@ -1973,7 +1973,7 @@ class ApiController extends Controller
 
                 if($check == 1){
 
-                     return response()->json(['status' => 'failed','message' => 'Please Update This Application.','data' => json_decode('{}'),'code' => '500'],200);  
+                     return response()->json(['status' => 'failed','message' => 'Please update this application.','data' => json_decode('{}'),'code' => '500'],200);  
                 }
 
                 if($Request->role == "admin"){
@@ -2057,7 +2057,7 @@ class ApiController extends Controller
 
                 if($check == 1){
 
-                     return response()->json(['status' => 'failed','message' => 'Please Update This Application.','data' => json_decode('{}'),'code' => '500'],200);  
+                     return response()->json(['status' => 'failed','message' => 'Please update this application.','data' => json_decode('{}'),'code' => '500'],200);  
                 }
 
                 if($Request->role == "admin"){
@@ -2143,7 +2143,7 @@ class ApiController extends Controller
 
                 if($check == 1){
 
-                     return response()->json(['status' => 'failed','message' => 'Please Update This Application.','data' => json_decode('{}'),'code' => '500'],200);  
+                     return response()->json(['status' => 'failed','message' => 'Please update this application.','data' => json_decode('{}'),'code' => '500'],200);  
                 }
 
                 if($Request->role == "admin"){
@@ -2226,7 +2226,7 @@ class ApiController extends Controller
 
                 if($check == 1){
 
-                     return response()->json(['status' => 'failed','message' => 'Please Update This Application.','data' => json_decode('{}'),'code' => '500'],200);  
+                     return response()->json(['status' => 'failed','message' => 'Please update this application.','data' => json_decode('{}'),'code' => '500'],200);  
                 }
 
                 $data = Shipment::withTrashed()->where('shipment_no',$Request->shipment_no)->first();
@@ -2306,7 +2306,7 @@ class ApiController extends Controller
 
                 if($check == 1){
 
-                     return response()->json(['status' => 'failed','message' => 'Please Update This Application.','data' => json_decode('{}'),'code' => '500'],200);  
+                     return response()->json(['status' => 'failed','message' => 'Please update this application.','data' => json_decode('{}'),'code' => '500'],200);  
                 }
 
                 $data = Shipment::where('shipment_no',$Request->shipment_no)->first();
@@ -2332,7 +2332,7 @@ class ApiController extends Controller
 
                 if($check == 1){
 
-                     return response()->json(['status' => 'failed','message' => 'Please Update This Application.','data' => json_decode('{}'),'code' => '500'],200);  
+                     return response()->json(['status' => 'failed','message' => 'Please update this application.','data' => json_decode('{}'),'code' => '500'],200);  
                 }
 
                 $data = Shipment::where('shipment_no',$Request->shipment_no)->first();
@@ -2385,7 +2385,7 @@ class ApiController extends Controller
 
                 if($check == 1){
 
-                     return response()->json(['status' => 'failed','message' => 'Please Update This Application.','data' => json_decode('{}'),'code' => '500'],200);  
+                     return response()->json(['status' => 'failed','message' => 'Please update this application.','data' => json_decode('{}'),'code' => '500'],200);  
                 }
 
 
@@ -2531,7 +2531,7 @@ class ApiController extends Controller
 
                 if($check == 1){
 
-                     return response()->json(['status' => 'failed','message' => 'Please Update This Application.','data' => json_decode('{}'),'code' => '500'],200);  
+                     return response()->json(['status' => 'failed','message' => 'Please update this application.','data' => json_decode('{}'),'code' => '500'],200);  
                 }
 
                 $data = Shipment::where('shipment_no',$Request->shipment_no)->first();
@@ -2559,7 +2559,7 @@ class ApiController extends Controller
 
                 if($check == 1){
 
-                     return response()->json(['status' => 'failed','message' => 'Please Update This Application.','data' => json_decode('{}'),'code' => '500'],200);  
+                     return response()->json(['status' => 'failed','message' => 'Please update this application.','data' => json_decode('{}'),'code' => '500'],200);  
                 }
 
                 $data = Shipment::where('shipment_no',$Request->shipment_no)->first();
@@ -2590,7 +2590,7 @@ class ApiController extends Controller
 
                 if($check == 1){
 
-                     return response()->json(['status' => 'failed','message' => 'Please Update This Application.','data' => json_decode('{}'),'code' => '500'],200);  
+                     return response()->json(['status' => 'failed','message' => 'Please update this application.','data' => json_decode('{}'),'code' => '500'],200);  
                 }
 
                  return response()->json(['status' => 'success','message' => 'Login Successfully.','data' => $data,'code' => '200'],200);

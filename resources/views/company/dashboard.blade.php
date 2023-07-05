@@ -16,17 +16,19 @@ Dashboard | TMS
               <!--state overview start-->
               <div class="row state-overview">
                   <div class="col-lg-3 col-sm-6">
-                      <section class="panel">
+                      <a href="{{ route('accounts')}}">
+                        <section class="panel">
                           <div class="symbol terques">
-                              <i class="fa fa-truck"></i>
+                              <i class="fa fa-user"></i>
                           </div>
                           <div class="value">
-                              <h1 class="count">
+                              <h1 class="count5">
                                   0
                               </h1>
-                              <p>Total Shipment</p>
+                              <p>P/L Report</p>
                           </div>
                       </section>
+                    </a>
                   </div>
                   <div class="col-lg-3 col-sm-6">
                     <a href="{{ route('shipmentlist')}}">
@@ -35,7 +37,7 @@ Dashboard | TMS
                               <i class="fa fa-tags"></i>
                           </div>
                           <div class="value">
-                              <h1 class="count2">
+                              <h1 class=" count2">
                                   0
                               </h1>
                               <p>Pending Shipment</p>
@@ -49,7 +51,7 @@ Dashboard | TMS
                               <i class="fa fa-shopping-cart"></i>
                           </div>
                           <div class="value">
-                              <h1 class="count3">
+                              <h1 class=" count3">
                                   0
                               </h1>
                               <p>OnTheWay Shipment</p>
@@ -57,9 +59,28 @@ Dashboard | TMS
                       </section>
                     </a>
                   </div>
+                  <div class="col-lg-3 col-sm-6">
+                    <a href="{{ route('unpaidshipmentlist')}}">
+                      <section class="panel">
+                          <div class="symbol blue">
+                              <i class="fa fa-bar-chart-o"></i>
+                          </div>
+                          <div class="value">
+                              <h1 class=" count4">
+                                  0
+                              </h1>
+                              <p>Bill Status</p>
+                          </div>
+                      </section>
+                    </a>
+                  </div>
               </div>
               <!--state overview end-->
+
+          
           </section>
+
+          
       </section>
       <!--main content end-->
 @endsection
@@ -67,6 +88,7 @@ Dashboard | TMS
 @section('js1')
 {{-- <script src="{{ asset('js/jquery.js') }}"></script> --}}
 <script src="{{ asset('js/jquery-1.8.3.min.js')}}"></script>
+
 @endsection
 
 @section('js2')
@@ -92,10 +114,20 @@ Dashboard | TMS
 @section('js4')
 <!--script for this page-->
    <script type="text/javascript">
-     countUp({{ $data['total'] }});
+     countUp5({{ $data['pl_report'] }});
      countUp2({{ $data['pending'] }});
-     countUp3({{ $data['delivery'] }});
+     countUp3({{ $data['ontheway'] }});
+     countUp4({{ $data['bill_status'] }});
    </script>
+
+<script type="text/javascript">
+  $('#companyform').change(function(){
+
+    $('#comform').submit();
+
+  });
+</script>
+
     <script src="{{ asset('js/flot-chart.js')}}"></script>
     
 @endsection

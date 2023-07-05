@@ -98,7 +98,7 @@ All Trucks List | TMS
                                      
                                     
                                          <a data-id="{{ $value->id }}" style="margin-top: 2%;width: auto;min-width: 35%;float: left;" id="change"  class="btn btn-success btn-xs "><i class="fa fa-pencil"></i> Change Status</a>
-                                           <form action="{{ route('deletetruckstatusadmin') }}" method="post">
+                                           <form action="{{ route('deletetruckstatusadmins') }}" method="post">
                                         @csrf
                                         <input type="hidden" name="id" value="{{ $value->id }}">
                                       <button type="save" onclick="return confirm('Are you sure you want to Delete?');" style="margin-top: 2%;width: auto;min-width: 35%;" class="btn btn-danger btn-xs"><i class="fa fa-trash"></i> Delete</i></button>

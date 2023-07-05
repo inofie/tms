@@ -22,7 +22,7 @@ use App\Cargostatus;
 use App\Account;
 use Hash;
 use PDF;
-use Mail;
+use Mail,DateTime;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\WebNotificationController;
 use Config;
@@ -988,12 +988,17 @@ class ShipmentController extends Controller
     {   
          $this->check();
 
-        //dd($Request);
+        
 
         $data =Shipment_Driver::findorfail($Request->id);
+        $transporter = Shipment_Transporter::where('driver_id',$data->driver_id)->where('shipment_no',$data->shipment_no)->first();
+        
+        $transporter->delete();
+
         $data->deleted_by = Auth::id();
         $data->save();
         $data->delete();
+        
 
         $summary = new Shipment_Summary();
         $summary->shipment_no =  $data->shipment_no;
@@ -1103,7 +1108,7 @@ class ShipmentController extends Controller
         $data = Transporter::get();
 
 
-        $data1 = Shipment_Transporter::where('shipment_no', $ship->shipment_no)->get();
+        $data1 = Shipment_Transporter::withTrashed()->where('shipment_no', $ship->shipment_no)->whereNull('deleted_at')->get();
 
                 $shiptransporter = array();
 
@@ -1114,11 +1119,10 @@ class ShipmentController extends Controller
                     $tras = Transporter::withTrashed()->findorfail($value->transporter_id);
 
                     $shiptransporter[$key]->name= $tras->name;
-
+                    if($value->driver_id){
                     $driver = Driver::withTrashed()->findorfail($value->driver_id);
-
                     $shiptransporter[$key]->driver_name= $driver->name;
-
+                    }
                 }
 
 
@@ -2700,10 +2704,31 @@ class ShipmentController extends Controller
     {
         $this->check();
 
+        $shipment_no = $Request->shipment_no;
         $data = Shipment_Summary::where('shipment_no', $Request->shipment_no)->get();
-        $datas = Shipment_Summary::where('shipment_no', $Request->shipment_no)->first();
-        $shipment_no = $datas->shipment_no;
+        $count = $data->count();
 
+        $old_time = "";
+        foreach($data as $key => $value) {
+            if($key > 0) {
+                $datetime1 = new DateTime($value->created_at);
+                $datetime2 = new DateTime($old_time);
+                $interval = $datetime1->diff($datetime2);
+               if($interval->format('%d') > 0){
+                $elapsed = $interval->format('%d')."d ".$interval->format('%h')."h ".$interval->format('%i')."m";
+               }
+               else{
+                if( $interval->format('%h') > 0){
+                    $elapsed = $interval->format('%h')."h ".$interval->format('%i')."m";
+                }
+                else{
+                    $elapsed = $interval->format('%i')."m";
+                }
+               }
+                $data[$key]['timedifference'] = $elapsed;
+            }
+            $old_time = $value->created_at;
+        }   
         return view('admin.shipmentsummarylist',compact('data','shipment_no'));
 
     }
