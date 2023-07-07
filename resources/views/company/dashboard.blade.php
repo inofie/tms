@@ -16,71 +16,60 @@ Dashboard | TMS
               <!--state overview start-->
               <div class="row state-overview">
                   <div class="col-lg-3 col-sm-6">
-                      <a href="{{ route('accounts')}}">
-                        <section class="panel">
+                      <section class="panel">
                           <div class="symbol terques">
-                              <i class="fa fa-user"></i>
+                              <i class="fa fa-truck"></i>
                           </div>
                           <div class="value">
-                              <h1 class="count5">
+                              <h1 class="count">
                                   0
                               </h1>
-                              <p>P/L Report</p>
+                              <p>Total Shipment</p>
                           </div>
                       </section>
-                    </a>
                   </div>
                   <div class="col-lg-3 col-sm-6">
-                    <a href="{{ route('shipmentlist')}}">
                       <section class="panel">
+                         <a href="{{ route('shipmentlist')  }}"> 
                           <div class="symbol red">
-                              <i class="fa fa-tags"></i>
+                              <i class="fa fa-truck"></i>
                           </div>
                           <div class="value">
                               <h1 class=" count2">
                                   0
                               </h1>
                               <p>Pending Shipment</p>
-                          </div>
-                      </section></a>
+                          </div></a>
+                      </section>
                   </div>
                   <div class="col-lg-3 col-sm-6">
-                    <a href="{{ route('shipmentlist')}}">
                       <section class="panel">
                           <div class="symbol yellow">
-                              <i class="fa fa-shopping-cart"></i>
+                              <i class="fa fa-truck"></i>
                           </div>
                           <div class="value">
                               <h1 class=" count3">
                                   0
                               </h1>
-                              <p>OnTheWay Shipment</p>
+                             <p>Ontheway Shipment</p>
                           </div>
                       </section>
-                    </a>
                   </div>
                   <div class="col-lg-3 col-sm-6">
-                    <a href="{{ route('unpaidshipmentlist')}}">
                       <section class="panel">
                           <div class="symbol blue">
-                              <i class="fa fa-bar-chart-o"></i>
+                              <i class="fa fa-inr"></i>
                           </div>
                           <div class="value">
-                              <h1 class=" count4">
-                                  0
+                              <h1> {{$data['delivery']}}
                               </h1>
-                              <p>Bill Status</p>
+                              <p>Delivered Shipment</p>
                           </div>
                       </section>
-                    </a>
                   </div>
               </div>
               <!--state overview end-->
-
-          
           </section>
-
-          
       </section>
       <!--main content end-->
 @endsection
@@ -88,7 +77,6 @@ Dashboard | TMS
 @section('js1')
 {{-- <script src="{{ asset('js/jquery.js') }}"></script> --}}
 <script src="{{ asset('js/jquery-1.8.3.min.js')}}"></script>
-
 @endsection
 
 @section('js2')
@@ -114,20 +102,11 @@ Dashboard | TMS
 @section('js4')
 <!--script for this page-->
    <script type="text/javascript">
-     countUp5({{ $data['pl_report'] }});
+     countUp({{ $data['total'] }});
      countUp2({{ $data['pending'] }});
      countUp3({{ $data['ontheway'] }});
-     countUp4({{ $data['bill_status'] }});
+     
    </script>
-
-<script type="text/javascript">
-  $('#companyform').change(function(){
-
-    $('#comform').submit();
-
-  });
-</script>
-
     <script src="{{ asset('js/flot-chart.js')}}"></script>
     
 @endsection

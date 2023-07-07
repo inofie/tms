@@ -66,9 +66,9 @@ class DriverController extends Controller
         'truck_no'=>'required',
         'pan'=>'required',
         'password' => 'required|min:8',
-        'rc_book'=>'required|mimes:jpeg,jpg,png',
-        'pan_card'=>'required|mimes:jpeg,jpg,png',
-        'licence'=>'required|mimes:jpeg,jpg,png',
+        'rc_book'=>'required|mimes:jpeg,jpg,png|max:10240',
+        'pan_card'=>'required|mimes:jpeg,jpg,png|max:10240',
+        'licence'=>'required|mimes:jpeg,jpg,png|max:10240',
        ],[
          'transporter.required' => "Please Select Transporter",
          'password.required' => "Please Enter Password",

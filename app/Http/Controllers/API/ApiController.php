@@ -3027,15 +3027,13 @@ class ApiController extends Controller {
 
 			$data2 = array();
 
-			// foreach ($data1 as $key => $value) {
+			foreach ($data1 as $key => $value) {
 
-			//$data[$key]=$value;
+			$tras = Driver::withTrashed()->findorfail($value->driver_id);
 
-			//$tras = Transporter::withTrashed()->findorfail($value->transporter_id);
+			$data1[$key]['name']= $tras->name;
+			}
 
-			//$data[$key]['name']= $tras->name;
-
-			//}
 			$shipmentdriver = Shipment_Driver::where('transporter_id',$Request->other_id)->where('shipment_no',$Request->shipment_no)->pluck('driver_id')->toArray();
 
 			$data2 = Driver::where('transporter_id', $Request->other_id)->whereNotIn('id',$shipmentdriver)->get();
@@ -3371,9 +3369,12 @@ class ApiController extends Controller {
 					$data1[$key]['id'] = $data[$key]->id ;
 					$data1[$key]['myid'] = $data[$key]->myid ;
 					$data1[$key]['status'] = $data[$key]->status ;
+					$data1[$key]['imports'] = $data[$key]->imports ;
+					$data1[$key]['exports'] = $data[$key]->exports ;
 					$data1[$key]['from1'] = $data[$key]->from1 ;
 					$data1[$key]['to1'] = $data[$key]->to1 ;
 					$data1[$key]['to2'] = $data[$key]->to2 ;
+					$data1[$key]['date'] = $data[$key]->date ;
 					$data1[$key] = $value;
 					$data1[$key]['expense'] = $value->expense;
 					
@@ -3647,9 +3648,12 @@ class ApiController extends Controller {
 					$data1[$key]['id'] = $data[$key]->id ;
 					$data1[$key]['myid'] = $data[$key]->myid ;
 					$data1[$key]['status'] = $data[$key]->status ;
+					$data1[$key]['imports'] = $data[$key]->imports ;
+					$data1[$key]['exports'] = $data[$key]->exports ;
 					$data1[$key]['from1'] = $data[$key]->from1 ;
 					$data1[$key]['to1'] = $data[$key]->to1 ;
 					$data1[$key]['to2'] = $data[$key]->to2 ;
+					$data1[$key]['date'] = $data[$key]->date ;
 					$data1[$key] = $value;
 					$data1[$key]['expense'] = $value->expense;
 					
@@ -3958,9 +3962,12 @@ class ApiController extends Controller {
 					$data1[$key]['id'] = $data[$key]->id ;
 					$data1[$key]['myid'] = $data[$key]->myid ;
 					$data1[$key]['status'] = $data[$key]->status ;
+					$data1[$key]['imports'] = $data[$key]->imports ;
+					$data1[$key]['exports'] = $data[$key]->exports ;
 					$data1[$key]['from1'] = $data[$key]->from1 ;
 					$data1[$key]['to1'] = $data[$key]->to1 ;
 					$data1[$key]['to2'] = $data[$key]->to2 ;
+					$data1[$key]['date'] = $data[$key]->date ;
 					$data1[$key] = $value;
 					$data1[$key]['expense'] = $value->expense;
 					
@@ -4263,7 +4270,8 @@ class ApiController extends Controller {
 				
 				$data2 = Shipment_Driver::withTrashed()->where('shipment_no',$Request->shipment_no)->where('transporter_id', $Request->other_id)->whereNull('deleted_at')
 				->orderby('id','desc')->first();
-			
+				//dd($data2);
+			if($data2){
 			foreach($data as $key => $value){
 				if($data2->status == 3 || $data2->status == 17){
 				$data->status = 2;
@@ -4278,10 +4286,16 @@ class ApiController extends Controller {
 				}
 			}
 			}
+			else{
+				$data->status = $data->status;
+			}
+			
+			}
 			if ($Request->role == "driver") {
 				$dd = Shipment_Driver::withTrashed()->where('shipment_no',$Request->shipment_no)->where('transporter_id', $Request->other_id)
 				->where('driver_id',$Request->user_id)->whereNull('deleted_at')
 				->orderby('id','desc')->get();
+				
 				$ids = array();
 				foreach ($dd as $key => $value){
 					if($value->status == 1 || $value->status == 2 || $value->status == 4 || $value->status == 5 || $value->status == 6 || $value->status == 7
@@ -4292,6 +4306,7 @@ class ApiController extends Controller {
 				}
 
 		   	$data2 = Shipment_Driver::withTrashed()->where('id', $ids)->first();
+			   if($data2){
 			foreach($data as $key => $value){
 				if($data2->status == 3 || $data2->status == 17){
 				$data->status = 2;
@@ -4305,6 +4320,10 @@ class ApiController extends Controller {
 				$data->status = 1;
 				}
 			}
+		}
+		else{
+			$data->status = $data->status;
+		}
 			}
 			
 			if ($Request->role == "transporter") {
@@ -4458,6 +4477,7 @@ class ApiController extends Controller {
 			$summary->shipment_no = $data->shipment_no;
 			$summary->flag = $data->truck_no . " is " . $cargo->name;
 			$summary->transporter_id = $data->transporter_id;
+			$summary->change_status_by = $Request->role;
 			$summary->description = "Change Truck Shipment Status By Admin.\n" . $data->truck_no . " is " . $cargo->name;
 			$summary->created_by = $Request->user_id;
 			$summary->save();
@@ -4566,12 +4586,12 @@ class ApiController extends Controller {
 				// $ss->cargo_status = 1;
 				$ss->save();
 
-				if ($Request->hasFile('image') && !empty($Request->file('image'))) {
-					$file_name = time() . $Request->image->getClientOriginalName();
-					$Request->image->move($path, $file_name);
-					$data->loaded_photo = $file_name;
+				// if ($Request->hasFile('image') && !empty($Request->file('image'))) {
+				// 	$file_name = time() . $Request->image->getClientOriginalName();
+				// 	$Request->image->move($path, $file_name);
+				// 	$data->loaded_photo = $file_name;
 
-				}
+				// }
 
 			}
 
@@ -4602,11 +4622,11 @@ class ApiController extends Controller {
 					$transp->save();
 				}
 
-				if ($Request->hasFile('image') && !empty($Request->file('image'))) {
-					$file_name = time() . $Request->image->getClientOriginalName();
-					$Request->image->move($path, $file_name);
-					$data->unloaded_photo = $file_name;
-				}
+				// if ($Request->hasFile('image') && !empty($Request->file('image'))) {
+				// 	$file_name = time() . $Request->image->getClientOriginalName();
+				// 	$Request->image->move($path, $file_name);
+				// 	$data->unloaded_photo = $file_name;
+				// }
 
 			}
 			if ($Request->status == "17") {
@@ -4636,12 +4656,12 @@ class ApiController extends Controller {
 					$transp->save();
 				}
 
-				if ($Request->hasFile('image') && !empty($Request->file('image'))) {
-					$file_name = time() . $Request->image->getClientOriginalName();
-					$Request->image->move($path, $file_name);
-					$data->unloadedcontainer_photo = $file_name;
+				// if ($Request->hasFile('image') && !empty($Request->file('image'))) {
+				// 	$file_name = time() . $Request->image->getClientOriginalName();
+				// 	$Request->image->move($path, $file_name);
+				// 	$data->unloadedcontainer_photo = $file_name;
 
-				}
+				// }
 
 			}
 			if($Request->status == "4"){ 
@@ -4656,11 +4676,11 @@ class ApiController extends Controller {
 				$transp = Shipment_Transporter::where('shipment_no', $data->shipment_no)->where('transporter_id', $data->transporter_id)->first();
 				$transp->status = 2;
 				$transp->save();
-				if ($Request->hasFile('image') && !empty($Request->file('image'))) {
-					$file_name = time() . $Request->image->getClientOriginalName();
-					$Request->image->move($path, $file_name);
-					$data->hold_photo = $file_name;
-				}
+				// if ($Request->hasFile('image') && !empty($Request->file('image'))) {
+				// 	$file_name = time() . $Request->image->getClientOriginalName();
+				// 	$Request->image->move($path, $file_name);
+				// 	$data->hold_photo = $file_name;
+				// }
 
 			}
 			if($Request->status == "5"){ 
@@ -4675,11 +4695,11 @@ class ApiController extends Controller {
 				$transp = Shipment_Transporter::where('shipment_no', $data->shipment_no)->where('transporter_id', $data->transporter_id)->first();
 				$transp->status = 2;
 				$transp->save();
-				if ($Request->hasFile('image') && !empty($Request->file('image'))) {
-					$file_name = time() . $Request->image->getClientOriginalName();
-					$Request->image->move($path, $file_name);
-					$data->other_photo = $file_name;
-				}
+				// if ($Request->hasFile('image') && !empty($Request->file('image'))) {
+				// 	$file_name = time() . $Request->image->getClientOriginalName();
+				// 	$Request->image->move($path, $file_name);
+				// 	$data->other_photo = $file_name;
+				// }
 
 			}
 			if($Request->status == "11"){ 
@@ -4694,11 +4714,11 @@ class ApiController extends Controller {
 				$transp = Shipment_Transporter::where('shipment_no', $data->shipment_no)->where('transporter_id', $data->transporter_id)->first();
 				$transp->status = 2;
 				$transp->save();
-				if ($Request->hasFile('image') && !empty($Request->file('image'))) {
-					$file_name = time() . $Request->image->getClientOriginalName();
-					$Request->image->move($path, $file_name);
-					$data->trucktransreachprt_photo = $file_name;
-				}
+				// if ($Request->hasFile('image') && !empty($Request->file('image'))) {
+				// 	$file_name = time() . $Request->image->getClientOriginalName();
+				// 	$Request->image->move($path, $file_name);
+				// 	$data->trucktransreachprt_photo = $file_name;
+				// }
 
 			}
 			if($Request->status == "12"){ 
@@ -4713,11 +4733,11 @@ class ApiController extends Controller {
 				$transp = Shipment_Transporter::where('shipment_no', $data->shipment_no)->where('transporter_id', $data->transporter_id)->first();
 				$transp->status = 2;
 				$transp->save();
-				if ($Request->hasFile('image') && !empty($Request->file('image'))) {
-					$file_name = time() . $Request->image->getClientOriginalName();
-					$Request->image->move($path, $file_name);
-					$data->reachprt_photo = $file_name;
-				}
+				// if ($Request->hasFile('image') && !empty($Request->file('image'))) {
+				// 	$file_name = time() . $Request->image->getClientOriginalName();
+				// 	$Request->image->move($path, $file_name);
+				// 	$data->reachprt_photo = $file_name;
+				// }
 
 			}
 			if($Request->status == "13"){
@@ -4731,11 +4751,11 @@ class ApiController extends Controller {
 				$transp = Shipment_Transporter::where('shipment_no', $data->shipment_no)->where('transporter_id', $data->transporter_id)->first();
 				$transp->status = 2;
 				$transp->save();
-				if ($Request->hasFile('image') && !empty($Request->file('image'))) {
-					$file_name = time() . $Request->image->getClientOriginalName();
-					$Request->image->move($path, $file_name);
-					$data->trucktransreachcompany_photo = $file_name;
-				}
+				// if ($Request->hasFile('image') && !empty($Request->file('image'))) {
+				// 	$file_name = time() . $Request->image->getClientOriginalName();
+				// 	$Request->image->move($path, $file_name);
+				// 	$data->trucktransreachcompany_photo = $file_name;
+				// }
 			}
 			if($Request->status == "14"){ 
 				$ss =Shipment::withTrashed()->where('shipment_no',$data->shipment_no)->first();
@@ -4747,11 +4767,11 @@ class ApiController extends Controller {
 				$transp = Shipment_Transporter::where('shipment_no', $data->shipment_no)->where('transporter_id', $data->transporter_id)->first();
 				$transp->status = 2;
 				$transp->save();
-				if ($Request->hasFile('image') && !empty($Request->file('image'))) {
-					$file_name = time() . $Request->image->getClientOriginalName();
-					$Request->image->move($path, $file_name);
-					$data->loadcontainer_photo = $file_name;
-				}
+				// if ($Request->hasFile('image') && !empty($Request->file('image'))) {
+				// 	$file_name = time() . $Request->image->getClientOriginalName();
+				// 	$Request->image->move($path, $file_name);
+				// 	$data->loadcontainer_photo = $file_name;
+				// }
 			}
 			if($Request->status == "15"){ 
 
@@ -4764,11 +4784,11 @@ class ApiController extends Controller {
 				$transp = Shipment_Transporter::where('shipment_no', $data->shipment_no)->where('transporter_id', $data->transporter_id)->first();
 				$transp->status = 2;
 				$transp->save();
-				if ($Request->hasFile('image') && !empty($Request->file('image'))) {
-					$file_name = time() . $Request->image->getClientOriginalName();
-					$Request->image->move($path, $file_name);
-					$data->loadcargo_photo = $file_name;
-				}
+				// if ($Request->hasFile('image') && !empty($Request->file('image'))) {
+				// 	$file_name = time() . $Request->image->getClientOriginalName();
+				// 	$Request->image->move($path, $file_name);
+				// 	$data->loadcargo_photo = $file_name;
+				// }
 
 			}
 			if($Request->status == "18"){ 
@@ -4782,11 +4802,11 @@ class ApiController extends Controller {
 				$transp = Shipment_Transporter::where('shipment_no', $data->shipment_no)->where('transporter_id', $data->transporter_id)->first();
 				$transp->status = 2;
 				$transp->save();
-				if ($Request->hasFile('image') && !empty($Request->file('image'))) {
-					$file_name = time() . $Request->image->getClientOriginalName();
-					$Request->image->move($path, $file_name);
-					$data->unloadcargo_photo = $file_name;
-				}
+				// if ($Request->hasFile('image') && !empty($Request->file('image'))) {
+				// 	$file_name = time() . $Request->image->getClientOriginalName();
+				// 	$Request->image->move($path, $file_name);
+				// 	$data->unloadcargo_photo = $file_name;
+				// }
 
 			}
 
@@ -4808,12 +4828,12 @@ class ApiController extends Controller {
 				$transp->status = 2;
 				$transp->save();
 
-				if ($Request->hasFile('image') && !empty($Request->file('image'))) {
-					$file_name = time() . $Request->image->getClientOriginalName();
-					$Request->image->move($path, $file_name);
-					$data->pickup_conformation = $file_name;
+				// if ($Request->hasFile('image') && !empty($Request->file('image'))) {
+				// 	$file_name = time() . $Request->image->getClientOriginalName();
+				// 	$Request->image->move($path, $file_name);
+				// 	$data->pickup_conformation = $file_name;
 
-				}
+				// }
 
 			}
 
@@ -4833,12 +4853,12 @@ class ApiController extends Controller {
 				// $ss->cargo_status = 1;
 				$ss->save();
 
-				if ($Request->hasFile('image') && !empty($Request->file('image'))) {
-					$file_name = time() . $Request->image->getClientOriginalName();
-					$Request->image->move($path, $file_name);
-					$data->reach_company = $file_name;
+				// if ($Request->hasFile('image') && !empty($Request->file('image'))) {
+				// 	$file_name = time() . $Request->image->getClientOriginalName();
+				// 	$Request->image->move($path, $file_name);
+				// 	$data->reach_company = $file_name;
 
-				}
+				// }
 
 			}
 
@@ -4859,12 +4879,12 @@ class ApiController extends Controller {
 				// $ss->cargo_status = 1;
 				$ss->save();
 
-				if ($Request->hasFile('image') && !empty($Request->file('image'))) {
-					$file_name = time() . $Request->image->getClientOriginalName();
-					$Request->image->move($path, $file_name);
-					$data->damage_cargo = $file_name;
+				// if ($Request->hasFile('image') && !empty($Request->file('image'))) {
+				// 	$file_name = time() . $Request->image->getClientOriginalName();
+				// 	$Request->image->move($path, $file_name);
+				// 	$data->damage_cargo = $file_name;
 
-				}
+				// }
 
 			}
 
@@ -4884,12 +4904,12 @@ class ApiController extends Controller {
 				// $ss->cargo_status = 1;
 				$ss->save();
 
-				if ($Request->hasFile('image') && !empty($Request->file('image'))) {
-					$file_name = time() . $Request->image->getClientOriginalName();
-					$Request->image->move($path, $file_name);
-					$data->document_received = $file_name;
+				// if ($Request->hasFile('image') && !empty($Request->file('image'))) {
+				// 	$file_name = time() . $Request->image->getClientOriginalName();
+				// 	$Request->image->move($path, $file_name);
+				// 	$data->document_received = $file_name;
 
-				}
+				// }
 
 			}
 
@@ -4910,12 +4930,12 @@ class ApiController extends Controller {
 				// $ss->cargo_status = 1;
 				$ss->save();
 
-				if ($Request->hasFile('image') && !empty($Request->file('image'))) {
-					$file_name = time() . $Request->image->getClientOriginalName();
-					$Request->image->move($path, $file_name);
-					$data->missing_pkg = $file_name;
+				// if ($Request->hasFile('image') && !empty($Request->file('image'))) {
+				// 	$file_name = time() . $Request->image->getClientOriginalName();
+				// 	$Request->image->move($path, $file_name);
+				// 	$data->missing_pkg = $file_name;
 
-				}
+				// }
 
 			}
 
@@ -4934,10 +4954,17 @@ class ApiController extends Controller {
 
 			$summary->transporter_id = $data->transporter_id;
 
+			if ($Request->hasFile('image') && !empty($Request->file('image'))) {
+				$file_name = time() . $Request->image->getClientOriginalName();
+				$Request->image->move($path, $file_name);
+				$summary->image = $file_name;
+			}
+
+			$summary->change_status_by = $Request->role;
+
 			$summary->description = "Change Truck Shipment Status By Transporter.\n" . $data->truck_no . " is " . $cargo->name;
 
-			$summary->created_by = $Request->user_id;
-
+			$summary->transporter_id = $data->transporter_id;
 			$summary->save();
 
 			//transportor
@@ -6253,7 +6280,7 @@ class ApiController extends Controller {
 
 			$data = array();
 
-			if ($Request->role == "admin" || $Request->role == 'company' && $Request->other_id == "" && $Request->other_id == "" && $Request->other_id == "") {
+			if ($Request->role == "admin"  && $Request->other_id == "" && $Request->other_id == "" && $Request->other_id == "") {
 
 				/* $from = date('2020-01-01');
 
@@ -6306,7 +6333,7 @@ class ApiController extends Controller {
 
 				//dd($data);
 
-			} else if ($Request->role == "admin" || $Request->role == 'company' && $Request->other_id != "" && $Request->other_id != null && $Request->other_id != "null") {
+			} else if ($Request->role == "admin"  && $Request->other_id != "" && $Request->other_id != null && $Request->other_id != "null") {
 
 				$from = date('Y-04-01');
 
@@ -6426,6 +6453,14 @@ class ApiController extends Controller {
 				$data['delivery'] = Shipment::where('status', 2)->whereNull('deleted_at')->where('forwarder', $Request->other_id)->count();
 
 				$data['remaining'] = Shipment::where('paid', 0)->whereNull('deleted_at')->where('forwarder', $Request->other_id)->sum('invoice_amount');
+			}
+			else if ($Request->role == "company") {
+
+				$data['total'] = Shipment::where('company',$Request->other_id)->whereNull('deleted_at')->count();
+
+				$data['pending'] = Shipment::where('status',0)->whereNull('deleted_at')->where('company',$Request->other_id)->count();
+				$data['ontheway'] = Shipment::where('status',1)->whereNull('deleted_at')->where('company',$Request->other_id)->count();
+				$data['delivery'] = Shipment::where('status',2)->whereNull('deleted_at')->where('company',$Request->other_id)->count();
 			}
 
 			return response()->json(['status' => 'success', 'message' => 'Dashboard Data Success.', 'data' => $data, 'code' => '200'], 200);

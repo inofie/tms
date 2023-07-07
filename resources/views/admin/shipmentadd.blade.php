@@ -85,11 +85,11 @@
                                   <div class="col-md-3 col-lg-3">
                                    
                                     @if(old('date'))
-                                    <input class="form-control form-control-inline input-medium default-date-picker" size="16" name="date" type="text" value="{{ old('date') }}">
+                                    <input class="form-control" min="{{ \Carbon\Carbon::now()->format('Y-m-d') }}" max="" name="date" type="date" value="{{ old('date') }}">
 
                                       @else 
 
-                                      <input class="form-control form-control-inline input-medium default-date-picker" size="16" name="date" type="text" value="{{ date('d-m-Y') }}">
+                                      <input class="form-control" min="{{ \Carbon\Carbon::now()->format('Y-m-d') }}" max="" name="date" type="date" value="{{ date('Y-m-d') }}">
                                       
 
                                       @endif
@@ -232,15 +232,8 @@
                                           @enderror
                                             </div>
                                         </div>
-                                          <div class="form-group">
-                                            <label class="col-lg-2 control-label">To :</label>
-                                            <div class="col-lg-10">
-                                                <input type="text" class="form-control" value="{{ old('to2') }}" name="to2"   placeholder="To"/>
-                                                 @error('to2')
-                                            <span class="text-danger"> {{ $message }} </span>
-                                          @enderror
-                                            </div>
-                                        </div>
+
+                                        <div id="myfcls"></div>
 
                                         <div class="form-group ">
                                           <label for="cars" class="control-label col-lg-2">Truck Type:</label>
@@ -490,6 +483,18 @@
                                   
                               </div>
 
+                              <div id="hfcls" style="display: none;">
+                                          <div class="form-group">
+                                            <label class="col-lg-2 control-label">To :</label>
+                                            <div class="col-lg-10">
+                                                <input type="text" class="form-control" value="{{ old('to2') }}" name="to2"   placeholder="To"/>
+                                                 @error('to2')
+                                            <span class="text-danger"> {{ $message }} </span>
+                                          @enderror
+                                            </div>
+                                        </div>
+                                  
+
                               <div id="hfcl" style="display: none;">
                                  
                                          <div class="form-group">
@@ -633,7 +638,21 @@
       $('#myfcl').html('');
 
     });
+  $('#fcl').click(function(){
 
+      var impo = $('#hfcls').html();
+      $('#myfcls').html(impo);
+      $('#hfcls').html('');
+
+    });
+
+    $('#lcl').click(function(){
+
+     var impo = $('#myfcls').html();
+      $('#hfcls').html(impo);
+      $('#myfcls').html('');
+
+    });
 
     $("#mydate").each(function() {    
         $(this).datepicker('setDate', $(this).val());

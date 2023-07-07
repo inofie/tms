@@ -109,7 +109,7 @@ class ShipmentController extends Controller
 
         $this->validate($Request, [
         //'shipment_no'=>'required|unique:shipment,shipment_no',
-        'date' => 'required|date_format:d-m-Y',
+        'date' => 'required',
         'company' => 'required',
         'from1' => 'required',
         'to1' => 'required',
@@ -137,7 +137,7 @@ class ShipmentController extends Controller
 
        $this->validate($Request, [
        // 'shipment_no'=>'required|unique:shipment,shipment_no',
-        'date' => 'required|date_format:d-m-Y',
+        'date' => 'required',
         'company' => 'required',
         'from1' => 'required',
         'to1' => 'required',
@@ -921,9 +921,11 @@ class ShipmentController extends Controller
                 $summary->flag = $data->truck_no." is ".$cargo->name;             
                 $summary->transporter_id = $data->transporter_id;        
                 $summary->description = "Change Truck Shipment Status By Admin.\n".$data->truck_no." is ".$cargo->name;
+                $role = User::where('id',Auth::id())->first();
+                $summary->change_status_by = $role->role;
                 $summary->created_by = Auth::id();      
                 $summary->save(); 
-
+              
                 //transportor
                 $transporter=Transporter::where('id',$data->transporter_id)->first();
                 $from_user = User::find(Auth::id());
@@ -1750,7 +1752,7 @@ class ShipmentController extends Controller
 
 
         $this->validate($Request, [
-        'date' => 'required|date_format:d-m-Y',
+        'date' => 'required',
         'company' => 'required',
         'from1' => 'required',
         'to1' => 'required',
@@ -1774,7 +1776,7 @@ class ShipmentController extends Controller
       } else {
 
        $this->validate($Request, [
-        'date' => 'required|date_format:d-m-Y',
+        'date' => 'required',
         'company' => 'required',
         'from1' => 'required',
         'to1' => 'required',
@@ -2908,9 +2910,14 @@ class ShipmentController extends Controller
                 $datas = $datas->where('status',2);
             }
 		}
+        
 		if($Request->transporter){
-			$datas = $datas->whereRaw("find_in_set('$Request->transporter' , all_transporter)");
-		}
+            $data2 = Shipment_Driver::withTrashed()->where('transporter_id', $Request->transporter)->whereNull('deleted_at')
+				->whereRaw('id IN (select MAX(id) FROM shipment_driver GROUP BY shipment_no)')->pluck('shipment_no')->toArray();
+            
+            $datas = Shipment::withTrashed()->whereIn('shipment_no', $data2); 
+        }
+		
 		if($Request->forwarder){
 			$datas = $datas->where('forwarder', $Request->forwarder);
 		}

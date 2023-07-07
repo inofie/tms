@@ -60,8 +60,9 @@ class ShipmentController extends Controller
         //$cargostatus = Shipment_Driver::where('shipment_no',$data->shipment_no)->latest()->take(1)->first();
         //$data = Shipment::where("status","!=",3)->whereRaw("find_in_set('$ff->id' , all_transporter)")->whereRaw('DATEDIFF(CURDATE(),date) <= 6')->where('paid',0)->get();
         
-        $data2 = Shipment_Transporter::where('transporter_id', $ff->id)->whereNull('deleted_at')->groupBy('shipment_no')->get();
-        
+       // $data2 = Shipment_Transporter::where('transporter_id', $ff->id)->whereNull('deleted_at')->groupBy('shipment_no')->get();
+        $data2 = Shipment_Driver::withTrashed()->where('transporter_id', $ff->id)->whereNull('deleted_at')
+				->whereRaw('id IN (select MAX(id) FROM shipment_driver GROUP BY shipment_no)')->get();
         $data = array();
         
         foreach ($data2 as $key => $value) {
@@ -980,6 +981,8 @@ class ShipmentController extends Controller
                 $summary->flag = $data->truck_no." is ".$cargo->name;             
                 $summary->transporter_id = $data->transporter_id;        
                 $summary->description = "Change Truck Shipment Status By Transporter(In Web).\n".$data->truck_no." is ".$cargo->name;
+                $role = User::where('id',Auth::id())->first();
+                $summary->change_status_by = $role->role;
                 $summary->created_by = Auth::id();      
                 $summary->save(); 
 

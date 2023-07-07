@@ -86,11 +86,11 @@
                                   <div class="col-md-3 col-lg-3">
                                    
                                     @if(old('date'))
-                                    <input class="form-control form-control-inline input-medium default-date-picker" size="16" name="date" type="text" value="{{ old('date') }}">
+                                    <input class="form-control" min="{{ \Carbon\Carbon::now()->format('Y-m-d') }}" max="" name="date" type="date" value="{{ old('date') }}">
 
                                       @else 
 
-                                      <input class="form-control form-control-inline input-medium default-date-picker" size="16" name="date" type="text" value="{{ date('d-m-Y',strtotime($data->date)) }}">
+                                      <input class="form-control" min="{{ \Carbon\Carbon::now()->format('Y-m-d') }}" max="" name="date" type="date" value="{{ date('Y-m-d',strtotime($data->date)) }}">
                                     
                                       @endif
                                       @error('date')
