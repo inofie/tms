@@ -4392,7 +4392,7 @@ class ApiController extends Controller {
 
 			$all_truck_list = array();
 
-			$all_truck_lists = Shipment_Driver::where('shipment_no', $Request->shipment_no)->get();
+			$all_truck_lists = Shipment_Driver::whereNull('deleted_at')->where('shipment_no', $Request->shipment_no)->get();
 
 			$data['all_truck_list'] = array();
 
@@ -4570,7 +4570,8 @@ class ApiController extends Controller {
 			//dd($data->shipment_no);
 
 			$data->status = $Request->status;
-
+			$data->last_status_update_time=date('Y-m-d H:i:s');
+			
 			$path = public_path('/uploads');
 
 			if ($Request->status == "2") {
@@ -9589,6 +9590,323 @@ class ApiController extends Controller {
 			return response()->json(['status' => 'failed', 'message' => $e->getMessage(), 'data' => json_decode('{}'), 'code' => '500'], 200);
 		}
 
+	}
+	public static function changeStatus_Load_To_DocumentReceived()
+	{
+		$current_time = strtotime(date('Y-m-d H:i:s'));
+		$shipments = Shipment_Driver::where('id',$id)->wherein('status',['2','3','4','5','6','7','8'])->whereNotNull('last_status_update_time')->get();
+		foreach ($shipments as $key => $shipment)
+		{
+			$i = 0;
+			$last_status_update_time = strtotime($shipment->last_status_update_time);
+			$diffrence = $current_time - $last_status_update_time;
+			if(!$shipment->last_notification_time) {
+				if($diffrence >= 3600) {
+					$i = 1;
+					$shipment->last_notification_time = date('Y-m-d H:i:s');
+					$shipment->last_notification_time_difference = 60;
+					$shipment->save();
+				}
+			} elseif($diffrence >= 5400 && ($shipment->last_notification_time < 90)) {
+				$i = 1;
+				$shipment->last_notification_time = date('Y-m-d H:i:s');
+				$shipment->last_notification_time_difference = 90;
+				$shipment->save();
+			} elseif($diffrence >= 6000) {
+				$last_notification_time = strtotime($shipment->last_notification_time);
+				$notification_diffrence = $current_time - $last_notification_time;
+				if($notification_diffrence >= 600) {
+					$i = 1;
+					$shipment->last_notification_time = date('Y-m-d H:i:s');
+					$shipment->last_notification_time_difference = (int) $diffrence / 60;
+					$shipment->save();
+				}
+			}
+			if($i == 1) {
+				$transporter=Transporter::where('id',$shipment->transporter_id)->first();
+				$to_user = User::find($transporter['user_id']);
+				$from_user = User::find($shipment->updated_by);
+				$user=User::where('id',$shipment->updated_by)->first();
+				$getStatus=Cargostatus::where('id',$shipment->status)->first();
+				if(($from_user['id'] != $to_user['id']) && $from_user && $to_user) {
+					$notification = new Notification();
+					$notification->notification_from = $from_user->id;
+					$notification->notification_to = $to_user->id;
+					$notification->shipment_id = $data->id;
+					$title= "Status changed";
+					// "New Shipment" .' '. $driver->shipment_no .' '. "Added";
+					$message= $data["shipment_no"].' '."is".' '.$getStatus['name'].' ' ."by".' '.$user['username'];
+					$notification->title = $title;
+					$notification->message = $message;
+					$notification->notification_type = '2';
+					$notification->save();
+					if($to_user->device_type == 'ios'){
+						GlobalHelper::sendFCMIOS($title, $message, $to_user->device_token,$notification->notification_type);
+					}else{
+						GlobalHelper::sendFCM($notification->title, $notification->message, $to_user->device_token,$notification->notification_type);
+						}
+				}
+
+				$from_user1 = User::find($data->updated_by);
+				$to_user1 = User::find(1);
+				$user1=User::where('id',$data->updated_by)->first();
+				$getStatus1=Cargostatus::where('id',$data->status)->first();
+				if($from_user1['id'] != $to_user1['id'] && $from_user1 && $to_user1) {
+					$notification = new Notification();
+					$notification->notification_from = $from_user1->id;
+					$notification->notification_to = $to_user1->id;
+					$notification->shipment_id = $data->id;
+					$title= "Status changed";
+					$message= $data["shipment_no"].' '."is".' '.$getStatus['name'].' ' ."by".' '.$user['username'];
+					$notification->title = $title;
+					$notification->message = $message;
+					$notification->notification_type = '2';
+					$notification->save();
+					if($to_user->device_type == 'ios'){
+						GlobalHelper::sendFCMIOS($title, $message, $to_user->device_token,$notification->notification_type);
+					}else{
+						GlobalHelper::sendFCM($notification->title, $notification->message, $to_user->device_token,$notification->notification_type);
+						}
+				}
+			}
+		}
+		return 1;
+	}
+
+	public static function changeStatus_ReachAtPort_To_Unload()
+	{
+		$current_time = strtotime(date('Y-m-d H:i:s'));
+		$shipments = Shipment_Driver::where('id',$id)->wherein('status',['12','13','14','15','17'])->whereNotNull('last_status_update_time')->get();
+		foreach ($shipments as $key => $shipment)
+		{
+			$i = 0;
+			$last_status_update_time = strtotime($shipment->last_status_update_time);
+			$diffrence = $current_time - $last_status_update_time;
+			if(!$shipment->last_notification_time) {
+				if($diffrence >= 1800) {
+					$i = 1;
+					$shipment->last_notification_time = date('Y-m-d H:i:s');
+					$shipment->last_notification_time_difference = 30;
+					$shipment->save();
+				}
+			}elseif($diffrence >= 4800) {
+				$last_notification_time = strtotime($shipment->last_notification_time);
+				$notification_diffrence = $current_time - $last_notification_time;
+				if($notification_diffrence >= 900) {
+					$i = 1;
+					$shipment->last_notification_time = date('Y-m-d H:i:s');
+					$shipment->last_notification_time_difference = (int) $diffrence / 60;
+					$shipment->save();
+				}
+			}
+			if($i == 1) {
+				$transporter=Transporter::where('id',$shipment->transporter_id)->first();
+				$to_user = User::find($transporter['user_id']);
+				$from_user = User::find($shipment->updated_by);
+				$user=User::where('id',$shipment->updated_by)->first();
+				$getStatus=Cargostatus::where('id',$shipment->status)->first();
+				if(($from_user['id'] != $to_user['id']) && $from_user && $to_user) {
+					$notification = new Notification();
+					$notification->notification_from = $from_user->id;
+					$notification->notification_to = $to_user->id;
+					$notification->shipment_id = $data->id;
+					$title= "Status changed";
+					// "New Shipment" .' '. $driver->shipment_no .' '. "Added";
+					$message= $data["shipment_no"].' '."is".' '.$getStatus['name'].' ' ."by".' '.$user['username'];
+					$notification->title = $title;
+					$notification->message = $message;
+					$notification->notification_type = '2';
+					$notification->save();
+					if($to_user->device_type == 'ios'){
+						GlobalHelper::sendFCMIOS($title, $message, $to_user->device_token,$notification->notification_type);
+					}else{
+						GlobalHelper::sendFCM($notification->title, $notification->message, $to_user->device_token,$notification->notification_type);
+						}
+				}
+
+				$from_user1 = User::find($data->updated_by);
+				$to_user1 = User::find(1);
+				$user1=User::where('id',$data->updated_by)->first();
+				$getStatus1=Cargostatus::where('id',$data->status)->first();
+				if($from_user1['id'] != $to_user1['id'] && $from_user1 && $to_user1) {
+					$notification = new Notification();
+					$notification->notification_from = $from_user1->id;
+					$notification->notification_to = $to_user1->id;
+					$notification->shipment_id = $data->id;
+					$title= "Status changed";
+					$message= $data["shipment_no"].' '."is".' '.$getStatus['name'].' ' ."by".' '.$user['username'];
+					$notification->title = $title;
+					$notification->message = $message;
+					$notification->notification_type = '2';
+					$notification->save();
+					if($to_user->device_type == 'ios'){
+						GlobalHelper::sendFCMIOS($title, $message, $to_user->device_token,$notification->notification_type);
+					}else{
+						GlobalHelper::sendFCM($notification->title, $notification->message, $to_user->device_token,$notification->notification_type);
+						}
+				}
+			}
+		}
+		return 1;
+	}
+
+	public static function changeStatus_ReachAtPort_To_DocumentReceived()
+	{
+		$current_time = strtotime(date('Y-m-d H:i:s'));
+		$shipments = Shipment_Driver::where('id',$id)->wherein('status',['9','10','11'])->whereNotNull('last_status_update_time')->get();
+		foreach ($shipments as $key => $shipment)
+		{
+			$i = 0;
+			$last_status_update_time = strtotime($shipment->last_status_update_time);
+			$diffrence = $current_time - $last_status_update_time;
+			if(!$shipment->last_notification_time) {
+				if($diffrence >= 1800) {
+					$i = 1;
+					$shipment->last_notification_time = date('Y-m-d H:i:s');
+					$shipment->last_notification_time_difference = 30;
+					$shipment->save();
+				}
+			}elseif($diffrence >= 4800) {
+				$last_notification_time = strtotime($shipment->last_notification_time);
+				$notification_diffrence = $current_time - $last_notification_time;
+				if($notification_diffrence >= 900) {
+					$i = 1;
+					$shipment->last_notification_time = date('Y-m-d H:i:s');
+					$shipment->last_notification_time_difference = (int) $diffrence / 60;
+					$shipment->save();
+				}
+			}
+			if($i == 1) {
+				$transporter=Transporter::where('id',$shipment->transporter_id)->first();
+				$to_user = User::find($transporter['user_id']);
+				$from_user = User::find($shipment->updated_by);
+				$user=User::where('id',$shipment->updated_by)->first();
+				$getStatus=Cargostatus::where('id',$shipment->status)->first();
+				if(($from_user['id'] != $to_user['id']) && $from_user && $to_user) {
+					$notification = new Notification();
+					$notification->notification_from = $from_user->id;
+					$notification->notification_to = $to_user->id;
+					$notification->shipment_id = $data->id;
+					$title= "Status changed";
+					// "New Shipment" .' '. $driver->shipment_no .' '. "Added";
+					$message= $data["shipment_no"].' '."is".' '.$getStatus['name'].' ' ."by".' '.$user['username'];
+					$notification->title = $title;
+					$notification->message = $message;
+					$notification->notification_type = '2';
+					$notification->save();
+					if($to_user->device_type == 'ios'){
+						GlobalHelper::sendFCMIOS($title, $message, $to_user->device_token,$notification->notification_type);
+					}else{
+						GlobalHelper::sendFCM($notification->title, $notification->message, $to_user->device_token,$notification->notification_type);
+						}
+				}
+
+				$from_user1 = User::find($data->updated_by);
+				$to_user1 = User::find(1);
+				$user1=User::where('id',$data->updated_by)->first();
+				$getStatus1=Cargostatus::where('id',$data->status)->first();
+				if($from_user1['id'] != $to_user1['id'] && $from_user1 && $to_user1) {
+					$notification = new Notification();
+					$notification->notification_from = $from_user1->id;
+					$notification->notification_to = $to_user1->id;
+					$notification->shipment_id = $data->id;
+					$title= "Status changed";
+					$message= $data["shipment_no"].' '."is".' '.$getStatus['name'].' ' ."by".' '.$user['username'];
+					$notification->title = $title;
+					$notification->message = $message;
+					$notification->notification_type = '2';
+					$notification->save();
+					if($to_user->device_type == 'ios'){
+						GlobalHelper::sendFCMIOS($title, $message, $to_user->device_token,$notification->notification_type);
+					}else{
+						GlobalHelper::sendFCM($notification->title, $notification->message, $to_user->device_token,$notification->notification_type);
+						}
+				}
+			}
+		}
+		return 1;
+	}
+
+	public static function changeStatus_ReachAtCompany_To_Unload()
+	{
+		$current_time = strtotime(date('Y-m-d H:i:s'));
+		$shipments = Shipment_Driver::where('id',$id)->wherein('status',['7','8','9','10','11','12','13','14','15','16','17'])->whereNotNull('last_status_update_time')->get();
+		foreach ($shipments as $key => $shipment)
+		{
+			$i = 0;
+			$last_status_update_time = strtotime($shipment->last_status_update_time);
+			$diffrence = $current_time - $last_status_update_time;
+			if(!$shipment->last_notification_time) {
+				if($diffrence >= 3600) {
+					$i = 1;
+					$shipment->last_notification_time = date('Y-m-d H:i:s');
+					$shipment->last_notification_time_difference = 60;
+					$shipment->save();
+				}
+			} elseif($diffrence >= 5400 && ($shipment->last_notification_time < 90)) {
+				$i = 1;
+				$shipment->last_notification_time = date('Y-m-d H:i:s');
+				$shipment->last_notification_time_difference = 90;
+				$shipment->save();
+			} elseif($diffrence >= 6000) {
+				$last_notification_time = strtotime($shipment->last_notification_time);
+				$notification_diffrence = $current_time - $last_notification_time;
+				if($notification_diffrence >= 600) {
+					$i = 1;
+					$shipment->last_notification_time = date('Y-m-d H:i:s');
+					$shipment->last_notification_time_difference = (int) $diffrence / 60;
+					$shipment->save();
+				}
+			}
+			if($i == 1) {
+				$transporter=Transporter::where('id',$shipment->transporter_id)->first();
+				$to_user = User::find($transporter['user_id']);
+				$from_user = User::find($shipment->updated_by);
+				$user=User::where('id',$shipment->updated_by)->first();
+				$getStatus=Cargostatus::where('id',$shipment->status)->first();
+				if(($from_user['id'] != $to_user['id']) && $from_user && $to_user) {
+					$notification = new Notification();
+					$notification->notification_from = $from_user->id;
+					$notification->notification_to = $to_user->id;
+					$notification->shipment_id = $data->id;
+					$title= "Status changed";
+					// "New Shipment" .' '. $driver->shipment_no .' '. "Added";
+					$message= $data["shipment_no"].' '."is".' '.$getStatus['name'].' ' ."by".' '.$user['username'];
+					$notification->title = $title;
+					$notification->message = $message;
+					$notification->notification_type = '2';
+					$notification->save();
+					if($to_user->device_type == 'ios'){
+						GlobalHelper::sendFCMIOS($title, $message, $to_user->device_token,$notification->notification_type);
+					}else{
+						GlobalHelper::sendFCM($notification->title, $notification->message, $to_user->device_token,$notification->notification_type);
+						}
+				}
+
+				$from_user1 = User::find($data->updated_by);
+				$to_user1 = User::find(1);
+				$user1=User::where('id',$data->updated_by)->first();
+				$getStatus1=Cargostatus::where('id',$data->status)->first();
+				if($from_user1['id'] != $to_user1['id'] && $from_user1 && $to_user1) {
+					$notification = new Notification();
+					$notification->notification_from = $from_user1->id;
+					$notification->notification_to = $to_user1->id;
+					$notification->shipment_id = $data->id;
+					$title= "Status changed";
+					$message= $data["shipment_no"].' '."is".' '.$getStatus['name'].' ' ."by".' '.$user['username'];
+					$notification->title = $title;
+					$notification->message = $message;
+					$notification->notification_type = '2';
+					$notification->save();
+					if($to_user->device_type == 'ios'){
+						GlobalHelper::sendFCMIOS($title, $message, $to_user->device_token,$notification->notification_type);
+					}else{
+						GlobalHelper::sendFCM($notification->title, $notification->message, $to_user->device_token,$notification->notification_type);
+						}
+				}
+			}
+		}
+		return 1;
 	}
 
 }

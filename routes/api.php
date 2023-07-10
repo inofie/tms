@@ -186,4 +186,8 @@ Route::post('notificationList', 'API\NotificationController@notificationList');
 Route::post('/readAllNotifications', 'API\NotificationController@readAllNotifications');
 Route::post('/readSingleNotifications', 'API\NotificationController@readSingleNotifications');
 Route::post('testNotification',"API\ApiController@testNotification");
-Route::get('changestatus',"API\ApiController@changeStatus");
+
+Route::post('changeStatus_Load_To_DocumentReceived',"API\ApiController@changeStatus_Load_To_DocumentReceived");
+Route::post('changeStatus_ReachAtPort_To_Unload',"API\ApiController@changeStatus_ReachAtPort_To_Unload");
+Route::post('changeStatus_ReachAtPort_To_DocumentReceived',"API\ApiController@changeStatus_ReachAtPort_To_DocumentReceived");
+Route::post('changeStatus_ReachAtCompany_To_Unload',"API\ApiController@changeStatus_ReachAtCompany_To_Unload");
