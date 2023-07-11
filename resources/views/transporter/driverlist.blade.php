@@ -138,9 +138,9 @@ All Driver List | TOT
                                   @if($value->status == 0 )Active  @else Deactivated @endif
                                   </td>
                                   <td class="edit_delete">
-                                    <a href="{{ route('driveredit',['id'=>$value->myid]) }}" class="btn btn-primary btn-xs"><i class="fa fa-pencil"></i></a>
+                                    <a href="{{ route('transporterdriveredit',['id'=>$value->myid]) }}" class="btn btn-primary btn-xs"><i class="fa fa-pencil"></i></a>
                                     <button onclick="deleteItem('{{ $value->myid }}')" class="btn btn-danger btn-xs"><i class="fa fa-trash-o "></i></button>
-                                      <form action="{{ route('driverdelete',['id'=>$value->myid]) }}" id="delete{{$value->myid}}" method="post">
+                                      <form action="{{ route('transporterdriverdelete',['id'=>$value->myid]) }}" id="delete{{$value->myid}}" method="post">
                                         @csrf
                                         <input type="hidden" name="id" value="{{$value->myid}}">
                                       </form>

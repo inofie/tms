@@ -141,6 +141,7 @@
                                   <label class="control-label col-lg-4">Shipper Invoice No : {{ $data->shipper_invoice }}</label>
                                   <label class="control-label col-lg-4">Forwarder Reference No : {{$data->forwarder_ref_no }}</label>
                                   <label class="control-label col-lg-4">B/E No : {{$data->b_e_no }}</label>
+                                  <label class="control-label col-lg-4">Remark : {{$data->remark }}</label>
                                    </div>
                                    <div class="form-group" ></div>
                                   </form>

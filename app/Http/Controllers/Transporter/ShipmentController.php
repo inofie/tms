@@ -58,9 +58,7 @@ class ShipmentController extends Controller
 
         $ff= Transporter::where('user_id',Auth::user()->id)->first();
         //$cargostatus = Shipment_Driver::where('shipment_no',$data->shipment_no)->latest()->take(1)->first();
-        //$data = Shipment::where("status","!=",3)->whereRaw("find_in_set('$ff->id' , all_transporter)")->whereRaw('DATEDIFF(CURDATE(),date) <= 6')->where('paid',0)->get();
         
-       // $data2 = Shipment_Transporter::where('transporter_id', $ff->id)->whereNull('deleted_at')->groupBy('shipment_no')->get();
         $data2 = Shipment_Driver::withTrashed()->where('transporter_id', $ff->id)->whereNull('deleted_at')
 				->whereRaw('id IN (select MAX(id) FROM shipment_driver GROUP BY shipment_no)')->get();
         $data = array();
@@ -1053,8 +1051,8 @@ class ShipmentController extends Controller
         //dd($Request);
 
         $data =Shipment_Driver::findorfail($Request->id);
-        $transporter = Shipment_Transporter::where('driver_id',$data->driver_id)->where('shipment_no',$data->shipment_no)->first();
-        $transporter->delete();
+        $transporter = Shipment_Transporter::where('driver_id',$data->driver_id)->where('shipment_no',$data->shipment_no)->delete();
+       
         
         $data->deleted_by = Auth::id();
         $data->save();
@@ -1127,7 +1125,7 @@ class ShipmentController extends Controller
                 $account = new Account();
                 $account->to_transporter = $Request->transporter_id;
                 $account->from_company = $shipment_data->company;
-                $account->description =  $Request->shipment_no. $shipment_data->date." Expense.". $Request->reason;
+                $account->description =  $Request->shipment_no.' '.$shipment_data->date.''.' Expense.'. $Request->reason;
                 $account->dates = date('Y-m-d');
                 $account->v_type = "debit";
                 $account->debit = $Request->amount;
@@ -1319,12 +1317,12 @@ class ShipmentController extends Controller
                         $summary->description = "Add Driver. \n" . $mytruckno . "(Co.No." . $tt->phone . ").";
                         $summary->save();
 
-                        $summary1 = new Shipment_Summary();
-                        $summary1->shipment_no =  $Request->shipment_no;
-                        $summary1->flag = "Add Truck";
-                        $summary1->transporter_id = $Request->transporter_id;
-                        $summary1->description = "Add Driver & Truck No. ".$mytruckno;
-                        $summary1->save(); 
+                        // $summary1 = new Shipment_Summary();
+                        // $summary1->shipment_no =  $Request->shipment_no;
+                        // $summary1->flag = "Add Truck";
+                        // $summary1->transporter_id = $Request->transporter_id;
+                        // $summary1->description = "Add Driver & Truck No. ".$mytruckno;
+                        // $summary1->save(); 
 
                 
             }
@@ -1590,7 +1588,7 @@ class ShipmentController extends Controller
 
         $data2 = Shipment::where('myid',$Request->id)->first();
         
-        $data = Shipment::where('shipment_no',$data2->shipment_no)->first();
+        $data = Shipment::withTrashed()->whereNull('deleted_at')->where('shipment_no',$data2->shipment_no)->first();
 
 
        
@@ -1624,7 +1622,7 @@ class ShipmentController extends Controller
                     $data->trucktype_name ="";
 
                 } 
-                $tras_list =Shipment_Transporter::where('shipment_no',$data2->shipment_no)->get();
+                $tras_list =Shipment_Transporter::withTrashed()->whereNull('deleted_at')->where('shipment_no',$data2->shipment_no)->get();
                 $t_list = "";
                 foreach ($tras_list as $key => $value) { 
                     $tt =Transporter::findorfail($value->transporter_id);
@@ -1640,7 +1638,7 @@ class ShipmentController extends Controller
 
                 if($Request->role== "transporter"){
 
-                     $driver_list =Shipment_Driver::where('shipment_no',$data2->shipment_no)->where('transporter_id',$Request->other_id)->get();
+                     $driver_list =Shipment_Driver::withTrashed()->whereNull('deleted_at')->where('shipment_no',$data2->shipment_no)->where('transporter_id',$Request->other_id)->get();
                 $d_list = "";
 
                 foreach ($driver_list as $key2 => $value2) { 
@@ -1658,7 +1656,7 @@ class ShipmentController extends Controller
 
                 } else {
 
-                    $driver_list =Shipment_Driver::where('shipment_no',$data2->shipment_no)->get();
+                    $driver_list =Shipment_Driver::withTrashed()->whereNull('deleted_at')->where('shipment_no',$data2->shipment_no)->get();
                     $d_list = "";
 
                     foreach ($driver_list as $key2 => $value2) { 
@@ -1676,7 +1674,7 @@ class ShipmentController extends Controller
 
                 }
 
-                $trucks = Shipment_Driver::where('shipment_no',$data->shipment_no)->get();
+                $trucks = Shipment_Driver::withTrashed()->whereNull('deleted_at')->where('shipment_no',$data->shipment_no)->get();
                 $ff= Transporter::where('user_id',Auth::user()->id)->first();
                 $check = Shipment_Summary::where('shipment_no',$data2->shipment_no)->where('flag','View Shipment')->first();
                 if(!$check){
@@ -2134,17 +2132,17 @@ class ShipmentController extends Controller
                 $data3->save();
 
 
-                $summary1 = new Shipment_Summary();
+                // $summary1 = new Shipment_Summary();
                 
-                $summary1->shipment_no =  $Request->shipment_no;
+                // $summary1->shipment_no =  $Request->shipment_no;
                 
-                $summary1->flag = "Add Truck";
+                // $summary1->flag = "Add Truck";
                 
-                $summary1->transporter_id = $Request->other_id;
+                // $summary1->transporter_id = $Request->other_id;
 
-                $summary1->description = "Add Driver & Truck No. ".$Request->truck_no;
+                // $summary1->description = "Add Driver & Truck No. ".$Request->truck_no;
                 
-                $summary1->save(); 
+                // $summary1->save(); 
                 }
 
 
@@ -2692,11 +2690,10 @@ class ShipmentController extends Controller
          $this->check();
 
          $ff= Transporter::where('user_id',Auth::user()->id)->first();
-         //$cargostatus = Shipment_Driver::where('shipment_no',$data->shipment_no)->latest()->take(1)->first();
-         //$data = Shipment::where("status","!=",3)->whereRaw("find_in_set('$ff->id' , all_transporter)")->whereRaw('DATEDIFF(CURDATE(),date) <= 6')->where('paid',0)->get();
-         
-         $data2 = Shipment_Transporter::where('transporter_id', $ff->id)->whereNull('deleted_at')->groupBy('shipment_no')->get();
+        //$cargostatus = Shipment_Driver::where('shipment_no',$data->shipment_no)->latest()->take(1)->first();
         
+        $data2 = Shipment_Driver::withTrashed()->where('transporter_id', $ff->id)->whereNull('deleted_at')
+				->whereRaw('id IN (select MAX(id) FROM shipment_driver GROUP BY shipment_no)')->get();
         $data = array();
         
         foreach ($data2 as $key => $value) {
@@ -2756,7 +2753,7 @@ class ShipmentController extends Controller
 
         $data2 = Shipment::where('myid',$Request->id)->first();
         
-        $data = Shipment::withTrashed()->where('shipment_no',$data2->shipment_no)->first();
+        $data = Shipment::withTrashed()->whereNull('deleted_at')->where('shipment_no',$data2->shipment_no)->first();
         
         $comp = Company::withTrashed()->findorfail($data->company);
 
@@ -2787,7 +2784,7 @@ class ShipmentController extends Controller
                     $data->trucktype_name ="";
 
                 } 
-                $tras_list =Shipment_Transporter::withTrashed()->where('shipment_no',$data2->shipment_no)->get();
+                $tras_list =Shipment_Transporter::withTrashed()->whereNull('deleted_at')->where('shipment_no',$data2->shipment_no)->get();
                 $t_list = "";
                 foreach ($tras_list as $key => $value) { 
                     $tt =Transporter::withTrashed()->findorfail($value->transporter_id);
@@ -2803,7 +2800,7 @@ class ShipmentController extends Controller
 
                 if($Request->role== "transporter"){
 
-                     $driver_list =Shipment_Driver::withTrashed()->where('shipment_no',$data2->shipment_no)->where('transporter_id',$Request->other_id)->get();
+                     $driver_list =Shipment_Driver::withTrashed()->whereNull('deleted_at')->where('shipment_no',$data2->shipment_no)->where('transporter_id',$Request->other_id)->get();
                 $d_list = "";
 
                 foreach ($driver_list as $key2 => $value2) { 
@@ -2839,7 +2836,7 @@ class ShipmentController extends Controller
 
                 }
 
-                $trucks = Shipment_Driver::where('shipment_no',$data->shipment_no)->get();
+                $trucks = Shipment_Driver::withTrashed()->whereNull('deleted_at')->where('shipment_no',$data->shipment_no)->get();
 
 
 
@@ -2902,7 +2899,7 @@ class ShipmentController extends Controller
        
         // $datas = Shipment_Transporter::withTrashed()->whereNull('deleted_at')->where('transporter_id', $ff->id);
         $data2 = Shipment_Driver::withTrashed()->where('transporter_id', $ff->id)->whereNull('deleted_at')
-				->whereRaw('id IN (select MAX(id) FROM shipment_driver GROUP BY shipment_no)');
+				->whereRaw('id IN (select MAX(id) FROM shipment_driver GROUP BY shipment_no)')->orderby('id','desc');
         if($month) {
             $data2 = $data2->whereMonth('created_at', $month);
         }

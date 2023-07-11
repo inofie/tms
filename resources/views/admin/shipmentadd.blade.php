@@ -676,6 +676,7 @@
         $('#truck_no').val(no);
         var mytransporter = $('#transporter').val();
         var old_driver = $('#old_driver').val();
+        var mydriver = $('#mydriver').val();
         
          $.ajax({
             url: '{{route('shipmentdriverlist')}}',
@@ -686,7 +687,7 @@
               $('.mytransporter').after(result);
               $('#driver').focus();
               $('.mydriver').change(function(){
-                  var selected = $('#transporter').find('option:selected'); 
+                  var selected = $('#mydriver').find('option:selected'); 
                   var no = selected.data('number'); 
                   $('#truck_no').val(no);
                   $('#truck_no').focus();

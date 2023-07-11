@@ -271,7 +271,7 @@ class ApiController extends Controller {
 
 				} else {
 
-					return response()->json(['status' => 'failed', 'message' => 'Email & Password Are Wrong.', 'data' => json_decode('{}'), 'code' => '500'], 200);
+					return response()->json(['status' => 'failed', 'message' => 'Email & password are wrong.', 'data' => json_decode('{}'), 'code' => '500'], 200);
 
 				}
 
@@ -1762,7 +1762,22 @@ class ApiController extends Controller {
 	public function DriverAdd(Request $Request) {
 
 		try {
-
+			
+				$data=$Request->all();
+				$rules = array(
+					'phone' => 'required|unique:driver,phone',
+					'password' => 'required'
+				);
+	
+				$messages = [
+	
+				];
+				$validator = Validator::make($data, $rules, $messages);
+				if ($validator->fails()) {
+					return $this->APIResponse->respondValidationError(__($validator->errors()->first()));
+				}
+				else 
+				{
 			$check = $this->checkversion($Request->version);
 
 			if ($check == 1) {
@@ -1819,7 +1834,7 @@ class ApiController extends Controller {
 				return response()->json(['status' => 'failed', 'message' => 'Something wrong.', 'data' => json_decode('{}'), 'code' => '500'], 200);
 
 			}
-
+		}
 		} catch (\Exception $e) {
 
 			return response()->json(['status' => 'failed', 'message' => $e->getMessage(), 'data' => json_decode('{}'), 'code' => '500'], 200);
@@ -1830,7 +1845,22 @@ class ApiController extends Controller {
 	public function DriverEdit(Request $Request) {
 
 		try {
-
+			
+				$data=$Request->all();
+				$rules = array(
+					'phone' => 'unique:driver,phone,' . $Request->id,
+					
+				);
+	
+				$messages = [
+	
+				];
+				$validator = Validator::make($data, $rules, $messages);
+				if ($validator->fails()) {
+					return $this->APIResponse->respondValidationError(__($validator->errors()->first()));
+				}
+				else 
+				{
 			$check = $this->checkversion($Request->version);
 
 			if ($check == 1) {
@@ -1890,7 +1920,7 @@ class ApiController extends Controller {
 				return response()->json(['status' => 'failed', 'message' => 'Something wrong.', 'data' => json_decode('{}'), 'code' => '500'], 200);
 
 			}
-
+		}
 		} catch (\Exception $e) {
 
 			return response()->json(['status' => 'failed', 'message' => $e->getMessage(), 'data' => json_decode('{}'), 'code' => '500'], 200);
@@ -2851,12 +2881,12 @@ class ApiController extends Controller {
                         $summary->description = "Add Driver. \n" . $mytruckno . "(Co.No." . $tt->phone . ").";
                         $summary->save();
 
-                        $summary1 = new Shipment_Summary();
-                        $summary1->shipment_no =  $Request->shipment_no;
-                        $summary1->flag = "Add Truck";
-                        $summary1->transporter_id = $Request->other_id;
-                        $summary1->description = "Add Driver & Truck No. ".$mytruckno;
-                        $summary1->save(); 
+                        // $summary1 = new Shipment_Summary();
+                        // $summary1->shipment_no =  $Request->shipment_no;
+                        // $summary1->flag = "Add Truck";
+                        // $summary1->transporter_id = $Request->other_id;
+                        // $summary1->description = "Add Driver & Truck No. ".$mytruckno;
+                        // $summary1->save(); 
 
 						//driver
                         if($driver->driver_id){
@@ -2868,8 +2898,8 @@ class ApiController extends Controller {
                                 $notification->notification_to = $to_user->id;
                                 $notification->shipment_id = $data->shipment_id;
 								$id = $data->shipment_no;
-                                $title= "New driver added in Shipment" .' '. $driver->shipment_no;
-                                $message= "New driver added in Shipment" .' '. $driver->shipment_no;
+								$title= "New Shipment assign to" .' '. $to_user['name'] .' - '. $driver->shipment_no;
+                                $message= "New Shipment assign to" .' '. $to_user['name'] .' - '. $driver->shipment_no;
                                 $notification->title = $title;
                                 $notification->message = $message;
                                 $notification->notification_type = '3';
@@ -2896,8 +2926,8 @@ class ApiController extends Controller {
                                     $notification->notification_to = $to_user->id;
                                     $notification->shipment_id = $data->shipment_id;
 									$id = $data->shipment_no;
-                                    $title= "New driver added in Shipment" .' '. $driver->shipment_no;
-                                    $message= "New driver added in Shipment" .' '. $driver->shipment_no;
+									$title= "New Shipment assign to you" .' - '. $driver->shipment_no;
+                                    $message= "New Shipment assign to you" .' - '. $driver->shipment_no;
                                     $notification->title = $title;
                                     $notification->message = $message;
                                     $notification->notification_type = '3';
@@ -3114,8 +3144,8 @@ class ApiController extends Controller {
 					$notification->notification_to = $to_user->id;
 					$notification->shipment_id = $ship->id;
 					$id = $data->shipment_no;
-					$title= "New driver added in Shipment" .' '. $data->shipment_no;
-					$message= "New driver added in Shipment" .' '. $data->shipment_no;
+					$title= "New Shipment assign to" .' '. $to_user['name'] .' - '. $data->shipment_no;
+					$message= "New Shipment assign to" .' '. $to_user['name'] .' - '. $data->shipment_no;
 					$notification->title = $title;
 					$notification->message = $message;
 					$notification->notification_type = '3';
@@ -3142,8 +3172,8 @@ class ApiController extends Controller {
 						$notification->notification_to = $to_user->id;
 						$notification->shipment_id = $ship->id;
 						$id = $data->shipment_no;
-						$title= "New driver added in Shipment" .' '. $data->shipment_no;
-						$message= "New driver added in Shipment" .' '. $data->shipment_no;
+						$title= "New Shipment assign to you" .' - '. $data->shipment_no;
+                        $message= "New Shipment assign to you" .' - '. $data->shipment_no;
 						$notification->title = $title;
 						$notification->message = $message;
 						$notification->notification_type = '3';
@@ -3205,42 +3235,53 @@ class ApiController extends Controller {
 			}
 
 			if ($Request->role == "transporter") {
-
+				
 				$data = Shipment_Driver::findorfail($Request->id);
+				
 				$data->deleted_by = $Request->user_id;
 				$data->save();
 
 				$summary = new Shipment_Summary();
 				$summary->shipment_no = $data->shipment_no;
 				$summary->flag = "Delete Driver";
-				$summary->transporter_id = $data->other_id;
+				$summary->transporter_id = $data->transporter_id;
 				$summary->description = "Delete Driver & Truck No. " . $data->truck_no;
-				$summary->created_by = $data->user_id;
+				$summary->created_by = $data->deleted_by;
 				$summary->save();
 
+				$transporter = Shipment_Transporter::where('driver_id',$data->driver_id)->where('shipment_no',$data->shipment_no)->first();
+        		if($transporter){
+				$transporter->delete();
+				}
 			}
 
 			if ($Request->role == "admin" || $Request->role == 'company') {
 
 				$data = Shipment_Driver::findorfail($Request->id);
+				
 				$data->deleted_by = $Request->user_id;
 				$data->save();
 
 				$summary = new Shipment_Summary();
 				$summary->shipment_no = $data->shipment_no;
 				$summary->flag = "Delete Truck";
-				$summary->company_id = $data->other_id;
+				$summary->company_id = $data->transporter_id;
 				$summary->description = "Delete Truck No. " . $data->truck_no;
-				$summary->created_by = $data->user_id;
+				$summary->created_by = $Request->user_id;
 				$summary->save();
 
+				$transporter = Shipment_Transporter::where('driver_id',$data->driver_id)->where('shipment_no',$data->shipment_no)->first();
+        		if($transporter){
+					$transporter->delete();
+					}
 			}
-
+			
 			$data->delete();
 
-			return response()->json(['status' => 'success', 'message' => 'Shipment Driver Deleted Successfully.', 'data' => $data, 'code' => '200'], 200);
+			return response()->json(['status' => 'success', 'message' => 'Shipment Driver Deleted Successfully.', 'code' => '200'], 200);
 
 		} catch (\Exception $e) {
+			dd($e);
 
 			return response()->json(['status' => 'failed', 'message' => $e->getMessage(), 'data' => json_decode('{}'), 'code' => '500'], 200);
 		}
@@ -3263,7 +3304,7 @@ class ApiController extends Controller {
 			$account = new Account();
 			$account->to_transporter = $Request->other_id;
 			$account->from_company = $shipment_data->company;
-			$account->description = $Request->shipment_no . " Expense."." - ".$shipment_data->date." / " . $Request->reason;
+			$account->description = $Request->shipment_no.' '.$shipment_data->date.''." Expense.";
 			$account->dates = date('Y-m-d');
 			$account->v_type = "debit";
 			$account->debit = $Request->amount;
@@ -3777,6 +3818,7 @@ class ApiController extends Controller {
 				$data2 = Shipment_Driver::withTrashed()->where('transporter_id', $Request->other_id)->whereNull('deleted_at')
 				->whereRaw('id IN (select MAX(id) FROM shipment_driver GROUP BY shipment_no)')
 				->orderby('id','desc')->get();
+				//dd($data2);
 				$ids = array();
 				foreach ($data2 as $key => $value){
 					if($value->status == "2" || $value->status == "4" || $value->status == "5" || $value->status == "18"
@@ -4539,16 +4581,16 @@ class ApiController extends Controller {
                 $notification->shipment_id = $data->id;
 				$id = $data->shipment_no;
                 $title= "Status changed";
-                $message= $data["shipment_no"].' '."is".' '.$getStatus['name'].' ' ."by".' '.$user['username'];
+                $message= $data["shipment_no"].' '."is".' '.$getStatus1['name'].' ' ."by".' '.$user1['username'];
 				$notification->title = $title;
                 $notification->message = $message;
                 $notification->notification_type = '2';
                 $notification->save();
 				$notification_id = $notification->id;
-				if($to_user->device_type == 'ios'){
-                    GlobalHelper::sendFCMIOS($title, $message, $to_user->device_token,$notification->notification_type,$id,$notification_id);
+				if($to_user1->device_type == 'ios'){
+                    GlobalHelper::sendFCMIOS($title, $message, $to_user1->device_token,$notification->notification_type,$id,$notification_id);
                 }else{
-                    GlobalHelper::sendFCM($notification->title, $notification->message, $to_user->device_token,$notification->notification_type,$id,$notification_id);
+                    GlobalHelper::sendFCM($notification->title, $notification->message, $to_user1->device_token,$notification->notification_type,$id,$notification_id);
                     }
             }
 		}
@@ -4578,11 +4620,11 @@ class ApiController extends Controller {
 
 				$data->load_time = date('Y-m-d H:i');
 
-				$transp = Shipment_Transporter::where('shipment_no', $data->shipment_no)->where('transporter_id', $data->transporter_id)->first();
+				$transp = Shipment_Transporter::withTrashed()->where('shipment_no', $data->shipment_no)->where('transporter_id', $data->transporter_id)->first();
 				$transp->status = 2;
 				$transp->save();
 
-				$ss = Shipment::where('shipment_no', $data->shipment_no)->first();
+				$ss = Shipment::withTrashed()->where('shipment_no', $data->shipment_no)->first();
 				$ss->status = 1;
 				// $ss->cargo_status = 1;
 				$ss->save();
@@ -4614,11 +4656,11 @@ class ApiController extends Controller {
 
 				$ss->save();
 
-				$get_all_shipment = Shipment_Driver::where('shipment_no', $data->shipment_no)->where('status', 1)->orwhere('status', 2)->where('deleted_at', '')->count();
+				$get_all_shipment = Shipment_Driver::withTrashed()->where('shipment_no', $data->shipment_no)->where('status', 1)->orwhere('status', 2)->where('deleted_at', '')->count();
 
 				if ($get_all_shipment == 0) {
 
-					$transp = Shipment_Transporter::where('shipment_no', $data->shipment_no)->where('transporter_id', $data->transporter_id)->first();
+					$transp = Shipment_Transporter::withTrashed()->where('shipment_no', $data->shipment_no)->where('transporter_id', $data->transporter_id)->first();
 					$transp->status = 2;
 					$transp->save();
 				}
@@ -4648,11 +4690,11 @@ class ApiController extends Controller {
 
 				$ss->save();
 
-				$get_all_shipment = Shipment_Driver::where('shipment_no', $data->shipment_no)->where('status', 1)->orwhere('status', 2)->where('deleted_at', '')->count();
+				$get_all_shipment = Shipment_Driver::withTrashed()->where('shipment_no', $data->shipment_no)->where('status', 1)->orwhere('status', 2)->where('deleted_at', '')->count();
 
 				if ($get_all_shipment == 0) {
 
-					$transp = Shipment_Transporter::where('shipment_no', $data->shipment_no)->where('transporter_id', $data->transporter_id)->first();
+					$transp = Shipment_Transporter::withTrashed()->where('shipment_no', $data->shipment_no)->where('transporter_id', $data->transporter_id)->first();
 					$transp->status = 2;
 					$transp->save();
 				}
@@ -4674,7 +4716,7 @@ class ApiController extends Controller {
                 // $ss->cargo_status = 1;
                 $ss->save();
 
-				$transp = Shipment_Transporter::where('shipment_no', $data->shipment_no)->where('transporter_id', $data->transporter_id)->first();
+				$transp = Shipment_Transporter::withTrashed()->where('shipment_no', $data->shipment_no)->where('transporter_id', $data->transporter_id)->first();
 				$transp->status = 2;
 				$transp->save();
 				// if ($Request->hasFile('image') && !empty($Request->file('image'))) {
@@ -4693,7 +4735,7 @@ class ApiController extends Controller {
                 // $ss->cargo_status = 1;
                 $ss->save();
 
-				$transp = Shipment_Transporter::where('shipment_no', $data->shipment_no)->where('transporter_id', $data->transporter_id)->first();
+				$transp = Shipment_Transporter::withTrashed()->where('shipment_no', $data->shipment_no)->where('transporter_id', $data->transporter_id)->first();
 				$transp->status = 2;
 				$transp->save();
 				// if ($Request->hasFile('image') && !empty($Request->file('image'))) {
@@ -4712,7 +4754,7 @@ class ApiController extends Controller {
                 // $ss->cargo_status = 1;
                 $ss->save();
 
-				$transp = Shipment_Transporter::where('shipment_no', $data->shipment_no)->where('transporter_id', $data->transporter_id)->first();
+				$transp = Shipment_Transporter::withTrashed()->where('shipment_no', $data->shipment_no)->where('transporter_id', $data->transporter_id)->first();
 				$transp->status = 2;
 				$transp->save();
 				// if ($Request->hasFile('image') && !empty($Request->file('image'))) {
@@ -4731,7 +4773,7 @@ class ApiController extends Controller {
                 // $ss->cargo_status = 1;
                 $ss->save();
 
-				$transp = Shipment_Transporter::where('shipment_no', $data->shipment_no)->where('transporter_id', $data->transporter_id)->first();
+				$transp = Shipment_Transporter::withTrashed()->where('shipment_no', $data->shipment_no)->where('transporter_id', $data->transporter_id)->first();
 				$transp->status = 2;
 				$transp->save();
 				// if ($Request->hasFile('image') && !empty($Request->file('image'))) {
@@ -4749,7 +4791,7 @@ class ApiController extends Controller {
                 $ss->save();
 			
 				$data->truck_reachcompany_time = date('Y-m-d H:i');
-				$transp = Shipment_Transporter::where('shipment_no', $data->shipment_no)->where('transporter_id', $data->transporter_id)->first();
+				$transp = Shipment_Transporter::withTrashed()->where('shipment_no', $data->shipment_no)->where('transporter_id', $data->transporter_id)->first();
 				$transp->status = 2;
 				$transp->save();
 				// if ($Request->hasFile('image') && !empty($Request->file('image'))) {
@@ -4765,7 +4807,7 @@ class ApiController extends Controller {
                 $ss->save();
 			
 				$data->loadcontainer_time = date('Y-m-d H:i');
-				$transp = Shipment_Transporter::where('shipment_no', $data->shipment_no)->where('transporter_id', $data->transporter_id)->first();
+				$transp = Shipment_Transporter::withTrashed()->where('shipment_no', $data->shipment_no)->where('transporter_id', $data->transporter_id)->first();
 				$transp->status = 2;
 				$transp->save();
 				// if ($Request->hasFile('image') && !empty($Request->file('image'))) {
@@ -4782,7 +4824,7 @@ class ApiController extends Controller {
                 $ss->save();
 			
 				$data->loadcargo_time = date('Y-m-d H:i');
-				$transp = Shipment_Transporter::where('shipment_no', $data->shipment_no)->where('transporter_id', $data->transporter_id)->first();
+				$transp = Shipment_Transporter::withTrashed()->where('shipment_no', $data->shipment_no)->where('transporter_id', $data->transporter_id)->first();
 				$transp->status = 2;
 				$transp->save();
 				// if ($Request->hasFile('image') && !empty($Request->file('image'))) {
@@ -4800,7 +4842,7 @@ class ApiController extends Controller {
                 $ss->save();
 			
 				$data->unloadcargo_time = date('Y-m-d H:i');
-				$transp = Shipment_Transporter::where('shipment_no', $data->shipment_no)->where('transporter_id', $data->transporter_id)->first();
+				$transp = Shipment_Transporter::withTrashed()->where('shipment_no', $data->shipment_no)->where('transporter_id', $data->transporter_id)->first();
 				$transp->status = 2;
 				$transp->save();
 				// if ($Request->hasFile('image') && !empty($Request->file('image'))) {
@@ -4825,7 +4867,8 @@ class ApiController extends Controller {
 				// $ss->cargo_status = 1;
 				$ss->save();
 
-				$transp = Shipment_Transporter::where('shipment_no', $data->shipment_no)->where('transporter_id', $data->transporter_id)->first();
+				$transp = Shipment_Transporter::withTrashed()->where('shipment_no', $data->shipment_no)->where('transporter_id', $data->transporter_id)->first();
+				
 				$transp->status = 2;
 				$transp->save();
 
@@ -4845,7 +4888,7 @@ class ApiController extends Controller {
 				/*$transp = Shipment_Transporter::where('shipment_no', $data->shipment_no)->where('transporter_id', $data->transporter_id)->first();
 				$transp->status = ;
 				$transp->save();*/
-				$transp = Shipment_Transporter::where('shipment_no', $data->shipment_no)->where('transporter_id', $data->transporter_id)->first();
+				$transp = Shipment_Transporter::withTrashed()->where('shipment_no', $data->shipment_no)->where('transporter_id', $data->transporter_id)->first();
 				$transp->status = 2;
 				$transp->save();
 
@@ -4870,7 +4913,7 @@ class ApiController extends Controller {
 				/*$transp = Shipment_Transporter::where('shipment_no', $data->shipment_no)->where('transporter_id', $data->transporter_id)->first();
 				$transp->status = 8;
 				$transp->save();*/
-				$transp = Shipment_Transporter::where('shipment_no', $data->shipment_no)->where('transporter_id', $data->transporter_id)->first();
+				$transp = Shipment_Transporter::withTrashed()->where('shipment_no', $data->shipment_no)->where('transporter_id', $data->transporter_id)->first();
 				$transp->status = 2;
 				
 				$transp->save();
@@ -4896,7 +4939,7 @@ class ApiController extends Controller {
 				/*$transp = Shipment_Transporter::where('shipment_no', $data->shipment_no)->where('transporter_id', $data->transporter_id)->first();
 				$transp->status = 9;
 				$transp->save();*/
-				$transp = Shipment_Transporter::where('shipment_no', $data->shipment_no)->where('transporter_id', $data->transporter_id)->first();
+				$transp = Shipment_Transporter::withTrashed()->where('shipment_no', $data->shipment_no)->where('transporter_id', $data->transporter_id)->first();
 				$transp->status = 2;
 				$transp->save();
 
@@ -4922,7 +4965,7 @@ class ApiController extends Controller {
 				$transp->status = 10;
 				$transp->save();
 */
-				$transp = Shipment_Transporter::where('shipment_no', $data->shipment_no)->where('transporter_id', $data->transporter_id)->first();
+				$transp = Shipment_Transporter::withTrashed()->where('shipment_no', $data->shipment_no)->where('transporter_id', $data->transporter_id)->first();
 				$transp->status = 2;
 				$transp->save();
 
@@ -4970,9 +5013,16 @@ class ApiController extends Controller {
 
 			//transportor
 			$transporter=Transporter::where('id',$data->transporter_id)->first();
-			$from_user = User::find($data->updated_by);
+			if($Request->role == "driver"){
+			$from_user = Driver::find($data->updated_by);
+			$from_user_name = $from_user['name'];
+			}
+			else{
+				$from_user = User::find($data->updated_by);
+				$from_user_name = $from_user['username'];
+			}
             $to_user = User::find($transporter['user_id']);
-			$user=User::where('id',$data->updated_by)->first();
+		
 			$getStatus=Cargostatus::where('id',$data->status)->first();
             if($from_user['id'] != $to_user['id'] && $from_user && $to_user) {
                 $notification = new Notification();
@@ -4981,8 +5031,7 @@ class ApiController extends Controller {
                 $notification->shipment_id = $ss->id;
 				$id = $data->shipment_no;
                 $title= "Status changed";
-				// "New Shipment" .' '. $driver->shipment_no .' '. "Added";
-                $message= $data["shipment_no"].' '."is".' '.$getStatus['name'].' ' ."by".' '.$user['username'];
+                $message= $data["shipment_no"].' '."is".' '.$getStatus['name'].' ' ."by".' '.$from_user_name;
 				$notification->title = $title;
                 $notification->message = $message;
                 $notification->notification_type = '2';
@@ -4995,9 +5044,16 @@ class ApiController extends Controller {
                     }
             }
 			//admin
-			$from_user1 = User::find($data->updated_by);
+			if($Request->role == "driver"){
+				$from_user1 = Driver::find($data->updated_by);
+				$from_user_name = $from_user1['name'];
+				}
+				else{
+					$from_user1 = User::find($data->updated_by);
+					$from_user_name = $from_user1['username'];
+				}
             $to_user1 = User::find(1);
-			$user1=User::where('id',$data->updated_by)->first();
+			
 			$getStatus1=Cargostatus::where('id',$data->status)->first();
             if($from_user1['id'] != $to_user1['id'] && $from_user1 && $to_user1) {
                 $notification = new Notification();
@@ -5006,16 +5062,16 @@ class ApiController extends Controller {
                 $notification->shipment_id = $ss->id;
 				$id = $data->shipment_no;
                 $title= "Status changed";
-                $message= $data["shipment_no"].' '."is".' '.$getStatus['name'].' ' ."by".' '.$user['username'];
+                $message= $data["shipment_no"].' '."is".' '.$getStatus1['name'].' ' ."by".' '.$from_user_name;
 				$notification->title = $title;
                 $notification->message = $message;
                 $notification->notification_type = '2';
                 $notification->save();
 				$notification_id = $notification->id;
-				if($to_user->device_type == 'ios'){
-                    GlobalHelper::sendFCMIOS($title, $message, $to_user->device_token,$notification->notification_type,$id,$notification_id);
+				if($to_user1->device_type == 'ios'){
+                    GlobalHelper::sendFCMIOS($title, $message, $to_user1->device_token,$notification->notification_type,$id,$notification_id);
                 }else{
-                    GlobalHelper::sendFCM($notification->title, $notification->message, $to_user->device_token,$notification->notification_type,$id,$notification_id);
+                    GlobalHelper::sendFCM($notification->title, $notification->message, $to_user1->device_token,$notification->notification_type,$id,$notification_id);
                     }
             }
 
@@ -5920,7 +5976,7 @@ class ApiController extends Controller {
 				foreach ($data1 as $key => $value) {
 
 					
-					$trans = Transporter::findorfail($value->transporter_id);
+					$trans = Driver::findorfail($value->driver_id);
 					$data1[$key]['name'] = $trans->name;
 					$cargo = Cargostatus::findorfail($value->status);
 					$data1[$key]['status_name'] = $cargo->name;
@@ -6926,10 +6982,8 @@ class ApiController extends Controller {
 					if ($Request->month != "" && $Request->year != "") {
 	
 	
-						$data1 = Shipment::rightJoin('shipment_transporter','shipment_transporter.shipment_no','=','shipment.shipment_no')
-						->where('shipment_transporter.transporter_id', $Request->other_id)->whereYear('shipment_transporter.created_at', $Request->year)
-						->whereMonth('shipment_transporter.created_at', $Request->month)->whereIn('shipment.status',['0','1','2'])->whereNull('shipment_transporter.deleted_at')
-						->groupBy('shipment_transporter.shipment_no')->orderBy('shipment.id', 'desc');
+						$data1 = Shipment_Driver::where('transporter_id', $Request->other_id)->whereYear('created_at', $Request->year)
+						->whereNull('deleted_at')->whereMonth('created_at', $Request->month)->whereRaw('id IN (select MAX(id) FROM shipment_driver GROUP BY shipment_no)')->orderby('id','desc');
 
 						$data1 = $data1->paginate($perPage);
 					
@@ -6938,6 +6992,16 @@ class ApiController extends Controller {
 							$data[$key] = Shipment::where('shipment_no', $value->shipment_no)->orderBy('shipment_no', 'desc')->first();
 							$data1[$key]['id'] = $data[$key]->id ;
 							$data1[$key]['myid'] = $data[$key]->myid ;
+						
+							
+							$data1[$key]['imports'] = $data[$key]->imports ;
+							$data1[$key]['exports'] = $data[$key]->exports ;
+							$data1[$key]['from1'] = $data[$key]->from1 ;
+							$data1[$key]['to1'] = $data[$key]->to1 ;
+							$data1[$key]['to2'] = $data[$key]->to2 ;
+							$data1[$key]['date'] = $data[$key]->date ;
+							
+							$data1[$key]['expense'] = $value->expense;
 
 							$data3 = Shipment_Driver::withTrashed()->where('shipment_no', $value->shipment_no)->
 							where('transporter_id', $Request->other_id)->orderBy('id','desc')->first();
@@ -7486,15 +7550,27 @@ class ApiController extends Controller {
 				if ($Request->month != "" && $Request->year != "") {
 					
 
-					$data1 = Shipment_Transporter::where('transporter_id', $Request->other_id)->whereYear('created_at', $Request->year)
-					->whereNull('deleted_at')->whereMonth('created_at', $Request->month)->orderBy('shipment_id','desc')->groupBy('shipment_no')->get();
+					$data1 = Shipment_Driver::where('transporter_id', $Request->other_id)->whereYear('created_at', $Request->year)
+					->whereNull('deleted_at')->whereMonth('created_at', $Request->month)->whereRaw('id IN (select MAX(id) FROM shipment_driver GROUP BY shipment_no)')->orderby('id','desc')->get();
 						
 						$data = array();
 						foreach ($data1 as $key => $value) {
-							$data1 = Shipment::withTrashed()->where('shipment_no', $value->shipment_no)->orderBy('id', 'desc')->whereIn('status',['0','1','2'])->first();
+							$data1 = Shipment::withTrashed()->where('shipment_no', $value->shipment_no)->whereIn('status',['0','1','2'])->first();
 							$data[$key] = $data1;
+							$data[$key]['id'] = $data1->id ;
+							$data[$key]['myid'] = $data1->myid ;
+						
+							
+							$data[$key]['imports'] = $data1->imports ;
+							$data[$key]['exports'] = $data1->exports ;
+							$data[$key]['from1'] = $data1->from1 ;
+							$data[$key]['to1'] = $data1->to1 ;
+							$data[$key]['to2'] = $data1->to2 ;
+							$data[$key]['date'] = $data1->date ;
+							
+							$data[$key]['expense'] = $data1->expense;
 							$data3 = Shipment_Driver::withTrashed()->where('shipment_no', $value->shipment_no)->
-							where('transporter_id', $Request->other_id)->orderBy('id','desc')->first();
+							where('transporter_id', $Request->other_id)->first();
 							
 						if ($data3->status == 1) {
 
@@ -8784,7 +8860,7 @@ class ApiController extends Controller {
 								$query->where('to_transporter', $Request->other_id)
 									  ->orWhere('from_transporter', $Request->other_id);
 							})
-						->orderby('dates','asc')->paginate($perPage);
+						->orderby('id','desc')->paginate($perPage);
 				
 	
 				$cc = Account::whereBetween('dates', [$from_date, $to_date])
@@ -8913,7 +8989,7 @@ class ApiController extends Controller {
 						$query->where('to_company', $Request->other_id)
 							  ->orWhere('from_company', $Request->other_id);
 					})
-				->orderby('dates','asc')->paginate($perPage);
+				->orderby('id','desc')->paginate($perPage);
 				
 			
 		$cc = Account::whereBetween('dates', [$from_date, $to_date])
@@ -9055,7 +9131,7 @@ class ApiController extends Controller {
 							$query->where('to_forwarder', $Request->other_id)
 								  ->orWhere('from_forwarder', $Request->other_id);
 						})
-					->orderby('dates','asc')->paginate($perPage);
+					->orderby('id','desc')->paginate($perPage);
 					
 					
 			$cc = Account::whereBetween('dates', [$from_date, $to_date])
@@ -9209,7 +9285,7 @@ class ApiController extends Controller {
 							$query->where('to_transporter', $Request->other_id)
 								  ->orWhere('from_transporter', $Request->other_id);
 						})
-					->orderby('dates','asc')->get();
+					->orderby('id','desc')->get();
 			
 
 			$cc = Account::whereBetween('dates', [$from_date, $to_date])
@@ -9333,7 +9409,7 @@ class ApiController extends Controller {
 						$query->where('to_company', $Request->other_id)
 							  ->orWhere('from_company', $Request->other_id);
 					})
-				->orderby('dates','asc')->get();
+				->orderby('id','desc')->get();
 				
 			
 		$cc = Account::whereBetween('dates', [$from_date, $to_date])
@@ -9475,7 +9551,7 @@ class ApiController extends Controller {
 							$query->where('to_forwarder', $Request->other_id)
 								  ->orWhere('from_forwarder', $Request->other_id);
 						})
-					->orderby('dates','asc')->get();
+					->orderby('id','desc')->get();
 					
 					
 			$cc = Account::whereBetween('dates', [$from_date, $to_date])
@@ -9657,15 +9733,15 @@ class ApiController extends Controller {
 					$notification->notification_to = $to_user1->id;
 					$notification->shipment_id = $data->id;
 					$title= "Status changed";
-					$message= $data["shipment_no"].' '."is".' '.$getStatus['name'].' ' ."by".' '.$user['username'];
+					$message= $data["shipment_no"].' '."is".' '.$getStatus1['name'].' ' ."by".' '.$user1['username'];
 					$notification->title = $title;
 					$notification->message = $message;
 					$notification->notification_type = '2';
 					$notification->save();
-					if($to_user->device_type == 'ios'){
-						GlobalHelper::sendFCMIOS($title, $message, $to_user->device_token,$notification->notification_type);
+					if($to_user1->device_type == 'ios'){
+						GlobalHelper::sendFCMIOS($title, $message, $to_user1->device_token,$notification->notification_type);
 					}else{
-						GlobalHelper::sendFCM($notification->title, $notification->message, $to_user->device_token,$notification->notification_type);
+						GlobalHelper::sendFCM($notification->title, $notification->message, $to_user1->device_token,$notification->notification_type);
 						}
 				}
 			}
@@ -9734,15 +9810,15 @@ class ApiController extends Controller {
 					$notification->notification_to = $to_user1->id;
 					$notification->shipment_id = $data->id;
 					$title= "Status changed";
-					$message= $data["shipment_no"].' '."is".' '.$getStatus['name'].' ' ."by".' '.$user['username'];
+					$message= $data["shipment_no"].' '."is".' '.$getStatus1['name'].' ' ."by".' '.$user1['username'];
 					$notification->title = $title;
 					$notification->message = $message;
 					$notification->notification_type = '2';
 					$notification->save();
-					if($to_user->device_type == 'ios'){
-						GlobalHelper::sendFCMIOS($title, $message, $to_user->device_token,$notification->notification_type);
+					if($to_user1->device_type == 'ios'){
+						GlobalHelper::sendFCMIOS($title, $message, $to_user1->device_token,$notification->notification_type);
 					}else{
-						GlobalHelper::sendFCM($notification->title, $notification->message, $to_user->device_token,$notification->notification_type);
+						GlobalHelper::sendFCM($notification->title, $notification->message, $to_user1->device_token,$notification->notification_type);
 						}
 				}
 			}
@@ -9811,15 +9887,15 @@ class ApiController extends Controller {
 					$notification->notification_to = $to_user1->id;
 					$notification->shipment_id = $data->id;
 					$title= "Status changed";
-					$message= $data["shipment_no"].' '."is".' '.$getStatus['name'].' ' ."by".' '.$user['username'];
+					$message= $data["shipment_no"].' '."is".' '.$getStatus1['name'].' ' ."by".' '.$user1['username'];
 					$notification->title = $title;
 					$notification->message = $message;
 					$notification->notification_type = '2';
 					$notification->save();
-					if($to_user->device_type == 'ios'){
-						GlobalHelper::sendFCMIOS($title, $message, $to_user->device_token,$notification->notification_type);
+					if($to_user1->device_type == 'ios'){
+						GlobalHelper::sendFCMIOS($title, $message, $to_user1->device_token,$notification->notification_type);
 					}else{
-						GlobalHelper::sendFCM($notification->title, $notification->message, $to_user->device_token,$notification->notification_type);
+						GlobalHelper::sendFCM($notification->title, $notification->message, $to_user1->device_token,$notification->notification_type);
 						}
 				}
 			}
@@ -9893,15 +9969,15 @@ class ApiController extends Controller {
 					$notification->notification_to = $to_user1->id;
 					$notification->shipment_id = $data->id;
 					$title= "Status changed";
-					$message= $data["shipment_no"].' '."is".' '.$getStatus['name'].' ' ."by".' '.$user['username'];
+					$message= $data["shipment_no"].' '."is".' '.$getStatus1['name'].' ' ."by".' '.$user['username'];
 					$notification->title = $title;
 					$notification->message = $message;
 					$notification->notification_type = '2';
 					$notification->save();
-					if($to_user->device_type == 'ios'){
-						GlobalHelper::sendFCMIOS($title, $message, $to_user->device_token,$notification->notification_type);
+					if($to_user1->device_type == 'ios'){
+						GlobalHelper::sendFCMIOS($title, $message, $to_user1->device_token,$notification->notification_type);
 					}else{
-						GlobalHelper::sendFCM($notification->title, $notification->message, $to_user->device_token,$notification->notification_type);
+						GlobalHelper::sendFCM($notification->title, $notification->message, $to_user1->device_token,$notification->notification_type);
 						}
 				}
 			}

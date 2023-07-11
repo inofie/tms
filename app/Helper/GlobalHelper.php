@@ -198,6 +198,7 @@ class GlobalHelper
 
         //$baseurl="http://".url();
         //FCM api URL
+        //dd($title);
         $url = 'https://fcm.googleapis.com/fcm/send';
         //api_key available in Firebase Console -> Project Settings -> CLOUD MESSAGING -> Server key
         $server_key = 'AAAAzwNS6xw:APA91bHgXazooSjv_NvM7mlwk-_qaF809j1l3LThNPdRk0hNmlBdDLwQEr7QAYLpq5mkV4XQ8W9vEvq2WkMyUGTcVsgnVzvlft9NzqwW3x3yszWNAnfObNbp7grqiijLhKWgEd1m5fF8';

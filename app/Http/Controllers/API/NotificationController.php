@@ -98,7 +98,7 @@ class NotificationController extends Controller
                 }
                 $resultList[$key]['date']=Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $value['created_at'])->format('Y-m-d');
                 $lastSeen = GlobalHelper::getTimeAgo($value['created_at']);
-                $resultList[$key]['ago'] = $lastSeen;
+                $resultList[$key]['ago'] = $lastSeen.' '."ago";
             }
             $otherData = [];
             $otherData['unread_count']=Notification::where('notification_to',$request['user_id'])->where('read_status','unread')->count();

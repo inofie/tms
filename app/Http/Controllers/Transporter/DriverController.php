@@ -62,7 +62,7 @@ class DriverController extends Controller
         $this->validate($Request, [
            
         'name' => 'required',
-        'phone' => 'required|numeric|digits:10',
+        'phone' => 'required|numeric|digits:10|unique:driver,phone',
         'licence_no' => 'required',
         'truck_no'=>'required',
         'pan'=>'required',
