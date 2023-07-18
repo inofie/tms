@@ -128,7 +128,7 @@ class AccountController extends Controller
 							$query->where('to_company', $Request->id)
 								  ->orWhere('from_company', $Request->id);
 						})
-					->orderby('dates','asc')->get();
+					->orderby('id','desc')->get();
 					
 				//dd($data12[5]);	
 			$cc = Account::whereBetween('dates', [$from, $to])
@@ -255,7 +255,7 @@ class AccountController extends Controller
 							$query->where('to_transporter', $Request->id)
 								  ->orWhere('from_transporter', $Request->id);
 						})
-					->orderby('dates','asc')->get();
+					->orderby('id','desc')->get();
 			//$data12->dd();
 			$cc = Account::whereBetween('dates', [$from, $to])
 					->where(function($query) use($Request)
@@ -365,7 +365,7 @@ class AccountController extends Controller
 							$query->where('to_forwarder', $Request->id)
 								  ->orWhere('from_forwarder', $Request->id);
 						})
-					->orderby('dates','asc')->get();
+					->orderby('id','desc')->get();
 					
 					
 			$cc = Account::whereBetween('dates', [$from, $to])
@@ -529,7 +529,7 @@ class AccountController extends Controller
 						{
 							$query->where('to_company', $Request->id)
 								  ->orWhere('from_company', $Request->id);
-						})->orderby('dates','asc')->get();
+						})->orderby('id','desc')->get();
 					
 			$cc = Account::whereBetween('dates', [$from, $to])
 					->where(function($query) use($Request)
@@ -649,7 +649,7 @@ class AccountController extends Controller
 						{
 							$query->where('to_transporter', $Request->id)
 								  ->orWhere('from_transporter', $Request->id);
-						})->orderby('dates','asc')->get();
+						})->orderby('id','desc')->get();
 					
 			$cc = Account::whereBetween('dates', [$from, $to])
 					->where(function($query) use($Request)
@@ -757,7 +757,7 @@ class AccountController extends Controller
 						{
 							$query->where('to_forwarder', $Request->id)
 								  ->orWhere('from_forwarder', $Request->id);
-						})->orderby('dates','asc')->get();
+						})->orderby('id','desc')->get();
 					
 			$cc = Account::whereBetween('dates', [$from, $to])
 					->where(function($query) use($Request)

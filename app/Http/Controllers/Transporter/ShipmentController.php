@@ -57,14 +57,17 @@ class ShipmentController extends Controller
          $this->check();
 
         $ff= Transporter::where('user_id',Auth::user()->id)->first();
-        //$cargostatus = Shipment_Driver::where('shipment_no',$data->shipment_no)->latest()->take(1)->first();
         
         $data2 = Shipment_Driver::withTrashed()->where('transporter_id', $ff->id)->whereNull('deleted_at')
-				->whereRaw('id IN (select MAX(id) FROM shipment_driver GROUP BY shipment_no)')->get();
+                ->groupBy('shipment_no')
+				// ->whereRaw('id IN (select MAX(id) FROM shipment_driver GROUP BY shipment_no)')
+                ->get();
+        // $data = Shipment::withTrashed()->whereRaw("find_in_set('$ff->id' , all_transporter)")->first();
         $data = array();
         
         foreach ($data2 as $key => $value) {
-            $data1 = Shipment::withTrashed()->where('shipment_no', $value->shipment_no)->first();
+            $data1 = Shipment::withTrashed()->whereNull('deleted_at')->where('shipment_no', $value->shipment_no)->first();
+            if($data1){
             $data[$key] = $data1;
             $data3 = Shipment_Driver::withTrashed()->where('shipment_no', $value->shipment_no)->
             where('transporter_id', $ff->id)->orderBy('id','desc')->first();
@@ -72,8 +75,7 @@ class ShipmentController extends Controller
              $data[$key]['status'] = $data3->status;
             }
         }
-       // dd($data);
-         //dd($data[$key]->status);
+    }
         $warehouse = Warehouse::get();
         
     	return view('transporter.shipmentlist',compact('data','warehouse'));
@@ -2899,7 +2901,7 @@ class ShipmentController extends Controller
        
         // $datas = Shipment_Transporter::withTrashed()->whereNull('deleted_at')->where('transporter_id', $ff->id);
         $data2 = Shipment_Driver::withTrashed()->where('transporter_id', $ff->id)->whereNull('deleted_at')
-				->whereRaw('id IN (select MAX(id) FROM shipment_driver GROUP BY shipment_no)')->orderby('id','desc');
+        ->groupBy('shipment_no');
         if($month) {
             $data2 = $data2->whereMonth('created_at', $month);
         }
@@ -2921,11 +2923,13 @@ class ShipmentController extends Controller
 		$data = array();
 		
         foreach ($data2 as $key => $value) {
-            $data1 = Shipment::withTrashed()->where('shipment_no', $value->shipment_no)->first();
+            $data1 = Shipment::withTrashed()->whereNull('deleted_at')->where('shipment_no', $value->shipment_no)->first();
+            if($data1){
             $data[$key] = $data1;
             if($value->status){
                 $data[$key]['status'] = $value->status;
             }
+        }
         }
             // dd($data[$key]);
         // $data = $data[$key]->get();

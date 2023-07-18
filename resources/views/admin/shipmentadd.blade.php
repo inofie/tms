@@ -601,9 +601,13 @@
 
    <script src="{{ asset('js/advanced-form-components.js')}}"></script>
 
+   
 
 <script type="text/javascript">
   $( document ).ready(function() {
+    $(document).on('submit', 'form', function() {
+        $('button').attr('disabled', 'disabled');
+    });
 
   
    $('#dds').datepicker({ dateFormat: 'dd-mm-yy' });

@@ -79,18 +79,18 @@
                                   
                                 <form class="cmxform form-horizontal tasi-form" id="shipmentform" method="post" action="{{ route('shipmentupdate') }}" enctype="multipart/form-data">
                                   @csrf
-                                  <input type="hidden" name="shipment_no" value="{{ $data->shipment_no }}">
+                                  <input type="hidden" name="id" value="{{ $data->id }}">
 
                                   <div class="form-group">
                                   <label class="control-label col-lg-2">Date<span style="color: red">*</span>:</label>
                                   <div class="col-md-3 col-lg-3">
                                    
                                     @if(old('date'))
-                                    <input class="form-control" min="{{ \Carbon\Carbon::now()->format('Y-m-d') }}" max="" name="date" type="date" value="{{ old('date') }}">
+                                    <input class="form-control"  max="" name="date" type="date" value="{{ old('date') }}">
 
                                       @else 
 
-                                      <input class="form-control" min="{{ \Carbon\Carbon::now()->format('Y-m-d') }}" max="" name="date" type="date" value="{{ date('Y-m-d',strtotime($data->date)) }}">
+                                      <input class="form-control"  max="" name="date" type="date" value="{{ date('Y-m-d',strtotime($data->date)) }}">
                                     
                                       @endif
                                       @error('date')
@@ -121,7 +121,16 @@
                                           </div>
                                       </div>
 
-
+                                <div class="form-group ">
+                                          <label for="firstname" class="control-label col-lg-2">Shipment No</label>
+  
+                                          <div class="col-lg-10">
+                                              <input class=" form-control" id="shipment_no" name="shipment_no" type="text" value="{{ $data->shipment_no }}" />
+                                               @error('shipment_no')
+                                            <span class="text-danger"> {{ $message }} </span>
+                                          @enderror
+                                          </div>   
+                                  </div>
 
                                         <div class="form-group">
                                       <label class="col-sm-2 control-label col-lg-2" for="inputSuccess">Shipment<span style="color: red">*</span>:</label>

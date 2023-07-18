@@ -67,9 +67,9 @@ class DriverController extends Controller
         'truck_no'=>'required',
         'pan'=>'required',
         'password' => 'required|min:8',
-        'rc_book'=>'required|mimes:jpeg,jpg,png|max:10240',
-        'pan_card'=>'required|mimes:jpeg,jpg,png|max:10240',
-        'licence'=>'required|mimes:jpeg,jpg,png|max:10240',
+        'rc_book'=>'required|mimes:jpeg,jpg,png|max:2560',
+        'pan_card'=>'required|mimes:jpeg,jpg,png|max:2560',
+        'licence'=>'required|mimes:jpeg,jpg,png|max:2560',
        ],[
          'transporter.required' => "Please Select Transporter",
          'password.required' => "Please Enter Password",
@@ -164,6 +164,9 @@ class DriverController extends Controller
         'licence_no' => 'required',
         'truck_no'=>'required',
         'pan'=>'required',
+        'rc_book'=>'mimes:jpeg,jpg,png|max:2560',
+        'pan_card'=>'mimes:jpeg,jpg,png|max:2560',
+        'licence'=>'mimes:jpeg,jpg,png|max:2560',
        ],[
          'transporter.required' => "Please Select Transporter",
          'name.required' => "Please Enter Name",

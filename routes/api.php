@@ -182,12 +182,14 @@ Route::post('forwarder/detail',"API\ForwarderController@Details");
 
 Route::post('/account/list','API\ApiController@AccountData');
 
+Route::post('filteroptionlist',"API\ApiController@filteroptionlist");
+
 Route::post('notificationList', 'API\NotificationController@notificationList');
 Route::post('/readAllNotifications', 'API\NotificationController@readAllNotifications');
 Route::post('/readSingleNotifications', 'API\NotificationController@readSingleNotifications');
 Route::post('testNotification',"API\ApiController@testNotification");
 
-Route::post('changeStatus_Load_To_DocumentReceived',"API\ApiController@changeStatus_Load_To_DocumentReceived");
-Route::post('changeStatus_ReachAtPort_To_Unload',"API\ApiController@changeStatus_ReachAtPort_To_Unload");
-Route::post('changeStatus_ReachAtPort_To_DocumentReceived',"API\ApiController@changeStatus_ReachAtPort_To_DocumentReceived");
-Route::post('changeStatus_ReachAtCompany_To_Unload',"API\ApiController@changeStatus_ReachAtCompany_To_Unload");
+Route::get('changeStatus_Load_To_DocumentReceived',"API\ApiController@changeStatus_Load_To_DocumentReceived");
+Route::get('changeStatus_ReachAtPort_To_Unload',"API\ApiController@changeStatus_ReachAtPort_To_Unload");
+Route::get('changeStatus_ReachAtPort_To_DocumentReceived',"API\ApiController@changeStatus_ReachAtPort_To_DocumentReceived");
+Route::get('changeStatus_ReachAtCompany_To_Unload',"API\ApiController@changeStatus_ReachAtCompany_To_Unload");

@@ -64,7 +64,7 @@ class ShipmentController extends Controller
         if(Auth::user()->role == "company") {
 
         $ff= Company::where('user_id',Auth::user()->id)->first();
-        $data = Shipment::where("status","!=",3)->where('company',$ff->id)->whereRaw('DATEDIFF(CURDATE(),date) <= 6')->where('paid',0)->get();
+        $data = Shipment::where("status","!=",3)->where('company',$ff->id)->get();
         
         }
         else{
@@ -994,6 +994,13 @@ class ShipmentController extends Controller
 
         $data =Shipment_Driver::findorfail($Request->id);
         $transporter = Shipment_Transporter::where('driver_id',$data->driver_id)->where('shipment_no',$data->shipment_no)->delete();
+        $check = Shipment_Driver::where('shipment_no',$data->shipment_no)->count();
+            
+        if($check == 0) {
+        $ship = Shipment::where('shipment_no',$data->shipment_no)->first();
+        $ship->status = 0;
+        $ship->save();
+        }
         
         $data->deleted_by = Auth::id();
         $data->save();
@@ -1066,6 +1073,7 @@ class ShipmentController extends Controller
 
                 $account = new Account();
                 $account->to_transporter = $Request->transporter_id;
+                $account->shipment_no = $Request->shipment_no;
                 $account->from_company = $shipment_data->company;
                 $account->description =  $Request->shipment_no.' '.$shipment_data->date.''.' Expense.'. $Request->reason;
                 $account->dates = date('Y-m-d');
@@ -1582,20 +1590,20 @@ class ShipmentController extends Controller
     {
          $this->check();
 
-        $data2 = Shipment::where('myid',$Request->id)->first();
+        $data2 = Shipment::withTrashed()->whereNull('deleted_at')->where('myid',$Request->id)->first();
         
-        $data = Shipment::where('shipment_no',$data2->shipment_no)->first();
+        $data = Shipment::withTrashed()->whereNull('deleted_at')->where('shipment_no',$data2->shipment_no)->first();
 
 
        
         
-        $comp = Company::findorfail($data->company);
+        $comp = Company::withTrashed()->whereNull('deleted_at')->findorfail($data->company);
 
         $data->company_name = $comp->name;
 
         if($data->forwarder != "" && $data->forwarder != null && $data->forwarder != 'null'){
 
-                $for = Forwarder::findorfail($data->forwarder);
+                $for = Forwarder::withTrashed()->whereNull('deleted_at')->findorfail($data->forwarder);
 
                 $data->forwarder_name = $for->name;
 
@@ -1604,7 +1612,7 @@ class ShipmentController extends Controller
 
                 } 
                  if($data->transporter != "" && $data->transporter != null && $data->transporter != 'null'){
-                $tra = Transporter::withTrashed()->findorfail($data->transporter);
+                $tra = Transporter::withTrashed()->whereNull('deleted_at')->findorfail($data->transporter);
                 $data->transporter_name = $tra->name;
                 } else {
                     $data->transporter_name ="";
@@ -1612,7 +1620,7 @@ class ShipmentController extends Controller
                 } 
 
                 if($data->trucktype != "" && $data->trucktype != null && $data->trucktype != 'null'){
-                $truck = Truck::withTrashed()->findorfail($data->trucktype);
+                $truck = Truck::withTrashed()->whereNull('deleted_at')->findorfail($data->trucktype);
                 $data->trucktype_name = $truck->name;
                 } else {
                     $data->trucktype_name ="";
@@ -1621,7 +1629,7 @@ class ShipmentController extends Controller
                 $tras_list =Shipment_Transporter::withTrashed()->whereNull('deleted_at')->where('shipment_no',$data2->shipment_no)->get();
                 $t_list = "";
                 foreach ($tras_list as $key => $value) { 
-                    $tt =Transporter::findorfail($value->transporter_id);
+                    $tt =Transporter::withTrashed()->findorfail($value->transporter_id);
                      if($key == 0) {
                         $t_list = $t_list."".$tt->name; 
                     } else {
@@ -1630,11 +1638,11 @@ class ShipmentController extends Controller
                      }
                 }
                 $data->transporters_list =  $t_list;
-
-                $driver_list = Shipment_Driver::withTrashed()->whereNull('deleted_at')->where('shipment_no',$data2->shipment_no)->where('transporter_id',$Request->other_id)->get();
+              
+                $driver_list = Shipment_Driver::withTrashed()->whereNull('deleted_at')->where('shipment_no',$data2->shipment_no)->get();
                 $d_list = "";
-                foreach ($tras_list as $key => $value) { 
-                    $tt = Driver::findorfail($value->driver_id);
+                foreach ($driver_list as $key => $value) { 
+                    $tt = Driver::withTrashed()->findorfail($value->driver_id);
                      if($key == 0) {
                         $d_list = $d_list."".$tt->name; 
                     } else {
@@ -1644,10 +1652,10 @@ class ShipmentController extends Controller
                 }
                 $data->drivers_list =  $d_list;
               
-
+                //dd($data);
                 if($Request->role== "transporter"){
 
-                     $driver_list =Shipment_Driver::withTrashed()->whereNull('deleted_at')->where('shipment_no',$data2->shipment_no)->where('transporter_id',$Request->other_id)->get();
+                     $driver_list =Shipment_Driver::withTrashed()->whereNull('deleted_at')->where('shipment_no',$data2->shipment_no)->where('transporter_id',$data2->transporter_id)->get();
                 $d_list = "";
 
                 foreach ($driver_list as $key2 => $value2) { 
@@ -1750,6 +1758,7 @@ class ShipmentController extends Controller
 
 
         $this->validate($Request, [
+        'shipment_no' => 'unique:shipment,shipment_no,' . $Request->id,
         'date' => 'required',
         'company' => 'required',
         'from1' => 'required',
@@ -1774,6 +1783,7 @@ class ShipmentController extends Controller
       } else {
 
        $this->validate($Request, [
+        'shipment_no' => 'unique:shipment,shipment_no,' . $Request->id,
         'date' => 'required',
         'company' => 'required',
         'from1' => 'required',
@@ -1793,7 +1803,7 @@ class ShipmentController extends Controller
 
     }
 
-                $data = Shipment::where('shipment_no',$Request->shipment_no)->first();
+                $data = Shipment::where('id',$Request->id)->first();
 
                 $data->date = date('Y-m-d',strtotime($Request->date));
 
@@ -1825,6 +1835,7 @@ class ShipmentController extends Controller
                     $data->lcl = 0;
 
                 }
+                $data->shipment_no = $Request->shipment_no;
 
                 $data->from1 = $Request->from1;
 
@@ -2688,7 +2699,7 @@ class ShipmentController extends Controller
 
             if(Auth::user()->role == "company") {
             $ff= Company::where('user_id',Auth::user()->id)->first();
-            $data = Shipment::where('company',$ff->id)->whereRaw('DATEDIFF(CURDATE(),date) >= 6')->get();
+            $data = Shipment::where('company',$ff->id)->get();
             }
             else{
             $data = Shipment::whereRaw('DATEDIFF(CURDATE(),date) >= 6')->get();
@@ -2736,20 +2747,22 @@ class ShipmentController extends Controller
     public function ShipmentAllDetails(Request $Request)
     {   
 
-         $this->check();
-        
+        $this->check();
 
-        $data2 = Shipment::where('myid',$Request->id)->first();
+        $data2 = Shipment::withTrashed()->whereNull('deleted_at')->where('myid',$Request->id)->first();
         
         $data = Shipment::withTrashed()->whereNull('deleted_at')->where('shipment_no',$data2->shipment_no)->first();
+
+
+       
         
-        $comp = Company::withTrashed()->findorfail($data->company);
+        $comp = Company::withTrashed()->whereNull('deleted_at')->findorfail($data->company);
 
         $data->company_name = $comp->name;
 
         if($data->forwarder != "" && $data->forwarder != null && $data->forwarder != 'null'){
 
-                $for = Forwarder::withTrashed()->findorfail($data->forwarder);
+                $for = Forwarder::withTrashed()->whereNull('deleted_at')->findorfail($data->forwarder);
 
                 $data->forwarder_name = $for->name;
 
@@ -2758,7 +2771,7 @@ class ShipmentController extends Controller
 
                 } 
                  if($data->transporter != "" && $data->transporter != null && $data->transporter != 'null'){
-                $tra = Transporter::withTrashed()->findorfail($data->transporter);
+                $tra = Transporter::withTrashed()->whereNull('deleted_at')->findorfail($data->transporter);
                 $data->transporter_name = $tra->name;
                 } else {
                     $data->transporter_name ="";
@@ -2766,7 +2779,7 @@ class ShipmentController extends Controller
                 } 
 
                 if($data->trucktype != "" && $data->trucktype != null && $data->trucktype != 'null'){
-                $truck = Truck::withTrashed()->findorfail($data->trucktype);
+                $truck = Truck::withTrashed()->whereNull('deleted_at')->findorfail($data->trucktype);
                 $data->trucktype_name = $truck->name;
                 } else {
                     $data->trucktype_name ="";
@@ -2783,12 +2796,25 @@ class ShipmentController extends Controller
                         $t_list = $t_list.", ".$tt->name; 
                      }
                 }
-
                 $data->transporters_list =  $t_list;
+              
+                $driver_list = Shipment_Driver::withTrashed()->whereNull('deleted_at')->where('shipment_no',$data2->shipment_no)->get();
+                $d_list = "";
+                foreach ($driver_list as $key => $value) { 
+                    $tt = Driver::withTrashed()->findorfail($value->driver_id);
+                     if($key == 0) {
+                        $d_list = $d_list."".$tt->name; 
+                    } else {
 
+                        $d_list = $d_list.", ".$tt->name; 
+                     }
+                }
+                $data->drivers_list =  $d_list;
+              
+                //dd($data);
                 if($Request->role== "transporter"){
 
-                     $driver_list =Shipment_Driver::withTrashed()->whereNull('deleted_at')->where('shipment_no',$data2->shipment_no)->where('transporter_id',$Request->other_id)->get();
+                     $driver_list =Shipment_Driver::withTrashed()->whereNull('deleted_at')->where('shipment_no',$data2->shipment_no)->where('transporter_id',$data2->transporter_id)->get();
                 $d_list = "";
 
                 foreach ($driver_list as $key2 => $value2) { 
@@ -2826,11 +2852,11 @@ class ShipmentController extends Controller
 
                 $trucks = Shipment_Driver::withTrashed()->whereNull('deleted_at')->where('shipment_no',$data->shipment_no)->get();
 
-
+				//dd($data['exports']);
 
                 //dd($trucks);
 
-        return view('admin.shipmentalldetail',compact('data','trucks'));
+        return view('admin.shipmentdetail',compact('data','trucks'));
 
     }
 	public function MyFilter(Request $Request)

@@ -64,7 +64,7 @@ class CompanyController extends Controller
         'gst'=>'required',
         'username'=>'required',
         'password'=>'required|min:8',
-        'logo'=>'mimes:jpeg,jpg,png',
+        'logo'=>'mimes:jpeg,jpg,png|max:5120',
 
          ],[
          'name.required' => "Please Enter Name",
@@ -177,7 +177,7 @@ class CompanyController extends Controller
         'address' => 'required',
         'email'=>'required|email',
         'gst'=>'required',
-        'logo'=>'mimes:jpeg,jpg,png',
+        'logo'=>'mimes:jpeg,jpg,png|max:5120',
         'username'=>'required',
 
          ],[

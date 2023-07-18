@@ -65,7 +65,7 @@ class WarehouseController extends Controller
         'company'=>'required',
         'gst'=>'required',
         'pan'=>'required',
-        'address_proof'=>'required|mimes:jpeg,jpg,png',
+        'address_proof'=>'required|mimes:jpeg,jpg,png|max:5120',
         'password'=>'required|min:8',
        ],[
          'name.required' => "Please Enter Name",
@@ -158,7 +158,7 @@ class WarehouseController extends Controller
         'company'=>'required',
         'gst'=>'required',
         'pan'=>'required',
-        'address_proof'=>'mimes:jpeg,jpg,png',
+        'address_proof'=>'mimes:jpeg,jpg,png|max:5120',
        ],[
          'name.required' => "Please Enter Name",
          'address.required' => "Please Enter Address",

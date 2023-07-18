@@ -55,8 +55,8 @@ class AdminController extends Controller
         $ff= Transporter::where('user_id',Auth::user()->id)->first();
 
         $total = Shipment_Driver::withTrashed()->where('transporter_id', $ff->id)->whereNull('deleted_at')
-        ->whereRaw('id IN (select MAX(id) FROM shipment_driver GROUP BY shipment_no)')
-        ->orderby('id','desc')->get();
+        // ->whereRaw('id IN (select MAX(id) FROM shipment_driver GROUP BY shipment_no)')
+        ->groupBy('shipment_no')->get();
         //dd($total);
         $ids = array();
         if(!$total->count()){
@@ -73,7 +73,7 @@ class AdminController extends Controller
             $total = Shipment_Driver::withTrashed()->wherein('id', $ids)->whereNull('deleted_at')->orderby('id','desc')->get();
             
             foreach ($total as $key => $value) {
-                $total1[$key] = Shipment::withTrashed()->where('shipment_no', $value->shipment_no)->first();	
+                $total1[$key] = Shipment::withTrashed()->whereNull('deleted_at')->where('shipment_no', $value->shipment_no)->first();	
                
             }
             $data['total'] = count($total1);
@@ -83,8 +83,8 @@ class AdminController extends Controller
         //dd($data['total']);
 
         $pending = Shipment_Driver::withTrashed()->where('transporter_id', $ff->id)->whereNull('deleted_at')
-        ->whereRaw('id IN (select MAX(id) FROM shipment_driver GROUP BY shipment_no)')
-        ->orderby('id','desc')->get();
+        // ->whereRaw('id IN (select MAX(id) FROM shipment_driver GROUP BY shipment_no)')
+        ->groupBy('shipment_no')->get();
         
         $ids = array();
         $pending1 = array();
@@ -99,15 +99,15 @@ class AdminController extends Controller
         $pending = Shipment_Driver::withTrashed()->wherein('id', $ids)->whereNull('deleted_at')->orderby('id','desc')->get();
         
         foreach ($pending as $key => $value) {
-            $pending1[$key] = Shipment::withTrashed()->where('shipment_no', $value->shipment_no)->first();	
+            $pending1[$key] = Shipment::withTrashed()->whereNull('deleted_at')->where('shipment_no', $value->shipment_no)->first();	
               
         }
         $data['pending'] = count($pending1);
         }
 
         $ontheway = Shipment_Driver::withTrashed()->where('transporter_id', $ff->id)->whereNull('deleted_at')
-        ->whereRaw('id IN (select MAX(id) FROM shipment_driver GROUP BY shipment_no)')
-        ->orderby('id','desc')->get();
+       
+        ->groupBy('shipment_no')->get();
         $ids = array();
         $ontheway1 = array();
         if(!$ontheway->count()){
@@ -123,15 +123,15 @@ class AdminController extends Controller
         $ontheway = Shipment_Driver::withTrashed()->wherein('id', $ids)->whereNull('deleted_at')->orderby('id','desc')->get();
         
         foreach ($ontheway as $key => $value) {
-            $ontheway1[$key] = Shipment::withTrashed()->where('shipment_no', $value->shipment_no)->first();	
+            $ontheway1[$key] = Shipment::withTrashed()->whereNull('deleted_at')->where('shipment_no', $value->shipment_no)->first();	
               
         }
         $data['ontheway'] = count($ontheway1);
     }
 
         $delivery = Shipment_Driver::withTrashed()->where('transporter_id', $ff->id)->whereNull('deleted_at')
-				->whereRaw('id IN (select MAX(id) FROM shipment_driver GROUP BY shipment_no)')
-				->orderby('id','desc')->get();
+				
+				->groupBy('shipment_no')->get();
 				$ids = array();
                 $delivery1 = array();
                 if(!$delivery->count()){
@@ -146,10 +146,11 @@ class AdminController extends Controller
                 
 			
 				foreach ($delivery as $key => $value) {
-                    $delivery1[$key] = Shipment::withTrashed()->where('shipment_no', $value->shipment_no)->first();	
+                    $delivery1[$key] = Shipment::withTrashed()->whereNull('deleted_at')->where('shipment_no', $value->shipment_no)->first();	
 					  
                 }
         $data['delivery'] = count($delivery1);
+        //dd($data['ontheway']);
     }
     
     	

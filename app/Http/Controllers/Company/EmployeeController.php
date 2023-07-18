@@ -66,7 +66,7 @@ class EmployeeController extends Controller
         'username'=>'required',
         'password'=>'required|min:8',
         'company'=>'required',
-        'pan_card'=>'required|mimes:jpeg,jpg,png',
+        'pan_card'=>'required|mimes:jpeg,jpg,png|max:5120',
 
         ],[
          'name.required' => "Please Enter Name",
@@ -165,7 +165,7 @@ class EmployeeController extends Controller
         'email'=>'required|email',
         'address' => 'required',
         'company'=>'required',
-        'pan_card'=>'mimes:jpeg,jpg,png',
+        'pan_card'=>'mimes:jpeg,jpg,png|max:5120',
          'username'=>'required',
 
         ],[

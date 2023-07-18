@@ -23,8 +23,8 @@ Dashboard | TMS
                               <i class="fa fa-tags"></i>
                           </div>
                           <div class="value">
-                              <h1 class=" count2">
-                                  0
+                              <h1>
+                              {{$data['pending']}}
                               </h1>
                               <p>Pending Shipment</p>
                           </div>
@@ -37,8 +37,8 @@ Dashboard | TMS
                               <i class="fa fa-shopping-cart"></i>
                           </div>
                           <div class="value">
-                              <h1 class=" count3">
-                                  0
+                              <h1>
+                              {{$data['ontheway']}}
                               </h1>
                               <p>OnTheWay Shipment</p>
                           </div>
