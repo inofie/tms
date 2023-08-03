@@ -5595,7 +5595,7 @@ class ApiController extends Controller {
 			}
 
 
-		if($Request->role == 'driver' || $Request->role == 'company'){
+		if($Request->role == 'driver' || $Request->role == 'company' || $Request->role == 'admin'){
 			//transportor
 			$transporter=Transporter::where('id',$data->transporter_id)->first();
 			if($Request->role == "driver"){
@@ -5633,7 +5633,7 @@ class ApiController extends Controller {
             }
 		}
 
-		if($Request->role == 'company'){
+		if($Request->role == 'company' || $Request->role == 'admin'){
 			//Driver
 			$from_user = User::find($data->updated_by);
 			$to_user = Driver::find($data->driver_id);
