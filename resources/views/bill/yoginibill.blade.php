@@ -160,10 +160,10 @@ $number = $data->grand_total;
       <table style="width: 100%; color: #000;">
         <tr style="height: 20px;">
           {{-- <td>
-            <img style="width: 99%; text-align: center;" src="{{ asset('public/uploads/y.jpg')}}">
+            <img style="width: 99%; text-align: center;" src="{{ asset('/uploads/y.jpg')}}">
           </td> --}}
 	        <td style="width: 25%;padding: 0px 10px 0px 0px"> 
-            	<img src="{{asset('public/uploads/yogi.png')}}" alt="" style="width: 80%">
+            	<img src="{{asset('/uploads/yogi.png')}}" alt="" style="width: 80%">
         	</td> 
        		<td style="width: 35%;font-size: 12px;font-family:Helvetica Neue;text-align: revert;font-weight: 400; text-align: left; line-height: 1.5">
              	<p>L/22,Swatantra Senaninagar,Opp.Nava Vadaj Bus Stop,Nava Vadaj,Ahmedabad-380013</p>
@@ -288,7 +288,11 @@ $number = $data->grand_total;
                 <td style="border: 1px solid #000 ; text-align: center; font-size: 12px; font-weight: 700; background-color: #e6e6e6;  width: 10.66%; line-height: 1.2;  padding: 5px;">Date</td>
                 <td style="border: 1px solid #000 ; text-align: center; font-size: 12px; font-weight: 700; background-color: #e6e6e6;  width: 11.66%; line-height: 1.2;  padding: 5px;">Shipment No </td>
                 <td style="border: 1px solid #000 ; text-align: center; font-size: 12px; font-weight: 700; background-color: #e6e6e6;  width: 23.02%; line-height: 1.2;  padding: 5px;">Truck No</td>
-                <td style="border: 1px solid #000 ; text-align: center; font-size: 12px; font-weight: 700; background-color: #e6e6e6;  width: 15.66%; line-height: 1.2;  padding: 5px;">Amount</td>
+                <td style="border: 1px solid #000 ; text-align: center; font-size: 12px; font-weight: 700; background-color: #e6e6e6;  width: 10.66%; line-height: 1.2;  padding: 5px;">Freight</td>
+                <td style="border: 1px solid #000 ; text-align: center; font-size: 12px; font-weight: 700; background-color: #e6e6e6;  width: 10.66%; line-height: 1.2;  padding: 5px;">Detention</td>
+                <td style="border: 1px solid #000 ; text-align: center; font-size: 12px; font-weight: 700; background-color: #e6e6e6;  width: 10.66%; line-height: 1.2;  padding: 5px;">Loading Unloading</td>
+                <td style="border: 1px solid #000 ; text-align: center; font-size: 12px; font-weight: 700; background-color: #e6e6e6;  width: 10.66%; line-height: 1.2;  padding: 5px;">Others</td>
+                <td style="border: 1px solid #000 ; text-align: center; font-size: 12px; font-weight: 700; background-color: #e6e6e6;  width: 10.66%; line-height: 1.2;  padding: 5px;">Total Amount</td>
 
               </tr>
 
@@ -332,7 +336,11 @@ $number = $data->grand_total;
 
                     @endforeach
                 </td>
-                <td style=" vertical-align: baseline;border-left: 1px solid #000 ; border-right: 1px solid #000 ; text-align: right; font-size: 10px;   width:15.66%; line-height: 1.2; padding: 1px;" > {{ number_format($data->sub_total,2) }}</td>
+                <td style=" vertical-align: baseline;border-left: 1px solid #000 ; border-right: 1px solid #000 ; text-align: right; font-size: 10px;   width:15.66%; line-height: 1.2; padding: 1px;" > {{ number_format($data->fright,2) }}</td>
+                <td style=" vertical-align: baseline;border-left: 1px solid #000 ; border-right: 1px solid #000 ; text-align: right; font-size: 10px;   width:15.66%; line-height: 1.2; padding: 1px;" > {{ number_format($data->detention,2) }}</td>
+                <td style=" vertical-align: baseline;border-left: 1px solid #000 ; border-right: 1px solid #000 ; text-align: right; font-size: 10px;   width:15.66%; line-height: 1.2; padding: 1px;" > {{ number_format($data->loading,2) }}</td>
+                <td style=" vertical-align: baseline;border-left: 1px solid #000 ; border-right: 1px solid #000 ; text-align: right; font-size: 10px;   width:15.66%; line-height: 1.2; padding: 1px;" > {{ number_format($data->other,2) }}</td>
+                <td style=" vertical-align: baseline;border-left: 1px solid #000 ; border-right: 1px solid #000 ; text-align: right; font-size: 10px;   width:15.66%; line-height: 1.2; padding: 1px;" > {{ number_format($data->grand_total,2) }}</td>
 
               </tr>
 
@@ -358,13 +366,17 @@ $number = $data->grand_total;
                 <td style=" border-left: 1px solid #000 ; border-right: 1px solid #000 ; text-align: center; font-size: 10px;   width:5%; line-height: 1.2; padding: 1px;"></td>
               </tr> --}}
                <tr>
-                <td style=" border-left: 1px solid #000 ; border-right: 1px solid #000 ; text-align: center; font-size: 10px;   width:5%; line-height: 1.2; padding: 1px;">2</td>
-                <td style=" vertical-align: baseline;border-left: 1px solid #000 ; border-right: 1px solid #000 ; text-align: left; font-size: 10px;   width:24%; line-height: 1.2; padding: 1px;" rowspan="3" >Extra</td>
+                <td style=" border-left: 1px solid #000 ; border-right: 1px solid #000 ; text-align: center; font-size: 10px;   width:5%; line-height: 1.2; padding: 1px;"></td>
+                <td style=" vertical-align: baseline;border-left: 1px solid #000 ; border-right: 1px solid #000 ; text-align: left; font-size: 10px;   width:24%; line-height: 1.2; padding: 1px;" rowspan="3" ></td>
                 <td style=" vertical-align: baseline;border-left: 1px solid #000 ; border-right: 1px solid #000 ; text-align: center; font-size: 10px;   width:10%; line-height: 1.2; padding: 1px;"rowspan="3" ></td>
                 <td style=" vertical-align: baseline;border-left: 1px solid #000 ; border-right: 1px solid #000 ; text-align: center; font-size: 10px;   width:10.66%; line-height: 1.2; padding: 1px;" rowspan="3"></td>
                 <td style=" vertical-align: baseline;border-left: 1px solid #000 ; border-right: 1px solid #000 ; text-align: center; font-size: 10px;   width:11.66%; line-height: 1.2; padding: 1px;" rowspan="3"> </td>
                 <td style=" vertical-align: baseline;border-left: 1px solid #000 ; border-right: 1px solid #000 ; text-align: center; font-size: 10px;   width:23.66%; line-height: 1.2; padding: 1px;" rowspan="3"></td>
-                <td style=" vertical-align: baseline;border-left: 1px solid #000 ; border-right: 1px solid #000 ; text-align: right; font-size: 10px;   width:15.66%; line-height: 1.2; padding: 1px;"rowspan="3" > {{ number_format($data->extra_amount,2) }}</td>
+                <td style=" vertical-align: baseline;border-left: 1px solid #000 ; border-right: 1px solid #000 ; text-align: right; font-size: 10px;   width:15.66%; line-height: 1.2; padding: 1px;"rowspan="3" ></td>
+                <td style=" vertical-align: baseline;border-left: 1px solid #000 ; border-right: 1px solid #000 ; text-align: right; font-size: 10px;   width:15.66%; line-height: 1.2; padding: 1px;"rowspan="3" ></td>
+                <td style=" vertical-align: baseline;border-left: 1px solid #000 ; border-right: 1px solid #000 ; text-align: right; font-size: 10px;   width:15.66%; line-height: 1.2; padding: 1px;"rowspan="3" ></td>
+                <td style=" vertical-align: baseline;border-left: 1px solid #000 ; border-right: 1px solid #000 ; text-align: right; font-size: 10px;   width:15.66%; line-height: 1.2; padding: 1px;"rowspan="3" ></td>
+                <td style=" vertical-align: baseline;border-left: 1px solid #000 ; border-right: 1px solid #000 ; text-align: right; font-size: 10px;   width:15.66%; line-height: 1.2; padding: 1px;"rowspan="3" ></td>
 
               </tr>
 
@@ -386,6 +398,10 @@ $number = $data->grand_total;
                  <td style=" border: 1px solid #000 ; border-right: 1px solid #000 ;text-align: center; font-size: 10px; font-weight: 700;   width: 10%; line-height: 1.2;  padding: 3px; background-color: #e6e6e6;" ></td>
                 <td style=" border: 1px solid #000 ; border-right: 1px solid #000 ;text-align: center; font-size: 10px; font-weight: 700;   width: 10.66%; line-height: 1.2;  padding: 3px;">&nbsp;</td>
                 <td style=" border: 1px solid #000 ; border-right: 1px solid #000 ;text-align: center; font-size: 10px; font-weight: 700;   width: 11.66%; line-height: 1.2;  padding: 3px;">&nbsp;</td>
+                <td style=" border: 1px solid #000 ; border-right: 1px solid #000 ;text-align: center; font-size: 10px; font-weight: 700;   width: 23.66%; line-height: 1.2;  padding: 3px;">&nbsp; </td>  
+                <td style=" border: 1px solid #000 ; border-right: 1px solid #000 ;text-align: center; font-size: 10px; font-weight: 700;   width: 23.66%; line-height: 1.2;  padding: 3px;">&nbsp; </td>  
+                <td style=" border: 1px solid #000 ; border-right: 1px solid #000 ;text-align: center; font-size: 10px; font-weight: 700;   width: 23.66%; line-height: 1.2;  padding: 3px;">&nbsp; </td>  
+                <td style=" border: 1px solid #000 ; border-right: 1px solid #000 ;text-align: center; font-size: 10px; font-weight: 700;   width: 23.66%; line-height: 1.2;  padding: 3px;">&nbsp; </td>  
                 <td style=" border: 1px solid #000 ; border-right: 1px solid #000 ;text-align: center; font-size: 10px; font-weight: 700;   width: 23.66%; line-height: 1.2;  padding: 3px;">&nbsp; </td>       
                 <td style=" border: 1px solid #000 ; border-right: 1px solid #000 ;text-align: right; font-size: 10px; font-weight: 700;   width: 15.66%; line-height: 1.2;  padding: 3px;"><i class="fa fa-inr"></i> {{ number_format($data->grand_total,2) }}</td>
 
@@ -405,6 +421,14 @@ $number = $data->grand_total;
                <td style=" border: 1px solid #000 ; border-left: none; text-align: center; font-size: 10px; font-weight: 700;   width:10%; line-height: 1.2; padding: 5px;">E. & O.E</td>
 
             
+          </tr>
+          </table>
+          <table  style="border-collapse: collapse; margin-bottom: 0.5% ;">
+          <tr>
+            <td style=" border: 1px solid #000 ; border-right: 1px solid #000 ; text-align: center; font-size: 10px; font-weight: 700;   width:39%; line-height: 1.2; padding: 5px; background-color: #e6e6e6;">Remarks</td>
+
+              <td style=" border: 1px solid #000 ; border-right: 1px solid #000 ; text-align: center; font-size: 10px; font-weight: 700;   width:51%; line-height: 1.2; padding: 5px; border-right: none;">{{ $data->remarks }}</td>
+              <td style=" border: 1px solid #000 ; border-left: none; text-align: center; font-size: 10px; font-weight: 700;   width:10%; line-height: 1.2; padding: 5px;"></td>
           </tr>
         
       </table>
@@ -451,7 +475,7 @@ $number = $data->grand_total;
 			</td> 
             <td style=" border-left: 1px solid #000; text-align: left; font-size: 13px; width:24.32%; line-height: 1.2; padding: 5px;" rowspan="3">
 				@if($data->qr_code)
-					<img src="{{ asset('public/Qr_code') }}/{{ $data->qr_code }}" width="100%">
+					<img src="{{ asset('/Qr_code') }}/{{ $data->qr_code }}" width="100%">
 				@endif
 			</td>
             </tr>
@@ -472,7 +496,7 @@ $number = $data->grand_total;
 				</td>
                <!-- <td style=" border-left: 1px solid #000;text-align: center; font-size: 13px; width:24.32%; line-height: 1.2; padding: 5px;">
 				@if($data->qr_code)
-					<img src="{{ asset('public/Qr_code') }}/{{ $data->qr_code }}" width="75px">
+					<img src="{{ asset('/Qr_code') }}/{{ $data->qr_code }}" width="75px">
 				@endif
 				</td> -->
 

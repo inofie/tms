@@ -6,6 +6,20 @@ Dashboard | TMS
 @section('css2')
 <link href="{{ asset('assets/jquery-easy-pie-chart/jquery.easy-pie-chart.css')}}" rel="stylesheet" type="text/css" media="screen"/>
 <link rel="stylesheet" href="{{ asset('css/owl.carousel.css')}}" type="text/css">
+<style type="text/css">
+  .state-overview .symbol{
+    width: 35% !important;
+    padding: 20px 15px !important;
+}
+.state-overview .value{
+       float: inherit !important;
+      width: 55% !important;
+}
+.state-overview .panel .value h1 {
+    font-weight: 500 !important;
+    font-size: 20px !important;
+}
+</style>
 @endsection	
 
 
@@ -22,8 +36,8 @@ Dashboard | TMS
                               <i class="fa fa-user"></i>
                           </div>
                           <div class="value">
-                              <h1 class="count5">
-                                  0
+                              <h1>
+                             {{$data['pl_report']}}
                               </h1>
                               <p>P/L Report</p>
                           </div>
@@ -37,8 +51,8 @@ Dashboard | TMS
                               <i class="fa fa-tags"></i>
                           </div>
                           <div class="value">
-                              <h1 class=" count2">
-                                  0
+                              <h1>
+                              {{$data['pending']}}
                               </h1>
                               <p>Pending Shipment</p>
                           </div>
@@ -51,8 +65,8 @@ Dashboard | TMS
                               <i class="fa fa-shopping-cart"></i>
                           </div>
                           <div class="value">
-                              <h1 class=" count3">
-                                  0
+                              <h1>
+                              {{$data['ontheway']}}
                               </h1>
                               <p>OnTheWay Shipment</p>
                           </div>
@@ -66,8 +80,8 @@ Dashboard | TMS
                               <i class="fa fa-bar-chart-o"></i>
                           </div>
                           <div class="value">
-                              <h1 class=" count4">
-                                  0
+                              <h1>
+                              {{$data['bill_status']}}
                               </h1>
                               <p>Bill Status</p>
                           </div>

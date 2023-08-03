@@ -208,7 +208,7 @@ Route::group(['namespace' => 'Admin','prefix' =>'admin' , 'middleware' => 'auth'
 	Route::post('/account','AccountController@AccountPDF')->name('accountspdf');
 	Route::post('/account/list','AccountController@AccountData')->name('accountdata');
 	Route::get('/notifications/list','NotificationController@List')->name('notificationlist');
-
+	Route::get('/getNotification','NotificationController@getNotification')->name('getNotification');
 });
 
 
@@ -255,9 +255,9 @@ Route::group(['namespace' => 'Transporter','prefix' =>'transporter' , 'middlewar
 	Route::get('/shipment/warehouse/list','ShipmentController@WarehouseShipmentList')->name('warehouseshiplisttransporter');
 	Route::get('/shipment/warehouse/transporter/add/{id}','ShipmentController@AddWareTransporter')->name('shipmentWaretransporter');
 	Route::post('/shipment/warehouse/tansporter/save','ShipmentController@SaveWareTransporter')->name('savewaretransporter');
-	Route::get('/shipment/warehouse/edit/{id}','ShipmentController@ShipmentWareEdit')->name('shipmentwareedit');
-	Route::post('/shipment/warehouse/update','ShipmentController@ShipmentWareUpdate')->name('shipmentwareupdate');
-	Route::get('/shipment/warehouse/detail/{id}','ShipmentController@ShipmentWareDetails')->name('shipmentwaredetails');
+	Route::get('/shipment/warehouse/edit/{id}','ShipmentController@ShipmentWareEdit')->name('shipmentwareedit1');
+	Route::post('/shipment/warehouse/update','ShipmentController@ShipmentWareUpdate')->name('shipmentwareupdate1');
+	Route::get('/shipment/warehouse/detail/{id}','ShipmentController@ShipmentWareDetails')->name('shipmentwaredetailstransporter');
 	Route::post('/shipment/ontheway','ShipmentController@ShipmentOntheway')->name('shipmentontheway');
 	Route::post('/shipment/get/newid','ShipmentController@ShipmentNewID')->name('shipmentnewid');
 	Route::post('/shipment/newshipment','ShipmentController@NewShipment')->name('newshipment');

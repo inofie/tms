@@ -30,7 +30,7 @@ Account | TMS
                           <div class="panel-body">
                                 <div class="form">
                                     <form class="cmxform form-horizontal tasi-form" id="comform" method="get" action="#" >
-                                    
+                                      @if($data1->role != "company")
                                         <div class="form-group " id="fcompany_id">
                                             <label for="fcompany_id" class="control-label col-lg-2"> Company :</label>
                                             <div class="col-lg-10">
@@ -51,7 +51,7 @@ Account | TMS
                                                 @enderror
                                             </div>
                                         </div>
-
+                                         
                                          <div class="form-group " id="transporter_div">
                                             <label for="transporter_id" class="control-label col-lg-2"> Transporter :</label>
                                             <div class="col-lg-10">
@@ -93,7 +93,29 @@ Account | TMS
                                                 @enderror
                                             </div>
                                         </div>
+                                        @else
+                                        <div class="form-group " id="fcompany_id">
+                                            <label for="fcompany_id" class="control-label col-lg-2"> Company :</label>
+                                            <div class="col-lg-10">
+                                                <select class="form-control" id="fcompany" name="fcompany_id" > 
+                                                
+                                                      @foreach($company as $value)
+                                                      @if(old('fcompany_id') == $value->id)
+                                                      <option data-code="{{ $value->code }}" data-bill="{{ $value->bill_no }}" selected="selected" value="{{ $value->id }}">{{ $value->name }}</option>
+                                                      @else
+                                                      <option data-code="{{ $value->code }}" data-bill="{{ $value->bill_no }}" value="{{ $value->id }}">{{ $value->name }}</option>
+                                                      @endif
+                                                      @endforeach 
 
+                                                </select>
+
+                                                @error('fcompany_id')
+                                                 <span class="text-danger"> {{ $message }} </span>
+                                                @enderror
+                                            </div>
+                                        </div>
+                                         
+                                        @endif
 
                                         <div class="form-group">
                                             <label class="control-label col-md-2">Date Range</label>

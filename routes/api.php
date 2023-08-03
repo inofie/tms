@@ -170,7 +170,7 @@ Route::post('ledgermail',"API\ApiController@LegerMail");
 // Lr Mail - 79
 Route::post('podmail',"API\ApiController@PodMail");
 
-
+Route::post('generateshipment',"API\ApiController@generateshipment");
 	
 //// Forworder API/////////////
 

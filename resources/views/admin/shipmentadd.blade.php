@@ -85,11 +85,11 @@
                                   <div class="col-md-3 col-lg-3">
                                    
                                     @if(old('date'))
-                                    <input class="form-control" min="{{ \Carbon\Carbon::now()->format('Y-m-d') }}" max="" name="date" type="date" value="{{ old('date') }}">
+                                    <input class="form-control" name="date" type="date" value="{{ old('date') }}">
 
                                       @else 
 
-                                      <input class="form-control" min="{{ \Carbon\Carbon::now()->format('Y-m-d') }}" max="" name="date" type="date" value="{{ date('Y-m-d') }}">
+                                      <input class="form-control"  name="date" type="date" value="{{ date('Y-m-d') }}">
                                       
 
                                       @endif
@@ -119,7 +119,7 @@
                                           </div>
                                       </div>
 
-                                 <!-- <div class="form-group ">
+                                 <div class="form-group ">
                                           <label for="firstname" class="control-label col-lg-2">Shipment No</label>
   
                                           <div class="col-lg-10">
@@ -128,7 +128,7 @@
                                             <span class="text-danger"> {{ $message }} </span>
                                           @enderror
                                           </div>   
-                                  </div> -->
+                                  </div>
                              
 
 

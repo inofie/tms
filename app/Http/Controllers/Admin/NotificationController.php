@@ -31,21 +31,43 @@ class NotificationController extends Controller
 
     public function List(Request $Request)
     {
+        // dd(request()->ajax());
+        // $data = Notification::where('notification_to',Auth::user()->id)->orderBy('id','desc')->take(30)->get();
+        // // dd($data);
+        // $role = User::where('id',Auth::user()->id)->first();
+        // foreach ($data as $key => $value) {
+        //     $data[$key]=$value;
+        //     //  $noti_from = User::withTrashed()->where('id',$value->notification_from);
+        //      $shipmentno = Shipment::withTrashed()->findorfail($value->shipment_id);
+        //     //  $data[$key]['user_name_from']=$noti_from['username'];
+        //      $data[$key]['myid'] = $shipmentno['myid'];
+        // }
 
-        $data = Notification::where('notification_to',Auth::user()->id)->get();
+    	return view('admin.notificationlist');
+    }
+
+    public function getNotification(Request $Request)
+    {
+        $start = $Request->start;
+        $length = $Request->length;
+        $total = Notification::where('notification_to',Auth::user()->id)->count();
+        $data = Notification::leftJoin('shipment','shipment.id','=','notification.shipment_id')
+        ->leftJoin('users','users.id','=','notification.notification_to')
+        ->select('notification.*',\DB::raw('CONCAT(shipment.myid,"_",users.role) AS role'))
+        ->where('notification_to',Auth::user()->id)
+        ->orderBy('id','desc')
+        ->skip($start)
+        ->take($length)
+        ->get();
+
+
         $role = User::where('id',Auth::user()->id)->first();
-        
-        // $data= array();
-        foreach ($data as $key => $value) {
-            $data[$key]=$value;
-            $noti_from = User::withTrashed()->findorfail($value->notification_from);
-            $noti_to = User::withTrashed()->findorfail($value->notification_to);
-            $shipmentno = Shipment::withTrashed()->findorfail($value->shipment_id);
-            $data[$key]->user_name_from=$noti_from->username;
-            $data[$key]->user_name_to=$noti_to->username;
-            $data[$key]->myid = $shipmentno->myid;
-        }
-    	return view('admin.notificationlist',compact('data','role'));
+        // foreach ($data as $key => $value) {
+        //     $data[$key]=$value;
+        //      $shipmentno = Shipment::withTrashed()->findorfail($value->shipment_id);
+        //      $data[$key]['myid'] = $shipmentno['myid'];
+        // }
+        return ['data'=>$data,'draw'=>$Request['draw'] ,'recordsTotal'=>$total,'recordsFiltered'=>$total];
     }
     //  public function Delete(Request $Request)
     // {

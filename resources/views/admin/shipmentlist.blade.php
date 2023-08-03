@@ -13,6 +13,27 @@ Shipment List | TMS
 <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.20/css/jquery.dataTables.min.css">
 
 <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/buttons/1.6.1/css/buttons.dataTables.min.css">
+<style type="text/css">
+  .pannel{
+    overflow:hidden;
+  }
+table.dataTable{
+   display: block !important;
+    overflow-x: auto !important;
+}
+.state-overview .symbol{
+    width: 35% !important;
+    padding: 20px 15px !important;
+}
+.state-overview .value{
+       float: inherit !important;
+      width: 55% !important;
+}
+.state-overview .panel .value h1 {
+    font-weight: 500 !important;
+    font-size: 20px !important;
+}
+</style>
 
 <script type="text/javascript" src="https://code.jquery.com/jquery-3.3.1.js"></script>
 

@@ -58,23 +58,23 @@ class ShipmentController extends Controller
 
         $ff= Transporter::where('user_id',Auth::user()->id)->first();
         
-        $data2 = Shipment_Driver::withTrashed()->where('transporter_id', $ff->id)->whereNull('deleted_at')
-                ->groupBy('shipment_no')
-				// ->whereRaw('id IN (select MAX(id) FROM shipment_driver GROUP BY shipment_no)')
-                ->get();
-        // $data = Shipment::withTrashed()->whereRaw("find_in_set('$ff->id' , all_transporter)")->first();
-        $data = array();
+        // $data2 = Shipment_Driver::withTrashed()->where('transporter_id', $ff->id)->whereNull('deleted_at')
+        //         ->groupBy('shipment_no')
+		// 		// ->whereRaw('id IN (select MAX(id) FROM shipment_driver GROUP BY shipment_no)')
+        //         ->get();
+        $data = Shipment::withTrashed()->whereRaw("find_in_set('$ff->id' , all_transporter)")->get();
         
-        foreach ($data2 as $key => $value) {
-            $data1 = Shipment::withTrashed()->whereNull('deleted_at')->where('shipment_no', $value->shipment_no)->first();
-            if($data1){
-            $data[$key] = $data1;
+        
+        foreach ($data as $key => $value) {
+            // $data1 = Shipment::withTrashed()->whereNull('deleted_at')->where('shipment_no', $value->shipment_no)->first();
+            // if($data1){
+            // $data[$key] = $data1;
             $data3 = Shipment_Driver::withTrashed()->where('shipment_no', $value->shipment_no)->
             where('transporter_id', $ff->id)->orderBy('id','desc')->first();
             if($data3){
              $data[$key]['status'] = $data3->status;
             }
-        }
+        //}
     }
         $warehouse = Warehouse::get();
         
@@ -380,6 +380,7 @@ class ShipmentController extends Controller
                         $summary->shipment_no = $shipment_no;
                         $summary->flag = "Add Driver";
                         $summary->transporter_id = $Request->transporter;
+                        $summary->driver_id = $Request->driver_id;
                         $summary->description = "Add Driver. \n" . $mytruckno . "(Co.No." . $tt->phone . ").";
                         $summary->save();
                 
@@ -724,7 +725,7 @@ class ShipmentController extends Controller
             if($data[$key]->status_name == "Reach at Port"){
                 $status = Cargostatus::where('id','2')->get();
             }
-            if($data[$key]->status_name == "Load (Damage, Missing)"){
+            if($data[$key]->status_name == "Loaded"){
                 $status = Cargostatus::where('id','9')->get();
             }
             if($data[$key]->status_name == "Document Received"){
@@ -748,7 +749,7 @@ class ShipmentController extends Controller
             if($data[$key]->status_name == "Reach at Company"){
                 $status = Cargostatus::where('id','2')->get();
             }
-            if($data[$key]->status_name == "Load (Damage, Missing)"){
+            if($data[$key]->status_name == "Loaded"){
                 $status = Cargostatus::where('id','9')->get();
             }
             if($data[$key]->status_name == "Document Received"){
@@ -1053,12 +1054,25 @@ class ShipmentController extends Controller
         //dd($Request);
 
         $data =Shipment_Driver::findorfail($Request->id);
+        $tra=Shipment_Transporter::whereNull('driver_id')->where('transporter_id',$data->transporter_id)->where('shipment_no',$data->shipment_no)->first();
+        if($tra){
+        $check = Shipment_Transporter::whereNull('driver_id')->where('transporter_id',$data->transporter_id)->where('shipment_no',$data->shipment_no)->delete();
+        }
+        else{
         $transporter = Shipment_Transporter::where('driver_id',$data->driver_id)->where('shipment_no',$data->shipment_no)->delete();
-       
+        }
         
         $data->deleted_by = Auth::id();
         $data->save();
         $data->delete();
+
+        $check = Shipment_Driver::where('shipment_no',$data->shipment_no)->count();
+            
+        if($check == 0) {
+        $ship = Shipment::where('shipment_no',$data->shipment_no)->first();
+        $ship->status = 0;
+        $ship->save();
+        }
 
         $summary = new Shipment_Summary();
         $summary->shipment_no =  $data->shipment_no;
@@ -1316,6 +1330,7 @@ class ShipmentController extends Controller
                         $summary->shipment_no = $Request->shipment_no;
                         $summary->flag = "Add Driver";
                         $summary->transporter_id = $Request->transporter_id;
+                        $summary->driver_id = $Request->driver_id;
                         $summary->description = "Add Driver. \n" . $mytruckno . "(Co.No." . $tt->phone . ").";
                         $summary->save();
 
@@ -1353,7 +1368,7 @@ class ShipmentController extends Controller
 
                 }
 
-            return redirect()->back()->with('success', "Transporter Successfully Add.");
+            return redirect()->back()->with('success', "Transporter Add Successfully.");
 
     }
 
@@ -1362,12 +1377,30 @@ class ShipmentController extends Controller
              $this->check();
 
                 $data =Shipment_Transporter::findorfail($Request->id);
-               // dd($data);
-                $dd = Shipment_Transporter::where('id',$data->id)->delete();
+                $ship_driver = Shipment_Driver::where('shipment_no',$data->shipment_no)
+                ->where('transporter_id',$data->transporter_id)->get();
+                foreach ($ship_driver as $key => $value) {
+
+				$drive = Shipment_Driver::findorfail($value->id);
+				$drive->deleted_by = Auth::id();
+				$drive->save();
+				$drive->delete();
+			}
+			
+                $ship_transporter = Shipment_Transporter::where('shipment_no',$data->shipment_no)
+                ->where('transporter_id',$data->transporter_id)->get();
+                foreach ($ship_transporter as $key => $value) {
+				$transporter = Shipment_Transporter::findorfail($value->id);
+				$transporter->deleted_by = Auth::id();
+				$transporter->save();
+				$transporter->delete();
+	
+			}
+                //$dd = Shipment_Transporter::where('id',$data->id)->delete();
                 // $data->deleted_by = Auth::id();
                 // $data->save();
 
-                $dd2 = Shipment_Driver::where('shipment_no',$data->shipment_no)->where('driver_id',$data->driver_id)->delete();
+               // $dd2 = Shipment_Driver::where('shipment_no',$data->shipment_no)->where('transporter_id',$data->transporter_id)->delete();
 
 
 
@@ -2149,7 +2182,7 @@ class ShipmentController extends Controller
 
 
 
-            return redirect()->back()->with('success', "Transporter Successfully Add.");
+            return redirect()->back()->with('success', "Transporter Add Successfully.");
 
     }
 
@@ -2899,38 +2932,37 @@ class ShipmentController extends Controller
         
         $ff= Transporter::where('user_id',Auth::user()->id)->first();
        
-        // $datas = Shipment_Transporter::withTrashed()->whereNull('deleted_at')->where('transporter_id', $ff->id);
-        $data2 = Shipment_Driver::withTrashed()->where('transporter_id', $ff->id)->whereNull('deleted_at')
-        ->groupBy('shipment_no');
+        $data = Shipment::with('statusData')->withTrashed()->whereNull('deleted_at')
+        ->whereRaw("find_in_set('$ff->id' , all_transporter)");
+   
         if($month) {
-            $data2 = $data2->whereMonth('created_at', $month);
+            $data = $data->whereMonth('created_at', $month);
         }
         if($year) {
-            $data2 = $data2->whereYear('created_at', $year);
+            $data = $data->whereYear('created_at', $year);
         }
-         if($Request->status){
+
+        if($Request->status){
             if($Request->status == 'Pending'){
-                $data2 = $data2->where('status',1);
+                $data = $data->where('status',1);
             }
             if($Request->status == 'Ontheway'){
-                $data2 = $data2->whereIn('status',[2,4,5,6,7,8,9,10,11,12,13,14,15,18]);
+                $data = $data->whereIn('status',[2,4,5,6,7,8,9,10,11,12,13,14,15,18]);
             }
             if($Request->status == 'Delivered'){
-                $data2 = $data2->whereIn('status',[3,17]);
+                $data = $data->whereIn('status',[3,17]);
             }
 		}
-        $data2 = $data2->orderby('id','desc')->orderby('shipment_no','desc')->get();
-		$data = array();
-		
-        foreach ($data2 as $key => $value) {
-            $data1 = Shipment::withTrashed()->whereNull('deleted_at')->where('shipment_no', $value->shipment_no)->first();
-            if($data1){
-            $data[$key] = $data1;
-            if($value->status){
-                $data[$key]['status'] = $value->status;
+        $data = $data->get();
+        foreach ($data as $key => $value) {
+      
+            if(isset($value->statusData->status)){
+
+            $data[$key]['status'] = $value->statusData->status;
             }
+       
         }
-        }
+       
             // dd($data[$key]);
         // $data = $data[$key]->get();
         

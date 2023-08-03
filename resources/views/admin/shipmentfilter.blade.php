@@ -99,6 +99,22 @@ Shipment Filter | TMS
                                             </div>
                                         </div>
                                         <div class="form-group ">
+                                            <label for="company_id" class="control-label col-lg-2">Company :</label>
+                                            <div class="col-lg-10">
+                                                <select class="form-control" name="company" id="company" > 
+                                                   <option value=""> -- Please Select Company -- </option>
+                                                      @foreach($all_company as $value)
+                                                      @if($company == $value->id)
+                                                      <option selected="selected" value="{{ $value->id }}">{{ $value->name }}</option>
+                                                      @else
+                                                      <option value="{{ $value->id }}">{{ $value->name }}</option>
+                                                      @endif
+                                                      @endforeach
+
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="form-group ">
                                             <label for="company_ids" class="control-label col-lg-2">Status :</label>
                                             <div class="col-lg-10">
                                             <?php 
@@ -217,13 +233,17 @@ Shipment Filter | TMS
                                     <th>Consignee</th>
                                     <th>From</th>
                                     <th>To</th>
+                                    <th>Transporter Name</th>
+                                    <th>Truck No</th>
                                     <th>Status</th>
+                                    
+                                    <th>Invoice Cost</th>
+                                    <th>Transporter Cost</th>
                                     <th>Action</th>
                                 </tr>
                               </thead>
                               <tbody>
                                @foreach($data as $value)
-
                                 <tr id="{{ $value->shipment_no }}">
                                     <td class="center" style="vertical-align: middle;"><b>{{ $value->shipment_no }}</b></td>
                                     
@@ -249,6 +269,8 @@ Shipment Filter | TMS
                                     <td style="vertical-align: middle;">{{ $value->from1 }}</td>
                                     
                                     <td style="vertical-align: middle;">{{ $value->to1 }}</td>
+                                    <td style="vertical-align: middle;">{{ $value->transporter_name }}</td>
+                                    <td style="vertical-align: middle;">{{ $value->truck_no }}</td>
                                     
                                     <td id="{{ $value->shipment_no }}mystatus" style="vertical-align: middle;text-align: center;">
                                       @if($value->status == 0) 
@@ -261,8 +283,9 @@ Shipment Filter | TMS
                                         <span style="color: pink">Warehouse</span>
                                       @endif
                                     </td>
-                                    
-                                   
+
+                                    <td style="vertical-align: middle;">{{ $value->invoice_cost }}</td>
+                                    <td style="vertical-align: middle;">{{ $value->transporter_cost }}</td>
                                      <td class="center" style="vertical-align: middle;">
                                      <a href="{{ route('shipalldetail',['id'=>$value->myid]) }}" style="margin-top: 3%;width: auto;min-width: 80%;background-color: #047fb9;border-color: #047fb9;color: #fff" class="btn  btn-xs "><i class="fa fa-eye"></i> View</a>
                                      
@@ -298,9 +321,28 @@ Shipment Filter | TMS
         "lengthChange": true,
       "lengthMenu": [ 10, 25, 50, 75, 100 ],
         dom: 'Bfrtip',
-        buttons: [      
-            'excelHtml5',
-            'csvHtml5',     
+        "columnDefs":
+           [
+               {
+                   "targets": [7,8,10,11],
+                   "visible": false, 
+               },
+           ],
+        buttons: [
+            {
+                extend: 'csvHtml5',
+                exportOptions: {
+                  columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11 ]
+                }
+            },
+            {
+                extend: 'excelHtml5',
+                exportOptions: {
+                  columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11 ]
+                }
+            },
+           
+            
         ]
     } );
 } );

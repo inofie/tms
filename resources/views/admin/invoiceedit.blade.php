@@ -67,6 +67,7 @@
                         Please check the form below for errors
                       </div>
                       @endif
+                      
                 <!-- page start-->
               
                         <section class="panel">
@@ -113,15 +114,31 @@
                                                       @endif
                                                       @endforeach 
                                                 </select>
+                                               
                                             </div>
                                         </div>
-
+                                        @foreach($trucks as $key2 => $value2)
+                                        <div class="form-group " style="width: 80%; padding-left: 20%">
+                                            <label for="name" class="control-label col-lg-2">Invoice No :</label>
+                                            <div class="col-lg-10">
+                                          
+                                            <input type="text" class="form-control" id="invoice_no" value="{{ $value2['invoice_no'] }}">
+                                                @error('invoice_no')
+                                                 <span class="text-danger"> {{ $message }} </span>
+                                                @enderror
+                                            </div>
+                                        </div>
+                                        @endforeach
                                        <div class="adv-table" style="padding: 1%;">
                                                         <table class="table table-striped table-hover table-bordered" >
                                             <tr>
+                                            
                                               <th>
                                                 Truck No.
                                               </th>
+                                              <!-- <th>
+                                                Invoice No.
+                                              </th> -->
                                               <th>
                                                 Freight
                                               </th>
@@ -141,6 +158,9 @@
 
                                                <tr>
                                                 <td><input type="hidden" class="myid{{ $key2 }} myid" id="myid{{ $key2 }}" value="{{ $value2['id'] }}"> <input type="text" class="trow{{ $key2 }} truck truck{{ $key2 }}" value="{{ $value2['truck_no'] }}"></td>
+                                                <!-- <td> 
+                                                
+                                              </td> -->
                                                 <td> <input type="text" class="trow{{ $key2 }} fright fright{{ $key2 }} edit" id="fright{{ $key2 }}" value="{{ $value2['fright'] }}"></td>
                                                 <td> <input type="text" class="trow{{ $key2 }} detention detention{{ $key2 }} edit" id="detention{{ $key2 }}" value="{{ $value2['detention'] }}"></td>
                                                 <td> <input type="text" class="trow{{ $key2 }} loading loading{{ $key2 }} edit" id="loading{{ $key2 }}" value="{{ $value2['loading'] }}"></td>
@@ -161,7 +181,16 @@
 
                                           </table>
                                         </div>
-
+                                    <div class="adv-table1" style="padding: 1%;">
+                                    <table class="table table-striped table-hover table-bordered" >
+                                    <tr>
+                                    
+                                      </tr>
+                                      <tr>
+                                      <td>Remarks:</td><td> <input style="width: 1150px" type="text" class="remarks edit" id="remarks" value="{{ $value2['remarks'] }}"></td>
+                                      <tr>
+                                  </table>
+                                  </div>
                                         <div class="adv-table" style="padding: 1%;">
                                                       <table class="table table-striped table-hover table-bordered" >
                                           <tr>
@@ -208,12 +237,13 @@
                                           </tr>
                                           
                                         </table>
+                                       
                                         </div>
                               
                                         <div class="form-group save_cancle btn3">
                                           <div class="col-lg-12 center">
                                           
-                                          <button class="btn btn-success" id="btn3" type="button">Save </button>
+                                          <button class="btn btn-success" id="btn3" type="submit">Save </button>
                                           <a class="btn btn-default" id="btn3" href="{{ route('unpaidshipmentlist') }}">Cancel </a>
                                           </div>
                                           </div>
@@ -654,6 +684,7 @@
                 });
 
 
+                
 
 
 
@@ -687,6 +718,11 @@
 
          var igst =$('#igst').html();
          console.log("igst = "+igst);
+
+         var invoice_no =$('#invoice_no').val();
+         console.log("invoice_no = "+invoice_no);
+         var remarks =$('#remarks').val();
+         console.log("remarks = "+remarks);
 
          var utgst =$('#utgst').html();
          console.log("utgst = "+utgst);
@@ -725,6 +761,8 @@ console.log(truck_number);
                   detention:detention,
                   loading:loading,
                   other:other,
+                  invoice_no:invoice_no,
+                  remarks:remarks,
                   total:total,
                   gst:gst,
                   cgst:cgst,

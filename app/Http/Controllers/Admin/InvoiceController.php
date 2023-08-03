@@ -44,28 +44,70 @@ class InvoiceController extends Controller
 
 		if(Auth::user()->role == "company") {
 		$ff= Company::where('user_id',Auth::user()->id)->first();
-		$data1 = Invoice::where('company_id',$ff->id)->where('paid',0)->get();
+		$data1 = Invoice::where('company_id',$ff->id)->where('paid',0);
 		}
 		else{
-		$data1 = Invoice::where('paid',0)->get();
+		$data1 = Invoice::where('paid',0);
 		}
+		if(isset($Request->year)){
+            $year = $Request->year;
+        } else {
+            $year = '';
+        }
+        if(isset($Request->month)){
+            $month = $Request->month;
+        } else {
+            $month = '';
+        }
+ 	
+		if($Request->year){
+			$data1 = $data1->whereYear('invoice_date', $Request->year);
+		}
+		if($Request->month){
+			$data1 = $data1->whereMonth('invoice_date', $Request->month);
+		}
+		$data1 = $data1->orderby('id','desc')->get();
+		$data =array();
 
- 		
- 		$data =array();
-
- 		foreach ($data1 as $key => $value) {
+		foreach ($data1 as $key => $value) {
  				
- 			$data[$key]= $value;
- 			$companydata = Company::withTrashed()->findorfail($value->company_id);
- 			$data[$key]['company_name'] = $companydata->name;
- 			$forwarderdata = Forwarder::withTrashed()->findorfail($value->forwarder_id);
- 			$data[$key]['forwarder_name'] = $forwarderdata->name;
+			$data[$key]= $value;
+			$companydata = Company::withTrashed()->findorfail($value->company_id);
+			$data[$key]['company_name'] = $companydata->name;
+			$forwarderdata = Forwarder::withTrashed()->findorfail($value->forwarder_id);
+			$data[$key]['forwarder_name'] = $forwarderdata->name;
+			$accountdata = Account::withTrashed()->where('invoice_list',$value->id)->first();
+			if($accountdata){
+			$data[$key]['voucher_no'] = $accountdata->id;
+			}
+			else{
+				$data[$key]['voucher_no'] = '';
+			}
 
- 		}
-
- 		
-
- 		return view('admin.invoiceunpaidlist',compact('data'));
+			$shipment_list = explode(',',$value->ships);
+			$shipdata = Shipment::wherein("shipment_no", $shipment_list)->get();
+			
+			$d_list = "";
+			foreach($shipdata as $key2 => $value2){
+			if($value2->imports == 1){
+			$shippername = $value2->consignor;
+			}
+			else{
+			$shippername = $value2->consignee;
+			}
+			if($key2 == 0) {
+			$d_list = $d_list."".$shippername;	
+			}
+			else{
+			$d_list = $d_list.", ".$shippername;	
+			}
+			
+		}
+		//dd($d_list);
+		$data[$key]['shipper_name'] = $d_list;
+		}
+		
+ 		return view('admin.invoiceunpaidlist',compact('data','year','month'));
 
  	}
 
@@ -291,6 +333,7 @@ class InvoiceController extends Controller
  			$invoice_truck->fright = $all_freight[$key2];
  			$invoice_truck->detention = $all_detention[$key2];
  			$invoice_truck->loading = $all_loading[$key2];
+			$invoice_truck->remarks = $Request->remarks;
  			$invoice_truck->other = $all_other[$key2];
  			$invoice_truck->totals = $all_total[$key2];
  			$invoice_truck->created_by = Auth::id();
@@ -396,6 +439,14 @@ class InvoiceController extends Controller
 		$containers = array();
 		$seals = array();
 		$shippings =array();
+		foreach($data as $key => $value){
+			$invoicedata = Invoice_Truck::where('invoice_id',$data->id)->first();
+			$data->fright = $invoicedata->fright;
+			$data->detention = $invoicedata->detention;
+			$data->loading = $invoicedata->loading;
+			$data->other = $invoicedata->other;
+			$data->remarks = $invoicedata->remarks;
+		}
         foreach($all_shipment as $key => $value){
 
              $driver_list =Shipment_Driver::where('shipment_no',$value)->get();
@@ -700,7 +751,8 @@ class InvoiceController extends Controller
 
     public function InvoiceUpdate(Request $Request)
     {
-        
+        //dd($Request->all());
+	  
 
         $myid = explode(',', $Request->myid);
         $freight = explode(',', $Request->freight);
@@ -716,10 +768,13 @@ class InvoiceController extends Controller
 
             $data = Invoice_Truck::findorfail($value);
 			$data->truck_no = $truck_number[$key];
+			$data->invoice_no = $Request->invoice_no;
+			$data->remarks = $Request->remarks;
             $data->fright = $freight[$key];
             $data->detention = $detention[$key];
             $data->loading = $loading[$key];
             $data->other = $other[$key];
+			$data->remarks = $Request->remarks;
             $data->totals = $total[$key];
             $data->save();
 
@@ -727,6 +782,8 @@ class InvoiceController extends Controller
 
         $data1 = Invoice::findorfail($Request->invoiceid);
         $data1->gst = $Request->gst;
+		$data1->invoice_no = $Request->invoice_no;
+	//	dd($data1);
         $data1->cgst = $Request->cgst;
         $data1->sgst = $Request->sgst;
         $data1->igst = $Request->igst;
@@ -743,8 +800,9 @@ class InvoiceController extends Controller
         $data123 = Account::where('invoice_list',$data1->id)->first();      
         $data123->debit = $Request->grandtotal;
         $data123->save();
-
+		
         return 1; 
+		
     }
  	
 

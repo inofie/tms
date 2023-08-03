@@ -58,12 +58,12 @@ class NotificationController extends Controller
 		}
 
 	}
-    public function notificationList(Request $request)
+    public function notificationList(Request $Request)
     {
-        // return 1;
-        $data = $request->all();
+        // dd($Request->all());
+        $data = $Request->all();
         try{
-            $check = $this->checkversion($request->version);
+            $check = $this->checkversion($Request->version);
 			if ($check == 1) {
 				return response()->json(['status' => 'failed', 'message' => 'Please update this application.', 'data' => json_decode('{}'), 'code' => '500'], 200);
 			}
@@ -89,7 +89,7 @@ class NotificationController extends Controller
                   $perPage = $data['offset'];
               }
               $offset = ($page - 1) * $perPage;
-              $resultList=Notification::where('notification_to',$request['user_id'])->orderBy('id','desc');
+              $resultList=Notification::where('notification_to',$Request['user_id'])->orderBy('id','desc');
               $resultList=$resultList->paginate($perPage);
               foreach ($resultList as $key => $value) {
                 $shipmentno = Shipment::where('id',$value['shipment_id'])->first();
@@ -101,19 +101,19 @@ class NotificationController extends Controller
                 $resultList[$key]['ago'] = $lastSeen.' '."ago";
             }
             $otherData = [];
-            $otherData['unread_count']=Notification::where('notification_to',$request['user_id'])->where('read_status','unread')->count();
+            $otherData['unread_count']=Notification::where('notification_to',$Request['user_id'])->where('read_status','unread')->count();
               if(!empty($resultList)){
                   $message='Notification List';
                   $data=$resultList;
-                  return $this->APIResponse->successWithPagination($message,$data,$otherData);
+                  return $this->APIResponse->successWithPagination($message,$data);
               }
               else {
                 return $this->APIResponse->respondNotFound(__('No Record Found'));
             }
             }
-            
+
         else{
-            $resultList=Notification::where('notification_to',$request['user_id'])->orderBy('id','desc')->get();
+            $resultList=Notification::where('notification_to',$Request['user_id'])->orderBy('id','desc')->get();
             foreach ($resultList as $key => $value) {
                 $shipmentno = Shipment::where('id',$value['shipment_id'])->first();
                 if($shipmentno){
@@ -124,10 +124,10 @@ class NotificationController extends Controller
                 $resultList[$key]['ago'] = $lastSeen;
             }
             $otherData = [];
-            $otherData['unread_count']=Notification::where('notification_to',$request['user_id'])->where('read_status','unread')->count();
+            $otherData['unread_count']=Notification::where('notification_to',$Request['user_id'])->where('read_status','unread')->count();
             return response()->json(['status' => 'success', 'message' => 'Notification List.', 'data' => $resultList, 'code' => '200'], 200);
         }
-    }      
+    }
     }catch (\Exception $e) {
            dd($e);
               return $this->APIResponse->handleAndResponseException($e);
@@ -136,14 +136,14 @@ class NotificationController extends Controller
 
     public function readAllNotifications(Request $request){
         try{
-            
-        
+
+
             $check = $this->checkversion($request->version);
 			if ($check == 1) {
 				return response()->json(['status' => 'failed', 'message' => 'Please update this application.', 'data' => json_decode('{}'), 'code' => '500'], 200);
 			}
             $notification = Notification::where('notification_to', $request['user_id'])->update(['read_status' => 'read']);
-            
+
             return response()->json(['status' => 'success', 'message' => 'All Notifications marked as read.', 'data' =>json_decode('{}'), 'code' => '200'], 200);
         }catch (\Exception $e) {
           return $this->APIResponse->handleAndResponseException($e);
@@ -173,7 +173,7 @@ class NotificationController extends Controller
                     if($notification){
                         $notification->delete();
                         return $this->APIResponse->respondWithMessage('Notification delete');
-                        
+
                     }else{
                         return $this->APIResponse->respondNotFound('Oops! No Notification Found');
                     }
@@ -226,7 +226,7 @@ class NotificationController extends Controller
                     if($notification){
                         $notification->read_status = 'read';
                         $notification->save();
-                        
+
                         return response()->json(['status' => 'success', 'message' => 'Notification marked as read.', 'data' => json_decode('{}'), 'code' => '200'], 200);
                     }else{
                         return $this->APIResponse->respondNotFound('Oops! No Notification Found');

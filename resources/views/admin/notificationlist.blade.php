@@ -85,52 +85,35 @@ Notifications List | TOT
                   </header>
                   <div class="panel-body">
                       <div class="adv-table editable-table ">
+                      <div class="clearfix">
+                              <div class="btn-group pull-right">
+                                 <!-- <a href="{{ route('driveradd') }}"> <button  class="btn btn-success">
+                                      Add Driver <i class="fa fa-plus"></i>
+                                  </button></a> -->
+                                </div>
+                              <div class="btn-group ">
+                                  <!-- <button class="btn dropdown-toggle" data-toggle="dropdown">Tools <i class="fa fa-angle-down"></i> -->
+                                  </button>
+                                  <ul class="dropdown-menu pull-right">
+                                      <li><a href="#">Print</a></li>
+                                      <li><a href="#">Save as PDF</a></li>
+                                      <li><a href="#">Export to Excel</a></li>
+                                  </ul>
+                              </div>
+                          </div>
                           <div class="space15"></div>
                           <table class="table table-striped table-hover table-bordered" id="editable-sample">
                               <thead>
                               <tr>
                                   <th>ID</th>
                                   <th>Notification From</th>
-                                  
-                                  
                                   <th>Title</th>
                                   <th>Description</th>
                                   <th>Created At</th>
                                   <th>Action</th>
                               </tr>
                               </thead>
-                              <tbody>
 
-                               @foreach($data as $value)
-                                            @php
-                                            $create_at = Helper::getFormattedDate($value->created_at);
-                                            @endphp
-
-                               <tr class="table_space">
-                                  <td>{{ $value->id }}</td>
-                                  <td>{{ $value->user_name_from}}</td>
-                                 
-                                  
-                                  <td>{{$value->title}}</td>
-                                  <td>{{ $value->message }}</td>
-                                  <td>{{$value->created_at->format('d-m-Y h:i A')}}</td>
-                                  <td class="edit_delete">
-                                    @if($role->role == 'transporter')
-                                    
-                                    <a href="{{ route('shipmentdetailstransporter',['id'=>$value->myid]) }}" style="margin-top: 3%;width: auto;min-width: 80%;background-color: #047fb9;border-color: #047fb9;color: #fff" 
-                                    class="btn  btn-xs "><i class="fa fa-eye"></i> View</a>
-                                    @else
-                                    <a href="{{ route('shipmentdetails',['id'=>$value->myid]) }}" style="margin-top: 3%;width: auto;min-width: 80%;background-color: #047fb9;border-color: #047fb9;color: #fff" 
-                                    class="btn  btn-xs "><i class="fa fa-eye"></i> View</a>
-                                    @endif
-                                    
-                                    </td>
-                              </tr>
-
-                              @endforeach
-
-
-                              </tbody>
                           </table>
                       </div>
                   </div>
@@ -144,8 +127,8 @@ Notifications List | TOT
 
 @section('js4')
 
-
 <script type="text/javascript">
+  var SITE_URL = "<?php echo URL::to('/'); ?>";
   function deleteItem(id){
 
     var r = confirm("Are You Sure Delete It!");
@@ -157,9 +140,68 @@ Notifications List | TOT
 
 
   $(document).ready(function() {
+    fill_datatable();
+} );
+function fill_datatable(){
+  var getNotification = '{{ route('getNotification')}}';
+  $('#editable-sample').DataTable({
 
-    $('#editable-sample').DataTable( {
-       "aaSorting": [[ 0, "desc" ]],
+      ajax: {
+                        url: getNotification,
+                        // type: "get",
+                        data: {
+                            "_token": "{{ csrf_token() }}"
+                        }
+                    },
+                    processing: true,
+      serverSide: true,
+      destroy: true,
+      retrieve:true,
+                    columns: [{
+                            data: 'id',
+                            name: 'ID'
+                        },
+                        {
+                            data: 'user_name_from',
+                            name: 'Notification From',
+                        },
+                        {
+                            data: 'title',
+                            name: 'Title'
+                        },
+                        {
+                            data: 'message',
+                            name: 'Description',
+
+                        },
+                        {
+                            data: 'created_at',
+                            name: 'Created At'
+                        },
+                        {
+                            data: 'role',
+                            name: 'action'
+                        }
+                    ],
+                    columnDefs: [
+                      {
+                    targets: 5,
+                    render: function (data, type, row) {
+                      var ids = data?data.split('_'):[];
+                      let adminRoute='#';
+                      if(ids.length >= 0){
+                        let shipment_id=ids[0];
+                        if(ids[1]=='transporter'){
+                           adminRoute = SITE_URL + '/admin/shipment/detail/'+shipment_id;
+                        }else{
+                          adminRoute=SITE_URL + '/admin/shipment/detail/'+shipment_id;
+
+                        }
+                      }
+return '<a href='+adminRoute+' style="margin-top: 3%;width: auto;min-width: 80%;background-color: #047fb9;border-color: #047fb9;color: #fff" class="btn  btn-xs "><i class="fa fa-eye"></i> View</a>';
+                    }
+                  }
+                    ]
        /* "lengthChange": true,
       "lengthMenu": [ 10, 25, 50, 75, 100 ],
         dom: 'Bfrtip',
@@ -167,8 +209,8 @@ Notifications List | TOT
             'excelHtml5',
             'csvHtml5',
         ]*/
-    } );
-} );
+    });
+}
 </script>
 
 @endsection

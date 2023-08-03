@@ -121,7 +121,7 @@
                                           </div>
                                       </div>
 
-                                <div class="form-group ">
+                                <!-- <div class="form-group ">
                                           <label for="firstname" class="control-label col-lg-2">Shipment No</label>
   
                                           <div class="col-lg-10">
@@ -130,7 +130,7 @@
                                             <span class="text-danger"> {{ $message }} </span>
                                           @enderror
                                           </div>   
-                                  </div>
+                                  </div> -->
 
                                         <div class="form-group">
                                       <label class="col-sm-2 control-label col-lg-2" for="inputSuccess">Shipment<span style="color: red">*</span>:</label>

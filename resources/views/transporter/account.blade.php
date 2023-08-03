@@ -56,7 +56,7 @@ Account | TMS
                                             <label for="transporter_id" class="control-label col-lg-2"> Transporter :</label>
                                             <div class="col-lg-10">
                                                 <select class="form-control" id="transporter" name="transporter_id" > 
-                                                   <option value=""> -- Please Select Transporter -- </option>
+                                                 
                                                       @foreach($ff as $value)
                                                       @if(old('transporter_id') == $value->id)
                                                       <option data-code="{{ $value->code }}" data-bill="{{ $value->bill_no }}" selected="selected" value="{{ $value->id }}">{{ $value->name }}</option>

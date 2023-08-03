@@ -144,7 +144,7 @@
                                     <th class="center">Truck No.</th>
                                     <th class="center">Loaded Photo</th>
                                     <th class="center">Unload Photo</th>
-                                    
+                                    <th class="center">Reach at port</th>
                                 </tr>
                                 </thead>
                                 <tbody>
@@ -159,6 +159,12 @@
                                      @endif
                                      @if($value->loaded_photo != "")
                                      <td class="center"><a target="_blank" href="{{ getenv('APP_URL') }}/public/uploads/{{ $value->unloaded_photo }}"> <img src="{{ getenv('APP_URL') }}/public/uploads/{{ $value->unloaded_photo }}" width="100px"></a></td>
+                                    @else 
+                                     <td class="center"></td>
+
+                                     @endif
+                                     @if($value->reachprt_photo != "")
+                                     <td class="center"><a target="_blank" href="{{ getenv('APP_URL') }}/public/uploads/{{ $value->reachprt_photo }}"> <img src="{{ getenv('APP_URL') }}/public/uploads/{{ $value->reachprt_photo }}" width="100px"></a></td>
                                     @else 
                                      <td class="center"></td>
 

@@ -56,6 +56,7 @@
 		<th>
 			Loading<br>Unloading
 		</th>
+		
 		<th>
 			Others
 		</th>
@@ -71,6 +72,7 @@
 			<td> <input style="width: 150px" type="text" class="trow{{ $key2 }} fright fright{{ $key2 }} edit" id="fright{{ $key2 }}" value="{{ $value2['freight'] }}"></td>
 			<td> <input style="width: 150px" type="text" class="trow{{ $key2 }} detention detention{{ $key2 }} edit" id="detention{{ $key2 }}" value="0"></td>
 			<td> <input style="width: 150px" type="text" class="trow{{ $key2 }} loading loading{{ $key2 }} edit" id="loading{{ $key2 }}" value="0"></td>
+			
 			<td> <input style="width: 150px" type="text" class="trow{{ $key2 }} other other{{ $key2 }} edit" id="other{{ $key2 }}" value="0"></td>
 			<td> <input style="width: 150px" type="text" class="trow{{ $key2 }} total total{{ $key2 }}" id="total{{ $key2 }}" readonly="readonly" value="0"></td>
 		</tr> 
@@ -84,6 +86,16 @@
 		</tr>
 
 
+</table>
+</div>
+<div class="adv-table1" style="padding: 1%;">
+							<table class="table table-striped table-hover table-bordered" >
+	<tr>
+	
+		</tr>
+		<tr>
+		<td>Remarks:</td><td> <input style="width: 1150px" type="text" class="trow{{ $key2 }} remarks remarks{{ $key2 }} edit" id="remarks{{ $key2 }}" value=""></td>
+		<tr>
 </table>
 </div>
 
@@ -425,8 +437,24 @@
 	           	  });
 	           	
 	           	  console.log("other = " + other);
+					 var remarks = '';
 
+				var total_remarks = $('.remarks').length;
 
+				$('.remarks').each(function(index) {
+
+					if (index === total_remarks - 1) {
+
+						remarks +=  $(this).val() ;
+
+					}else {
+
+						remarks +=  $(this).val() + ',';
+
+					}
+
+				});
+				console.log("remarks = " + remarks);
 	           	  var total = '';
 
 	           	 var total_trucks = $('.total').length;
@@ -539,6 +567,7 @@
 	           	      detention:detention,
 	           	      loading:loading,
 	           	      other:other,
+						remarks:remarks,
 	           	  	  total:total,
 		              invoice_date:invoice_date,
 		              invoice_no:invoice_no,

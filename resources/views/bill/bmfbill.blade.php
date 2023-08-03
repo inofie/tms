@@ -163,7 +163,7 @@ $number = $data->grand_total;
       <table style="width: 100%; text-align:right;">
         <tbody><tr>
           <td>
-            <img style="width: 100%; text-align: right;" src="{{asset('public/uploads/33y.jpg')}}">
+            <img style="width: 100%; text-align: right;" src="{{asset('/uploads/33y.jpg')}}">
           </td>
         </tr>
       </tbody></table>
@@ -211,9 +211,11 @@ $number = $data->grand_total;
                 <td style="text-align: center; font-size: 12px; font-weight: 700; background-color: #e6e6e6;  width: 10.66%; line-height: 1.2;  padding: 5px;">Date</td>
                 <td style="text-align: center; font-size: 12px; font-weight: 700; background-color: #e6e6e6;  width: 11.66%; line-height: 1.2;  padding: 5px;">Shipment No </td>
                 <td style="text-align: center; font-size: 12px; font-weight: 700; background-color: #e6e6e6;  width: 23.02%; line-height: 1.2;  padding: 5px;">Truck No</td>
-                <td style="text-align: center; font-size: 12px; font-weight: 700; background-color: #e6e6e6;  width: 15.66%; line-height: 1.2;  padding: 5px;">Amount</td>
-
-              </tr>
+                <td style="text-align: center; font-size: 12px; font-weight: 700; background-color: #e6e6e6;  width: 15.66%; line-height: 1.2;  padding: 5px;">Freight</td>
+                <td style="text-align: center; font-size: 12px; font-weight: 700; background-color: #e6e6e6;  width: 15.66%; line-height: 1.2;  padding: 5px;">Detention</td>
+                <td style="text-align: center; font-size: 12px; font-weight: 700; background-color: #e6e6e6;  width: 15.66%; line-height: 1.2;  padding: 5px;">Loading Unloading</td>
+                <td style="text-align: center; font-size: 12px; font-weight: 700; background-color: #e6e6e6;  width: 15.66%; line-height: 1.2;  padding: 5px;">Others</td>
+              <td style="text-align: center; font-size: 12px; font-weight: 700; background-color: #e6e6e6;  width: 15.66%; line-height: 1.2;  padding: 5px;">Total Amount</td>
 
               <tr>
                 <td style="vertical-align:baseline; text-align: center; font-size: 10px;   width:5%; line-height: 1.2; padding: 1px;">1</td>
@@ -249,18 +251,26 @@ $number = $data->grand_total;
 
                     @endforeach
 				</td>
-                <td style="vertical-align:baseline;text-align: center; font-size: 10px;   width:5%; line-height: 1.2; padding: 1px;" > {{ number_format($data->sub_total,2) }}</td>
+        <td style="vertical-align:baseline;text-align: center; font-size: 10px;   width:5%; line-height: 1.2; padding: 1px;" >{{ number_format($data->fright,2) }}</td>
+        <td style="vertical-align:baseline;text-align: center; font-size: 10px;   width:5%; line-height: 1.2; padding: 1px;" >{{ number_format($data->detention,2) }}</td>
+        <td style="vertical-align:baseline;text-align: center; font-size: 10px;   width:5%; line-height: 1.2; padding: 1px;" >{{ number_format($data->loading,2) }}</td>
+        <td style="vertical-align:baseline;text-align: center; font-size: 10px;   width:5%; line-height: 1.2; padding: 1px;" >{{ number_format($data->other,2) }}</td>
+        <td style="vertical-align:baseline;text-align: center; font-size: 10px;   width:5%; line-height: 1.2; padding: 1px;" >{{ number_format($data->grand_total,2) }}</td>
 
               </tr>
 
               <tr>
-                <td style="vertical-align:baseline; text-align: center; font-size: 10px;   width:5%; line-height: 1.2; padding: 1px;">2</td>
-                <td style="vertical-align:baseline; text-align: left; font-size: 10px;   width:5%; line-height: 1.2; padding: 1px;" rowspan="3" >Extra</td>
-                <td style="vertical-align:baseline; text-align: center; font-size: 10px;   width:5%; line-height: 1.2; padding: 1px;;"rowspan="3" ></td>
+                <td style="vertical-align:baseline; text-align: center; font-size: 10px;   width:5%; line-height: 1.2; padding: 1px;"></td>
+                <td style="vertical-align:baseline; text-align: left; font-size: 10px;   width:5%; line-height: 1.2; padding: 1px;" rowspan="3" ></td>
+                <td style="vertical-align:baseline; text-align: center; font-size: 10px;   width:5%; line-height: 1.2; padding: 1px;"rowspan="3" ></td>
                 <td style="vertical-align:baseline; text-align: center; font-size: 10px;   width:5%; line-height: 1.2; padding: 1px;" rowspan="3"></td>
                 <td style="vertical-align:baseline; text-align: center; font-size: 10px;   width:5%; line-height: 1.2; padding: 1px;" rowspan="3"> </td>
                 <td style="vertical-align:baseline; text-align: center; font-size: 10px;   width:5%; line-height: 1.2; padding: 1px;" rowspan="3"></td>
-                <td style="vertical-align:baseline; text-align: center; font-size: 10px;   width:5%; line-height: 1.2; padding: 1px;" rowspan="3" > {{ number_format($data->extra_amount,2) }}</td>
+                <td style="vertical-align:baseline; text-align: center; font-size: 10px;   width:5%; line-height: 1.2; padding: 1px;" rowspan="3"></td>
+                <td style="vertical-align:baseline; text-align: center; font-size: 10px;   width:5%; line-height: 1.2; padding: 1px;" rowspan="3"></td>
+                <td style="vertical-align:baseline; text-align: center; font-size: 10px;   width:5%; line-height: 1.2; padding: 1px;" rowspan="3"></td>
+                <td style="vertical-align:baseline; text-align: center; font-size: 10px;   width:5%; line-height: 1.2; padding: 1px;" rowspan="3"></td>
+                <td style="vertical-align:baseline; text-align: center; font-size: 10px;   width:5%; line-height: 1.2; padding: 1px;" rowspan="3" ></td>
               </tr>
 
                <tr>
@@ -277,6 +287,10 @@ $number = $data->grand_total;
                 <td style=" text-align: center; font-size: 10px; font-weight: 700;   width: 24%; line-height: 1.2;  padding: 3px;" ></td>
                  <td style=" text-align: center; font-size: 10px; font-weight: 700;   width: 10%; line-height: 1.2;  padding: 3px; " ></td>
                 <td style=" text-align: center; font-size: 10px; font-weight: 700;   width: 10.66%; line-height: 1.2;  padding: 3px;">&nbsp;</td>
+                <td style=" text-align: center; font-size: 10px; font-weight: 700;   width: 11.66%; line-height: 1.2;  padding: 3px;">&nbsp;</td>
+                <td style=" text-align: center; font-size: 10px; font-weight: 700;   width: 11.66%; line-height: 1.2;  padding: 3px;">&nbsp;</td>
+                <td style=" text-align: center; font-size: 10px; font-weight: 700;   width: 11.66%; line-height: 1.2;  padding: 3px;">&nbsp;</td>
+                <td style=" text-align: center; font-size: 10px; font-weight: 700;   width: 11.66%; line-height: 1.2;  padding: 3px;">&nbsp;</td>
                 <td style=" text-align: center; font-size: 10px; font-weight: 700;   width: 11.66%; line-height: 1.2;  padding: 3px;">&nbsp;</td>
                 <td style=" text-align: center; font-size: 10px; font-weight: 700;   width: 23.66%; line-height: 1.2;  padding: 3px;  background-color: #e6e6e6;">Total </td>       
                 <td style=" text-align: center; font-size: 10px; font-weight: 700;   width: 15.66%; line-height: 1.2;  padding: 3px;"><i class="fa fa-inr"></i> {{ number_format($data->grand_total,2) }}</td>
@@ -300,6 +314,18 @@ $number = $data->grand_total;
           </tr>
         
       </tbody></table>
+      <table  style="margin-bottom: 0.5% ;">
+      <tbody><tr>
+            <td style="  text-align: center; font-size: 10px; font-weight: 700;   width:39%; line-height: 1.2; padding: 5px; background-color: #e6e6e6;">Remarks</td>
+
+              <td style="  text-align: center; font-size: 10px; font-weight: 700;   width:51%; line-height: 1.2; padding: 5px; ">{{ $data->remarks }}</td>
+
+               <td style="  text-align: center; font-size: 10px; font-weight: 700;   width:10%; line-height: 1.2; padding: 5px;"></td>
+
+            
+          </tr>
+        
+    </tbody></table>
 
        <table style=" margin-bottom: 0.5%">
         <tbody><tr>
@@ -387,7 +413,7 @@ Payment. </td>
 			</td> 
 		<td style=" border-left: 1px solid #000; text-align: left; font-size: 13px; width:24.32%; line-height: 1.2; padding: 5px;" rowspan="3">
 			@if($data->qr_code)
-				<img src="{{ asset('public/Qr_code') }}/{{ $data->qr_code }}" width="100%">
+				<img src="{{ asset('/Qr_code') }}/{{ $data->qr_code }}" width="100%">
 			@endif
 		</td>
 	</tr>

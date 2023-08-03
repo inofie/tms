@@ -17,7 +17,7 @@ class CertificateApproveJob implements ShouldQueue
      *
      * @return void
      */
-    public function __construct()
+    public function __construct($details)
     {
         $this->details = $details;
     }

@@ -34,13 +34,25 @@ class AccountController extends Controller
 
 	public function Account(Request $Request)
 	{
-		$company = Company::get();
+		if(Auth::user()->role == "company"){
+			$company = Company::where('user_id',Auth::id())->get();
+		}else{
+			$company = Company::get();
+		}
 
 		$transporter = Transporter::get();
 
 		$forwarder = Forwarder::get();
 
-		return view('admin.account',compact('company','transporter','forwarder'));
+		if(Auth::user()->role == "company"){
+		$ff= Company::where('user_id',Auth::user()->id)->first();
+        $data1 = User::where('id',$ff->user_id)->first();
+		}
+		else{
+			$data1 = User::where('id',1)->first();
+		}
+		
+		return view('admin.account',compact('company','transporter','forwarder','data1'));
 	}
 
 
@@ -48,7 +60,8 @@ class AccountController extends Controller
 	public function AccountData(Request $Request)
 	{
 
-		//dd($Request->from,$Request->to);
+		//dd($Request->id);
+		
 		if($Request->from != ''){
 
 			$from = date('Y-m-d',strtotime($Request->from));
@@ -194,6 +207,20 @@ class AccountController extends Controller
 				if($value->v_type == 'debit'){
 					if($value->to_transporter != '' && $value->to_transporter != null){
 						$com = Transporter::withTrashed()->findorfail($value->to_transporter);
+						$nyllist[$key]=$value;
+						if($value->type == 'invoice'){
+							$invoice = Invoice::findorfail($value->invoice_list);
+							$nyllist[$key]['detailss'] = "To: ".$com->name." (".$invoice->invoice_no.")";
+						} else {
+							$nyllist[$key]['detailss'] = "To: ".$com->name." (".$value->description.")";
+						}
+						//$nyllist[$key]['detailss'] = "To: ".$com->name;
+						$nyllist[$key]['datess'] = date('d-m-Y',strtotime($value->dates));
+						$nyllist[$key]['creditt'] = '';
+						$nyllist[$key]['debitst'] = $value->debit;
+					}
+					if($value->from_company!= '' && $value->from_company != null){
+						$com = Company::withTrashed()->findorfail($value->from_company);
 						$nyllist[$key]=$value;
 						if($value->type == 'invoice'){
 							$invoice = Invoice::findorfail($value->invoice_list);

@@ -124,7 +124,7 @@ class ForwarderController extends Controller
 
                      $user->myid = $comapny->id;
 
-                     return redirect()->route('forwarderlist')->with('success','Transporter Addedd successfully.');
+                     return redirect()->route('forwarderlist')->with('success','Forwarder Added successfully.');
 
                 }
 
