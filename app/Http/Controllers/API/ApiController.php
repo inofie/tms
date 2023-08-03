@@ -12692,14 +12692,22 @@ class ApiController extends Controller {
 		}
 
 	}
+
 	// public static function changeStatus_Load_To_DocumentReceived()
 	// {
 	// 	$current_time = strtotime(date('Y-m-d H:i:s'));
-	// 	$shipments = Shipment_Driver::whereIn('status',['2','3','4','5','6','7','8'])->whereNotNull('last_status_update_time')->get();
+	// 	$shipments = Shipment_Driver::leftJoin('shipment','shipment.shipment_no','=','shipment_driver.shipment_no')
+	// 	->select('shipment_driver.*','shipment.id as shipment_id','shipment.company')
+	// 	->whereIn('shipment_driver.status',['2','3','4','5','6','7','8'])
+	// 	->where('shipment.imports','1')
+	// 	->where('shipment.lcl','1')
+	// 	->whereNotNull('shipment_driver.last_status_update_time')
+	// 	->whereNull('shipment.deleted_at')
+	// 	->get();
 	// 	foreach ($shipments as $key => $shipment)
 	// 	{
 	// 		// dd($shipment);
-	// 		$shipment_data=Shipment::withTrashed()->where('shipment_no',$shipment['shipment_no'])->first();
+	// 		// $shipment_data=Shipment::withTrashed()->where('shipment_no',$shipment['shipment_no'])->first();
 	// 		$getStatus=Cargostatus::where('id',$shipment->status)->first();
 	// 		$i = 0;
 	// 		$last_status_update_time = strtotime($shipment->last_status_update_time);
@@ -12742,11 +12750,11 @@ class ApiController extends Controller {
 	// 				$notification = new Notification();
 	// 				$notification->notification_from = $from_user->id;
 	// 				$notification->notification_to = $to_user->id;
-	// 				$notification->shipment_id = isset($shipment_data['id']) ? $shipment_data['id'] : '';
+	// 				$notification->shipment_id = isset($shipment['shipment_id']) ? $shipment['shipment_id'] : '';
 	// 				$id = $shipment["shipment_no"];
 	// 				$title= "Delayed";
 	// 				// "New Shipment" .' '. $driver->shipment_no .' '. "Added";
-	// 				$message= $shipment["shipment_no"].' '."is delayed for".' '.$getStatus['name'].' ' ."by".' '.$updatedByName;
+	// 				$message= $shipment["shipment_no"].' '."is delayed for".' '."Document Received".' ' ."by".' '.$updatedByName;
 	// 				$notification->title = $title;
 	// 				$notification->message = $message;
 	// 				$notification->notification_type = '2';
@@ -12771,11 +12779,11 @@ class ApiController extends Controller {
 	// 				$notification = new Notification();
 	// 				$notification->notification_from = $from_user->id;
 	// 				$notification->notification_to = $to_user3->id;
-	// 				$notification->shipment_id = isset($shipment_data['id']) ? $shipment_data['id'] : '';
+	// 				$notification->shipment_id = isset($shipment['shipment_id']) ? $shipment['shipment_id'] : '';
 	// 				$id = $shipment["shipment_no"];
 	// 				$title= "Delayed";
 	// 				// "New Shipment" .' '. $driver->shipment_no .' '. "Added";
-	// 				$message= $shipment["shipment_no"].' '."is delayed for".' '.$getStatus['name'].' ' ."by".' '.$updatedByName;
+	// 				$message= $shipment["shipment_no"].' '."is delayed for".' '."Document Received".' ' ."by".' '.$updatedByName;
 	// 				$notification->title = $title;
 	// 				$notification->message = $message;
 	// 				$notification->notification_type = '2';
@@ -12800,10 +12808,10 @@ class ApiController extends Controller {
 	// 				$notification = new Notification();
 	// 				$notification->notification_from = $from_user->id;
 	// 				$notification->notification_to = $to_user1->id;
-	// 				$notification->shipment_id = isset($shipment_data['id']) ? $shipment_data['id'] : '';
+	// 				$notification->shipment_id = isset($shipment['shipment_id']) ? $shipment['shipment_id'] : '';
 	// 				$id = $shipment["shipment_no"];
 	// 				$title= "Delayed";
-	// 				$message= $shipment["shipment_no"].' '."is delayed for".' '.$getStatus['name'].' ' ."by".' '.$updatedByName;
+	// 				$message= $shipment["shipment_no"].' '."is delayed for".' '."Document Received".' ' ."by".' '.$updatedByName;
 	// 				$notification->title = $title;
 	// 				$notification->message = $message;
 	// 				$notification->notification_type = '2';
@@ -12820,17 +12828,17 @@ class ApiController extends Controller {
 	// 			}
 
 	// 			//company
-	// 			if($shipment_data){
-	// 			$company_user = Company::where('id',$shipment_data['company'])->first();
+
+	// 			$company_user = Company::where('id',$shipment['company'])->first();
     //             $to_user2=User::find($company_user['user_id']);
 	// 			if($from_user['id'] != $to_user2['id'] && $from_user && $to_user2) {
 	// 				$notification = new Notification();
 	// 				$notification->notification_from = $from_user->id;
 	// 				$notification->notification_to = $to_user2->id;
-	// 				$notification->shipment_id = isset($shipment_data['id']) ? $shipment_data['id'] : '';
+	// 				$notification->shipment_id = isset($shipment['shipment_id']) ? $shipment['shipment_id'] : '';
 	// 				$id = $shipment["shipment_no"];
 	// 				$title= "Delayed";
-	// 				$message= $shipment["shipment_no"].' '."is delayed for".' '.$getStatus['name'].' ' ."by".' '.$updatedByName;
+	// 				$message= $shipment["shipment_no"].' '."is delayed for".' '."Document Received".' ' ."by".' '.$updatedByName;
 	// 				$notification->title = $title;
 	// 				$notification->message = $message;
 	// 				$notification->notification_type = '2';
@@ -12845,7 +12853,7 @@ class ApiController extends Controller {
 	// 					}
 	// 				}
 	// 			}
-	// 		}
+
 	// 		}
 	// 		}
 	// 	}
@@ -12855,14 +12863,30 @@ class ApiController extends Controller {
 	// public static function changeStatus_ReachAtPort_To_Unload()
 	// {
 	// 	$current_time = strtotime(date('Y-m-d H:i:s'));
-	// 	$shipments = Shipment_Driver::whereIn('status',['12','13','14','15','17'])
-	// 	//
-	// 	// where('shipment_no','Y11')
-	// 	->whereNotNull('last_status_update_time')->get();
-	// 	// $data2 = Shipment_Driver::withTrashed()->where('transporter_id', $Request->transporter)->whereNull('deleted_at')->whereRaw('id IN (select MAX(id) FROM shipment_driver GROUP BY shipment_no)')->pluck('shipment_no')->toArray();
+	// 	// $shipments = Shipment_Driver::leftJoin('shipment','shipment.shipment_no','=','shipment_driver.shipment_no')
+	// 	// ->select('shipment_driver.*','shipment.id as shipment_id','shipment.company')
+	// 	// ->whereIn('shipment_driver.status',['12','13','14','15','17'])
+	// 	// ->where('shipment.imports','1')
+	// 	// ->where('shipment.lcl','1')
+
+	// 	// // where('shipment_no','Y11')
+	// 	// ->whereNotNull('shipment_driver.last_status_update_time')
+	// 	// ->whereNull('shipment.deleted_at')
+	// 	// ->get();
+	// 	$shipments = Shipment_Driver::withTrashed()
+	// 	->leftJoin('shipment','shipment.shipment_no','=','shipment_driver.shipment_no')
+	// 	->select('shipment_driver.*','shipment.id as shipment_id','shipment.company')
+	// 	->whereIn('shipment_driver.status',['12','13','14','15','17'])
+	// 	->where('shipment.imports','1')
+	// 	->where('shipment.lcl','1')
+	// 	->whereNotNull('shipment_driver.last_status_update_time')
+	// 	->whereNull('shipment.deleted_at')
+	// 	->whereRaw('shipment_driver.id IN (select MAX(shipment_driver.id) FROM shipment_driver GROUP BY shipment_driver.shipment_no)')
+	// 	// ->pluck('shipment_no')
+	// 	->get();
 	// 	foreach ($shipments as $key => $shipment)
 	// 	{
-	// 		$shipment_data=Shipment::withTrashed()->where('shipment_no',$shipment['shipment_no'])->first();
+	// 		// $shipment_data=Shipment::withTrashed()->where('shipment_no',$shipment['shipment_no'])->first();
 	// 		$getStatus=Cargostatus::where('id',$shipment->status)->first();
 	// 		$i = 0;
 	// 		$last_status_update_time = strtotime($shipment->last_status_update_time);
@@ -12899,11 +12923,11 @@ class ApiController extends Controller {
 	// 				$notification = new Notification();
 	// 				$notification->notification_from = $from_user->id;
 	// 				$notification->notification_to = $to_user->id;
-	// 				$notification->shipment_id = isset($shipment_data['id']) ? $shipment_data['id'] : '';
+	// 				$notification->shipment_id = isset($shipment['shipment_id']) ? $shipment['shipment_id'] : '';
 	// 				$id = $shipment["shipment_no"];
 	// 				$title= "Delayed";
 	// 				// "New Shipment" .' '. $driver->shipment_no .' '. "Added";
-	// 				$message= $shipment["shipment_no"].' '."is delayed for".' '.$getStatus['name'].' ' ."by".' '.$updatedByName;
+	// 				$message= $shipment["shipment_no"].' '."is delayed for".' '."Unload Cargo".' ' ."by".' '.$updatedByName;
 	// 				$notification->title = $title;
 	// 				$notification->message = $message;
 	// 				$notification->notification_type = '2';
@@ -12928,11 +12952,11 @@ class ApiController extends Controller {
 	// 				$notification = new Notification();
 	// 				$notification->notification_from = $from_user->id;
 	// 				$notification->notification_to = $to_user3->id;
-	// 				$notification->shipment_id = isset($shipment_data['id']) ? $shipment_data['id'] : '';
+	// 				$notification->shipment_id = isset($shipment['shipment_id']) ? $shipment['shipment_id'] : '';
 	// 				$id = $shipment["shipment_no"];
 	// 				$title= "Delayed";
 	// 				// "New Shipment" .' '. $driver->shipment_no .' '. "Added";
-	// 				$message= $shipment["shipment_no"].' '."is delayed for".' '.$getStatus['name'].' ' ."by".' '.$updatedByName;
+	// 				$message= $shipment["shipment_no"].' '."is delayed for".' '."Unload Cargo".' ' ."by".' '.$updatedByName;
 	// 				$notification->title = $title;
 	// 				$notification->message = $message;
 	// 				$notification->notification_type = '2';
@@ -12957,10 +12981,10 @@ class ApiController extends Controller {
 	// 				$notification = new Notification();
 	// 				$notification->notification_from = $from_user->id;
 	// 				$notification->notification_to = $to_user1->id;
-	// 				$notification->shipment_id = isset($shipment_data['id']) ? $shipment_data['id'] : '';
+	// 				$notification->shipment_id = isset($shipment['shipment_id']) ? $shipment['shipment_id'] : '';
 	// 				$id = $shipment["shipment_no"];
 	// 				$title= "Delayed";
-	// 				$message= $shipment["shipment_no"].' '."is delayed for".' '.$getStatus['name'].' ' ."by".' '.$updatedByName;
+	// 				$message= $shipment["shipment_no"].' '."is delayed for".' '."Unload Cargo".' ' ."by".' '.$updatedByName;
 	// 				$notification->title = $title;
 	// 				$notification->message = $message;
 	// 				$notification->notification_type = '2';
@@ -12977,17 +13001,17 @@ class ApiController extends Controller {
 	// 			}
 
 	// 			//company
-	// 			if($shipment_data){
-	// 			$company_user = Company::where('id',$shipment_data['company'])->first();
+
+	// 			$company_user = Company::where('id',$shipment['company'])->first();
     //             $to_user2=User::find($company_user['user_id']);
 	// 			if($from_user['id'] != $to_user2['id'] && $from_user && $to_user2) {
 	// 				$notification = new Notification();
 	// 				$notification->notification_from = $from_user->id;
 	// 				$notification->notification_to = $to_user2->id;
-	// 				$notification->shipment_id = isset($shipment_data['id']) ? $shipment_data['id'] : '';
+	// 				$notification->shipment_id = isset($shipment['shipment_id']) ? $shipment['shipment_id'] : '';
 	// 				$id = $shipment["shipment_no"];
 	// 				$title= "Delayed";
-	// 				$message= $shipment["shipment_no"].' '."is delayed for".' '.$getStatus['name'].' ' ."by".' '.$updatedByName;
+	// 				$message= $shipment["shipment_no"].' '."is delayed for".' '."Unload Cargo".' ' ."by".' '.$updatedByName;
 	// 				$notification->title = $title;
 	// 				$notification->message = $message;
 	// 				$notification->notification_type = '2';
@@ -13002,7 +13026,7 @@ class ApiController extends Controller {
 	// 					}
 	// 				}
 	// 			}
-	// 		}
+
 	// 		}
 	// 		}
 	// 	}
@@ -13012,10 +13036,17 @@ class ApiController extends Controller {
 	// public static function changeStatus_ReachAtPort_To_DocumentReceived()
 	// {
 	// 	$current_time = strtotime(date('Y-m-d H:i:s'));
-	// 	$shipments = Shipment_Driver::whereIn('status',['9','10','11'])->whereNotNull('last_status_update_time')->get();
+	// 	$shipments = Shipment_Driver::leftJoin('shipment','shipment.shipment_no','=','shipment_driver.shipment_no')
+	// 	->select('shipment_driver.*','shipment.id as shipment_id','shipment.company')
+	// 	->whereIn('shipment_driver.status',['7','8'])
+	// 	->where('shipment.exports','1')
+	// 	->where('shipment.lcl','1')
+	// 	->whereNotNull('shipment_driver.last_status_update_time')
+	// 	->whereNull('shipment.deleted_at')
+	// 	->get();
 	// 	foreach ($shipments as $key => $shipment)
 	// 	{
-	// 		$shipment_data=Shipment::withTrashed()->where('shipment_no',$shipment['shipment_no'])->first();
+	// 		// $shipment_data=Shipment::withTrashed()->where('shipment_no',$shipment['shipment_no'])->first();
 	// 		$getStatus=Cargostatus::where('id',$shipment->status)->first();
 	// 		$i = 0;
 	// 		$last_status_update_time = strtotime($shipment->last_status_update_time);
@@ -13052,11 +13083,11 @@ class ApiController extends Controller {
 	// 				$notification = new Notification();
 	// 				$notification->notification_from = $from_user->id;
 	// 				$notification->notification_to = $to_user->id;
-	// 				$notification->shipment_id = isset($shipment_data['id']) ? $shipment_data['id'] : '';
+	// 				$notification->shipment_id = isset($shipment['shipment_id']) ? $shipment['shipment_id'] : '';
 	// 				$id = $shipment["shipment_no"];
 	// 				$title= "Delayed";
 	// 				// "New Shipment" .' '. $driver->shipment_no .' '. "Added";
-	// 				$message= $shipment["shipment_no"].' '."is delayed for".' '.$getStatus['name'].' ' ."by".' '.$updatedByName;
+	// 				$message= $shipment["shipment_no"].' '."is delayed for".' '."Document Received".' ' ."by".' '.$updatedByName;
 	// 				$notification->title = $title;
 	// 				$notification->message = $message;
 	// 				$notification->notification_type = '2';
@@ -13081,11 +13112,11 @@ class ApiController extends Controller {
 	// 				$notification = new Notification();
 	// 				$notification->notification_from = $from_user->id;
 	// 				$notification->notification_to = $to_user3->id;
-	// 				$notification->shipment_id = isset($shipment_data['id']) ? $shipment_data['id'] : '';
+	// 				$notification->shipment_id = isset($shipment['shipment_id']) ? $shipment['shipment_id'] : '';
 	// 				$id = $shipment["shipment_no"];
 	// 				$title= "Delayed";
 	// 				// "New Shipment" .' '. $driver->shipment_no .' '. "Added";
-	// 				$message= $shipment["shipment_no"].' '."is delayed for".' '.$getStatus['name'].' ' ."by".' '.$updatedByName;
+	// 				$message= $shipment["shipment_no"].' '."is delayed for".' '."Document Received".' ' ."by".' '.$updatedByName;
 	// 				$notification->title = $title;
 	// 				$notification->message = $message;
 	// 				$notification->notification_type = '2';
@@ -13110,10 +13141,10 @@ class ApiController extends Controller {
 	// 				$notification = new Notification();
 	// 				$notification->notification_from = $from_user->id;
 	// 				$notification->notification_to = $to_user1->id;
-	// 				$notification->shipment_id = isset($shipment_data['id']) ? $shipment_data['id'] : '';
+	// 				$notification->shipment_id = isset($shipment['shipment_id']) ? $shipment['shipment_id'] : '';
 	// 				$id = $shipment["shipment_no"];
 	// 				$title= "Delayed";
-	// 				$message= $shipment["shipment_no"].' '."is delayed for".' '.$getStatus1['name'].' ' ."by".' '.$updatedByName;
+	// 				$message= $shipment["shipment_no"].' '."is delayed for".' '."Document Received".' ' ."by".' '.$updatedByName;
 	// 				$notification->title = $title;
 	// 				$notification->message = $message;
 	// 				$notification->notification_type = '2';
@@ -13130,17 +13161,17 @@ class ApiController extends Controller {
 	// 			}
 
 	// 			//company
-	// 			if($shipment_data){
-	// 			$company_user = Company::where('id',$shipment_data['company'])->first();
+
+	// 			$company_user = Company::where('id',$shipment['company'])->first();
     //             $to_user2=User::find($company_user['user_id']);
 	// 			if($from_user['id'] != $to_user2['id'] && $from_user && $to_user2) {
 	// 				$notification = new Notification();
 	// 				$notification->notification_from = $from_user->id;
 	// 				$notification->notification_to = $to_user2->id;
-	// 				$notification->shipment_id = isset($shipment_data['id']) ? $shipment_data['id'] : '';
+	// 				$notification->shipment_id = isset($shipment['shipment_id']) ? $shipment['shipment_id'] : '';
 	// 				$id = $shipment["shipment_no"];
 	// 				$title= "Delayed";
-	// 				$message= $shipment["shipment_no"].' '."is delayed for".' '.$getStatus['name'].' ' ."by".' '.$updatedByName;
+	// 				$message= $shipment["shipment_no"].' '."is delayed for".' '."Document Received".' ' ."by".' '.$updatedByName;
 	// 				$notification->title = $title;
 	// 				$notification->message = $message;
 	// 				$notification->notification_type = '2';
@@ -13155,7 +13186,7 @@ class ApiController extends Controller {
 	// 					}
 	// 				}
 	// 			}
-	// 		}
+
 	// 		}
 	// 		}
 	// 	}
@@ -13165,10 +13196,18 @@ class ApiController extends Controller {
 	// public static function changeStatus_ReachAtCompany_To_Unload()
 	// {
 	// 	$current_time = strtotime(date('Y-m-d H:i:s'));
-	// 	$shipments = Shipment_Driver::withTrashed()->whereIn('status',['7','8','9','10','11','12','13','14','15','16','17'])->whereNotNull('last_status_update_time')->get();
+	// 	$shipments = Shipment_Driver::withTrashed()
+	// 	->leftJoin('shipment','shipment.shipment_no','=','shipment_driver.shipment_no')
+	// 	->select('shipment_driver.*','shipment.id as shipment_id','shipment.company')
+	// 	->where('shipment.exports','1')
+	// 	->where('shipment.lcl','1')
+	// 	->whereIn('shipment_driver.status',['7','8','9','10','11','12','13','14','15','16','17'])
+	// 	->whereNotNull('shipment_driver.last_status_update_time')
+	// 	->whereNull('shipment.deleted_at')
+	// 	->get();
 	// 	foreach ($shipments as $key => $shipment)
 	// 	{
-	// 		$shipment_data=Shipment::where('shipment_no',$shipment['shipment_no'])->first();
+	// 		// $shipment_data=Shipment::where('shipment_no',$shipment['shipment_no'])->first();
 	// 		$getStatus=Cargostatus::where('id',$shipment->status)->first();
 	// 		$i = 0;
 	// 		$last_status_update_time = strtotime($shipment->last_status_update_time);
@@ -13210,11 +13249,11 @@ class ApiController extends Controller {
 	// 				$notification = new Notification();
 	// 				$notification->notification_from = $from_user->id;
 	// 				$notification->notification_to = $to_user->id;
-	// 				$notification->shipment_id = isset($shipment_data['id']) ? $shipment_data['id'] : '';
+	// 				$notification->shipment_id = isset($shipment['shipment_id']) ? $shipment['shipment_id'] : '';
 	// 				$id = $shipment["shipment_no"];
 	// 				$title= "Delayed";
 	// 				// "New Shipment" .' '. $driver->shipment_no .' '. "Added";
-	// 				$message= $shipment["shipment_no"].' '."is delayed for".' '.$getStatus['name'].' ' ."by".' '.$updatedByName;
+	// 				$message= $shipment["shipment_no"].' '."is delayed for".' '."Unload Cargo".' ' ."by".' '.$updatedByName;
 	// 				$notification->title = $title;
 	// 				$notification->message = $message;
 	// 				$notification->notification_type = '2';
@@ -13239,11 +13278,11 @@ class ApiController extends Controller {
 	// 				$notification = new Notification();
 	// 				$notification->notification_from = $from_user->id;
 	// 				$notification->notification_to = $to_user3->id;
-	// 				$notification->shipment_id = isset($shipment_data['id']) ? $shipment_data['id'] : '';
+	// 				$notification->shipment_id = isset($shipment['shipment_id']) ? $shipment['shipment_id'] : '';
 	// 				$id = $shipment["shipment_no"];
 	// 				$title= "Delayed";
 	// 				// "New Shipment" .' '. $driver->shipment_no .' '. "Added";
-	// 				$message= $shipment["shipment_no"].' '."is delayed for".' '.$getStatus['name'].' ' ."by".' '.$updatedByName;
+	// 				$message= $shipment["shipment_no"].' '."is delayed for".' '."Unload Cargo".' ' ."by".' '.$updatedByName;
 	// 				$notification->title = $title;
 	// 				$notification->message = $message;
 	// 				$notification->notification_type = '2';
@@ -13267,10 +13306,10 @@ class ApiController extends Controller {
 	// 				$notification = new Notification();
 	// 				$notification->notification_from = $from_user->id;
 	// 				$notification->notification_to = $to_user1->id;
-	// 				$notification->shipment_id = isset($shipment_data['id']) ? $shipment_data['id'] : '';
+	// 				$notification->shipment_id = isset($shipment['shipment_id']) ? $shipment['shipment_id'] : '';
 	// 				$id = $shipment["shipment_no"];
 	// 				$title= "Delayed";
-	// 				$message= $shipment["shipment_no"].' '."is delayed for".' '.$getStatus['name'].' ' ."by".' '.$updatedByName;
+	// 				$message= $shipment["shipment_no"].' '."is delayed for".' '."Unload Cargo".' ' ."by".' '.$updatedByName;
 	// 				$notification->title = $title;
 	// 				$notification->message = $message;
 	// 				$notification->notification_type = '2';
@@ -13286,17 +13325,17 @@ class ApiController extends Controller {
 	// 				}
 	// 			}
 	// 			//company
-	// 			if($shipment_data){
-	// 			$company_user = Company::where('id',$shipment_data['company'])->first();
+
+	// 			$company_user = Company::where('id',$shipment['company'])->first();
     //             $to_user2=User::find($company_user['user_id']);
 	// 			if($from_user['id'] != $to_user2['id'] && $from_user && $to_user2) {
 	// 				$notification = new Notification();
 	// 				$notification->notification_from = $from_user->id;
 	// 				$notification->notification_to = $to_user2->id;
-	// 				$notification->shipment_id = isset($shipment_data['id']) ? $shipment_data['id'] : '';
+	// 				$notification->shipment_id = isset($shipment['shipment_id']) ? $shipment['shipment_id'] : '';
 	// 				$id = $shipment["shipment_no"];
 	// 				$title= "Delayed";
-	// 				$message= $shipment["shipment_no"].' '."is delayed for".' '.$getStatus['name'].' ' ."by".' '.$updatedByName;
+	// 				$message= $shipment["shipment_no"].' '."is delayed for".' '."Unload Cargo".' ' ."by".' '.$updatedByName;
 	// 				$notification->title = $title;
 	// 				$notification->message = $message;
 	// 				$notification->notification_type = '2';
@@ -13311,190 +13350,23 @@ class ApiController extends Controller {
 	// 					}
 	// 				}
 	// 			}
-	// 		}
+
 	// 		}
 	// 		}
 	// 	}
 	// 	return 1;
 	// }
 
-	public static function changeStatus_Load_To_DocumentReceived()
+	//Reach at port se document received
+	public static function changeStatus_ReachAtPort_To_Documentreceived_lcl_imports()
 	{
 		$current_time = strtotime(date('Y-m-d H:i:s'));
 		$shipments = Shipment_Driver::leftJoin('shipment','shipment.shipment_no','=','shipment_driver.shipment_no')
 		->select('shipment_driver.*','shipment.id as shipment_id','shipment.company')
-		->whereIn('shipment_driver.status',['2','3','4','5','6','7','8'])
+		->whereIn('shipment_driver.status',['2','12'])
 		->where('shipment.imports','1')
 		->where('shipment.lcl','1')
-		->whereNotNull('shipment_driver.last_status_update_time')
-		->whereNull('shipment.deleted_at')
-		->get();
-		foreach ($shipments as $key => $shipment)
-		{
-			// dd($shipment);
-			// $shipment_data=Shipment::withTrashed()->where('shipment_no',$shipment['shipment_no'])->first();
-			$getStatus=Cargostatus::where('id',$shipment->status)->first();
-			$i = 0;
-			$last_status_update_time = strtotime($shipment->last_status_update_time);
-			$diffrence = $current_time - $last_status_update_time;
-			if(!$shipment->last_notification_time) {
-				if($diffrence >= 3600) {
-					$i = 1;
-					$shipment->last_notification_time = date('Y-m-d H:i:s');
-					$shipment->last_notification_time_difference = 60;
-					$shipment->save();
-				}
-			} elseif($diffrence >= 5400 && ($shipment->last_notification_time < 90)) {
-				$i = 1;
-				$shipment->last_notification_time = date('Y-m-d H:i:s');
-				$shipment->last_notification_time_difference = 90;
-				$shipment->save();
-			} elseif($diffrence >= 6000) {
-				$last_notification_time = strtotime($shipment->last_notification_time);
-				$notification_diffrence = $current_time - $last_notification_time;
-				if($notification_diffrence >= 600) {
-					$i = 1;
-					$shipment->last_notification_time = date('Y-m-d H:i:s');
-					$shipment->last_notification_time_difference = (int) $diffrence / 60;
-					$shipment->save();
-				}
-			}
-			if($i == 1) {
-				$from_user = User::find($shipment->updated_by);
-				//transportor
-				$transporter=Transporter::where('id',$shipment->transporter_id)->first();
-				$to_user = User::find($transporter['user_id']);
-				if($from_user){
-				$updatedByName='';
-				if($from_user)
-				{
-					$updatedByName=$from_user['username'];
-				}
-
-				if(($from_user['id'] != $to_user['id']) && $from_user && $to_user) {
-					$notification = new Notification();
-					$notification->notification_from = $from_user->id;
-					$notification->notification_to = $to_user->id;
-					$notification->shipment_id = isset($shipment['shipment_id']) ? $shipment['shipment_id'] : '';
-					$id = $shipment["shipment_no"];
-					$title= "Delayed";
-					// "New Shipment" .' '. $driver->shipment_no .' '. "Added";
-					$message= $shipment["shipment_no"].' '."is delayed for".' '."Document Received".' ' ."by".' '.$updatedByName;
-					$notification->title = $title;
-					$notification->message = $message;
-					$notification->notification_type = '2';
-					$notification->user_name_from = $updatedByName;
-					$notification->save();
-					$notification_id = $notification->id;
-					if($to_user->device_token != null){
-					if($to_user->device_type == 'ios'){
-						GlobalHelper::sendFCMIOS($title, $message, $to_user->device_token,$notification->notification_type,$id,$notification_id);
-					}else{
-						GlobalHelper::sendFCM($notification->title, $notification->message, $to_user->device_token,$notification->notification_type,$id,$notification_id);
-						}
-					}
-				}
-
-				//driver
-				if($shipment){
-				if($shipment['driver_id']){
-				$to_user3=Driver::where('id',$shipment['driver_id'])->first();
-				if($to_user3){
-				if(($from_user['id'] != $to_user3['id']) && $from_user && $to_user3) {
-					$notification = new Notification();
-					$notification->notification_from = $from_user->id;
-					$notification->notification_to = $to_user3->id;
-					$notification->shipment_id = isset($shipment['shipment_id']) ? $shipment['shipment_id'] : '';
-					$id = $shipment["shipment_no"];
-					$title= "Delayed";
-					// "New Shipment" .' '. $driver->shipment_no .' '. "Added";
-					$message= $shipment["shipment_no"].' '."is delayed for".' '."Document Received".' ' ."by".' '.$updatedByName;
-					$notification->title = $title;
-					$notification->message = $message;
-					$notification->notification_type = '2';
-					$notification->user_name_from = $updatedByName;
-					$notification->save();
-					$notification_id = $notification->id;
-					if($to_user3->device_token != null){
-					if($to_user3->device_type == 'ios'){
-						GlobalHelper::sendFCMIOS($title, $message, $to_user3->device_token,$notification->notification_type,$id,$notification_id);
-					}else{
-						GlobalHelper::sendFCM($notification->title, $notification->message, $to_user3->device_token,$notification->notification_type,$id,$notification_id);
-						}
-					}
-				}
-			}
-			}
-			}
-
-				//admin
-				$to_user1 = User::find(1);
-				if($from_user['id'] != $to_user1['id'] && $from_user && $to_user1) {
-					$notification = new Notification();
-					$notification->notification_from = $from_user->id;
-					$notification->notification_to = $to_user1->id;
-					$notification->shipment_id = isset($shipment['shipment_id']) ? $shipment['shipment_id'] : '';
-					$id = $shipment["shipment_no"];
-					$title= "Delayed";
-					$message= $shipment["shipment_no"].' '."is delayed for".' '."Document Received".' ' ."by".' '.$updatedByName;
-					$notification->title = $title;
-					$notification->message = $message;
-					$notification->notification_type = '2';
-					$notification->user_name_from = $updatedByName;
-					$notification->save();
-					$notification_id = $notification->id;
-					if($to_user1->device_token != null){
-					if($to_user1->device_type == 'ios'){
-						GlobalHelper::sendFCMIOS($title, $message, $to_user1->device_token,$notification->notification_type,$id,$notification_id);
-					}else{
-						GlobalHelper::sendFCM($notification->title, $notification->message, $to_user1->device_token,$notification->notification_type,$id,$notification_id);
-						}
-					}
-				}
-
-				//company
-
-				$company_user = Company::where('id',$shipment['company'])->first();
-                $to_user2=User::find($company_user['user_id']);
-				if($from_user['id'] != $to_user2['id'] && $from_user && $to_user2) {
-					$notification = new Notification();
-					$notification->notification_from = $from_user->id;
-					$notification->notification_to = $to_user2->id;
-					$notification->shipment_id = isset($shipment['shipment_id']) ? $shipment['shipment_id'] : '';
-					$id = $shipment["shipment_no"];
-					$title= "Delayed";
-					$message= $shipment["shipment_no"].' '."is delayed for".' '."Document Received".' ' ."by".' '.$updatedByName;
-					$notification->title = $title;
-					$notification->message = $message;
-					$notification->notification_type = '2';
-					$notification->user_name_from = $updatedByName;
-					$notification->save();
-					$notification_id = $notification->id;
-					if($to_user2->device_token != null){
-					if($to_user2->device_type == 'ios'){
-						GlobalHelper::sendFCMIOS($title, $message, $to_user2->device_token,$notification->notification_type,$id,$notification_id);
-					}else{
-						GlobalHelper::sendFCM($notification->title, $notification->message, $to_user2->device_token,$notification->notification_type,$id,$notification_id);
-						}
-					}
-				}
-
-			}
-			}
-		}
-		return 1;
-	}
-
-	public static function changeStatus_ReachAtPort_To_Unload()
-	{
-		$current_time = strtotime(date('Y-m-d H:i:s'));
-		$shipments = Shipment_Driver::leftJoin('shipment','shipment.shipment_no','=','shipment_driver.shipment_no')
-		->select('shipment_driver.*','shipment.id as shipment_id','shipment.company')
-		->whereIn('shipment_driver.status',['12','13','14','15','17'])
-		->where('shipment.imports','1')
-		->where('shipment.lcl','1')
-
-		// where('shipment_no','Y11')
+		->whereRaw('shipment_driver.id IN (select MAX(shipment_driver.id) FROM shipment_driver GROUP BY shipment_driver.shipment_no)')
 		->whereNotNull('shipment_driver.last_status_update_time')
 		->whereNull('shipment.deleted_at')
 		->get();
@@ -13542,7 +13414,7 @@ class ApiController extends Controller {
 					$id = $shipment["shipment_no"];
 					$title= "Delayed";
 					// "New Shipment" .' '. $driver->shipment_no .' '. "Added";
-					$message= $shipment["shipment_no"].' '."is delayed for".' '."Unload Cargo".' ' ."by".' '.$updatedByName;
+					$message= $shipment["shipment_no"].' '."is delayed for".' '."Document Received".' ' ."by".' '.$updatedByName;
 					$notification->title = $title;
 					$notification->message = $message;
 					$notification->notification_type = '2';
@@ -13571,7 +13443,7 @@ class ApiController extends Controller {
 					$id = $shipment["shipment_no"];
 					$title= "Delayed";
 					// "New Shipment" .' '. $driver->shipment_no .' '. "Added";
-					$message= $shipment["shipment_no"].' '."is delayed for".' '."Unload Cargo".' ' ."by".' '.$updatedByName;
+					$message= $shipment["shipment_no"].' '."is delayed for".' '."Document Received".' ' ."by".' '.$updatedByName;
 					$notification->title = $title;
 					$notification->message = $message;
 					$notification->notification_type = '2';
@@ -13599,7 +13471,7 @@ class ApiController extends Controller {
 					$notification->shipment_id = isset($shipment['shipment_id']) ? $shipment['shipment_id'] : '';
 					$id = $shipment["shipment_no"];
 					$title= "Delayed";
-					$message= $shipment["shipment_no"].' '."is delayed for".' '."Unload Cargo".' ' ."by".' '.$updatedByName;
+					$message= $shipment["shipment_no"].' '."is delayed for".' '."Document Received".' ' ."by".' '.$updatedByName;
 					$notification->title = $title;
 					$notification->message = $message;
 					$notification->notification_type = '2';
@@ -13626,7 +13498,7 @@ class ApiController extends Controller {
 					$notification->shipment_id = isset($shipment['shipment_id']) ? $shipment['shipment_id'] : '';
 					$id = $shipment["shipment_no"];
 					$title= "Delayed";
-					$message= $shipment["shipment_no"].' '."is delayed for".' '."Unload Cargo".' ' ."by".' '.$updatedByName;
+					$message= $shipment["shipment_no"].' '."is delayed for".' '."Document Received".' ' ."by".' '.$updatedByName;
 					$notification->title = $title;
 					$notification->message = $message;
 					$notification->notification_type = '2';
@@ -13648,181 +13520,21 @@ class ApiController extends Controller {
 		return 1;
 	}
 
-	public static function changeStatus_ReachAtPort_To_DocumentReceived()
+	//Load and document received ke bichme
+	public static function changeStatus_Load_To_DocumentReceived()
 	{
 		$current_time = strtotime(date('Y-m-d H:i:s'));
 		$shipments = Shipment_Driver::leftJoin('shipment','shipment.shipment_no','=','shipment_driver.shipment_no')
 		->select('shipment_driver.*','shipment.id as shipment_id','shipment.company')
-		->whereIn('shipment_driver.status',['7','8'])
+		->whereIn('shipment_driver.status',['2'])
 		->where('shipment.exports','1')
 		->where('shipment.lcl','1')
+		->whereRaw('shipment_driver.id IN (select MAX(shipment_driver.id) FROM shipment_driver GROUP BY shipment_driver.shipment_no)')
 		->whereNotNull('shipment_driver.last_status_update_time')
 		->whereNull('shipment.deleted_at')
 		->get();
 		foreach ($shipments as $key => $shipment)
 		{
-			// $shipment_data=Shipment::withTrashed()->where('shipment_no',$shipment['shipment_no'])->first();
-			$getStatus=Cargostatus::where('id',$shipment->status)->first();
-			$i = 0;
-			$last_status_update_time = strtotime($shipment->last_status_update_time);
-			$diffrence = $current_time - $last_status_update_time;
-			if(!$shipment->last_notification_time) {
-				if($diffrence >= 1800) {
-					$i = 1;
-					$shipment->last_notification_time = date('Y-m-d H:i:s');
-					$shipment->last_notification_time_difference = 30;
-					$shipment->save();
-				}
-			}elseif($diffrence >= 2700) {
-				$last_notification_time = strtotime($shipment->last_notification_time);
-				$notification_diffrence = $current_time - $last_notification_time;
-				if($notification_diffrence >= 900) {
-					$i = 1;
-					$shipment->last_notification_time = date('Y-m-d H:i:s');
-					$shipment->last_notification_time_difference = (int) $diffrence / 60;
-					$shipment->save();
-				}
-			}
-			if($i == 1) {
-				$from_user = User::find($shipment->updated_by);
-				//transprtor
-				$transporter=Transporter::where('id',$shipment->transporter_id)->first();
-				$to_user = User::find($transporter['user_id']);
-				if($from_user){
-				$updatedByName='';
-				if($from_user)
-				{
-					$updatedByName=$from_user['username'];
-				}
-				if(($from_user['id'] != $to_user['id']) && $from_user && $to_user) {
-					$notification = new Notification();
-					$notification->notification_from = $from_user->id;
-					$notification->notification_to = $to_user->id;
-					$notification->shipment_id = isset($shipment['shipment_id']) ? $shipment['shipment_id'] : '';
-					$id = $shipment["shipment_no"];
-					$title= "Delayed";
-					// "New Shipment" .' '. $driver->shipment_no .' '. "Added";
-					$message= $shipment["shipment_no"].' '."is delayed for".' '."Document Received".' ' ."by".' '.$updatedByName;
-					$notification->title = $title;
-					$notification->message = $message;
-					$notification->notification_type = '2';
-					$notification->user_name_from = $updatedByName;
-					$notification->save();
-					$notification_id = $notification->id;
-					if($to_user->device_token != null){
-					if($to_user->device_type == 'ios'){
-						GlobalHelper::sendFCMIOS($title, $message, $to_user->device_token,$notification->notification_type,$id,$notification_id);
-					}else{
-						GlobalHelper::sendFCM($notification->title, $notification->message, $to_user->device_token,$notification->notification_type,$id,$notification_id);
-						}
-					}
-				}
-
-				//driver
-				if($shipment){
-				if($shipment['driver_id']){
-				$to_user3=Driver::where('id',$shipment['driver_id'])->first();
-				if($to_user3){
-				if(($from_user['id'] != $to_user3['id']) && $from_user && $to_user3) {
-					$notification = new Notification();
-					$notification->notification_from = $from_user->id;
-					$notification->notification_to = $to_user3->id;
-					$notification->shipment_id = isset($shipment['shipment_id']) ? $shipment['shipment_id'] : '';
-					$id = $shipment["shipment_no"];
-					$title= "Delayed";
-					// "New Shipment" .' '. $driver->shipment_no .' '. "Added";
-					$message= $shipment["shipment_no"].' '."is delayed for".' '."Document Received".' ' ."by".' '.$updatedByName;
-					$notification->title = $title;
-					$notification->message = $message;
-					$notification->notification_type = '2';
-					$notification->user_name_from = $updatedByName;
-					$notification->save();
-					$notification_id = $notification->id;
-					if($to_user3->device_token != null){
-					if($to_user3->device_type == 'ios'){
-						GlobalHelper::sendFCMIOS($title, $message, $to_user3->device_token,$notification->notification_type,$id,$notification_id);
-					}else{
-						GlobalHelper::sendFCM($notification->title, $notification->message, $to_user3->device_token,$notification->notification_type,$id,$notification_id);
-						}
-					}
-				}
-			}
-			}
-			}
-
-				//admin
-				$to_user1 = User::find(1);
-				if($from_user['id'] != $to_user1['id'] && $from_user && $to_user1) {
-					$notification = new Notification();
-					$notification->notification_from = $from_user->id;
-					$notification->notification_to = $to_user1->id;
-					$notification->shipment_id = isset($shipment['shipment_id']) ? $shipment['shipment_id'] : '';
-					$id = $shipment["shipment_no"];
-					$title= "Delayed";
-					$message= $shipment["shipment_no"].' '."is delayed for".' '."Document Received".' ' ."by".' '.$updatedByName;
-					$notification->title = $title;
-					$notification->message = $message;
-					$notification->notification_type = '2';
-					$notification->user_name_from = $updatedByName;
-					$notification->save();
-					$notification_id = $notification->id;
-					if($to_user1->device_token != null){
-					if($to_user1->device_type == 'ios'){
-						GlobalHelper::sendFCMIOS($title, $message, $to_user1->device_token,$notification->notification_type,$id,$notification_id);
-					}else{
-						GlobalHelper::sendFCM($notification->title, $notification->message, $to_user1->device_token,$notification->notification_type,$id,$notification_id);
-						}
-					}
-				}
-
-				//company
-
-				$company_user = Company::where('id',$shipment['company'])->first();
-                $to_user2=User::find($company_user['user_id']);
-				if($from_user['id'] != $to_user2['id'] && $from_user && $to_user2) {
-					$notification = new Notification();
-					$notification->notification_from = $from_user->id;
-					$notification->notification_to = $to_user2->id;
-					$notification->shipment_id = isset($shipment['shipment_id']) ? $shipment['shipment_id'] : '';
-					$id = $shipment["shipment_no"];
-					$title= "Delayed";
-					$message= $shipment["shipment_no"].' '."is delayed for".' '."Document Received".' ' ."by".' '.$updatedByName;
-					$notification->title = $title;
-					$notification->message = $message;
-					$notification->notification_type = '2';
-					$notification->user_name_from = $updatedByName;
-					$notification->save();
-					$notification_id = $notification->id;
-					if($to_user2->device_token != null){
-					if($to_user2->device_type == 'ios'){
-						GlobalHelper::sendFCMIOS($title, $message, $to_user2->device_token,$notification->notification_type,$id,$notification_id);
-					}else{
-						GlobalHelper::sendFCM($notification->title, $notification->message, $to_user2->device_token,$notification->notification_type,$id,$notification_id);
-						}
-					}
-				}
-
-			}
-			}
-		}
-		return 1;
-	}
-
-	public static function changeStatus_ReachAtCompany_To_Unload()
-	{
-		$current_time = strtotime(date('Y-m-d H:i:s'));
-		$shipments = Shipment_Driver::withTrashed()
-		->leftJoin('shipment','shipment.shipment_no','=','shipment_driver.shipment_no')
-		->select('shipment_driver.*','shipment.id as shipment_id','shipment.company')
-		->where('shipment.exports','1')
-		->where('shipment.lcl','1')
-		->whereIn('shipment_driver.status',['7','8','9','10','11','12','13','14','15','16','17'])
-		->whereNotNull('shipment_driver.last_status_update_time')
-		->whereNull('shipment.deleted_at')
-		->get();
-		foreach ($shipments as $key => $shipment)
-		{
-			// $shipment_data=Shipment::where('shipment_no',$shipment['shipment_no'])->first();
 			$getStatus=Cargostatus::where('id',$shipment->status)->first();
 			$i = 0;
 			$last_status_update_time = strtotime($shipment->last_status_update_time);
@@ -13860,6 +13572,337 @@ class ApiController extends Controller {
 				{
 					$updatedByName=$from_user['username'];
 				}
+
+				if(($from_user['id'] != $to_user['id']) && $from_user && $to_user) {
+					$notification = new Notification();
+					$notification->notification_from = $from_user->id;
+					$notification->notification_to = $to_user->id;
+					$notification->shipment_id = isset($shipment['shipment_id']) ? $shipment['shipment_id'] : '';
+					$id = $shipment["shipment_no"];
+					$title= "Delayed";
+					// "New Shipment" .' '. $driver->shipment_no .' '. "Added";
+					$message= $shipment["shipment_no"].' '."is delayed for".' '."Document Received".' ' ."by".' '.$updatedByName;
+					$notification->title = $title;
+					$notification->message = $message;
+					$notification->notification_type = '2';
+					$notification->user_name_from = $updatedByName;
+					$notification->save();
+					$notification_id = $notification->id;
+					if($to_user->device_token != null){
+					if($to_user->device_type == 'ios'){
+						GlobalHelper::sendFCMIOS($title, $message, $to_user->device_token,$notification->notification_type,$id,$notification_id);
+					}else{
+						GlobalHelper::sendFCM($notification->title, $notification->message, $to_user->device_token,$notification->notification_type,$id,$notification_id);
+						}
+					}
+				}
+
+				//driver
+				if($shipment){
+				if($shipment['driver_id']){
+				$to_user3=Driver::where('id',$shipment['driver_id'])->first();
+				if($to_user3){
+				if(($from_user['id'] != $to_user3['id']) && $from_user && $to_user3) {
+					$notification = new Notification();
+					$notification->notification_from = $from_user->id;
+					$notification->notification_to = $to_user3->id;
+					$notification->shipment_id = isset($shipment['shipment_id']) ? $shipment['shipment_id'] : '';
+					$id = $shipment["shipment_no"];
+					$title= "Delayed";
+					// "New Shipment" .' '. $driver->shipment_no .' '. "Added";
+					$message= $shipment["shipment_no"].' '."is delayed for".' '."Document Received".' ' ."by".' '.$updatedByName;
+					$notification->title = $title;
+					$notification->message = $message;
+					$notification->notification_type = '2';
+					$notification->user_name_from = $updatedByName;
+					$notification->save();
+					$notification_id = $notification->id;
+					if($to_user3->device_token != null){
+					if($to_user3->device_type == 'ios'){
+						GlobalHelper::sendFCMIOS($title, $message, $to_user3->device_token,$notification->notification_type,$id,$notification_id);
+					}else{
+						GlobalHelper::sendFCM($notification->title, $notification->message, $to_user3->device_token,$notification->notification_type,$id,$notification_id);
+						}
+					}
+				}
+			}
+			}
+			}
+
+				//admin
+				$to_user1 = User::find(1);
+				if($from_user['id'] != $to_user1['id'] && $from_user && $to_user1) {
+					$notification = new Notification();
+					$notification->notification_from = $from_user->id;
+					$notification->notification_to = $to_user1->id;
+					$notification->shipment_id = isset($shipment['shipment_id']) ? $shipment['shipment_id'] : '';
+					$id = $shipment["shipment_no"];
+					$title= "Delayed";
+					$message= $shipment["shipment_no"].' '."is delayed for".' '."Document Received".' ' ."by".' '.$updatedByName;
+					$notification->title = $title;
+					$notification->message = $message;
+					$notification->notification_type = '2';
+					$notification->user_name_from = $updatedByName;
+					$notification->save();
+					$notification_id = $notification->id;
+					if($to_user1->device_token != null){
+					if($to_user1->device_type == 'ios'){
+						GlobalHelper::sendFCMIOS($title, $message, $to_user1->device_token,$notification->notification_type,$id,$notification_id);
+					}else{
+						GlobalHelper::sendFCM($notification->title, $notification->message, $to_user1->device_token,$notification->notification_type,$id,$notification_id);
+						}
+					}
+				}
+
+				//company
+
+				$company_user = Company::where('id',$shipment['company'])->first();
+                $to_user2=User::find($company_user['user_id']);
+				if($from_user['id'] != $to_user2['id'] && $from_user && $to_user2) {
+					$notification = new Notification();
+					$notification->notification_from = $from_user->id;
+					$notification->notification_to = $to_user2->id;
+					$notification->shipment_id = isset($shipment['shipment_id']) ? $shipment['shipment_id'] : '';
+					$id = $shipment["shipment_no"];
+					$title= "Delayed";
+					$message= $shipment["shipment_no"].' '."is delayed for".' '."Document Received".' ' ."by".' '.$updatedByName;
+					$notification->title = $title;
+					$notification->message = $message;
+					$notification->notification_type = '2';
+					$notification->user_name_from = $updatedByName;
+					$notification->save();
+					$notification_id = $notification->id;
+					if($to_user2->device_token != null){
+					if($to_user2->device_type == 'ios'){
+						GlobalHelper::sendFCMIOS($title, $message, $to_user2->device_token,$notification->notification_type,$id,$notification_id);
+					}else{
+						GlobalHelper::sendFCM($notification->title, $notification->message, $to_user2->device_token,$notification->notification_type,$id,$notification_id);
+						}
+					}
+				}
+
+			}
+			}
+		}
+		return 1;
+	}
+
+	//React at port se document received(fcl imports)
+	public static function changeStatus_ReachAtPort_To_Documentreceived_fcl_imports()
+	{
+		$current_time = strtotime(date('Y-m-d H:i:s'));
+		$shipments = Shipment_Driver::leftJoin('shipment','shipment.shipment_no','=','shipment_driver.shipment_no')
+		->select('shipment_driver.*','shipment.id as shipment_id','shipment.company')
+		->whereIn('shipment_driver.status',['2','12'])
+		->where('shipment.imports','1')
+		->where('shipment.fcl','1')
+		->whereRaw('shipment_driver.id IN (select MAX(shipment_driver.id) FROM shipment_driver GROUP BY shipment_driver.shipment_no)')
+		->whereNotNull('shipment_driver.last_status_update_time')
+		->whereNull('shipment.deleted_at')
+		->get();
+		// $data2 = Shipment_Driver::withTrashed()->where('transporter_id', $Request->transporter)->whereNull('deleted_at')->whereRaw('id IN (select MAX(id) FROM shipment_driver GROUP BY shipment_no)')->pluck('shipment_no')->toArray();
+		foreach ($shipments as $key => $shipment)
+		{
+			// $shipment_data=Shipment::withTrashed()->where('shipment_no',$shipment['shipment_no'])->first();
+			$getStatus=Cargostatus::where('id',$shipment->status)->first();
+			$i = 0;
+			$last_status_update_time = strtotime($shipment->last_status_update_time);
+			$diffrence = $current_time - $last_status_update_time;
+			if(!$shipment->last_notification_time) {
+				if($diffrence >= 1800) {
+					$i = 1;
+					$shipment->last_notification_time = date('Y-m-d H:i:s');
+					$shipment->last_notification_time_difference = 30;
+					$shipment->save();
+				}
+			}elseif($diffrence >= 2700) {
+				$last_notification_time = strtotime($shipment->last_notification_time);
+				$notification_diffrence = $current_time - $last_notification_time;
+				if($notification_diffrence >= 900) {
+					$i = 1;
+					$shipment->last_notification_time = date('Y-m-d H:i:s');
+					$shipment->last_notification_time_difference = (int) ($notification_diffrence / 60);
+					$shipment->save();
+				}
+			}
+			if($i == 1) {
+				$from_user = User::find($shipment->updated_by);
+				//transportor
+				$transporter=Transporter::where('id',$shipment->transporter_id)->first();
+				$to_user = User::find($transporter['user_id']);
+				if($from_user){
+				$updatedByName='';
+				if($from_user)
+				{
+					$updatedByName=$from_user['username'];
+				}
+				if(($from_user['id'] != $to_user['id']) && $from_user && $to_user) {
+					$notification = new Notification();
+					$notification->notification_from = $from_user->id;
+					$notification->notification_to = $to_user->id;
+					$notification->shipment_id = isset($shipment['shipment_id']) ? $shipment['shipment_id'] : '';
+					$id = $shipment["shipment_no"];
+					$title= "Delayed";
+					// "New Shipment" .' '. $driver->shipment_no .' '. "Added";
+					$message= $shipment["shipment_no"].' '."is delayed for".' '."Document Received".' ' ."by".' '.$updatedByName;
+					$notification->title = $title;
+					$notification->message = $message;
+					$notification->notification_type = '2';
+					$notification->user_name_from = $updatedByName;
+					$notification->save();
+					$notification_id = $notification->id;
+					if($to_user->device_token != null){
+					if($to_user->device_type == 'ios'){
+						GlobalHelper::sendFCMIOS($title, $message, $to_user->device_token,$notification->notification_type,$id,$notification_id);
+					}else{
+						GlobalHelper::sendFCM($notification->title, $notification->message, $to_user->device_token,$notification->notification_type,$id,$notification_id);
+						}
+					}
+				}
+
+				//driver
+				if($shipment){
+				if($shipment['driver_id']){
+				$to_user3=Driver::where('id',$shipment['driver_id'])->first();
+				if($to_user3){
+				if(($from_user['id'] != $to_user3['id']) && $from_user && $to_user3) {
+					$notification = new Notification();
+					$notification->notification_from = $from_user->id;
+					$notification->notification_to = $to_user3->id;
+					$notification->shipment_id = isset($shipment['shipment_id']) ? $shipment['shipment_id'] : '';
+					$id = $shipment["shipment_no"];
+					$title= "Delayed";
+					// "New Shipment" .' '. $driver->shipment_no .' '. "Added";
+					$message= $shipment["shipment_no"].' '."is delayed for".' '."Document Received".' ' ."by".' '.$updatedByName;
+					$notification->title = $title;
+					$notification->message = $message;
+					$notification->notification_type = '2';
+					$notification->user_name_from = $updatedByName;
+					$notification->save();
+					$notification_id = $notification->id;
+					if($to_user3->device_token != null){
+					if($to_user3->device_type == 'ios'){
+						GlobalHelper::sendFCMIOS($title, $message, $to_user3->device_token,$notification->notification_type,$id,$notification_id);
+					}else{
+						GlobalHelper::sendFCM($notification->title, $notification->message, $to_user3->device_token,$notification->notification_type,$id,$notification_id);
+						}
+					}
+				}
+			}
+			}
+			}
+
+				//admin
+				$to_user1 = User::find(1);
+				if($from_user['id'] != $to_user1['id'] && $from_user && $to_user1) {
+					$notification = new Notification();
+					$notification->notification_from = $from_user->id;
+					$notification->notification_to = $to_user1->id;
+					$notification->shipment_id = isset($shipment['shipment_id']) ? $shipment['shipment_id'] : '';
+					$id = $shipment["shipment_no"];
+					$title= "Delayed";
+					$message= $shipment["shipment_no"].' '."is delayed for".' '."Document Received".' ' ."by".' '.$updatedByName;
+					$notification->title = $title;
+					$notification->message = $message;
+					$notification->notification_type = '2';
+					$notification->user_name_from = $updatedByName;
+					$notification->save();
+					$notification_id = $notification->id;
+					if($to_user1->device_token != null){
+					if($to_user1->device_type == 'ios'){
+						GlobalHelper::sendFCMIOS($title, $message, $to_user1->device_token,$notification->notification_type,$id,$notification_id);
+					}else{
+						GlobalHelper::sendFCM($notification->title, $notification->message, $to_user1->device_token,$notification->notification_type,$id,$notification_id);
+						}
+					}
+				}
+
+				//company
+
+				$company_user = Company::where('id',$shipment['company'])->first();
+                $to_user2=User::find($company_user['user_id']);
+				if($from_user['id'] != $to_user2['id'] && $from_user && $to_user2) {
+					$notification = new Notification();
+					$notification->notification_from = $from_user->id;
+					$notification->notification_to = $to_user2->id;
+					$notification->shipment_id = isset($shipment['shipment_id']) ? $shipment['shipment_id'] : '';
+					$id = $shipment["shipment_no"];
+					$title= "Delayed";
+					$message= $shipment["shipment_no"].' '."is delayed for".' '."Document Received".' ' ."by".' '.$updatedByName;
+					$notification->title = $title;
+					$notification->message = $message;
+					$notification->notification_type = '2';
+					$notification->user_name_from = $updatedByName;
+					$notification->save();
+					$notification_id = $notification->id;
+					if($to_user2->device_token != null){
+					if($to_user2->device_type == 'ios'){
+						GlobalHelper::sendFCMIOS($title, $message, $to_user2->device_token,$notification->notification_type,$id,$notification_id);
+					}else{
+						GlobalHelper::sendFCM($notification->title, $notification->message, $to_user2->device_token,$notification->notification_type,$id,$notification_id);
+						}
+					}
+				}
+
+			}
+			}
+		}
+		return 1;
+	}
+
+	//Reach at company and Unload Cargo
+	public static function changeStatus_ReachAtCompany_To_UnloadCargo()
+	{
+		$current_time = strtotime(date('Y-m-d H:i:s'));
+		$shipments = Shipment_Driver::leftJoin('shipment','shipment.shipment_no','=','shipment_driver.shipment_no')
+		->select('shipment_driver.*','shipment.id as shipment_id','shipment.company')
+		->whereIn('shipment_driver.status',['7'])
+		->where('shipment.imports','1')
+		->where('shipment.fcl','1')
+		->whereRaw('shipment_driver.id IN (select MAX(shipment_driver.id) FROM shipment_driver GROUP BY shipment_driver.shipment_no)')
+		->whereNotNull('shipment_driver.last_status_update_time')
+		->whereNull('shipment.deleted_at')
+		->get();
+		foreach ($shipments as $key => $shipment)
+		{
+			$getStatus=Cargostatus::where('id',$shipment->status)->first();
+			$i = 0;
+			$last_status_update_time = strtotime($shipment->last_status_update_time);
+			$diffrence = $current_time - $last_status_update_time;
+			if(!$shipment->last_notification_time) {
+				if($diffrence >= 3600) {
+					$i = 1;
+					$shipment->last_notification_time = date('Y-m-d H:i:s');
+					$shipment->last_notification_time_difference = 60;
+					$shipment->save();
+				}
+			} elseif($diffrence >= 5400 && ($shipment->last_notification_time < 90)) {
+				$i = 1;
+				$shipment->last_notification_time = date('Y-m-d H:i:s');
+				$shipment->last_notification_time_difference = 90;
+				$shipment->save();
+			} elseif($diffrence >= 6000) {
+				$last_notification_time = strtotime($shipment->last_notification_time);
+				$notification_diffrence = $current_time - $last_notification_time;
+				if($notification_diffrence >= 600) {
+					$i = 1;
+					$shipment->last_notification_time = date('Y-m-d H:i:s');
+					$shipment->last_notification_time_difference = (int) $diffrence / 60;
+					$shipment->save();
+				}
+			}
+			if($i == 1) {
+				$from_user = User::find($shipment->updated_by);
+				//transportor
+				$transporter=Transporter::where('id',$shipment->transporter_id)->first();
+				$to_user = User::find($transporter['user_id']);
+				if($from_user){
+				$updatedByName='';
+				if($from_user)
+				{
+					$updatedByName=$from_user['username'];
+				}
+
 				if(($from_user['id'] != $to_user['id']) && $from_user && $to_user) {
 					$notification = new Notification();
 					$notification->notification_from = $from_user->id;
@@ -13915,6 +13958,7 @@ class ApiController extends Controller {
 			}
 			}
 			}
+
 				//admin
 				$to_user1 = User::find(1);
 				if($from_user['id'] != $to_user1['id'] && $from_user && $to_user1) {
@@ -13939,6 +13983,7 @@ class ApiController extends Controller {
 						}
 					}
 				}
+
 				//company
 
 				$company_user = Company::where('id',$shipment['company'])->first();
@@ -13951,6 +13996,173 @@ class ApiController extends Controller {
 					$id = $shipment["shipment_no"];
 					$title= "Delayed";
 					$message= $shipment["shipment_no"].' '."is delayed for".' '."Unload Cargo".' ' ."by".' '.$updatedByName;
+					$notification->title = $title;
+					$notification->message = $message;
+					$notification->notification_type = '2';
+					$notification->user_name_from = $updatedByName;
+					$notification->save();
+					$notification_id = $notification->id;
+					if($to_user2->device_token != null){
+					if($to_user2->device_type == 'ios'){
+						GlobalHelper::sendFCMIOS($title, $message, $to_user2->device_token,$notification->notification_type,$id,$notification_id);
+					}else{
+						GlobalHelper::sendFCM($notification->title, $notification->message, $to_user2->device_token,$notification->notification_type,$id,$notification_id);
+						}
+					}
+				}
+
+			}
+			}
+		}
+		return 1;
+	}
+
+	//Load Cargo and document received
+	public static function changeStatus_LoadCargo_To_Documentreceived()
+	{
+		$current_time = strtotime(date('Y-m-d H:i:s'));
+		$shipments = Shipment_Driver::leftJoin('shipment','shipment.shipment_no','=','shipment_driver.shipment_no')
+		->select('shipment_driver.*','shipment.id as shipment_id','shipment.company')
+		->whereIn('shipment_driver.status',['15'])
+		->where('shipment.exports','1')
+		->where('shipment.fcl','1')
+		->whereRaw('shipment_driver.id IN (select MAX(shipment_driver.id) FROM shipment_driver GROUP BY shipment_driver.shipment_no)')
+		->whereNotNull('shipment_driver.last_status_update_time')
+		->whereNull('shipment.deleted_at')
+		->get();
+		foreach ($shipments as $key => $shipment)
+		{
+			$getStatus=Cargostatus::where('id',$shipment->status)->first();
+			$i = 0;
+			$last_status_update_time = strtotime($shipment->last_status_update_time);
+			$diffrence = $current_time - $last_status_update_time;
+			if(!$shipment->last_notification_time) {
+				if($diffrence >= 3600) {
+					$i = 1;
+					$shipment->last_notification_time = date('Y-m-d H:i:s');
+					$shipment->last_notification_time_difference = 60;
+					$shipment->save();
+				}
+			} elseif($diffrence >= 5400 && ($shipment->last_notification_time < 90)) {
+				$i = 1;
+				$shipment->last_notification_time = date('Y-m-d H:i:s');
+				$shipment->last_notification_time_difference = 90;
+				$shipment->save();
+			} elseif($diffrence >= 6000) {
+				$last_notification_time = strtotime($shipment->last_notification_time);
+				$notification_diffrence = $current_time - $last_notification_time;
+				if($notification_diffrence >= 600) {
+					$i = 1;
+					$shipment->last_notification_time = date('Y-m-d H:i:s');
+					$shipment->last_notification_time_difference = (int) $diffrence / 60;
+					$shipment->save();
+				}
+			}
+			if($i == 1) {
+				$from_user = User::find($shipment->updated_by);
+				//transportor
+				$transporter=Transporter::where('id',$shipment->transporter_id)->first();
+				$to_user = User::find($transporter['user_id']);
+				if($from_user){
+				$updatedByName='';
+				if($from_user)
+				{
+					$updatedByName=$from_user['username'];
+				}
+
+				if(($from_user['id'] != $to_user['id']) && $from_user && $to_user) {
+					$notification = new Notification();
+					$notification->notification_from = $from_user->id;
+					$notification->notification_to = $to_user->id;
+					$notification->shipment_id = isset($shipment['shipment_id']) ? $shipment['shipment_id'] : '';
+					$id = $shipment["shipment_no"];
+					$title= "Delayed";
+					// "New Shipment" .' '. $driver->shipment_no .' '. "Added";
+					$message= $shipment["shipment_no"].' '."is delayed for".' '."Document Received".' ' ."by".' '.$updatedByName;
+					$notification->title = $title;
+					$notification->message = $message;
+					$notification->notification_type = '2';
+					$notification->user_name_from = $updatedByName;
+					$notification->save();
+					$notification_id = $notification->id;
+					if($to_user->device_token != null){
+					if($to_user->device_type == 'ios'){
+						GlobalHelper::sendFCMIOS($title, $message, $to_user->device_token,$notification->notification_type,$id,$notification_id);
+					}else{
+						GlobalHelper::sendFCM($notification->title, $notification->message, $to_user->device_token,$notification->notification_type,$id,$notification_id);
+						}
+					}
+				}
+
+				//driver
+				if($shipment){
+				if($shipment['driver_id']){
+				$to_user3=Driver::where('id',$shipment['driver_id'])->first();
+				if($to_user3){
+				if(($from_user['id'] != $to_user3['id']) && $from_user && $to_user3) {
+					$notification = new Notification();
+					$notification->notification_from = $from_user->id;
+					$notification->notification_to = $to_user3->id;
+					$notification->shipment_id = isset($shipment['shipment_id']) ? $shipment['shipment_id'] : '';
+					$id = $shipment["shipment_no"];
+					$title= "Delayed";
+					// "New Shipment" .' '. $driver->shipment_no .' '. "Added";
+					$message= $shipment["shipment_no"].' '."is delayed for".' '."Document Received".' ' ."by".' '.$updatedByName;
+					$notification->title = $title;
+					$notification->message = $message;
+					$notification->notification_type = '2';
+					$notification->user_name_from = $updatedByName;
+					$notification->save();
+					$notification_id = $notification->id;
+					if($to_user3->device_token != null){
+					if($to_user3->device_type == 'ios'){
+						GlobalHelper::sendFCMIOS($title, $message, $to_user3->device_token,$notification->notification_type,$id,$notification_id);
+					}else{
+						GlobalHelper::sendFCM($notification->title, $notification->message, $to_user3->device_token,$notification->notification_type,$id,$notification_id);
+						}
+					}
+				}
+			}
+			}
+			}
+
+				//admin
+				$to_user1 = User::find(1);
+				if($from_user['id'] != $to_user1['id'] && $from_user && $to_user1) {
+					$notification = new Notification();
+					$notification->notification_from = $from_user->id;
+					$notification->notification_to = $to_user1->id;
+					$notification->shipment_id = isset($shipment['shipment_id']) ? $shipment['shipment_id'] : '';
+					$id = $shipment["shipment_no"];
+					$title= "Delayed";
+					$message= $shipment["shipment_no"].' '."is delayed for".' '."Document Received".' ' ."by".' '.$updatedByName;
+					$notification->title = $title;
+					$notification->message = $message;
+					$notification->notification_type = '2';
+					$notification->user_name_from = $updatedByName;
+					$notification->save();
+					$notification_id = $notification->id;
+					if($to_user1->device_token != null){
+					if($to_user1->device_type == 'ios'){
+						GlobalHelper::sendFCMIOS($title, $message, $to_user1->device_token,$notification->notification_type,$id,$notification_id);
+					}else{
+						GlobalHelper::sendFCM($notification->title, $notification->message, $to_user1->device_token,$notification->notification_type,$id,$notification_id);
+						}
+					}
+				}
+
+				//company
+
+				$company_user = Company::where('id',$shipment['company'])->first();
+                $to_user2=User::find($company_user['user_id']);
+				if($from_user['id'] != $to_user2['id'] && $from_user && $to_user2) {
+					$notification = new Notification();
+					$notification->notification_from = $from_user->id;
+					$notification->notification_to = $to_user2->id;
+					$notification->shipment_id = isset($shipment['shipment_id']) ? $shipment['shipment_id'] : '';
+					$id = $shipment["shipment_no"];
+					$title= "Delayed";
+					$message= $shipment["shipment_no"].' '."is delayed for".' '."Document Received".' ' ."by".' '.$updatedByName;
 					$notification->title = $title;
 					$notification->message = $message;
 					$notification->notification_type = '2';
