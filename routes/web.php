@@ -73,6 +73,7 @@ Route::post('/permission/getPermissions', 'PermissionController@getPermissions')
 Route::group(['namespace' => 'Admin','prefix' =>'admin' , 'middleware' => 'auth'], function () {
 
 	Route::get('/dashboard','AdminController@Dashboard')->name('admindashboard');
+	Route::get('/liveboard','LiveBoardController@List')->name('liveboard');
 	Route::get('/transporter/list','TransporterController@List')->name('transporterlist');
 	Route::get('/transporter/add','TransporterController@ADD')->name('transporteradd');
 	Route::post('/transporter/save','TransporterController@Save')->name('transportersave');
@@ -135,7 +136,7 @@ Route::group(['namespace' => 'Admin','prefix' =>'admin' , 'middleware' => 'auth'
 	Route::post('/driver/save','DriverController@Save')->name('driversave');
 	Route::get('/driver/edit/{id}','DriverController@Edit')->name('driveredit');
 	Route::post('/driver/update','DriverController@Update')->name('driverupdate');
-	Route::post('/driver/delete/{id}','DriverController@Delete')->name('driverdelete');
+	Route::get('/driver/delete/{id}','DriverController@Delete')->name('driverdelete');
 
 	Route::get('/shipment/list','ShipmentController@List')->name('shipmentlist');
 	Route::get('/shipment/add','ShipmentController@Add')->name('shipmentadd');

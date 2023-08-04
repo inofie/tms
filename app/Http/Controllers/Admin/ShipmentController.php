@@ -821,7 +821,7 @@ class ShipmentController extends Controller
                 if($Request->status == "1"){
 
                     $ss = Shipment::where('shipment_no',$data->shipment_no)->first();
-                    $ss->status = 0;
+                    $ss->status = 1;
                     // $ss->cargo_status = 0;
                     $ss->save();
 

@@ -23,4 +23,7 @@ class Driver extends Model
             return 0;
         }
     }
+    public function transporterData(){
+        return $this->hasOne('App\Transporter','id','transporter_id');
+    }
 }

@@ -17,6 +17,8 @@ use App\Warehouse;
 use Hash;
 use Session;
 use Illuminate\Support\Facades\Auth;
+use Yajra\DataTables\Html\Builder;
+use App\DataTables\DriverDataTable;
 use Config;
 
 
@@ -29,22 +31,36 @@ class DriverController extends Controller
        
     }
 
-
-
-    public function List(Request $Request)
+    public function List(Builder $builder, DriverDataTable $dataTable)
     {   
+        $html = $builder->columns([
+            ['data' => 'name', 'name' => 'name','title' => 'Full Name'],
+            ['data' => 'phone', 'name' => 'phone','title' => 'Phone Number'],
+            ['data' => 'licence_no', 'name' => 'licence_no','title' => 'Licence Number'],
+            ['data' => 'truck_no', 'name' => 'truck_no','title' => 'Truck Number'],
+            ['data' => 'pan', 'name' => 'pan','title' => 'Pan Number'],
+            ['data' => 'rc_book', 'name' => 'rc_book','title' => 'R.c Book'],
+            ['data' => 'pan_card', 'name' => 'pan_card','title' => 'Pan Card'],
+            ['data' => 'licence', 'name' => 'licence','title' => 'Licence'],
+            ['data' => 'transporter_name', 'name' => 'transporter_name','title' => 'Transport'],
+            ['data' => 'status', 'name' => 'status','title' => 'Status'],
+            ['data' => 'action', 'name' => 'action', 'orderable' => false, 'searchable' => false,'title' => 'Action'],
+        ]);
         $data= array();
-        $data1 = Driver::where('self',0)->get();
-
-        foreach ($data1 as $key => $value) {
-
-            $data[$key]=$value;
-            $transporter = Transporter::withTrashed()->findorfail($value->transporter_id);
-            $data[$key]->transporter_name=$transporter->name;
-
+        
+        if(request()->ajax()) {
+            $data1 = Driver::where('self',0)->get();
+            return $dataTable->dataTable($data1)->toJson();
         }
+        // foreach ($data1 as $key => $value) {
 
-        return view('admin.driverlist',compact('data'));
+        //     $data[$key]=$value;
+        //     $transporter = Transporter::withTrashed()->findorfail($value->transporter_id);
+        //     $data[$key]->transporter_name=$transporter->name;
+
+        // }
+
+        return view('admin.driverlist',compact('data','html'));
     }
 
 

@@ -102,7 +102,8 @@ All Driver List | TOT
                               </div>
                           </div>
                           <div class="space15"></div>
-                          <table class="table table-striped table-hover table-bordered" id="editable-sample">
+                          {!! $html->table(['class' => 'table table-bordered', 'id' => 'DriverDataTable']) !!}
+                         <!-- <table class="table table-striped table-hover table-bordered" id="editable-sample">
                               <thead>
                              <tr>
                                   <th>Full Name</th>
@@ -145,20 +146,20 @@ All Driver List | TOT
                                         @csrf
                                         <input type="hidden" name="id" value="{{$value->myid}}">
                                       </form>
-                                      <!-- <a href="{{ route('driverdelete',['id'=>$value->myid]) }}" class="btn btn-danger btn-xs"><i class="fa fa-trash-o "></i></a> -->
+                                       <a href="{{ route('driverdelete',['id'=>$value->myid]) }}" class="btn btn-danger btn-xs"><i class="fa fa-trash-o "></i></a>
                                     </td>
-                                  <!-- <td class="center">super user</td>
+                                   <td class="center">super user</td>
                                   <td><a class="edit" href="javascript:;">Edit</a></td>
                                   
                                   <img src="img_forest.jpg" alt="Forest" style="width:150px"></a>
-                                  <td><a class="delete" href="javascript:;">Delete</a></td> -->
+                                  <td><a class="delete" href="javascript:;">Delete</a></td>
                               </tr>
                               
                               @endforeach
                                 
                         
                               </tbody>
-                          </table>
+                          </table>-->
                       </div>
                   </div>
               </section>
@@ -170,7 +171,7 @@ All Driver List | TOT
 @endsection
 
 @section('js4')
-
+{!! $html->scripts() !!}
 
 <script type="text/javascript">
   function deleteItem(id){

@@ -7422,7 +7422,8 @@ class ApiController extends Controller {
                         $Request->keyword != " " &&
                         $Request->keyword != "null" &&
                         $Request->keyword != null
-                    ) {
+                    ) 
+					{
                         $data1 = Shipment::where(
                             "shipment_no",
                             "like",
@@ -7531,7 +7532,8 @@ class ApiController extends Controller {
                         $Request->shipment_no != " " &&
                         $Request->shipment_no != "null" &&
                         $Request->shipment_no != null
-                    ) {
+                    ) 
+					{
                         $data1 = Shipment::where(
                             "shipment_no",
                             $Request->shipment_no
@@ -7601,7 +7603,8 @@ class ApiController extends Controller {
                         $Request->forwarder != " " &&
                         $Request->forwarder != "null" &&
                         $Request->forwarder != null
-                    ) {
+                    ) 
+					{
                         $data1 = Shipment::where(
                             "forwarder",
                             $Request->forwarder
@@ -7668,7 +7671,8 @@ class ApiController extends Controller {
                         $Request->transporter != " " &&
                         $Request->transporter != "null" &&
                         $Request->transporter != null
-                    ) {
+                    ) 
+					{
                         $data1 = Shipment::whereRaw("find_in_set('$Request->transporter' , all_transporter)")
                             ->whereNull("deleted_at")
                             ->orderby("id", "desc");
@@ -7877,7 +7881,8 @@ class ApiController extends Controller {
                         }
                     }
 					}
-				elseif ($Request->status != "") {
+				elseif ($Request->status != "") 
+				{
 					$data1 = Shipment::
 						whereNull("deleted_at")
 						->orderby("id", "desc");
@@ -7894,6 +7899,69 @@ class ApiController extends Controller {
 
 
 				// $data1 = $data1->paginate($perPage);
+				foreach ($data1 as $key => $value) {
+					$data1[$key] = $value;
+
+					if ($value) {
+						$com = Company::withTrashed()->findorfail(
+							$value->company
+						);
+						$data1[$key]["company_name"] = $com->name;
+					} else {
+						$data1[$key]["company_name"] = "";
+					}
+
+					if ($value) {
+						$forw = Forwarder::withTrashed()->findorfail(
+							$value->forwarder
+						);
+						$data1[$key]["forwarder_name"] = $forw->name;
+					} else {
+						$data1[$key]["forwarder_name"] = "";
+					}
+
+					if (
+						isset($value->trucktype) &&
+						$value->trucktype != "" &&
+						$value->trucktype != "null" &&
+						$value->trucktype != null
+					) {
+						$tk = Truck::withTrashed()->findorfail(
+							$value->trucktype
+						);
+
+						$data1[$key]["vehicle"] = $tk->name;
+					} else {
+						$data1[$key]["vehicle"] = "";
+					}
+
+					if ($value->status == 0) {
+						$data1[$key]["status"] = "pending";
+					} elseif ($value->status == 1) {
+						$data1[$key]["status"] = "ontheway";
+					} elseif ($value->status == 2) {
+						$data1[$key]["status"] = "delivery";
+					} elseif ($value->status == 3) {
+						$data1[$key]["status"] = "warehouse";
+					}
+				}
+                }
+				elseif ($Request->other_id != 0) 
+				{
+					$data1 = Shipment::
+						whereNull("deleted_at")->where('company',$Request->other_id)
+						->orderby("id", "desc");
+					if ($Request->status == "pending") {
+						$data1 = $data1->where("status", "0");
+					}
+					if ($Request->status == "ontheway") {
+						$data1 = $data1->where("status", "1");
+					}
+					if ($Request->status == "delivered") {
+						$data1 = $data1->where("status", "2");
+					}
+					 $data1 = $data1->paginate($perPage);
+
 				foreach ($data1 as $key => $value) {
 					$data1[$key] = $value;
 
@@ -8808,7 +8876,8 @@ class ApiController extends Controller {
                         $Request->shipment_no != " " &&
                         $Request->shipment_no != "null" &&
                         $Request->shipment_no != null
-                    ) {
+                    ) 
+					{
                         $data = Shipment::where(
                             "shipment_no",
                             $Request->shipment_no
@@ -8877,7 +8946,8 @@ class ApiController extends Controller {
                         $Request->forwarder != " " &&
                         $Request->forwarder != "null" &&
                         $Request->forwarder != null
-                    ) {
+                    ) 
+					{
                         $data = Shipment::where(
                             "forwarder",
                             $Request->forwarder
@@ -9012,7 +9082,8 @@ class ApiController extends Controller {
                         $Request->date != " " &&
                         $Request->date != "null" &&
                         $Request->date != null
-                    ) {
+                    ) 
+					{
                         $date = date(
                             "Y-m-d",
                             strtotime(
@@ -9086,7 +9157,8 @@ class ApiController extends Controller {
                                 $data[$key]["status"] = "warehouse";
                             }
                         }
-                    } elseif ($Request->month != "" && $Request->year != "" ) {
+                    } elseif ($Request->month != "" && $Request->year != "" ) 
+					{
                         $data = Shipment::whereYear(
                             "created_at",
                             $Request->year
@@ -9149,6 +9221,61 @@ class ApiController extends Controller {
 				}
 				elseif ($Request->status != "" ) {
 					$data = Shipment::whereNull("deleted_at")
+						->orderby("id", "desc")
+						->get();
+					if ($Request->status == "pending") {
+						$data = $data->where("status", "0");
+					}
+					if ($Request->status == "ontheway") {
+						$data = $data->where("status", "1");
+					}
+					if ($Request->status == "delivered") {
+						$data= $data->where("status", "2");
+					}
+
+
+				foreach ($data as $key => $value) {
+					$data[$key] = $value;
+
+					$com = Company::withTrashed()->findorfail(
+						$value->company
+					);
+
+					$data[$key]["company_name"] = $com->name;
+
+					$forw = Forwarder::withTrashed()->findorfail(
+						$value->forwarder
+					);
+
+					$data[$key]["forwarder_name"] = $forw->name;
+
+					if (
+						$value->trucktype != "" &&
+						$value->trucktype != "null" &&
+						$value->trucktype != null
+					) {
+						$tk = Truck::withTrashed()->findorfail(
+							$value->trucktype
+						);
+
+						$data[$key]["vehicle"] = $tk->name;
+					} else {
+						$data[$key]["vehicle"] = "";
+					}
+
+					if ($value->status == 0) {
+						$data[$key]["status"] = "pending";
+					} elseif ($value->status == 1) {
+						$data[$key]["status"] = "ontheway";
+					} elseif ($value->status == 2) {
+						$data[$key]["status"] = "delivery";
+					} elseif ($value->status == 3) {
+						$data[$key]["status"] = "warehouse";
+					}
+				}
+                }
+				elseif ($Request->other_id != 0) {
+					$data = Shipment::whereNull("deleted_at")->where('company',$Request->other_id)
 						->orderby("id", "desc")
 						->get();
 					if ($Request->status == "pending") {
@@ -10040,7 +10167,7 @@ class ApiController extends Controller {
 					date_format($date2, "Y-m-d");
 					$diff = date_diff($date1, $date2);
 
-					$data[$key]['diff'] = "" . $diff->format("%a days");
+					$data[$key]['diff'] = "" . $diff->format("%a days").' '."ago";
 
 				}
 				if (!empty($data)) {
@@ -10077,7 +10204,7 @@ class ApiController extends Controller {
 					date_format($date2, "Y-m-d");
 					$diff = date_diff($date1, $date2);
 
-					$data[$key]['diff'] = "" . $diff->format("%a days");
+					$data[$key]['diff'] = "" . $diff->format("%a days").' '."ago";
 
 				}
 
@@ -10101,7 +10228,7 @@ class ApiController extends Controller {
 					date_format($date2, "Y-m-d");
 					$diff = date_diff($date1, $date2);
 
-					$data[$key]['diff'] = "" . $diff->format("%a days");
+					$data[$key]['diff'] = "" . $diff->format("%a days").' '."ago";
 
 				}
 

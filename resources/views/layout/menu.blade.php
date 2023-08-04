@@ -1,4 +1,4 @@
-<script src="{{ asset('js/jquery.nicescroll.js') }}" type="text/javascript"></script>
+
 <aside>
 
           <div id="sidebar"  class="nav-collapse ">
@@ -17,7 +17,12 @@
                           <span>Dashboard</span>
                       </a>
                   </li>
-
+                  <li>
+                      <a class="{{ Request::is('admin/liveboard*') ? 'active' : '' }}" href="{{ route('liveboard') }}">
+                          <i class="fa fa-list"></i>
+                          <span>Live Board</span>
+                      </a>
+                  </li>
 
                  {{--  <li>
 
