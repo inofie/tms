@@ -810,6 +810,14 @@ class ShipmentController extends Controller
 
                 $data->status = $Request->status;
                 $data->last_status_update_time=date('Y-m-d H:i:s');
+                if($data['last_notification_time_difference'] != NULL)
+                {
+                    $data->last_notification_time_difference=null;
+                }
+                if($data['last_notification_time'] != NULL)
+                {
+                    $data->last_notification_time=null;
+                }
                 if($Request->reason !="" && $Request->reason != "null" && $Request->reason == null){
                     $data->reason = $Request->reason;
                 }
@@ -1855,7 +1863,7 @@ class ShipmentController extends Controller
     }
 
     public function ShipmentUpdate(Request $Request)
-    { 
+    {
          $this->check();
 
       if($Request->type2 == 'fcl') {
@@ -1950,7 +1958,7 @@ class ShipmentController extends Controller
 
                 $data->trucktype = $Request->truck_type;
 
-               
+
                 $data->forwarder = $Request->forwarder;
 
                 $data->show_detail = $Request->show_detail;
@@ -2000,7 +2008,7 @@ class ShipmentController extends Controller
             	$data->driver_name = $Request->driver_name;
 
                 $data->invoice_amount = $Request->invoice_amount;
-                $data->remark = $Request->remark;    
+                $data->remark = $Request->remark;
                 $data->updated_by = Auth::id();
                 $data->save();
                // dd($data);
@@ -3056,7 +3064,7 @@ class ShipmentController extends Controller
 		}
 
 		if($Request->transporter){
-            $datas = Shipment::withTrashed()->whereRaw("find_in_set('$Request->transporter' , all_transporter)"); 
+            $datas = Shipment::withTrashed()->whereRaw("find_in_set('$Request->transporter' , all_transporter)");
         }
 
 		if($Request->forwarder){

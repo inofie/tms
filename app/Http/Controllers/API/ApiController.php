@@ -5061,6 +5061,14 @@ class ApiController extends Controller {
 					$data->status = $Request->status;
 				}
 			$data->last_status_update_time=date('Y-m-d H:i:s');
+			if($data['last_notification_time_difference'] != NULL)
+			{
+				$data->last_notification_time_difference=null;
+			}
+			if($data['last_notification_time'] != NULL)
+			{
+				$data->last_notification_time=null;
+			}
 
 			$path = public_path('/uploads');
 			if ($Request->status == "1") {
@@ -7422,7 +7430,7 @@ class ApiController extends Controller {
                         $Request->keyword != " " &&
                         $Request->keyword != "null" &&
                         $Request->keyword != null
-                    ) 
+                    )
 					{
                         $data1 = Shipment::where(
                             "shipment_no",
@@ -7532,7 +7540,7 @@ class ApiController extends Controller {
                         $Request->shipment_no != " " &&
                         $Request->shipment_no != "null" &&
                         $Request->shipment_no != null
-                    ) 
+                    )
 					{
                         $data1 = Shipment::where(
                             "shipment_no",
@@ -7603,7 +7611,7 @@ class ApiController extends Controller {
                         $Request->forwarder != " " &&
                         $Request->forwarder != "null" &&
                         $Request->forwarder != null
-                    ) 
+                    )
 					{
                         $data1 = Shipment::where(
                             "forwarder",
@@ -7671,7 +7679,7 @@ class ApiController extends Controller {
                         $Request->transporter != " " &&
                         $Request->transporter != "null" &&
                         $Request->transporter != null
-                    ) 
+                    )
 					{
                         $data1 = Shipment::whereRaw("find_in_set('$Request->transporter' , all_transporter)")
                             ->whereNull("deleted_at")
@@ -7881,7 +7889,7 @@ class ApiController extends Controller {
                         }
                     }
 					}
-				elseif ($Request->status != "") 
+				elseif ($Request->status != "")
 				{
 					$data1 = Shipment::
 						whereNull("deleted_at")
@@ -7946,7 +7954,7 @@ class ApiController extends Controller {
 					}
 				}
                 }
-				elseif ($Request->other_id != 0) 
+				elseif ($Request->other_id != 0)
 				{
 					$data1 = Shipment::
 						whereNull("deleted_at")->where('company',$Request->other_id)
@@ -8876,7 +8884,7 @@ class ApiController extends Controller {
                         $Request->shipment_no != " " &&
                         $Request->shipment_no != "null" &&
                         $Request->shipment_no != null
-                    ) 
+                    )
 					{
                         $data = Shipment::where(
                             "shipment_no",
@@ -8946,7 +8954,7 @@ class ApiController extends Controller {
                         $Request->forwarder != " " &&
                         $Request->forwarder != "null" &&
                         $Request->forwarder != null
-                    ) 
+                    )
 					{
                         $data = Shipment::where(
                             "forwarder",
@@ -9082,7 +9090,7 @@ class ApiController extends Controller {
                         $Request->date != " " &&
                         $Request->date != "null" &&
                         $Request->date != null
-                    ) 
+                    )
 					{
                         $date = date(
                             "Y-m-d",
@@ -9157,7 +9165,7 @@ class ApiController extends Controller {
                                 $data[$key]["status"] = "warehouse";
                             }
                         }
-                    } elseif ($Request->month != "" && $Request->year != "" ) 
+                    } elseif ($Request->month != "" && $Request->year != "" )
 					{
                         $data = Shipment::whereYear(
                             "created_at",

@@ -7,7 +7,7 @@ use Illuminate\Notifications\Notification;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 
-class CertificateApproveAdmin extends Notification
+class LrMail_Bmf extends Notification
 {
     use Queueable;
 
@@ -41,11 +41,9 @@ class CertificateApproveAdmin extends Notification
     public function toMail($notifiable)
     {
         return (new MailMessage)
-                    ->subject('Certificate Approved - '.config('app.name'))
-                    ->view('emails.property_email', [
-                        'email' => $this->details->email,
-                        'certificate_name' => $this->details->certificate_name,
-                    ]);
+                    ->subject('REGARDING LR DETAILS - '.$this->details->shipment_no)
+                    ->view('bmfmail')
+                    ->attach( public_path('/pdf').'/'.$this->details->shipment_no.'.pdf');
                     // ->greeting('Welcome! '.$this->user->first_name.' '.$this->user->last_name)
                     // ->line('You have been successfully registered on ' .config('app.name'). ' Click on below button to verify your account.')
                     // ->action('Verify Email', $link)
