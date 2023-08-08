@@ -642,11 +642,11 @@ class ApiController extends Controller {
 				return response()->json(['status' => 'failed', 'message' => 'Please update this application.', 'data' => json_decode('{}'), 'code' => '500'], 200);
 			}
 
-			$aa = Shipment::where('status', 0)->orwhere('status', 1)->where('company', $Request->id)->count();
+			$aa = Shipment::where('status', 1)->where('company', $Request->id)->count();
 
 			if ($aa > 0) {
 
-				return response()->json(['status' => 'failed', 'message' => 'Unable to delete.', 'data' => json_decode('{}'), 'code' => '500'], 200);
+				return response()->json(['status' => 'failed', 'message' => 'Sorry you can not delete this company, Because it is already connected in some shipments.', 'data' => json_decode('{}'), 'code' => '500'], 200);
 			}
 
 			$data = Company::findorfail($Request->id);
