@@ -7,19 +7,20 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Mail;
 
-class CertificateApproveJob implements ShouldQueue
+class LrMail_Yogini_Job implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
-    protected $details;
+    protected $data;
     /**
      * Create a new job instance.
      *
      * @return void
      */
-    public function __construct($details)
+    public function __construct($data)
     {
-        $this->details = $details;
+        $this->data = $data;
     }
 
     /**
@@ -29,6 +30,10 @@ class CertificateApproveJob implements ShouldQueue
      */
     public function handle()
     {
-        $this->details->notify(new CertificateApprove($this->details));
+        $data2 = $this->data;
+        Mail::send('yoginimail', $data2, function($message) use ($data2) {
+         			$message->to($data2['email'])->subject('REGARDING LR DETAILS - '.$data2['shipment_no']);
+         			$message->attach( public_path('/pdf').'/'.$data2['shipment_no'].'.pdf');
+      			});
     }
 }
