@@ -134,12 +134,9 @@ body{background-color: #8f3f65;}
         <div class="card-header">Pickup Confirm<span><i class="fa fa-ellipsis-h"></i></span></div>
          <div class="card-body">
           <div class="project-list">
-           <ul>
-            <li>Project 1</li>
-            <li>Project 2</li>
-            <li>Project 3</li>
-            <li>Project 4</li>
-            <li>Project 5</li>
+           <ul>@foreach($pickup as $value)
+            <li>{{$value->shipment_no}}</li>
+            @endforeach
            </ul>
           </div>      
         </div>
@@ -155,7 +152,11 @@ body{background-color: #8f3f65;}
         <div class="card-header">Truck Transfer<span><i class="fa fa-ellipsis-h"></i></span></div>
          <div class="card-body">
          <div class="project-list">
-      
+         <ul>@foreach($trucktransfer as $value)
+         <li>{{$value->shipment_no}}</li>
+            @endforeach
+           
+           </ul> 
           </div>     
          
         </div>
@@ -171,12 +172,9 @@ body{background-color: #8f3f65;}
         <div class="card-header">Reach at Company<span><i class="fa fa-ellipsis-h"></i></span></div>
          <div class="card-body">
          <div class="project-list">
-           <ul>
-            <li>Project 1</li>
-            <li>Project 2</li>
-            <li>Project 3</li>
-            <li>Project 4</li>
-            <li>Project 5</li>
+           <ul>@foreach($reachcompany as $value)
+            <li>{{$value->shipment_no}}</li>
+            @endforeach
            </ul>
           </div>      
         </div>
@@ -192,12 +190,9 @@ body{background-color: #8f3f65;}
         <div class="card-header">Damage/Missing/Hold<span><i class="fa fa-ellipsis-h"></i></span></div>
          <div class="card-body">
          <div class="project-list">
-           <ul>
-            <li>Project 1</li>
-            <li>Project 2</li>
-            <li>Project 3</li>
-            <li>Project 4</li>
-            <li>Project 5</li>
+           <ul>@foreach($damagemissinghold as $value)
+            <li>{{$value->shipment_no}}</li>
+            @endforeach
            </ul>
           </div>     
         </div>
@@ -213,12 +208,9 @@ body{background-color: #8f3f65;}
         <div class="card-header">Reach at port<span><i class="fa fa-ellipsis-h"></i></span></div>
          <div class="card-body">
          <div class="project-list">
-           <ul>
-            <li>Project 1</li>
-            <li>Project 2</li>
-            <li>Project 3</li>
-            <li>Project 4</li>
-            <li>Project 5</li>
+           <ul>@foreach($reachport as $value)
+            <li>{{$value->shipment_no}}</li>
+            @endforeach
            </ul>
           </div>     
         </div>
@@ -234,12 +226,9 @@ body{background-color: #8f3f65;}
         <div class="card-header">Delivered<span><i class="fa fa-ellipsis-h"></i></span></div>
          <div class="card-body">
          <div class="project-list">
-           <ul>
-            <li>Project 1</li>
-            <li>Project 2</li>
-            <li>Project 3</li>
-            <li>Project 4</li>
-            <li>Project 5</li>
+           <ul>@foreach($delivered as $value)
+            <li>{{$value->shipment_no}}</li>
+            @endforeach
            </ul>
           </div>     
         </div>

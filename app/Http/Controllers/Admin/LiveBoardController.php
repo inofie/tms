@@ -37,17 +37,22 @@ class LiveBoardController extends Controller
             ['data' => 'shipment_no', 'name' => 'shipment_no','title' => 'Shipment No'],
           
         ]);
-        $data= array();
+        
         // $data = Shipment::with('statusData')->withTrashed()->whereNull('deleted_at')
         // ->whereRaw("find_in_set('$ff->id' , all_transporter)");
 
-        if(request()->ajax()) {
-            $data = Shipment::where('status',2)->get();
-            return $dataTable->dataTable($data)->toJson();
-        }
+        //if(request()->ajax()) {
+            $trucktransfer = Shipment_Driver::where('status',11)->orWhere('status',13)->get();
+            $pickup = Shipment_Driver::where('status',6)->get();
+            $reachcompany = Shipment_Driver::where('status',7)->get();
+            $damagemissinghold = Shipment_Driver::where('status',4)->orWhere('is_damaged',1)->orWhere('is_missing',1)->get();
+            $reachport = Shipment_Driver::where('status',12)->get();
+            $delivered = Shipment::where('status',2)->get();
+           // return $dataTable->dataTable($data)->toJson();
+       // }
        
 
-        return view('admin.listboard',compact('data','html'));
+        return view('admin.listboard',compact('trucktransfer','html','pickup','damagemissinghold','reachcompany','reachport','delivered'));
     }
 
 

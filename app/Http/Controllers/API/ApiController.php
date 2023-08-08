@@ -5099,7 +5099,7 @@ class ApiController extends Controller {
 			if ($Request->status == "19") {
 
 				$data->damageload_time = date('Y-m-d H:i');
-				//$data->is_damaged = 1;
+				$data->is_damaged = 1;
 				$transp = Shipment_Transporter::withTrashed()->where('shipment_no', $data->shipment_no)->where('transporter_id', $data->transporter_id)->first();
 				$transp->status = 2;
 				$transp->save();
@@ -5116,7 +5116,7 @@ class ApiController extends Controller {
 			if ($Request->status == "20") {
 
 				$data->missingload_time = date('Y-m-d H:i');
-				//$data->is_missing = 1;
+				$data->is_missing = 1;
 				$transp = Shipment_Transporter::withTrashed()->where('shipment_no', $data->shipment_no)->where('transporter_id', $data->transporter_id)->first();
 				$transp->status = 2;
 				$transp->save();
