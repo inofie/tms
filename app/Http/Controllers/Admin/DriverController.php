@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 namespace App\Http\Controllers\Admin;
 
@@ -28,11 +28,11 @@ class DriverController extends Controller
 
 	public function __construct()
     {
-       
+
     }
 
     public function List(Builder $builder, DriverDataTable $dataTable)
-    {   
+    {
         $html = $builder->columns([
             ['data' => 'name', 'name' => 'name','title' => 'Full Name'],
             ['data' => 'phone', 'name' => 'phone','title' => 'Phone Number'],
@@ -47,7 +47,7 @@ class DriverController extends Controller
             ['data' => 'action', 'name' => 'action', 'orderable' => false, 'searchable' => false,'title' => 'Action'],
         ]);
         $data= array();
-        
+
         if(request()->ajax()) {
             $data1 = Driver::where('self',0)->get();
             return $dataTable->dataTable($data1)->toJson();
@@ -75,7 +75,7 @@ class DriverController extends Controller
     {
 
         $this->validate($Request, [
-        'transporter' => 'required',    
+        'transporter' => 'required',
         'name' => 'required',
         'phone' => 'required|numeric|digits:10|unique:driver,phone',
         'licence_no' => 'required',
@@ -101,7 +101,7 @@ class DriverController extends Controller
          'licence.required' => "Please Upload Licence Document",
          'licence.mimes' => "Please Upload Licence Document File extension .jpg, .png, .jpeg",
          ]);
-    
+
 
                 $comapny = new Driver();
 
@@ -123,22 +123,22 @@ class DriverController extends Controller
 
                 $comapny->status= $Request->status;
 
-                $comapny->password=Hash::make($Request->password);  
+                $comapny->password=Hash::make($Request->password);
 
                 $path = public_path('/uploads');
-                    
+
                  if($Request->hasFile('rc_book') && !empty($Request->file('rc_book'))){
                         $file_name = time()."1".$Request->rc_book->getClientOriginalName();
                         $Request->rc_book->move($path,$file_name);
                         $comapny->rc_book = $file_name;
                  }
-                    
+
                  if($Request->hasFile('pan_card') && !empty($Request->file('pan_card'))){
                         $file_name = time()."2".$Request->pan_card->getClientOriginalName();
                         $Request->pan_card->move($path,$file_name);
                         $comapny->pan_card = $file_name;
                  }
-                    
+
                  if($Request->hasFile('licence') && !empty($Request->file('licence'))){
                         $file_name = time()."3".$Request->licence->getClientOriginalName();
                         $Request->licence->move($path,$file_name);
@@ -162,7 +162,7 @@ class DriverController extends Controller
         $data = Driver::where('myid',$Request->id)->first();
 
         $transporter = Transporter::all();
-        
+
         return view('admin.driveredit',compact('data','transporter'));
 
     }
@@ -173,7 +173,7 @@ class DriverController extends Controller
     {
 
         $this->validate($Request, [
-        'transporter' => 'required',    
+        'transporter' => 'required',
         'name' => 'required',
         'phone' => 'required|numeric|digits:10|unique:driver,phone,' . $Request->id,
         'licence_no' => 'required',
@@ -190,9 +190,9 @@ class DriverController extends Controller
          'licence_no.required' => "Please Enter Licence Number",
          'truck_no.required' => "Please Enter Truck Number",
          'pan.required' => "Please Enter PAN Number",
-         
+
          ]);
-                
+
                 $comapny = Driver::findorfail($Request->id);
 
                $comapny->transporter_id = $Request->transporter;
@@ -215,24 +215,29 @@ class DriverController extends Controller
 
                 if($Request->password != "" && $Request->password != " " && $Request->password != null ){
 
-                    $comapny->password=Hash::make($Request->password);  
+                    $comapny->password=Hash::make($Request->password);
                 }
 
 
                 $path = public_path('/uploads');
-                    
+
                  if($Request->hasFile('rc_book') && !empty($Request->file('rc_book'))){
                         $file_name = time()."1".$Request->rc_book->getClientOriginalName();
                         $Request->rc_book->move($path,$file_name);
                         $comapny->rc_book = $file_name;
                  }
-                    
+
                  if($Request->hasFile('pan_card') && !empty($Request->file('pan_card'))){
                         $file_name = time()."2".$Request->pan_card->getClientOriginalName();
+                        // if (!file_exists($path)) {
+                        //     File::makeDirectory($path, 0777, true);
+                        //     chmod($path, 0777);
+                        // }
                         $Request->pan_card->move($path,$file_name);
+                        // chmod($path . $file_name, 0777);
                         $comapny->pan_card = $file_name;
                  }
-                    
+
                  if($Request->hasFile('licence') && !empty($Request->file('licence'))){
                         $file_name = time()."3".$Request->licence->getClientOriginalName();
                         $Request->licence->move($path,$file_name);
@@ -260,8 +265,8 @@ class DriverController extends Controller
     }
 
 
-   
-  	
+
+
 
 
 
