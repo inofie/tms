@@ -30,6 +30,10 @@ use App\Jobs\LrMail_Yogini_Job;
 use App\Jobs\LrMail_Ssi_Job;
 use App\Jobs\LrMail_Hansh_Job;
 use App\Jobs\LrMail_Bmf_Job;
+use App\Jobs\Yogini_Job;
+use App\Jobs\Ssi_Job;
+use App\Jobs\Hansh_Job;
+use App\Jobs\Bmf_Job;
 use App\Http\Response\APIResponse;
 use App\Helper\GlobalHelper;
 use App\Notification;
@@ -1906,11 +1910,12 @@ class ApiController extends Controller {
 				      	Config::set('mail.password', $yogini_password);*/
 				      	$mail_service = env('MAIL_SERVICE');
 				      	if($mail_service == 'on'){
-				      		 Mail::send('yoginimail', $data2, function($message) use ($data2) {
-                            $message->to($data2['email'])->subject('REGARDING LR DETAILS - '.$data2['shipment_no']);
-                            $message->from('noreplay@yoginitransport.com','Yogini Transport');
-                            $message->attach( public_path('/pdf').'/'.$data2['shipment_no'].'.pdf');
-                        	});
+				      		//  Mail::send('yoginimail', $data2, function($message) use ($data2) {
+                            // $message->to($data2['email'])->subject('REGARDING LR DETAILS - '.$data2['shipment_no']);
+                            // $message->from('noreplay@yoginitransport.com','Yogini Transport');
+                            // $message->attach( public_path('/pdf').'/'.$data2['shipment_no'].'.pdf');
+                        	// });
+							dispatch(new LrMail_Yogini_Job($data2));
 				      	}
                     } elseif ($comp->lr == "ssilr") {
                         $pdf = PDF::loadView('lr.ssilr', compact('data', 'trucks'));
@@ -1925,11 +1930,12 @@ class ApiController extends Controller {
 				      	Config::set('mail.password', $ssi_password);*/
                 		$mail_service = env('MAIL_SERVICE');
 						if($mail_service == 'on'){
-                         Mail::send('ssimail', $data2, function($message) use ($data2) {
-                            $message->to($data2['email'])->subject('REGARDING LR DETAILS - '.$data2['shipment_no']);
-                             $message->from('noreplay@ssitransway.com','SSI Transway');
-                            $message->attach( public_path('/pdf').'/'.$data2['shipment_no'].'.pdf');
-                        	});
+                        //  Mail::send('ssimail', $data2, function($message) use ($data2) {
+                        //     $message->to($data2['email'])->subject('REGARDING LR DETAILS - '.$data2['shipment_no']);
+                        //      $message->from('noreplay@ssitransway.com','SSI Transway');
+                        //     $message->attach( public_path('/pdf').'/'.$data2['shipment_no'].'.pdf');
+                        // 	});
+						dispatch(new LrMail_Ssi_Job($data2));
                      	}
                     } elseif ($comp->lr == "hanshlr") {
                         $pdf = PDF::loadView('lr.hanshlr', compact('data', 'trucks'));
@@ -1944,12 +1950,13 @@ class ApiController extends Controller {
 				      	Config::set('mail.password', $hansh_password);*/
 				      	$mail_service = env('MAIL_SERVICE');
 						if($mail_service == 'on'){
-                         Mail::send('hanshmail', $data2, function($message) use ($data2) {
-                            $message->to($data2['email'])->subject('REGARDING LR DETAILS - '.$data2['shipment_no']);
-                            $message->from('noreplay@hanstransport.com','Hansh Transport');
-                            $message->attach( public_path('/pdf').'/'.$data2['shipment_no'].'.pdf');
-                        	});
-                        	}
+                        //  Mail::send('hanshmail', $data2, function($message) use ($data2) {
+                        //     $message->to($data2['email'])->subject('REGARDING LR DETAILS - '.$data2['shipment_no']);
+                        //     $message->from('noreplay@hanstransport.com','Hansh Transport');
+                        //     $message->attach( public_path('/pdf').'/'.$data2['shipment_no'].'.pdf');
+                        // 	});
+						dispatch(new LrMail_Hansh_Job($data2));
+                        }
                     } elseif ($comp->lr == "bmflr") {
                         $pdf = PDF::loadView('lr.bmflr', compact('data', 'trucks'));
                         file_put_contents("public/pdf/" . $Request->shipment_no . ".pdf", $pdf->output());
@@ -1959,11 +1966,12 @@ class ApiController extends Controller {
                         $data2 = array('shipment_no'=>$shipment,'email'=>$myemail);
                         $mail_service = env('MAIL_SERVICE');
 						if($mail_service == 'on'){
-                         Mail::send('bmfmail', $data2, function($message) use ($data2) {
-                            $message->to($data2['email'])->subject('REGARDING LR DETAILS - '.$data2['shipment_no']);
-                            $message->from('noreplay@bmfreight.com','BMF Freight');
-                            $message->attach( public_path('/pdf').'/'.$data2['shipment_no'].'.pdf');
-                        });
+                        //  Mail::send('bmfmail', $data2, function($message) use ($data2) {
+                        //     $message->to($data2['email'])->subject('REGARDING LR DETAILS - '.$data2['shipment_no']);
+                        //     $message->from('noreplay@bmfreight.com','BMF Freight');
+                        //     $message->attach( public_path('/pdf').'/'.$data2['shipment_no'].'.pdf');
+                        // });
+						dispatch(new LrMail_Bmf_Job($data2));
                         }
                     }
                 }
