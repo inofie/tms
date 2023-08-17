@@ -29,6 +29,7 @@ use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
 use App\Helper\GlobalHelper;
 use App\Notification;
+use File;
 class ShipmentController extends Controller
 {
 	public function __construct()
@@ -313,7 +314,8 @@ class ShipmentController extends Controller
                     //      // }
                     //  }
                          //driver
-                    if($driver->driver_id){
+                    if(isset($Request['driver_id']) && $Request['driver_id'] != ''){
+                        if(!empty($driver->driver_id)){
                         $to_user = Driver::find($driver->driver_id);
                         if($from_user['id'] != $to_user['id'] && $from_user && $to_user) {
                             $notification = new Notification();
@@ -321,8 +323,8 @@ class ShipmentController extends Controller
                             $notification->notification_to = $to_user->id;
                             $notification->shipment_id = $data->id;
                             $id = $data->shipment_no;
-                            $title= "New Shipment" .' '.$driver->shipment_no .' '. "Added";
-                            $message= "New Shipment" .' '.$driver->shipment_no .' '. "Added";
+                            $title= "New Shipment" .' '. $driver->shipment_no .' '. "Added";
+                            $message= "New Shipment" .' '. $driver->shipment_no .' '. "Added";
                             $notification->title = $title;
                             $notification->message = $message;
                             $notification->notification_type = '1';
@@ -338,6 +340,7 @@ class ShipmentController extends Controller
                             }
                         }
                     }
+                }
                         //transporter
                         if($transs->transporter_id){
                             $transporter=Transporter::where('id',$transs->transporter_id)->first();
@@ -452,10 +455,13 @@ class ShipmentController extends Controller
                  if($Request->transporter != null && $Request->transporter != '' && $Request->transporter != 'null') {
                     if ($comp->lr == "yoginilr") {
                         $pdf = PDF::loadView('lr.yoginilr', compact('data', 'trucks'));
-                        file_put_contents("pdf/" . $data->shipment_no . ".pdf", $pdf->output());
-                        $path = env('APP_URL') . "pdf/" . $data->shipment_no . ".pdf";
+                        file_put_contents("public/pdf/" . $data->shipment_no . ".pdf", $pdf->output());
+                        $path = env('APP_URL') . "public/pdf/" . $data->shipment_no . ".pdf";
+                        // if (!file_exists($path)) {
+                        //     File::makeDirectory($path, 0777, true);
+                        //     chmod($path, 0777);
+                        // }
                         $shipment = $data->shipment_no;
-                        // $myemail = 'keyurdomadiya602@gmail.com';
 						$myemail = $for->email;
                         $data2 = array('shipment_no'=>$shipment,'email'=>$myemail);
                         $yogini_username = env('YOGINI_MAIL_USERNAME');
@@ -472,8 +478,12 @@ class ShipmentController extends Controller
                      }
                     } elseif ($comp->lr == "ssilr") {
                         $pdf = PDF::loadView('lr.ssilr', compact('data', 'trucks'));
-                        file_put_contents("pdf/" . $data->shipment_no . ".pdf", $pdf->output());
-                        $path = env('APP_URL') . "pdf/" . $data->shipment_no . ".pdf";
+                        file_put_contents("public/pdf/" . $data->shipment_no . ".pdf", $pdf->output());
+                        $path = env('APP_URL') . "public/pdf/" . $data->shipment_no . ".pdf";
+                        // if (!file_exists($path)) {
+                        //     File::makeDirectory($path, 0777, true);
+                        //     chmod($path, 0777);
+                        // }
                         $shipment = $data->shipment_no;
                         $myemail =  $for->email;
                         $data2 = array('shipment_no'=>$shipment,'email'=>$myemail);
@@ -491,8 +501,12 @@ class ShipmentController extends Controller
                      }
                     } elseif ($comp->lr == "hanshlr") {
                         $pdf = PDF::loadView('lr.hanshlr', compact('data', 'trucks'));
-                        file_put_contents("pdf/" . $data->shipment_no . ".pdf", $pdf->output());
-                        $path = env('APP_URL') . "pdf/" . $data->shipment_no . ".pdf";
+                        file_put_contents("public/pdf/" . $data->shipment_no . ".pdf", $pdf->output());
+                        $path = env('APP_URL') . "public/pdf/" . $data->shipment_no . ".pdf";
+                        // if (!file_exists($path)) {
+                        //     File::makeDirectory($path, 0777, true);
+                        //     chmod($path, 0777);
+                        // }
                         $shipment = $data->shipment_no;
                         $myemail =  $for->email;
                         $data2 = array('shipment_no'=>$shipment,'email'=>$myemail);
@@ -510,8 +524,12 @@ class ShipmentController extends Controller
                         }
                     } elseif ($comp->lr == "bmflr") {
                         $pdf = PDF::loadView('lr.bmflr', compact('data', 'trucks'));
-                        file_put_contents("pdf/" . $data->shipment_no . ".pdf", $pdf->output());
-                        $path = env('APP_URL') . "pdf/" . $data->shipment_no . ".pdf";
+                        file_put_contents("public/pdf/" . $data->shipment_no . ".pdf", $pdf->output());
+                        $path = env('APP_URL') . "public/pdf/" . $data->shipment_no . ".pdf";
+                        // if (!file_exists($path)) {
+                        //     File::makeDirectory($path, 0777, true);
+                        //     chmod($path, 0777);
+                        // }
                         $shipment = $data->shipment_no;
                         $myemail =  $for->email;
                         $data2 = array('shipment_no'=>$shipment,'email'=>$myemail);
@@ -932,7 +950,7 @@ class ShipmentController extends Controller
                         // $summary1->description = "Add Driver & Truck No. ".$mytruckno;
                         // $summary1->save();
                     $notification_user=User::where('id',Auth::id())->first();
-                    if($notification_user['role']=='transporter'){
+                    if($notification_user['role']=='transporter' || $notification_user['role']=='admin' || $notification_user['role']=='company'){
                         //driver
                         if($driver->driver_id){
                             $from_user = User::find(Auth::id());
