@@ -30,6 +30,13 @@ use App\Jobs\LrMail_Yogini_Job;
 use App\Jobs\LrMail_Ssi_Job;
 use App\Jobs\LrMail_Hansh_Job;
 use App\Jobs\LrMail_Bmf_Job;
+<<<<<<< HEAD
+=======
+use App\Jobs\Yogini_Job;
+use App\Jobs\Ssi_Job;
+use App\Jobs\Hansh_Job;
+use App\Jobs\Bmf_Job;
+>>>>>>> e3226865abf0e1219e9200f08e37ffaa307bf208
 use App\Http\Response\APIResponse;
 use App\Helper\GlobalHelper;
 use App\Notification;
@@ -1767,6 +1774,117 @@ class ApiController extends Controller {
 			$aa = new WebNotificationController();
 			$aa->index($token, $title, $message, $data1->shipment_no);
 			// Code For Notification End
+			// $token = array();
+			// $all_company = Company::get();
+			// foreach ($all_company as $key => $value) {
+			// 	$cuser = User::findorfail($value->user_id);
+			// 	if ($cuser->device_token != "") {
+			// 		array_push($token, $cuser->device_token);
+			// 	}
+			// }
+			// if ($Request->transporter_id != null && $Request->transporter_id != '' && $Request->transporter_id != 'null') {
+			// 	$tt = Transporter::findorfail($Request->transporter_id);
+			// 	$tuser = User::findorfail($tt->user_id);
+			// 	if ($tuser->device_token != "") {
+			// 		array_push($token, $tuser->device_token);
+			// 	}
+			// }
+			// if ($Request->forwarder_id != null && $Request->forwarder_id != '' && $Request->forwarder_id != 'null') {
+			// 	$tt = Forwarder::findorfail($Request->forwarder_id);
+			// 	$tuser = User::findorfail($tt->user_id);
+			// 	if ($tuser->device_token != "") {
+			// 		array_push($token, $tuser->device_token);
+			// 	}
+			// }
+			// $title = $data1->shipment_no . " Shipment Geneated";
+			// $message = "We inform you, Shipment " . $data1->shipment_no . "is generated.";
+			// $aa = new WebNotificationController();
+			// $aa->index($token, $title, $message, $data1->shipment_no);
+			// Code For Notification End
+			$notification_user=User::where('id',$Request->user_id)->first();
+			if($notification_user['role']=='admin'){
+				$from_user = User::find(1);
+			}else{
+				$from_user = User::where('id',$Request->user_id)->first();
+			}
+			 //company
+			 $company_user = Company::where('id',$Request->company_id)->first();
+			 $to_user=User::find($company_user['user_id']);
+			 if($from_user['id'] != $to_user['id'] && $from_user && $to_user) {
+				 $notification = new Notification();
+				 $notification->notification_from = $from_user->id;
+				 $notification->notification_to = $to_user->id;
+				 $notification->shipment_id = $data->id;
+				 $id = $data->shipment_no;
+				 $title= "New Shipment" .' '. $data->shipment_no .' '. "Added";
+				 $message= "New Shipment" .' '. $data->shipment_no .' '. "Added";
+				 $notification->title = $title;
+				 $notification->message = $message;
+				 $notification->notification_type = '1';
+				 $notification->user_name_from = $from_user['username'];
+				 $notification_id = $notification->id;
+				 $notification->save();
+				 if($to_user->device_token != null){
+					 if($to_user->device_type == 'ios'){
+						 GlobalHelper::sendFCMIOS($title, $message, $to_user->device_token,$notification->notification_type,$id,$notification_id);
+					 }else{
+						 GlobalHelper::sendFCM($notification->title, $notification->message, $to_user->device_token,$notification->notification_type,$id,$notification_id);
+					 }
+				 }
+			 }
+				  //driver
+				  if($driver->driver_id){
+					$to_user = Driver::find($driver->driver_id);
+					if($from_user['id'] != $to_user['id'] && $from_user && $to_user) {
+						$notification = new Notification();
+						$notification->notification_from = $from_user->id;
+						$notification->notification_to = $to_user->id;
+						$notification->shipment_id = $data->id;
+						$id = $data->shipment_no;
+						$title= "New Shipment" .' '. $driver->shipment_no .' '. "Added";
+						$message= "New Shipment" .' '. $driver->shipment_no .' '. "Added";
+						$notification->title = $title;
+						$notification->message = $message;
+						$notification->notification_type = '1';
+						$notification->user_name_from = $from_user['username'];
+						$notification_id = $notification->id;
+						$notification->save();
+						if($to_user->device_token != null){
+							if($to_user->device_type == 'ios'){
+								GlobalHelper::sendFCMIOS($title, $message, $to_user->device_token,$notification->notification_type,$id,$notification_id);
+							}else{
+								GlobalHelper::sendFCM($notification->title, $notification->message, $to_user->device_token,$notification->notification_type,$id,$notification_id);
+							}
+						}
+					}
+				}
+					//transporter
+					if($transs->transporter_id){
+						$transporter=Transporter::where('id',$transs->transporter_id)->first();
+						$to_user = User::find($transporter['user_id']);
+						if($from_user['id'] != $to_user['id'] && $from_user && $to_user) {
+							$notification = new Notification();
+							$notification->notification_from = $from_user->id;
+							$notification->notification_to = $to_user->id;
+							$notification->shipment_id = $data->id;
+							$id = $data->shipment_no;
+							$title= "New Shipment" .' '. $transs->shipment_no .' '. "Added";
+							$message= "New Shipment" .' '. $transs->shipment_no .' '. "Added";
+							$notification->title = $title;
+							$notification->message = $message;
+							$notification->notification_type = '1';
+							$notification->user_name_from = $from_user['username'];
+							$notification->save();
+							$notification_id = $notification->id;
+							if($to_user->device_token != null){
+								if($to_user->device_type == 'ios'){
+									GlobalHelper::sendFCMIOS($title, $message, $to_user->device_token,$notification->notification_type,$id,$notification_id);
+								}else{
+									GlobalHelper::sendFCM($notification->title, $notification->message, $to_user->device_token,$notification->notification_type,$id,$notification_id);
+								}
+							}
+						}
+					}
 			 if ($Request->forwarder_id != "" && $Request->forwarder_id != null && $Request->forwarder_id != 'null')
                 {
                     $ship_data = Shipment::where('shipment_no', $Request->shipment_no)->first();
@@ -1822,11 +1940,12 @@ class ApiController extends Controller {
 				      	Config::set('mail.password', $yogini_password);*/
 				      	$mail_service = env('MAIL_SERVICE');
 				      	if($mail_service == 'on'){
-				      		 Mail::send('yoginimail', $data2, function($message) use ($data2) {
-                            $message->to($data2['email'])->subject('REGARDING LR DETAILS - '.$data2['shipment_no']);
-                            $message->from('noreplay@yoginitransport.com','Yogini Transport');
-                            $message->attach( public_path('/pdf').'/'.$data2['shipment_no'].'.pdf');
-                        	});
+				      		//  Mail::send('yoginimail', $data2, function($message) use ($data2) {
+                            // $message->to($data2['email'])->subject('REGARDING LR DETAILS - '.$data2['shipment_no']);
+                            // $message->from('noreplay@yoginitransport.com','Yogini Transport');
+                            // $message->attach( public_path('/pdf').'/'.$data2['shipment_no'].'.pdf');
+                        	// });
+							dispatch(new LrMail_Yogini_Job($data2));
 				      	}
                     } elseif ($comp->lr == "ssilr") {
                         $pdf = PDF::loadView('lr.ssilr', compact('data', 'trucks'));
@@ -1841,11 +1960,12 @@ class ApiController extends Controller {
 				      	Config::set('mail.password', $ssi_password);*/
                 		$mail_service = env('MAIL_SERVICE');
 						if($mail_service == 'on'){
-                         Mail::send('ssimail', $data2, function($message) use ($data2) {
-                            $message->to($data2['email'])->subject('REGARDING LR DETAILS - '.$data2['shipment_no']);
-                             $message->from('noreplay@ssitransway.com','SSI Transway');
-                            $message->attach( public_path('/pdf').'/'.$data2['shipment_no'].'.pdf');
-                        	});
+                        //  Mail::send('ssimail', $data2, function($message) use ($data2) {
+                        //     $message->to($data2['email'])->subject('REGARDING LR DETAILS - '.$data2['shipment_no']);
+                        //      $message->from('noreplay@ssitransway.com','SSI Transway');
+                        //     $message->attach( public_path('/pdf').'/'.$data2['shipment_no'].'.pdf');
+                        // 	});
+						dispatch(new LrMail_Ssi_Job($data2));
                      	}
                     } elseif ($comp->lr == "hanshlr") {
                         $pdf = PDF::loadView('lr.hanshlr', compact('data', 'trucks'));
@@ -1860,12 +1980,13 @@ class ApiController extends Controller {
 				      	Config::set('mail.password', $hansh_password);*/
 				      	$mail_service = env('MAIL_SERVICE');
 						if($mail_service == 'on'){
-                         Mail::send('hanshmail', $data2, function($message) use ($data2) {
-                            $message->to($data2['email'])->subject('REGARDING LR DETAILS - '.$data2['shipment_no']);
-                            $message->from('noreplay@hanstransport.com','Hansh Transport');
-                            $message->attach( public_path('/pdf').'/'.$data2['shipment_no'].'.pdf');
-                        	});
-                        	}
+                        //  Mail::send('hanshmail', $data2, function($message) use ($data2) {
+                        //     $message->to($data2['email'])->subject('REGARDING LR DETAILS - '.$data2['shipment_no']);
+                        //     $message->from('noreplay@hanstransport.com','Hansh Transport');
+                        //     $message->attach( public_path('/pdf').'/'.$data2['shipment_no'].'.pdf');
+                        // 	});
+						dispatch(new LrMail_Hansh_Job($data2));
+                        }
                     } elseif ($comp->lr == "bmflr") {
                         $pdf = PDF::loadView('lr.bmflr', compact('data', 'trucks'));
                         file_put_contents("public/pdf/" . $Request->shipment_no . ".pdf", $pdf->output());
@@ -1875,11 +1996,12 @@ class ApiController extends Controller {
                         $data2 = array('shipment_no'=>$shipment,'email'=>$myemail);
                         $mail_service = env('MAIL_SERVICE');
 						if($mail_service == 'on'){
-                         Mail::send('bmfmail', $data2, function($message) use ($data2) {
-                            $message->to($data2['email'])->subject('REGARDING LR DETAILS - '.$data2['shipment_no']);
-                            $message->from('noreplay@bmfreight.com','BMF Freight');
-                            $message->attach( public_path('/pdf').'/'.$data2['shipment_no'].'.pdf');
-                        });
+                        //  Mail::send('bmfmail', $data2, function($message) use ($data2) {
+                        //     $message->to($data2['email'])->subject('REGARDING LR DETAILS - '.$data2['shipment_no']);
+                        //     $message->from('noreplay@bmfreight.com','BMF Freight');
+                        //     $message->attach( public_path('/pdf').'/'.$data2['shipment_no'].'.pdf');
+                        // });
+						dispatch(new LrMail_Bmf_Job($data2));
                         }
                     }
                 }
@@ -2027,17 +2149,17 @@ class ApiController extends Controller {
 					$notification_user=User::where('id',$Request->user_id)->first();
 					if($notification_user['role']=='transporter'){
 						//driver
-                        if($driver->driver_id){
+                        if($data->driver_id){
                             $from_user = User::where('id',$Request->user_id)->first();
-                            $to_user = Driver::find($driver->driver_id);
+                            $to_user = Driver::find($data->driver_id);
                             if($from_user['id'] != $to_user['id'] && $from_user && $to_user) {
                                 $notification = new Notification();
                                 $notification->notification_from = $from_user->id;
                                 $notification->notification_to = $to_user->id;
                                 $notification->shipment_id = $data->shipment_id;
 								$id = $data->shipment_no;
-								$title= "New Shipment assign to" .' '. $to_user['name'] .' - '. $driver->shipment_no;
-                                $message= "New Shipment assign to" .' '. $to_user['name'] .' - '. $driver->shipment_no;
+								$title= "New Shipment assign to" .' '. $to_user['name'] .' - '. $data->shipment_no;
+                                $message= "New Shipment assign to" .' '. $to_user['name'] .' - '. $data->shipment_no;
                                 $notification->title = $title;
                                 $notification->message = $message;
                                 $notification->notification_type = '3';
@@ -2057,8 +2179,8 @@ class ApiController extends Controller {
 					if($notification_user['role']=='admin' || $notification_user['role']=='company')
 					{
                             //transporter
-                            if($driver->transporter_id){
-                                $transporter=Transporter::where('id',$driver->transporter_id)->first();
+                            if($data->transporter_id){
+                                $transporter=Transporter::where('id',$data->transporter_id)->first();
                                 $from_user = User::where('id',$Request->user_id)->first();
                                 $to_user = User::find($transporter['user_id']);
                                 if($from_user['id'] != $to_user['id'] && $from_user && $to_user) {
@@ -2067,8 +2189,8 @@ class ApiController extends Controller {
                                     $notification->notification_to = $to_user->id;
                                     $notification->shipment_id = $data->shipment_id;
 									$id = $data->shipment_no;
-									$title= "New Shipment assign to you" .' - '. $driver->shipment_no;
-                                    $message= "New Shipment assign to you" .' - '. $driver->shipment_no;
+									$title= "New Shipment assign to you" .' - '. $data->shipment_no;
+                                    $message= "New Shipment assign to you" .' - '. $data->shipment_no;
                                     $notification->title = $title;
                                     $notification->message = $message;
                                     $notification->notification_type = '3';
@@ -3466,9 +3588,16 @@ class ApiController extends Controller {
 			{
 				if($data['imports']==1)
 				{
-					$data['Consignee_name'] = $data->consignee;
-					$data['Consignee_Address']  = $data->consignee_address;
-					$data['Consignor_address'] = $data->consignor_address;
+					// $data['Consignee_name'] = $data->consignee;
+					// $data['Consignee_Address']  = $data->consignee_address;
+					// $data['Consignor_address'] = $data->consignor_address;
+					// $data['Consignee_name'] = '';
+					// $data['Consignee_Address']  = '';
+					// $data['Consignor_address'] = '';
+
+					$data['Consignor_name'] =  $data->consignor;
+					$data['Consignor Address'] = $data->consignor_address;
+					$data['Consignee address'] =  $data->consignee_address;
 					$data['Consignee_name'] = '';
 					$data['Consignee_Address']  = '';
 					$data['Consignor_address'] = '';
@@ -3476,9 +3605,16 @@ class ApiController extends Controller {
 				}
 				if($data['exports']==1)
 				{
-					$data['Consignor_name'] =  $data->consignor;
-					$data['Consignor Address'] = $data->consignor_address;
-					$data['Consignee address'] =  $data->consignee_address;
+					// $data['Consignor_name'] =  $data->consignor;
+					// $data['Consignor Address'] = $data->consignor_address;
+					// $data['Consignee address'] =  $data->consignee_address;
+					// $data['Consignee_name'] = '';
+					// $data['Consignee_Address']  = '';
+					// $data['Consignor_address'] = '';
+
+					$data['Consignee_name'] = $data->consignee;
+					$data['Consignee_Address']  = $data->consignee_address;
+					$data['Consignor_address'] = $data->consignor_address;
 					$data['Consignee_name'] = '';
 					$data['Consignee_Address']  = '';
 					$data['Consignor_address'] = '';
@@ -3767,21 +3903,14 @@ class ApiController extends Controller {
 			//dd($data->shipment_no);
 			if($Request->status == "19" || $Request->status == "20"){
 				$data->status = 2;
-				}
-			elseif($Request->status == "11"){
+			} elseif($Request->status == "11"){
 					$data->status = 3;
-			}else{
+			} else{
 					$data->status = $Request->status;
 			}
 			$data->last_status_update_time=date('Y-m-d H:i:s');
-			if($data['last_notification_time_difference'] != NULL)
-			{
-				$data->last_notification_time_difference=null;
-			}
-			if($data['last_notification_time'] != NULL)
-			{
-				$data->last_notification_time=null;
-			}
+			$data->last_notification_time_difference = NULL;
+			$data->last_notification_time = NULL;
 			$path = public_path('/uploads');
 			if ($Request->status == "1") {
 				$transp = Shipment_Transporter::withTrashed()->where('shipment_no', $data->shipment_no)->where('transporter_id', $data->transporter_id)->first();
@@ -4165,8 +4294,7 @@ class ApiController extends Controller {
 				$data->missing_time = date('Y-m-d H:i');
 				/*$transp = Shipment_Transporter::where('shipment_no', $data->shipment_no)->where('transporter_id', $data->transporter_id)->first();
 				$transp->status = 10;
-				$transp->save();
-*/
+				$transp->save();*/
 				$transp = Shipment_Transporter::withTrashed()->where('shipment_no', $data->shipment_no)->where('transporter_id', $data->transporter_id)->first();
 				$transp->status = 2;
 				$transp->save();
@@ -4211,72 +4339,72 @@ class ApiController extends Controller {
 				$summary->description = "Change Truck Shipment Status By ".$Request->role.".\n" . $data->truck_no . " is " . $cargo->name;
 				$summary->save();
 			}
-		if($Request->role == 'driver' || $Request->role == 'company' || $Request->role == 'admin'){
-			//transportor
-			$transporter=Transporter::withTrashed()->where('id',$data->transporter_id)->first();
-			if($Request->role == "driver"){
-			$from_user = Driver::withTrashed()->find($data->updated_by);
-			$from_user_name = $from_user['name'];
-			}
-			else{
-				$from_user = User::find($data->updated_by);
-				$from_user_name = $from_user['username'];
-			}
-            $to_user = User::withTrashed()->find($transporter['user_id']);
-			$getStatus=Cargostatus::withTrashed()->where('id',$data->status)->first();
-            if($from_user['id'] != $to_user['id'] && $from_user && $to_user) {
-                $notification = new Notification();
-                $notification->notification_from = $from_user->id;
-                $notification->notification_to = $to_user->id;
-                $notification->shipment_id = $ss->id;
-				$id = $data->shipment_no;
-                $title= "Status changed";
-                $message= $data["shipment_no"].' '."is".' '.$getStatus['name'].' ' ."by".' '.$from_user_name;
-				$notification->title = $title;
-                $notification->message = $message;
-                $notification->notification_type = '2';
-				$notification->user_name_from = $from_user_name;
-                $notification->save();
-				$notification_id = $notification->id;
-				if($to_user->device_token != null){
-				if($to_user->device_type == 'ios'){
-                    GlobalHelper::sendFCMIOS($title, $message, $to_user->device_token,$notification->notification_type,$id,$notification_id);
-                }else{
-                    GlobalHelper::sendFCM($notification->title, $notification->message, $to_user->device_token,$notification->notification_type,$id,$notification_id);
-                    }
+			if($Request->role == 'driver' || $Request->role == 'company' || $Request->role == 'admin'){
+				//transportor
+				$transporter=Transporter::withTrashed()->where('id',$data->transporter_id)->first();
+				if($Request->role == "driver"){
+				$from_user = Driver::withTrashed()->find($data->updated_by);
+				$from_user_name = $from_user['name'];
 				}
-            }
-		}
-		if($Request->role == 'company' || $Request->role == 'admin'){
-			//Driver
-			$from_user = User::withTrashed()->find($data->updated_by);
-			$to_user = Driver::withTrashed()->find($data->driver_id);
-			$user=User::where('id',$data->updated_by)->first();
-			$getStatus=Cargostatus::withTrashed()->where('id',$data->status)->first();
-			if($from_user['id'] != $to_user['id'] && $from_user && $to_user) {
-				$notification = new Notification();
-				$notification->notification_from = $from_user->id;
-				$notification->notification_to = $to_user->id;
-				$notification->shipment_id = $ss->id;
-				$id = $data->shipment_no;
-				$title= "Status changed";
-				// "New Shipment" .' '. $driver->shipment_no .' '. "Added";
-				$message= $data["shipment_no"].' '."is".' '.$getStatus['name'].' ' ."by".' '.$user['username'];
-				$notification->title = $title;
-				$notification->message = $message;
-				$notification->notification_type = '2';
-				$notification->user_name_from = $user['username'];
-				$notification->save();
-				$notification_id = $notification->id;
-				if($to_user->device_token != null){
-				if($to_user->device_type == 'ios'){
-					GlobalHelper::sendFCMIOS($title, $message, $to_user->device_token,$notification->notification_type,$id,$notification_id);
-				}else{
-					GlobalHelper::sendFCM($notification->title, $notification->message, $to_user->device_token,$notification->notification_type,$id,$notification_id);
+				else{
+					$from_user = User::find($data->updated_by);
+					$from_user_name = $from_user['username'];
+				}
+				$to_user = User::withTrashed()->find($transporter['user_id']);
+				$getStatus=Cargostatus::withTrashed()->where('id',$data->status)->first();
+				if($from_user['id'] != $to_user['id'] && $from_user && $to_user) {
+					$notification = new Notification();
+					$notification->notification_from = $from_user->id;
+					$notification->notification_to = $to_user->id;
+					$notification->shipment_id = $ss->id;
+					$id = $data->shipment_no;
+					$title= "Status changed";
+					$message= $data["shipment_no"].' '."is".' '.$getStatus['name'].' ' ."by".' '.$from_user_name;
+					$notification->title = $title;
+					$notification->message = $message;
+					$notification->notification_type = '2';
+					$notification->user_name_from = $from_user_name;
+					$notification->save();
+					$notification_id = $notification->id;
+					if($to_user->device_token != null){
+					if($to_user->device_type == 'ios'){
+						GlobalHelper::sendFCMIOS($title, $message, $to_user->device_token,$notification->notification_type,$id,$notification_id);
+					}else{
+						GlobalHelper::sendFCM($notification->title, $notification->message, $to_user->device_token,$notification->notification_type,$id,$notification_id);
+						}
 					}
 				}
 			}
-		}
+			if($Request->role == 'company' || $Request->role == 'admin'){
+				//Driver
+				$from_user = User::withTrashed()->find($data->updated_by);
+				$to_user = Driver::withTrashed()->find($data->driver_id);
+				$user=User::where('id',$data->updated_by)->first();
+				$getStatus=Cargostatus::withTrashed()->where('id',$data->status)->first();
+				if($from_user['id'] != $to_user['id'] && $from_user && $to_user) {
+					$notification = new Notification();
+					$notification->notification_from = $from_user->id;
+					$notification->notification_to = $to_user->id;
+					$notification->shipment_id = $ss->id;
+					$id = $data->shipment_no;
+					$title= "Status changed";
+					// "New Shipment" .' '. $driver->shipment_no .' '. "Added";
+					$message= $data["shipment_no"].' '."is".' '.$getStatus['name'].' ' ."by".' '.$user['username'];
+					$notification->title = $title;
+					$notification->message = $message;
+					$notification->notification_type = '2';
+					$notification->user_name_from = $user['username'];
+					$notification->save();
+					$notification_id = $notification->id;
+					if($to_user->device_token != null){
+					if($to_user->device_type == 'ios'){
+						GlobalHelper::sendFCMIOS($title, $message, $to_user->device_token,$notification->notification_type,$id,$notification_id);
+					}else{
+						GlobalHelper::sendFCM($notification->title, $notification->message, $to_user->device_token,$notification->notification_type,$id,$notification_id);
+						}
+					}
+				}
+			}
 			//admin
 			// if($Request->role == "driver"){
 			// 	$from_user1 = Driver::find($data->updated_by);
@@ -4782,6 +4910,7 @@ class ApiController extends Controller {
 							$data = Cargostatus::where('id','9');
 						}
 						
+
 					}
 					if($Request->status == "Document Received"){
 						$data = Cargostatus::where('id','7');
