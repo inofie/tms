@@ -3811,6 +3811,31 @@ class ApiController extends Controller {
 					$summary->driver_id = $truckexist->id;
 					$summary->description = "Add Driver. \n" . $Request->truck_no . "(Co.No." . $truckexist->phone . ").";
 					$summary->save();
+					//driver
+						if(!empty($shipdriver->driver_id)){
+						  $from_user = User::where('id',$Request->user_id)->first();
+						  $to_user = Driver::find($shipdriver->driver_id);
+						  if($from_user['id'] != $to_user['id'] && $from_user && $to_user) {
+							  $notification = new Notification();
+							  $notification->notification_from = $from_user->id;
+							  $notification->notification_to = $to_user->id;
+							  $notification->shipment_id = $ss->id;
+							  $id = $shipdriver->shipment_no;
+							  $notification->title = "Truck transferred";
+							  $notification->message = "Received new shipment".' ' .$data->shipment_no.' '."from".' '.$from_user['username'];
+							  $notification->notification_type = '1';
+							  $notification->user_name_from = $from_user['username'];
+							  $notification_id = $notification->id;
+							  $notification->save();
+							  if($to_user->device_token != null){
+								  if($to_user->device_type == 'ios'){
+									  GlobalHelper::sendFCMIOS($title, $message, $to_user->device_token,$notification->notification_type,$id,$notification_id);
+								  }else{
+									  GlobalHelper::sendFCM($notification->title, $notification->message, $to_user->device_token,$notification->notification_type,$id,$notification_id);
+								  }
+							  }
+						  }
+					  }
 				}
 				if(!$truckexist){
 					return response()->json(['status' => 'success', 'message' => 'This Truck number is not exists.', 'data' => json_decode('{}'), 'code' => '500'], 200);

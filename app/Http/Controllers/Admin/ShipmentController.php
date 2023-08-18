@@ -1531,6 +1531,34 @@ class ShipmentController extends Controller
                 // $summary1->description = "Add Driver & Truck No. ".$Request->truck_no;
                 // $summary1->save();
                 }
+                if($data->transporter_id){
+                    $transporter=Transporter::where('id',$data->transporter_id)->first();
+                    $from_user = User::find(Auth::id());
+                    $to_user = User::find($transporter['user_id']);
+                    if($from_user['id'] != $to_user['id'] && $from_user && $to_user) {
+                        $notification = new Notification();
+                        $notification->notification_from = $from_user->id;
+                        $notification->notification_to = $to_user->id;
+                        $notification->shipment_id = $data->shipment_id;
+                        $id = $data->shipment_no;
+                        $title= "New Shipment assign to you" .' - '. $data->shipment_no;
+                        $message= "New Shipment assign to you" .' - '. $data->shipment_no;
+                        $notification->title = $title;
+                        $notification->message = $message;
+                        $notification->notification_type = '3';
+                        $notification->user_name_from = $from_user['username'];
+                        $notification->save();
+                        $notification_id = $notification->id;
+                        if($to_user->device_token != null){
+                            if($to_user->device_type == 'ios'){
+                                GlobalHelper::sendFCMIOS($title, $message, $to_user->device_token,$notification->notification_type,$id,$notification_id);
+                            }else{
+                                GlobalHelper::sendFCM($notification->title, $notification->message, $to_user->device_token,$notification->notification_type,$id,$notification_id);
+                            }
+                        }
+                    }
+                }
+
             return redirect()->back()->with('success', "Transporter Add Successfully.");
     }
      public function ShipmentWareEdit(Request $Request)
