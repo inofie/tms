@@ -175,7 +175,8 @@ class DriverController extends Controller
         $this->validate($Request, [
         'transporter' => 'required',
         'name' => 'required',
-        'phone' => 'required|numeric|digits:10|unique:driver,phone,' . $Request->id,
+        // 'phone' => 'required|numeric|digits:10|unique:driver,phone,' . $Request->id,
+        'phone' => 'required|exists:driver,id',
         'licence_no' => 'required',
         'truck_no'=>'required',
         'pan'=>'required',

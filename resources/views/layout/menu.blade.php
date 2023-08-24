@@ -10,7 +10,7 @@
 
 
                 @if(Auth::user()->role == 'admin' )
-                
+
                   <li>
                       <a class="{{ Request::is('admin/dashboard*') ? 'active' : '' }}" href="{{ route('admindashboard') }}">
                           <i class="fa fa-dashboard"></i>
@@ -56,7 +56,7 @@
                              <!-- <li class="{{ Request::is('admin/shipment/all/filter') ? 'active' : '' }}">
                               <a  href="{{ route('myfilter') }}">Filter</a>
                             </li> -->
-                          
+
                       </ul>
                   </li>
 
@@ -77,8 +77,8 @@
                           <li class="{{ Request::is('admin/invoice/paid/list') ? 'active' : '' }}">
                               <a  href="{{ route('paidshipmentlist') }}">Paid Invoices</a>
                           </li>
-                            
-                          
+
+
                       </ul>
                   </li>
 
@@ -98,9 +98,9 @@
                           <li class="{{ Request::is('admin/voucher/list') ? 'active' : '' }}">
                             <a  href="{{ route('voucherlist') }}">Voucher List</a>
                           </li>
-                          
-                            
-                          
+
+
+
                       </ul>
                   </li>
 
@@ -114,16 +114,16 @@
                          <li class="{{ Request::is('admin/expense/add') ? 'active' : '' }}">
                             <a  href="{{ route('expenseadd') }}">Add Expense</a>
                           </li>
-                         
+
                           <li class="{{ Request::is('admin/expense/list') ? 'active' : '' }}">
                             <a  href="{{ route('expenselist') }}">Expense List</a>
                           </li>
-                          
-                            
-                          
+
+
+
                       </ul>
                   </li>
-                  
+
 
 
 
@@ -137,7 +137,7 @@
 
                       </a>
 
-                  </li>  
+                  </li>
                    {{-- <li>
 
                       <a class="{{ Request::is('admin/shipment*') ? 'active' : '' }}" href="{{ route('shipmentlist') }}">
@@ -148,7 +148,7 @@
 
                       </a>
 
-                  </li>     --}}   
+                  </li>     --}}
 
                   <li>
 
@@ -156,11 +156,11 @@
 
                           <i class="fa fa-truck"></i>
 
-                          <span>Manage Transport</span>
+                          <span>Manage Transporter</span>
 
                       </a>
 
-                  </li>  
+                  </li>
 
 
                   <li>
@@ -173,7 +173,7 @@
 
                       </a>
 
-                  </li> 
+                  </li>
 
 
                    <li>
@@ -186,7 +186,7 @@
 
                       </a>
 
-                  </li>   
+                  </li>
 
                     <li>
 
@@ -198,7 +198,7 @@
 
                       </a>
 
-                  </li> 
+                  </li>
 
                   <li>
 
@@ -210,7 +210,7 @@
 
                       </a>
 
-                  </li> 
+                  </li>
 
 
                    <li>
@@ -223,13 +223,13 @@
 
                       </a>
 
-                  </li> 
+                  </li>
                     <li class="@if(Request::is('admin/roles') ||Request::is('admin/roles/*') ) active @endif treeview">
                     <a href="{{url('admin/roles')}}">
                     <i class="fa fa-globe"></i><span>Manage Roles</span>
                     </a>
                     </li>
-     
+
                         <li class="@if(Request::is('admin/roleuser') ||Request::is('admin/roleuser/*') ) active @endif treeview">
                         <a href="{{url('admin/roleuser')}}">
                         <i class="fa fa-user"></i><span>Manage Role Users</span>
@@ -283,7 +283,7 @@
                              <!-- <li class="{{ Request::is('admin/shipment/all/filter') ? 'active' : '' }}">
                               <a  href="{{ route('myfilter') }}">Filter</a>
                             </li> -->
-                          
+
                       </ul>
                   </li>
 
@@ -304,8 +304,8 @@
                           <li class="{{ Request::is('admin/invoice/paid/list') ? 'active' : '' }}">
                               <a  href="{{ route('paidshipmentlist') }}">Paid Invoices</a>
                           </li>
-                            
-                          
+
+
                       </ul>
                   </li>
 
@@ -325,9 +325,9 @@
                           <li class="{{ Request::is('admin/voucher/list') ? 'active' : '' }}">
                             <a  href="{{ route('voucherlist') }}">Voucher List</a>
                           </li>
-                          
-                            
-                          
+
+
+
                       </ul>
                   </li>
 
@@ -341,16 +341,16 @@
                          <li class="{{ Request::is('admin/expense/add') ? 'active' : '' }}">
                             <a  href="{{ route('expenseadd') }}">Add Expense</a>
                           </li>
-                         
+
                           <li class="{{ Request::is('admin/expense/list') ? 'active' : '' }}">
                             <a  href="{{ route('expenselist') }}">Expense List</a>
                           </li>
-                          
-                            
-                          
+
+
+
                       </ul>
                   </li>
-                  
+
 
 
 
@@ -364,7 +364,7 @@
 
                       </a>
 
-                  </li>  
+                  </li>
                    {{-- <li>
 
                       <a class="{{ Request::is('admin/shipment*') ? 'active' : '' }}" href="{{ route('shipmentlist') }}">
@@ -375,7 +375,7 @@
 
                       </a>
 
-                  </li>     --}}   
+                  </li>     --}}
 
                   <li>
 
@@ -383,11 +383,11 @@
 
                           <i class="fa fa-truck"></i>
 
-                          <span>Manage Transport</span>
+                          <span>Manage Transporter</span>
 
                       </a>
 
-                  </li>  
+                  </li>
 
 
                    <li>
@@ -400,7 +400,7 @@
 
                       </a>
 
-                  </li>   
+                  </li>
 
                     <li>
 
@@ -412,7 +412,7 @@
 
                       </a>
 
-                  </li> 
+                  </li>
 
                   <li>
 
@@ -424,7 +424,7 @@
 
                       </a>
 
-                  </li> 
+                  </li>
 
 
                    <li>
@@ -437,7 +437,7 @@
 
                       </a>
 
-                  </li> 
+                  </li>
 
                     @elseif(Auth::user()->role == 'employee')
 
@@ -484,7 +484,7 @@
                             <li class="{{ Request::is('admin/shipment/all/list') ? 'active' : '' }}">
                               <a  href="{{ route('allshipmentlist') }}">Old List</a>
                             </li>
-                          
+
                       </ul>
                   </li>
 
@@ -505,13 +505,13 @@
                           <li class="{{ Request::is('admin/invoice/paid/list') ? 'active' : '' }}">
                               <a  href="{{ route('paidshipmentlist') }}">Paid Invoices</a>
                           </li>
-                            
-                          
+
+
                       </ul>
                   </li>
 
 
-                  
+
                    {{-- <li>
 
                       <a class="{{ Request::is('admin/shipment*') ? 'active' : '' }}" href="{{ route('shipmentlist') }}">
@@ -522,13 +522,13 @@
 
                       </a>
 
-                  </li>     --}} 
+                  </li>     --}}
 
 
                    <li class="sub-menu">
                       <a href="javascript:;" class="{{ Request::is('admin/transporter*') ? 'active' : '' }}">
                           <i class="fa fa-truck"></i>
-                          <span>Manage Transport</span>
+                          <span>Manage Transporter</span>
                       </a>
                       <ul class="sub">
                          <li class="{{ Request::is('admin/transporter/add') ? 'active' : '' }}">
@@ -541,12 +541,12 @@
                           <li class="{{ Request::is('admin/transporter/type/add') ? 'active' : '' }}">
                               <a  href="{{ route('transporttypeadd') }}">Add Vehicle Type</a>
                           </li>
-                         
+
                           <li class="{{ Request::is('admin/transporter/type/list') ? 'active' : '' }}">
                               <a  href="{{ route('transporttypelist') }}">Vehicle Type List</a>
                           </li>
-                            
-                          
+
+
                       </ul>
                   </li>
 
@@ -577,7 +577,7 @@
 
                       </a>
 
-                  </li>   
+                  </li>
 
                     <!-- <li>
 
@@ -601,7 +601,7 @@
 
                       </a>
 
-                  </li> 
+                  </li>
 
 
                    <li>
@@ -614,7 +614,7 @@
 
                       </a>
 
-                  </li> 
+                  </li>
 
                   @elseif(Auth::user()->role == 'forwarder')
 
@@ -646,7 +646,7 @@
                           <li class="{{ Request::is('forwarder/shipment/all/list') ? 'active' : '' }}">
                               <a  href="{{ route('forwarder-allshipmentlist') }}">Old List</a>
                             </li>
-                          
+
                       </ul>
                   </li>
 
@@ -663,11 +663,11 @@
                           <li class="{{ Request::is('forwarder/account/ledger') ? 'active' : '' }}">
                               <a  href="{{ route('f-main-account') }}">Ledger Account</a>
                             </li>
-                          
+
                       </ul>
                   </li>
 
-               
+
                 @elseif(Auth::user()->role == 'transporter')
                         <li>
 
@@ -699,7 +699,7 @@
                              <!-- <li class="{{ Request::is('transporter/shipment/all/filter') ? 'active' : '' }}">
                               <a  href="{{ route('myfiltertransporter') }}">Filter</a>
                             </li> -->
-                          
+
                         </ul>
                         <li>
                         <a class="{{ Request::is('transporter/driver*') ? 'active' : '' }}" href="{{ route('transporterdriverlist') }}">
@@ -713,10 +713,10 @@
                             <i class="fa fa-suitcase"></i>
                             <span>Manage Accounts</span>
                         </a>
-                        </li> 
+                        </li>
 
                         </li>
-                        
+
                         <!-- <li>
                             <a class="{{ Request::is('admin/notifications*') ? 'active' : '' }}" href="{{ route('notificationlist') }}">
                             <i class="fa fa-building"></i>
@@ -739,20 +739,20 @@
                             <span>Manage Shipment</span>
                         </a>
                         <ul class="sub">
-            
+
                           <li class="{{ Request::is('warehouse/shipment/warehouse/list') ? 'active' : '' }}">
                               <a  href="{{ route('warehouseshiplistwarehouse') }}">Warehouse List</a>
                           </li>
-                            
+
                           <!-- <li class="{{ Request::is('warehouse/shipment/all/filter') ? 'active' : '' }}">
                               <a  href="{{ route('myfilterwarehouse') }}">Filter</a>
                             </li> -->
-                          
+
                         </ul>
-                        
+
                         </li>
                         @else
-                        
+
                         @permission('dashboard-list')
                         <li>
                       <a class="{{ Request::is('admin/dashboard*') ? 'active' : '' }}" href="{{ route('admindashboard') }}">
@@ -764,7 +764,7 @@
 
 
                  {{--  <li>
-                    
+
                       <a class="{{ Request::is('admin/shipment*') ? 'active' : '' }}" href="{{ route('driverlist') }}">
 
                           <i class="fa fa-car"></i>
@@ -796,7 +796,7 @@
                              <!-- <li class="{{ Request::is('admin/shipment/all/filter') ? 'active' : '' }}">
                               <a  href="{{ route('myfilter') }}">Filter</a>
                             </li> -->
-                          
+
                       </ul>
                   </li>
                   @endpermission
@@ -817,8 +817,8 @@
                           <li class="{{ Request::is('admin/invoice/paid/list') ? 'active' : '' }}">
                               <a  href="{{ route('paidshipmentlist') }}">Paid Invoices</a>
                           </li>
-                            
-                          
+
+
                       </ul>
                   </li>
                   @endpermission
@@ -840,9 +840,9 @@
                           <li class="{{ Request::is('admin/voucher/list') ? 'active' : '' }}">
                             <a  href="{{ route('voucherlist') }}">Voucher List</a>
                           </li>
-                          
-                            
-                          
+
+
+
                       </ul>
                   </li>
 
@@ -857,13 +857,13 @@
                          <li class="{{ Request::is('admin/expense/add') ? 'active' : '' }}">
                             <a  href="{{ route('expenseadd') }}">Add Expense</a>
                           </li>
-                         
+
                           <li class="{{ Request::is('admin/expense/list') ? 'active' : '' }}">
                             <a  href="{{ route('expenselist') }}">Expense List</a>
                           </li>
-                          
-                            
-                          
+
+
+
                       </ul>
                   </li>
                   @endpermission
@@ -881,9 +881,9 @@
 
                       </a>
 
-                  </li>  
+                  </li>
                   @endpermission
-                 
+
                    {{-- <li>
 
                       <a class="{{ Request::is('admin/shipment*') ? 'active' : '' }}" href="{{ route('shipmentlist') }}">
@@ -894,7 +894,7 @@
 
                       </a>
 
-                  </li>     --}}   
+                  </li>     --}}
                   @permission('transporter-list')
                   <li>
 
@@ -902,11 +902,11 @@
 
                           <i class="fa fa-truck"></i>
 
-                          <span>Manage Transport</span>
+                          <span>Manage Transporter</span>
 
                       </a>
 
-                  </li>  
+                  </li>
 
                   @endpermission
                   @permission('company-list')
@@ -920,7 +920,7 @@
 
                       </a>
 
-                  </li> 
+                  </li>
                   @endpermission
                   @permission('forwarder-list')
                    <li>
@@ -933,7 +933,7 @@
 
                       </a>
 
-                  </li>   
+                  </li>
                   @endpermission
                   @permission('employee-list')
                     <li>
@@ -946,7 +946,7 @@
 
                       </a>
 
-                  </li> 
+                  </li>
                   @endpermission
                   @permission('warehouse-list')
                   <li>
@@ -959,7 +959,7 @@
 
                       </a>
 
-                  </li> 
+                  </li>
                   @endpermission
                   @permission('driver-list')
                    <li>
@@ -972,7 +972,7 @@
 
                       </a>
 
-                  </li> 
+                  </li>
                   @endpermission
                   @permission('roles-list')
                     <li class="@if(Request::is('admin/roles') ||Request::is('admin/roles/*') ) active @endif treeview">
@@ -991,7 +991,7 @@
                         @endif
 
 
-{{-- 
+{{--
                    <li>
 
                       <a class="{{ Request::is('admin/users*') ? 'active' : ''  }}"  href="{{ route('userlist') }}">
@@ -1072,13 +1072,13 @@
 
                  @endif --}}
 
-                  
 
-                  
-                 
 
-                  
-                  
+
+
+
+
+
 
 
 

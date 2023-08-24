@@ -1399,7 +1399,7 @@ class ApiController extends Controller {
 					$data1[$key] = $value;
 					$company = Company::withTrashed()->findorfail($value->company_id);
 					$data1[$key]['comapny_name'] = $company->name;
-					$username=User::withTrashed()->findorfail($company->user_id);
+					$username=User::withTrashed()->findorfail($value->user_id);
 					$data1[$key]['username'] = $username->username;
 					}
 				if (!empty($data1)) {
@@ -1527,6 +1527,7 @@ class ApiController extends Controller {
 				$comapny->pan_card = $file_name;
 			}
 			if ($comapny->save()) {
+				$comapny['username']=$user->username;
 				return response()->json(['status' => 'success', 'message' => 'Employee Updated Successfully.', 'data' => $comapny, 'code' => '200'], 200);
 			} else {
 				return response()->json(['status' => 'failed', 'message' => 'Something wrong.', 'data' => json_decode('{}'), 'code' => '500'], 200);
