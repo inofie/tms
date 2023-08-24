@@ -54,7 +54,7 @@ class ApiController extends Controller {
 			if ($check == 1) {
 				return response()->json(['status' => 'failed', 'message' => 'Please update this application.', 'data' => json_decode('{}'), 'code' => '420'], 200);
 			}
-			// $user = User::withTrashed()->findorfail($Request->user_id);
+			 $user = User::withTrashed()->findorfail($Request->user_id);
 			// if ($user->status == 1) {
 			// 	return response()->json(['status' => 'failed', 'message' => 'Your account is deactivated. Please contact admin to active your account.', 'data' => json_decode('{}'), 'code' => '420'], 200);
 			// }
