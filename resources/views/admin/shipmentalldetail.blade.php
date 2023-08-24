@@ -181,7 +181,7 @@
 										<th class="center">Unload Photo</th>
                     <!-- <th class="center">Pickup Conformation Photo</th> -->
                     <!-- <th class="center">Document Received Photo</th> -->
-                  	<th class="center">Reach Company Photo</th>
+                  	<th class="center">Reach at Company Photo</th>
                     <!-- <th class="center">TruckTransfer Reach at port</th> -->
                 </tr>
                 @elseif($data->exports == 1 && $data->fcl == 1)

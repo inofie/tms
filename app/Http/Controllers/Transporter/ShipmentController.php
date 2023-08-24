@@ -1095,7 +1095,7 @@ class ShipmentController extends Controller
 
         $ship = Shipment::where('myid',$Request->id)->first();
        
-        $data1 = Shipment_Transporter::where('shipment_no', $ship->shipment_no)->get();
+        $data1 = Shipment_Transporter::where('shipment_no', $ship->shipment_no)->groupBy('transporter_id')->get();
 
                 $data = array();
 

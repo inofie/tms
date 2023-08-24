@@ -254,8 +254,8 @@ Route::group(['namespace' => 'Transporter','prefix' =>'transporter' , 'middlewar
 	Route::post('/shipment/delivered','ShipmentController@ShipmentDelivered')->name('shipmentdelivered');
 	Route::any('/shipment/driverlist','ShipmentController@Driverlist')->name('shipmentdriverlist');
 	Route::get('/shipment/warehouse/list','ShipmentController@WarehouseShipmentList')->name('warehouseshiplisttransporter');
-	Route::get('/shipment/warehouse/transporter/add/{id}','ShipmentController@AddWareTransporter')->name('shipmentWaretransporter');
-	Route::post('/shipment/warehouse/tansporter/save','ShipmentController@SaveWareTransporter')->name('savewaretransporter');
+	Route::get('/shipment/warehouse/transporter/add/{id}','ShipmentController@AddWareTransporter')->name('shipmentWaretransporter1');
+	Route::post('/shipment/warehouse/tansporter/save','ShipmentController@SaveWareTransporter')->name('savewaretransporter1');
 	Route::get('/shipment/warehouse/edit/{id}','ShipmentController@ShipmentWareEdit')->name('shipmentwareedit1');
 	Route::post('/shipment/warehouse/update','ShipmentController@ShipmentWareUpdate')->name('shipmentwareupdate1');
 	Route::get('/shipment/warehouse/detail/{id}','ShipmentController@ShipmentWareDetails')->name('shipmentwaredetailstransporter');

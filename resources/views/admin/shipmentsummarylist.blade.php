@@ -122,7 +122,7 @@ Shipment Summary | TMS
                               <td  style="vertical-align: middle;">{{ $value->description }}</td>
                               <td  style="vertical-align: middle;">{{ $value->flag }}</td>
                               <td style="vertical-align: middle;">{{ $value->created_at }}</td>
-                              <td><img src="{{ asset('/uploads') }}/{{ $value->image }}" width="50px" alt="" class="zoom"></td>
+                              <td><img src="{{ asset('public/uploads') }}/{{ $value->image }}" width="50px" alt="" class="zoom"></td>
                               <td  style="vertical-align: middle;">{{ ($value->created_at->format('d-m-Y h:i A')) }}</td>
                               <td  style="vertical-align: middle;">{{ $value->timedifference }}</td>
                               

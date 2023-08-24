@@ -136,7 +136,7 @@ class EmployeeController extends Controller
 
                  if($comapny->save()){
 
-                     return redirect()->route('employeelist')->with('success','Employee Addedd successfully.');
+                     return redirect()->route('employeelist')->with('success','Employee added successfully.');
 
                 }
 
@@ -238,7 +238,7 @@ class EmployeeController extends Controller
                  }
                  if($comapny->save()){
 
-                     return redirect()->route('employeelist')->with('success','Employee Updated successfully.');
+                     return redirect()->route('employeelist')->with('success','Employee updated successfully.');
 
                 }
 

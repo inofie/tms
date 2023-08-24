@@ -74,7 +74,7 @@ class ShipmentController extends Controller
          $this->check();
       if($Request->type2 == 'fcl') {
         $this->validate($Request, [
-        //'shipment_no'=>'required|unique:shipment,shipment_no',
+        'shipment_no'=>'unique:shipment,shipment_no',
         'date' => 'required',
         'company' => 'required',
         'from1' => 'required',
@@ -86,7 +86,7 @@ class ShipmentController extends Controller
         'seal_no'=>'required',
          ],[
          //'shipment_no.required'=>'Please Enter Shipment Number',
-         //'shipment_no.unique'=>'This Number Already in System, Please Enter Another Shipment Number',
+         'shipment_no.unique'=>'This shipment number is already exist, Please enter different shipment number and try again.',
          'date.required' => "Please Select Date",
          'company.required' => "Please Select Company",
          'from1.required' => "Please Enter From",
@@ -99,7 +99,7 @@ class ShipmentController extends Controller
          ]);
       } else {
        $this->validate($Request, [
-       // 'shipment_no'=>'required|unique:shipment,shipment_no',
+        'shipment_no'=>'unique:shipment,shipment_no',
         'date' => 'required',
         'company' => 'required',
         'from1' => 'required',
@@ -109,7 +109,7 @@ class ShipmentController extends Controller
         'weight'=>'required|numeric',
         ],[
          //'shipment_no.required'=>'Please Enter Shipment Number',
-         //'shipment_no.unique'=>'This Number Already in System, Please Enter Another Shipment Number',
+         'shipment_no.unique'=>'This shipment number is already exist, Please enter different shipment number and try again.',
          'date.required' => "Please Select Date",
          'company.required' => "Please Select Company",
          'from1.required' => "Please Enter From",
@@ -559,7 +559,7 @@ class ShipmentController extends Controller
             $d= Cargostatus::findorfail($value->status);
             $data[$key]->status_name = $d->name;
         }
-        $status = Cargostatus::where('admin',1)->get();
+        $status = Cargostatus::where('admin',1)->whereNotIn('id',['11'])->get();
         /*echo "<pre>";
         print_r($status);
         exit();*/
@@ -871,9 +871,25 @@ class ShipmentController extends Controller
      public function SaveTransporter(Request $Request)
     {
          $this->check();
+         $this->validate($Request, [
+        
+            'transporter_id' => 'required',
+         
+             ],[
+             'transporter_id.required' => "Please select the transporter",
+             
+             ]);
        // dd($Request);
                 $tras = Transporter::findorfail($Request->transporter_id);
                 $ship =Shipment::where('shipment_no',$Request->shipment_no)->first();
+               
+                $ship_check = Shipment_Transporter::where('shipment_no', $Request->shipment_no)->where('transporter_id', $Request->transporter_id)
+                ->where('driver_id',$Request->driver_id)->count();
+                if ($ship_check > 0) {
+                    return redirect()->back()->with('error', "This transporter is already added. Please select another transporter.");
+
+                }
+
                 $data =new Shipment_Transporter();
                 if($Request->truck_no != "" && $Request->truck_no != null && $Request->truck_no != "null"){
                 $ship->status = 1;
@@ -994,6 +1010,33 @@ class ShipmentController extends Controller
                                     $id = $data->shipment_no;
                                     $title= "New Shipment assign to you" .' - '. $data->shipment_no;
                                     $message= "New Shipment assign to you" .' - '. $data->shipment_no;
+                                    $notification->title = $title;
+                                    $notification->message = $message;
+                                    $notification->notification_type = '3';
+                                    $notification->user_name_from = $from_user['username'];
+                                    $notification->save();
+                                    $notification_id = $notification->id;
+                                    if($to_user->device_token != null){
+                                        if($to_user->device_type == 'ios'){
+                                            GlobalHelper::sendFCMIOS($title, $message, $to_user->device_token,$notification->notification_type,$id,$notification_id);
+                                        }else{
+                                            GlobalHelper::sendFCM($notification->title, $notification->message, $to_user->device_token,$notification->notification_type,$id,$notification_id);
+                                        }
+                                    }
+                                }
+                            }
+                            //driver
+                            if($driver->driver_id){
+                                $from_user = User::find(Auth::id());
+                                $to_user = Driver::find($driver->driver_id);
+                                if($from_user['id'] != $to_user['id'] && $from_user && $to_user) {
+                                    $notification = new Notification();
+                                    $notification->notification_from = $from_user->id;
+                                    $notification->notification_to = $to_user->id;
+                                    $notification->shipment_id = $data->shipment_id;
+                                    $id = $data->shipment_no;
+                                    $title= "New Shipment assign to" .' '. $to_user['name'] .' - '. $driver->shipment_no;
+                                    $message= "New Shipment assign to" .' '. $to_user['name'] .' - '. $driver->shipment_no;
                                     $notification->title = $title;
                                     $notification->message = $message;
                                     $notification->notification_type = '3';
@@ -1494,6 +1537,14 @@ class ShipmentController extends Controller
         //dd($Request);
         $tras = Transporter::findorfail($Request->transporter_id);
                 $ship =Shipment::where('shipment_no',$Request->shipment_no)->first();
+
+                $ship_check = Shipment_Transporter::where('shipment_no', $Request->shipment_no)->where('transporter_id', $Request->transporter_id)
+                ->count();
+                if ($ship_check > 0) {
+                    return redirect()->back()->with('error', "This transporter is already added. Please select another transporter.");
+
+                }
+
                 $data =new Shipment_Transporter();
                 if($Request->truck_no != "" && $Request->truck_no != null && $Request->truck_no != "null"){
                 $ship->status = 1;
@@ -1530,6 +1581,33 @@ class ShipmentController extends Controller
                 // $summary1->transporter_id = $Request->other_id;
                 // $summary1->description = "Add Driver & Truck No. ".$Request->truck_no;
                 // $summary1->save();
+                if($data->transporter_id){
+                    $transporter=Transporter::where('id',$data->transporter_id)->first();
+                    $from_user = User::find(Auth::id());
+                    $to_user = User::find($transporter['user_id']);
+                    if($from_user['id'] != $to_user['id'] && $from_user && $to_user) {
+                        $notification = new Notification();
+                        $notification->notification_from = $from_user->id;
+                        $notification->notification_to = $to_user->id;
+                        $notification->shipment_id = $data->shipment_id;
+                        $id = $data->shipment_no;
+                        $title= "New Shipment assign to you" .' - '. $data->shipment_no;
+                        $message= "New Shipment assign to you" .' - '. $data->shipment_no;
+                        $notification->title = $title;
+                        $notification->message = $message;
+                        $notification->notification_type = '3';
+                        $notification->user_name_from = $from_user['username'];
+                        $notification->save();
+                        $notification_id = $notification->id;
+                        if($to_user->device_token != null){
+                            if($to_user->device_type == 'ios'){
+                                GlobalHelper::sendFCMIOS($title, $message, $to_user->device_token,$notification->notification_type,$id,$notification_id);
+                            }else{
+                                GlobalHelper::sendFCM($notification->title, $notification->message, $to_user->device_token,$notification->notification_type,$id,$notification_id);
+                            }
+                        }
+                    }
+                }
                 }
             return redirect()->back()->with('success', "Transporter Add Successfully.");
     }
@@ -2117,9 +2195,10 @@ class ShipmentController extends Controller
                         }
             }
 		}
+        $warehouse = Warehouse::get();
        // $data = $datas->orderby('shipment_no','desc')->get();
          //dd($data);
-		return view('admin.shipmentfilter', compact('tt','ttt','tts','data','all_transporter','all_forwarder','company','all_company','search','transporter','forwarder','year','month','date'));
+		return view('admin.shipmentfilter', compact('tt','ttt','tts','data','all_transporter','all_forwarder','company','all_company','search','transporter','forwarder','year','month','date','warehouse'));
 	}
      public function Driverlist(Request $Request)
     {

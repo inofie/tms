@@ -287,8 +287,26 @@ Shipment Filter | TMS
                                     <td style="vertical-align: middle;">{{ $value->invoice_cost }}</td>
                                     <td style="vertical-align: middle;">{{ $value->transporter_cost }}</td>
                                      <td class="center" style="vertical-align: middle;">
-                                     <a href="{{ route('shipalldetail',['id'=>$value->myid]) }}" style="margin-top: 3%;width: auto;min-width: 80%;background-color: #047fb9;border-color: #047fb9;color: #fff" class="btn  btn-xs "><i class="fa fa-eye"></i> View</a>
-                                     
+                                     <a href="{{ route('shipalldetail',['id'=>$value->myid]) }}" style="margin-top: 2%;width: auto; margin:1%;width:auto;background-color: #047fb9;border-color: #047fb9;color: #fff" class="btn  btn-xs "><i class="fa fa-eye"></i> View</a>
+                                     <a href="{{ route('shipmenttrucklists',['id'=>$value->myid]) }}" style="margin-top: 2%;width: auto; margin:1%;width:auto;" class="btn btn-primary btn-xs"><i class="fa fa-truck"></i> Trucks
+                                    </a>
+                                    <a data-id="{{ $value->shipment_no }}" style="margin-top: 2%;width: auto; margin:1%;width:auto;background: #047fb9; color: #fff;" class="btn btn-xs delivered"><i class="fa fa-bus"></i> Delivered</i>
+                                    </a>
+                                    <a href="{{ route('addexpensebyadmin',['id'=>$value->myid]) }}" style="margin-top: 2%;width: auto; margin:1%;width:auto;background-color: #673ab7;border-color: #673ab7;color: #fff"  class="btn expense btn-xs"><i class="fa fa-plus"></i> Expense </a>
+                                  
+                                    <a href="{{ route('shipmenttransporters',['id'=>$value->myid]) }}" style="margin-top: 2%;width: auto; margin:1%;width:auto;" class="btn btn-warning btn-xs {{ $value->shipment_no }}hide"><i class="fa fa-plus"></i> Transporter</i></a> 
+                                    <a  data-id="{{ $value->shipment_no }}" style="margin-top: 2%;width: auto; margin:1%;width:auto;background: #7ca00f; color: #fff;" class="btn btn-xs warehouse {{ $value->shipment_no }}hide"><i class="fa fa-plus"></i> Add in Warehouse</i></a>
+
+                                    <a href="{{ route('downloadlr',['id'=>$value->myid]) }}" style="margin-top: 2%;width: auto; margin:1%;width:auto;" class="btn btn-danger btn-xs {{ $value->shipment_no }}hide "><i class="fa fa-download "></i> LR</i></a>
+                                    <a href="{{ route('allshipmentsummarylist',['shipment_no'=>$value->shipment_no]) }}" style="margin-top: 3%;width: auto;min-width: 60%;background-color: #673ab7;border-color: #673ab7;color: #fff" class="btn  btn-xs "><i class="fa fa-eye"></i> Shipment Summary</a>
+                                    
+                                    <br><a href="{{ route('shipmentedit',['id'=>$value->myid]) }}" style="margin-top: 2%;width: auto; margin:1%;width:auto;"  class="btn btn-success btn-xs {{ $value->shipment_no }}hide"><i class="fa fa-pencil"></i> Edit</a><br>
+                                    <form method="post" action="{{ route('shipmentdelete') }}">
+                                     @csrf
+                                     <input type="hidden" name="id" value="{{ $value->shipment_no }}">
+                                     <button onclick="return confirm('Are you sure you want to Delete?');" style="margin-top: 2%;width: auto; margin:1%;width:auto;" class="btn btn-danger btn-xs {{ $value->shipment_no }}hide" type="submit" ><i class="fa fa-trash"></i> Delete</i></button>
+                                     </form>
+
                                     </td>
                                 </tr>
 
@@ -308,6 +326,61 @@ Shipment Filter | TMS
 
           
       </section>
+      <button style="display: none;" type="button" id="popbtn" class="btn btn-info btn-lg" data-toggle="modal" data-target="#myModal">Open Modal</button>     <!-- The Mod$Request->al -->
+<div id="myModal" class="modal fade" role="dialog">
+  <div class="modal-dialog modal-lg">
+
+    <!-- Modal content-->
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title"> Add In Warehouse</h4>
+      </div>
+      <div class="modal-body">
+        <div class="form">
+                                    <form>   
+                                      <input type="hidden" name="shipment_no" id="shipment_no" value="">
+                                      <div class="form-group ">
+                                            <label for="name" class="control-label col-lg-12">Warehouse<span style="color: red">*</span> :</label>
+                                            <div class="col-lg-12">
+                                                <select class="form-control" id="warehouse_id" name="warehouse_id" required="required"> 
+                                                   <option value=""> -- Please Select Warehouse -- </option>
+                                                      @foreach($warehouse as $value1)
+                                                     
+                                                      <option value="{{ $value1->id }}">{{ $value1->name }}</option>
+                                                     
+                                                      @endforeach
+
+                                                </select>
+
+                                              <p class="text-danger" id="warehouseerror"></p>
+                                            </div>
+                                        </div>
+                                        <div class="form-group ">
+                                            <label for="name" class="control-label col-lg-12">Reason :</label>
+                                            <div class="col-lg-12">
+                                               
+                                               <textarea class=" form-control" id="reason" name="reason"></textarea>
+                                                
+                                            </div>
+                                        </div>
+                                         <div class="form-group "></div>
+                                         <div class="form-group save_cancle">
+                                            <div style="text-align: center;width: 100%">
+                                                <a style="margin: 2% 0px 0px 0px;" class="btn btn-success" id="warehousebtn">Save</a>
+                                                <a style="margin: 2% 0px 0px 0px;" class="btn btn-default" id="popclose" data-dismiss="modal" type="button">Cancel</a>
+                                            </div>
+                                        </div>
+                                      </form>
+                                    </div>
+      </div>
+     {{--  <div class="modal-footer">
+        <button type="button" id="popclose" class="btn btn-default" data-dismiss="modal">Close</button> 
+      </div>--}}
+    </div>
+
+  </div>
+</div>
       <!--main content end-->
 @endsection
 
@@ -346,6 +419,86 @@ Shipment Filter | TMS
         ]
     } );
 } );
+
+  $(".warehouse").click(function(){
+
+    var shipment_no = $(this).attr('data-id');
+    $("#warehouseerror").html('');
+        //alert(shipment_no);
+    $("#popbtn").click();
+    $("#shipment_no").val(shipment_no);
+
+  });
+
+$("#warehousebtn").click(function(){
+
+var warehouse_id = $("#warehouse_id").val();
+var shipment_no = $("#shipment_no").val();
+var reason = $("#reason").val();
+var _token   = $('meta[name="csrf-token"]').attr('content');
+
+if(warehouse_id == ""){
+  $("#warehouseerror").html('Please Select Warehouse.');
+  $("#warehouse_id").focus();
+  return false;
+}
+
+$("#popclose").click();
+
+$.ajax({
+      url: "{{ route('shipwarehousein') }}",
+      type:"POST",
+      data:{
+        warehouse_id:warehouse_id,
+        shipment_no:shipment_no,
+        reason:reason,
+         _token: _token
+      },
+      success:function(response){
+        console.log(response);
+        if(response.code == 200) {
+          
+          $("#"+shipment_no).remove();
+        } else {
+            console.log("Some Error");
+        }
+      },
+     });
+
+
+});
+
+$(".delivered").click(function(){
+  
+  if(confirm('Are you sure this shipment delivered?')){
+
+    var shipment_no = $(this).attr('data-id'); 
+    var _token   = $('meta[name="csrf-token"]').attr('content');
+
+     $.ajax({
+        url: "{{ route('shipmentdelivered') }}",
+        type:"POST",
+        data:{
+          shipment_no:shipment_no,
+           _token: _token
+        },
+        success:function(response){
+          console.log(response);
+          if(response.code == 200) {
+            $("#"+shipment_no+"mystatus").html('<span style="color: green">Delivered</span>');
+             $("."+shipment_no+"hide").css("display",'none');
+          } else {
+              console.log("Some Error");
+          }
+        },
+       });
+
+
+  }
+
+
+
+});
 </script>
     
 @endsection
