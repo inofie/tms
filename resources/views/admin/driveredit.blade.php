@@ -20,7 +20,7 @@
 
                       @if ($message = Session::get('success'))
                       <div class="alert alert-success alert-block">
-                        <button type="button" class="close" data-dismiss="alert">×</button> 
+                        <button type="button" class="close" data-dismiss="alert">×</button>
                               <strong>{{ $message }}</strong>
                       </div>
                       @endif
@@ -28,7 +28,7 @@
 
                       @if ($message = Session::get('error'))
                       <div class="alert alert-danger alert-block">
-                        <button type="button" class="close" data-dismiss="alert">×</button> 
+                        <button type="button" class="close" data-dismiss="alert">×</button>
                               <strong>{{ $message }}</strong>
                       </div>
                       @endif
@@ -36,7 +36,7 @@
 
                       @if ($message = Session::get('warning'))
                       <div class="alert alert-warning alert-block">
-                        <button type="button" class="close" data-dismiss="alert">×</button> 
+                        <button type="button" class="close" data-dismiss="alert">×</button>
                         <strong>{{ $message }}</strong>
                       </div>
                       @endif
@@ -44,7 +44,7 @@
 
                       @if ($message = Session::get('info'))
                       <div class="alert alert-info alert-block">
-                        <button type="button" class="close" data-dismiss="alert">×</button> 
+                        <button type="button" class="close" data-dismiss="alert">×</button>
                         <strong>{{ $message }}</strong>
                       </div>
                       @endif
@@ -52,12 +52,12 @@
 
                       @if ($errors->any())
                       <div class="alert alert-danger">
-                        <button type="button" class="close" data-dismiss="alert">×</button> 
+                        <button type="button" class="close" data-dismiss="alert">×</button>
                         Please check the form below for errors
                       </div>
                       @endif
                 <!-- page start-->
-              
+
                         <section class="panel">
                             <header class="panel-heading ">
                                Edit Driver
@@ -78,7 +78,7 @@
                                       <div class="form-group ">
                                             <label for="name" class="control-label col-lg-2">Transporter<span style="color: red">*</span> :</label>
                                             <div class="col-lg-10">
-                                                <select class="form-control" name="transporter" required="required"> 
+                                                <select class="form-control" name="transporter" required="required">
                                                    <option value=""> -- Please Select Transporter -- </option>
                                                       @foreach($transporter as $value)
                                                       @if($data->transporter_id == $value->id)
@@ -104,7 +104,7 @@
                                                 @enderror
                                             </div>
                                         </div>
-                                        
+
                                       <div class="form-group">
                                             <label class="col-lg-2 control-label">Phone :</label>
                                             <div class="col-lg-10">
@@ -154,11 +154,11 @@
                                                 @enderror
                                             </div>
                                         </div>
-                                       
+
                                         <div class="form-group">
                                             <label class="control-label col-md-2">R.C Book :</label>
                                             <div class="col-md-10">
-                                                <input type="file" name="rc_book" id="rc_book" class="item-img file2 ">
+                                                <input type="file" name="rc_book" id="rc_book" class="item-img file">
                                                 <div style=" overflow: hidden; width: 100px; ">
                                                 <img src="{{ asset('/uploads') }}/{{ $data->rc_book }}" id="item-img-output2" style="margin-top: 1%;float: left;" width="100px" alt="" class="zoom">
                                                 </div>
@@ -171,7 +171,7 @@
                                           <div class="form-group">
                                             <label class="control-label col-md-2">Pan Card :</label>
                                             <div class="col-md-10">
-                                                <input type="file" name="pan_card" id="pan_card" class="item-img file1 ">
+                                                <input type="file" name="pan_card" id="pan_card" class="item-img file">
                                                 <div style=" overflow: hidden; width: 100px; ">
                                                  <img src="{{ asset('/uploads') }}/{{ $data->pan_card }}" id="item-img-output1" style="margin-top: 1%;float: left;" width="100px" alt="" class="zoom">
                                                  </div>
@@ -180,11 +180,11 @@
                                                 @enderror
                                             </div>
                                         </div>
-                                        
+
                                            <div class="form-group">
                                             <label class="control-label col-md-2">Licence :</label>
                                             <div class="col-md-10">
-                                                <input type="file" name="licence" id="licence" class="item-img file ">
+                                                <input type="file" name="licence" id="licence" class="item-img file">
                                                 <div style=" overflow: hidden; width: 100px; ">
                                                 <img src="{{ asset('/uploads') }}/{{ $data->licence }}" id="item-img-output" style="margin-top: 1%;float: left;" width="100px" alt="" class="zoom">
                                                 </div>
@@ -201,7 +201,7 @@
                                             @if($data->status == '1')
                                               <option value="0" >Active</option>
                                               <option value="1" selected="selected">InActive</option>
-                                            @else 
+                                            @else
                                               <option value="0" selected="selected">Active</option>
                                               <option value="1" >InActive</option>
                                             @endif
@@ -209,8 +209,8 @@
                                           </div>
                                       </div>
 
-                                        
-                         
+
+
 
                                         <div class="form-group save_cancle">
                                             <div class="col-lg-12 center text-center">
@@ -222,7 +222,7 @@
                                 </div>
                             </div>
                         </section>
-                 
+
                 <!-- page end-->
             </section>
         </section>
@@ -253,12 +253,12 @@
 <script src="{{ asset('js/advanced-form-components.js')}}"></script>
 
 <script type="text/javascript">
-    
+
     function Addmore(){
 
       var count = $('.myname').length + 1;
 
-      
+
 
       var addrow = '<tr id="row'+count+'"><td><div class="control-label col-lg-10" ><input type="text" class="form-control myname" placeholder="Enter Name" name="name[]"  required="required"></div></td><td><div class="control-label col-lg-10" ><input type="number" class="form-control" name="sorting_id[]"></div></td><td class="text-center"><button onclick="deleterow('+count+')" style="background: #fff;border-radius: 0px;border: 0px;color: red;font-size: 25px;"><i class="fa fa-times"></i></button></tr>';
 

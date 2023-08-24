@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 namespace App\Http\Controllers\Admin;
 
@@ -18,6 +18,7 @@ use Hash;
 use Session;
 use Illuminate\Support\Facades\Auth;
 use Config;
+use App\DataTables\WarehouseDataTable;
 
 
 class WarehouseController extends Controller
@@ -25,26 +26,52 @@ class WarehouseController extends Controller
 
 	public function __construct()
     {
-       
+
     }
 
-    public function List(Request $Request)
-    {	
-        $data= array();
-        $data1 = Warehouse::all();
+    // public function List(Request $Request)
+    // {
+    //     $data= array();
+    //     $data1 = Warehouse::all();
 
-        foreach ($data1 as $key => $value) {
+    //     foreach ($data1 as $key => $value) {
 
-            $data[$key]=$value;
-            $company = Company::withTrashed()->findorfail($value->company_id);
-            $data[$key]->company_name=$company->name;
-            $username = User::withTrashed()->findorfail($value->user_id);
-            $data[$key]->user_name=$username->username;
+    //         $data[$key]=$value;
+    //         $company = Company::withTrashed()->findorfail($value->company_id);
+    //         $data[$key]->company_name=$company->name;
+    //         $username = User::withTrashed()->findorfail($value->user_id);
+    //         $data[$key]->user_name=$username->username;
 
-            # code...
+    //         # code...
+    //     }
+
+    // 	return view('admin.warehouselist',compact('data'));
+    // }
+
+    public function List(Builder $builder, DriverDataTable $dataTable)
+    {
+        $html = $builder->columns([
+            ['data' => 'name', 'name' => 'name','title' => 'Full Name'],
+            ['data' => 'phone', 'name' => 'phone','title' => 'User Name'],
+            ['data' => 'licence_no', 'name' => 'licence_no','title' => 'Company'],
+            ['data' => 'truck_no', 'name' => 'truck_no','title' => 'Address'],
+            ['data' => 'pan', 'name' => 'pan','title' => 'Add Proof'],
+            ['data' => 'rc_book', 'name' => 'rc_book','title' => 'Phone Number'],
+            ['data' => 'pan_card', 'name' => 'pan_card','title' => 'GST Number'],
+            ['data' => 'licence', 'name' => 'licence','title' => 'Pan Number'],
+            ['data' => 'status', 'name' => 'status','title' => 'Status'],
+            ['data' => 'action', 'name' => 'action', 'orderable' => false, 'searchable' => false,'title' => 'Action'],
+        ])
+        ->parameters([
+            "scrollX" => true,
+            "order"=> [[ 0, "desc" ]],
+            "processing"=> false,
+          ]);
+        if(request()->ajax()) {
+            $result = Warehouse::all();
+            return $dataTable->dataTable($result)->toJson();
         }
-
-    	return view('admin.warehouselist',compact('data'));
+        return view('admin.warehouselist', compact('html'));
     }
 
 
@@ -79,27 +106,27 @@ class WarehouseController extends Controller
          'address_proof.mimes' => "Please Upload Address Proof document File extension .jpg, .png, .jpeg",
           ]);
                 $data = User::where('username',$Request->username)->count();
-                        
+
                 if($data > 0){
-        
+
                     return redirect()->back()->withInput()->with('error','This Username Allready Registred in Our System.');
                 }
-  
+
 
                 $user = new User();
-                
+
                 $user->name = $Request->name;
-                
+
                 $user->username = $Request->username;
-                
+
                 $user->password = Hash::make($Request->password);
-                
+
                 $user->role = "warehouse";
-                
+
                 $user->created_by=Auth::user()->id;
-                
+
                 $user->save();
-               
+
                 $comapny = new Warehouse();
 
                 $comapny->name = $Request->name;
@@ -121,7 +148,7 @@ class WarehouseController extends Controller
                 $comapny->status= $Request->status;
 
                  $path = public_path('/uploads');
-                    
+
                  if($Request->hasFile('address_proof') && !empty($Request->file('address_proof'))){
                         $file_name = time()."1".$Request->address_proof->getClientOriginalName();
                         $Request->address_proof->move($path,$file_name);
@@ -172,17 +199,17 @@ class WarehouseController extends Controller
             if($Request->username != $Request->oldusername){
 
                 $data = User::where('username',$Request->username)->where('id','!=',$Request->user_id)->count();
-                    
+
             if($data > 0){
 
                 return redirect()->back()->withInput()->with('error','This Username Allready Registred in Our System.');
-            } 
+            }
 
 
                     $user = User::findorfail($Request->user_id);
-                    
+
                     $user->username = $Request->username;
-                    
+
                     $user->save();
 
             }
@@ -190,16 +217,16 @@ class WarehouseController extends Controller
 
 
                     $user = User::findorfail($Request->user_id);
-                    
+
                     $user->password = Hash::make($Request->password);
-                    
+
                     $user->save();
 
             }
                 $comapny = Warehouse::findorfail($Request->id);
 
                 $comapny->name = $Request->name;
-                
+
                 $comapny->phone = $Request->phone;
 
                 $comapny->address = $Request->address;
@@ -217,7 +244,7 @@ class WarehouseController extends Controller
                 $comapny->status= $Request->status;
 
                  $path = public_path('/uploads');
-                    
+
                  if($Request->hasFile('address_proof') && !empty($Request->file('address_proof'))){
                         $file_name = time()."1".$Request->address_proof->getClientOriginalName();
                         $Request->address_proof->move($path,$file_name);
@@ -247,8 +274,8 @@ class WarehouseController extends Controller
     }
 
 
-   
-  	
+
+
 
 
 

@@ -46,7 +46,7 @@
     <link href="{{ asset('assets/font-awesome/css/font-awesome.css') }}" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 
- 
+
 
     <!-- Custom styles for this template -->
 
@@ -56,7 +56,7 @@
 
   @yield('css3')
 
-    
+
 
     <!-- HTML5 shim and Respond.js IE8 support of HTML5 tooltipss and media queries -->
 
@@ -74,7 +74,7 @@
 
 
 
-  
+
 
 
   <section id="container" class="">
@@ -98,7 +98,7 @@
 
     <!-- js placed at the end of the document so the pages load faster -->
 
-    
+
 
       @yield('js1')
 
@@ -126,19 +126,25 @@
 
 
     <script type="text/javascript">
+
+    $("html").mouseover(function() {
+        $("html").getNiceScroll().resize();
+    });
+
+
       var h = window.innerHeight - 38;
-  
+
     //$("#main-content").css("min-height",h+"px");
 
 
-   
+
 
     $( document ).ready(function() {
 
        setTimeout(function(){
                $('.alert').css("display","none");
         }, 5000);
-    
+
 });
 
     </script>
