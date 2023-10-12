@@ -116,13 +116,21 @@
                                                 @enderror
                                             </div>
                                         </div>
-                                       
+                                        <div class="form-group">
+                                            <label class="col-lg-2 control-label">Aadhar Number :</label>
+                                            <div class="col-lg-10">
+                                                <input  type="text" class="form-control" id="aadhar_card" name="aadhar_card" value="{{ $data->aadhar_card }}"  placeholder="Aadhar Number"/>
+                                                 @error('aadhar_card')
+                                                 <span class="text-danger"> {{ $message }} </span>
+                                                @enderror
+                                            </div>
+                                        </div>
                                         <div class="form-group">
                                             <label class="control-label col-md-2">R.C Book :</label>
                                             <div class="col-md-10">
                                                 <input type="file" name="rc_book" id="rc_book" class="item-img file2 ">
                                                 <div style=" overflow: hidden; width: 100px; ">
-                                                <img src="{{ asset('/uploads') }}/{{ $data->rc_book }}" id="item-img-output2" style="margin-top: 1%;float: left;" width="100px" alt="" class="zoom">
+                                                <img src="{{ asset('public/uploads') }}/{{ $data->rc_book }}" id="item-img-output2" style="margin-top: 1%;float: left;" width="100px" alt="" class="zoom">
                                                 </div>
                                                 @error('rc_book')
                                                  <span class="text-danger"> {{ $message }} </span>
@@ -136,7 +144,7 @@
                                                 <input type="file" name="pan_card"  id="pan_card" class="item-img file1 ">
                                                 <figure>
                                                 <div style=" overflow: hidden; width: 100px; ">
-                                                <img src="{{ asset('/uploads') }}/{{ $data->pan_card }}" id="item-img-output1" style="margin-top: 1%;float: left;" width="100px" alt="" class="zoom">
+                                                <img src="{{ asset('public/uploads') }}/{{ $data->pan_card }}" id="item-img-output1" style="margin-top: 1%;float: left;" width="100px" alt="" class="zoom">
                                                 </div>
                                             </figure>
                                                 @error('pan_card')
@@ -144,14 +152,25 @@
                                                 @enderror
                                             </div>
                                         </div>
-                                        
+                                        <div class="form-group">
+                                            <label class="control-label col-md-2">Aadhar Card :</label>
+                                            <div class="col-md-10">
+                                                <input type="file" name="aadhar_card_photo" id="aadhar_card_photo" class="item-img file">
+                                                <div style=" overflow: hidden; width: 100px; ">
+                                                 <img src="{{ asset('public/uploads') }}/{{ $data->aadhar_card_photo }}" id="item-img-output1" style="margin-top: 1%;float: left;" width="100px" alt="" class="zoom">
+                                                 </div>
+                                                 @error('aadhar_card_photo')
+                                                 <span class="text-danger"> {{ $message }} </span>
+                                                @enderror
+                                            </div>
+                                        </div>
                                            <div class="form-group">
                                             <label class="control-label col-md-2">Licence :</label>
                                             <div class="col-md-10">
                                             <input type="file" name="licence" accept="image/png, image/jpeg, image/jpg" id="licence" class="item-img file ">
                                                 <figure>
                                                 <div style=" overflow: hidden; width: 100px; ">
-                                                <img src="{{ asset('/uploads') }}/{{ $data->licence }}" class="zoom" name="avatar" style="margin-top: 1%;float: left;" id="item-img-output" width="100px" alt="">
+                                                <img src="{{ asset('public/uploads') }}/{{ $data->licence }}" class="zoom" name="avatar" style="margin-top: 1%;float: left;" id="item-img-output" width="100px" alt="">
                                                 </div>
                                             </figure>
                                                 

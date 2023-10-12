@@ -10,6 +10,11 @@ use DateInterval;
 use DatePeriod;
 use App\User;
 use App\Order;
+use App\Shipment;
+use App\Account;
+use App\Company;
+use App\Transporter;
+use App\Forwarder;
 use App\Notification;
 use URL;
 use Twilio;
@@ -394,7 +399,107 @@ class GlobalHelper
       $getPermissions = Permission::where("category",$category)->where('status','1')->get();
       return $getPermissions;
   }
+  public static function getPermissionByCategoryapp($role_id){
+    $rolePermissions = DB::table("role_has_permissions")->where("role_has_permissions.role_id",$role_id)
+            ->pluck('role_has_permissions.permission_id','role_has_permissions.permission_id')
+            ->all();
+    return $rolePermissions;
+}
+public static function getshippername($employees){
+ 
+  	  $shipment_list = explode(',',$employees);
+			$shipdata = Shipment::withTrashed()->wherein("shipment_no", $shipment_list)->get();
+			
+			$d_list = "";
+			foreach($shipdata as $key2 => $value2){
+			if($value2->imports == 1){
+			$shippername = $value2->consignee;
+			}
+			else{
+			$shippername = $value2->consignor;
+			}
+			if($key2 == 0) {
+			$d_list = $d_list."".$shippername;	
+			}
+			else{
+			$d_list = $d_list.", ".$shippername;	
+			}
+		}
+  return $d_list;
+}
+public static function getfromname($employees){
+$data1 = Account::where('id',$employees)->get();
+//dd($data1);
 
+foreach ($data1 as $key => $value) {
+
+			if($value->from_company != "" && $value->from_company != null){
+				$company_data = Company::withTrashed()->findorfail($value->from_company);
+				$datas= $company_data->name;
+			} else if($value->from_transporter != "" && $value->from_transporter != null){
+				$transporter_data = Transporter::withTrashed()->findorfail($value->from_transporter);
+				$datas= $transporter_data->name;
+			} else if($value->from_forwarder != "" && $value->from_forwarder != null){
+				$forwarder_data = Forwarder::withTrashed()->findorfail($value->from_forwarder);
+				$datas= $forwarder_data->name;
+			}else{
+        $datas= "";
+      }
+}
+return $datas;
+}
+
+public static function gettoname($employees){
+  $data1 = Account::where('id',$employees)->get();
+  
+  foreach ($data1 as $key => $value) {
+  
+    if($value->to_company != "" && $value->to_company != null){
+      		$company_data = Company::withTrashed()->findorfail($value->to_company);
+      		$datav= $company_data->name;
+      	} else if($value->to_transporter != "" && $value->to_transporter != null){
+      		$transporter_data = Transporter::withTrashed()->findorfail($value->to_transporter);
+      		$datav= $transporter_data->name;
+      	} else if($value->to_forwarder != "" && $value->to_forwarder != null){
+      		$forwarder_data = Forwarder::withTrashed()->findorfail($value->to_forwarder);
+      		$datav= $forwarder_data->name;
+      	}else{
+          $datav= "";
+        }
+  }
+  return $datav;
+  }
+  public static function gettype($employees){
+    $data1 = Account::where('id',$employees)->get();
+    
+    foreach ($data1 as $key => $value) {
+      if($value->credit != "" && $value->credit != null){
+        		$type = 'Credit';
+        	} else if($value->debit != "" && $value->debit != null){
+        		$type = 'Debit';
+        	}
+          else{
+            $type = '';
+          }
+    }
+    
+    return $type;
+  }
+  public static function getamount($employees){
+    $data1 = Account::where('id',$employees)->get();
+    
+    foreach ($data1 as $key => $value) {
+      if($value->credit != "" && $value->credit != null){
+          $amount = $value->credit;
+        	} else if($value->debit != "" && $value->debit != null){
+        		$amount = $value->debit;
+        	}
+          else{
+            $amount = '';
+          } 
+    }
+    return $amount;
+  }
  // Add data in fire base
   public static function firebaseSaveNotification($title, $message,$reciver_id,$sender_id) {
     $serviceAccount = ServiceAccount::fromJsonFile(env('FIREBASE_JSON_FILE_LOCATION'));

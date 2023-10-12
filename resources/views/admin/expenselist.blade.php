@@ -95,8 +95,10 @@ All Expenses List | Helard
                                   <th>Date</th>
                                    <th>Company Name</th>
                                    <th>Transporter Name</th>
-                                   <th>Type</th>
+                                   <th>Forwarder Name</th>
                                    <th>Created Date</th>
+                                   <th>Type</th>
+                                  
                                    <th>Shipment No</th>
                                   <th class="center">Details</th>
                                   <th class="center">Amount</th>
@@ -110,14 +112,16 @@ All Expenses List | Helard
                                   <td class="center"> {{ date('d-m-Y',strtotime($value->dates))}}</td>
                                   <td style="vertical-align: middle;">{{ $value->company_name }}</td>
                                   <td style="vertical-align: middle;">{{ $value->transporter_name }}</td>
-                                  <td style="vertical-align: middle;">{{ $value->type }}</td>
+                                  <td style="vertical-align: middle;">{{ $value->forwarder_name }}</td>
                                   <td style="vertical-align: middle;">{{ $value->created_at }}</td>
+                                  <td style="vertical-align: middle;">{{ $value->type }}</td>
+                                 
                                   <td style="vertical-align: middle;">{{ $value->shipment_no }}</td>
                                   <td style="vertical-align: middle;">{{ $value->reason }}</td>
                                   <td class="center" style="vertical-align: middle;">{{ $value->amount }}</td>
                                   <td class="edit_delete center" style="vertical-align: middle;">
                                     <a href="{{ route('expenseview',['id'=>$value->id]) }}" style="min-width: 20%; width: auto;" class="btn btn-primary "><i class="fa fa-eye"></i> View</a>
-
+                                    <a href="{{ route('expenseedit',['id'=>$value->id]) }}" style="min-width: 20%; width: auto;" class="btn btn-success"><i class="fa fa-pencil"></i> Edit</a>
                                      <button onclick="deleteItem('{{ $value->id }}')" style="min-width: 20%;width: auto;" class="btn btn-danger "><i class="fa fa-trash-o "></i> Delete</button>
                                       <form action="{{ route('expensedelete') }}" id="delete{{$value->id}}" method="post">
                                         @csrf

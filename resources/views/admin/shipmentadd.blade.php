@@ -195,7 +195,7 @@
                                             <div class="radio">
                                               <label>
                                                   <input type="radio" name="type2" id="lcl" checked="checked" value="lcl"> 
-                                                  ICL
+                                                  LCL
                                               </label>
                                           </div>
                                           <div class="radio">
@@ -494,9 +494,9 @@
                                             </div>
                                         </div>
                                   
-
+                                        <span id="radiobutt">
                               <div id="hfcl" style="display: none;">
-                                 
+                                        
                                          <div class="form-group">
                                           <label class="col-lg-2 control-label">Container Type:</label>
                                           <div class="col-lg-10">
@@ -554,7 +554,7 @@
                                               <input type="text" class="form-control" name="pod"  placeholder="Enter POD" value="{{ old('pod') }}" />
                                           </div>
                                       </div>
-                                      
+                                      </span>
                                     
                               </div>
                           </div>
@@ -608,8 +608,22 @@
     $(document).on('submit', 'form', function() {
         $('button').attr('disabled', 'disabled');
     });
-
-  
+    $(document).on('submit', 'form', function() {
+      var conceptName = $('input[name=type2]:checked').val();
+      // alert(conceptName);
+      if(conceptName == 'fcl'){
+        // var impo = $('#hfcl').html();
+        // $('#myfcl').html(impo);
+        // $('#hfcl').html('');
+        $("#hfcl").css("display", "block");
+      }
+      else{
+        // var impo = $('#myfcl').html();
+        // $('#hfcl').html(impo);
+        // $('#myfcl').html('');
+        $("#hfcl").css("display", "none");
+      }
+    });
    $('#dds').datepicker({ dateFormat: 'dd-mm-yy' });
 
     $('#msubmit').click(function(){
@@ -626,7 +640,10 @@
       $('#sform').click();
       //sform
     });
-
+   
+      //alert('aa');
+    
+  
     $('#fcl').click(function(){
 
       var impo = $('#hfcl').html();

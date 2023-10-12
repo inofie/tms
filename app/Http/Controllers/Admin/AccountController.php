@@ -160,18 +160,30 @@ class AccountController extends Controller
 					->sum('debit');
 
 			foreach ($data12 as $key => $value) {
+				$comname = Company::withTrashed()->where('id',$Request->id)->first();
 				if($value->v_type == 'credit'){
 					if($value->from_company != '' && $value->from_company != null){
 						$nyllist[$key]=$value;
+						
 						$com = Company::withTrashed()->findorfail($value->from_company);
 						if($value->type == 'invoice'){
 							$invoice = Invoice::findorfail($value->invoice_list);
+							
 							$nyllist[$key]['detailss'] = "By: ".$com->name." (".$invoice->invoice_no.")";
+							// $nyllist[$key]['invoice_number'] = $invoice->invoice_no;
+							// $ships = Shipment::withTrashed()->where('shipment_no',$invoice->ships)->first();
+							// $nyllist[$key]['forwarder_ref_no'] = $ships->forwarder_ref_no;
 						} else {
 							$nyllist[$key]['detailss'] = "By: ".$com->name." (".$value->description.")";
+						
 						}
 						//$nyllist[$key]['detailss'] = "By: ".$com->name;
 						$nyllist[$key]['datess'] = date('d-m-Y',strtotime($value->dates));
+						
+						$nyllist[$key]['name'] = $comname->name;
+						
+						// $ships = Shipment::withTrashed()->where('id',$Request->id)->first();
+						
 						$nyllist[$key]['creditt'] = $value->credit;
 						$nyllist[$key]['debitst'] = '';
 					}
@@ -181,11 +193,17 @@ class AccountController extends Controller
 						if($value->type == 'invoice'){
 							$invoice = Invoice::findorfail($value->invoice_list);
 							$nyllist[$key]['detailss'] = "By: ".$com->name." (".$invoice->invoice_no.")";
+							// $nyllist[$key]['invoice_number'] = $invoice->invoice_no;
+							// $ships = Shipment::withTrashed()->where('shipment_no',$invoice->ships)->first();
+							// $nyllist[$key]['forwarder_ref_no'] = $ships->forwarder_ref_no;
 						} else {
 							$nyllist[$key]['detailss'] = "By: ".$com->name." (".$value->description.")";
 						}
 						//$nyllist[$key]['detailss'] = "By: ".$com->name;
 						$nyllist[$key]['datess'] = date('d-m-Y',strtotime($value->dates));
+						
+						$nyllist[$key]['name'] = $comname->name;
+						
 						$nyllist[$key]['creditt'] = $value->credit;
 						$nyllist[$key]['debitst'] = '';
 					}
@@ -195,27 +213,61 @@ class AccountController extends Controller
 						if($value->type == 'invoice'){
 							$invoice = Invoice::findorfail($value->invoice_list);
 							$nyllist[$key]['detailss'] = "By: ".$com->name." (".$invoice->invoice_no.")";
+							// $nyllist[$key]['invoice_number'] = $invoice->invoice_no;
+							// $ships = Shipment::withTrashed()->where('shipment_no',$invoice->ships)->first();
+							// $nyllist[$key]['forwarder_ref_no'] = $ships->forwarder_ref_no;
 						} else {
 							$nyllist[$key]['detailss'] = "By: ".$com->name." (".$value->description.")";
 						}
 						$nyllist[$key]['datess'] = date('d-m-Y',strtotime($value->dates));
+						$nyllist[$key]['name'] = $comname->name;
+						
+						// $ships = Shipment::withTrashed()->where('id',$Request->id)->first();
+						 
 						$nyllist[$key]['creditt'] = $value->credit;
 						$nyllist[$key]['debitst'] = '';
 					}
 				}
 
 				if($value->v_type == 'debit'){
+					if($value->from_forwarder != '' && $value->from_forwarder != null){
+						$com = Forwarder::withTrashed()->findorfail($value->from_forwarder);
+						$nyllist[$key]=$value;
+						if($value->type == 'invoice'){
+							$invoice = Invoice::findorfail($value->invoice_list);
+							$nyllist[$key]['detailss'] = "By: ".$com->name." (".$invoice->invoice_no.")";
+							// $nyllist[$key]['invoice_number'] = $invoice->invoice_no;
+							// $ships = Shipment::withTrashed()->where('shipment_no',$invoice->ships)->first();
+							// $nyllist[$key]['forwarder_ref_no'] = $ships->forwarder_ref_no;
+						} else {
+							$nyllist[$key]['detailss'] = "By: ".$com->name." (".$value->description.")";
+						}
+						$nyllist[$key]['datess'] = date('d-m-Y',strtotime($value->dates));
+						$nyllist[$key]['name'] = $comname->name;
+						
+						// $ships = Shipment::withTrashed()->where('id',$Request->id)->first();
+						 
+						$nyllist[$key]['creditt'] = $value->debit;
+						$nyllist[$key]['debitst'] = '';
+					}
 					if($value->to_transporter != '' && $value->to_transporter != null){
 						$com = Transporter::withTrashed()->findorfail($value->to_transporter);
 						$nyllist[$key]=$value;
 						if($value->type == 'invoice'){
 							$invoice = Invoice::findorfail($value->invoice_list);
 							$nyllist[$key]['detailss'] = "To: ".$com->name." (".$invoice->invoice_no.")";
+							// $nyllist[$key]['invoice_number'] = $invoice->invoice_no;
+							// $ships = Shipment::withTrashed()->where('shipment_no',$invoice->ships)->first();
+							// $nyllist[$key]['forwarder_ref_no'] = $ships->forwarder_ref_no;
 						} else {
 							$nyllist[$key]['detailss'] = "To: ".$com->name." (".$value->description.")";
 						}
 						//$nyllist[$key]['detailss'] = "To: ".$com->name;
 						$nyllist[$key]['datess'] = date('d-m-Y',strtotime($value->dates));
+						$nyllist[$key]['name'] = $comname->name;
+						
+						// $ships = Shipment::withTrashed()->where('id',$Request->id)->first();
+						
 						$nyllist[$key]['creditt'] = '';
 						$nyllist[$key]['debitst'] = $value->debit;
 					}
@@ -225,11 +277,17 @@ class AccountController extends Controller
 						if($value->type == 'invoice'){
 							$invoice = Invoice::findorfail($value->invoice_list);
 							$nyllist[$key]['detailss'] = "To: ".$com->name." (".$invoice->invoice_no.")";
+							// $nyllist[$key]['invoice_number'] = $invoice->invoice_no;
+							// $ships = Shipment::withTrashed()->where('shipment_no',$invoice->ships)->first();
+							// $nyllist[$key]['forwarder_ref_no'] = $ships->forwarder_ref_no;
 						} else {
 							$nyllist[$key]['detailss'] = "To: ".$com->name." (".$value->description.")";
 						}
 						//$nyllist[$key]['detailss'] = "To: ".$com->name;
 						$nyllist[$key]['datess'] = date('d-m-Y',strtotime($value->dates));
+						$nyllist[$key]['name'] = $comname->name;
+						
+						
 						$nyllist[$key]['creditt'] = '';
 						$nyllist[$key]['debitst'] = $value->debit;
 					}
@@ -240,11 +298,17 @@ class AccountController extends Controller
 						if($value->type == 'invoice'){
 							$invoice = Invoice::findorfail($value->invoice_list);
 							$nyllist[$key]['detailss'] = "To: ".$com->name." (".$invoice->invoice_no.")";
+							// $nyllist[$key]['invoice_number'] = $invoice->invoice_no;
+							// $ships = Shipment::withTrashed()->where('shipment_no',$invoice->ships)->first();
+							// $nyllist[$key]['forwarder_ref_no'] = $ships->forwarder_ref_no;
 						} else {
 							$nyllist[$key]['detailss'] = "To: ".$com->name." (".$value->description.")";
 						}
 						//$nyllist[$key]['detailss'] = "To: ".$com->name;
 						$nyllist[$key]['datess'] = date('d-m-Y',strtotime($value->dates));
+						$nyllist[$key]['name'] = $comname->name;
+						
+						
 						$nyllist[$key]['creditt'] = '';
 						$nyllist[$key]['debitst'] = $value->debit;
 					}
@@ -255,13 +319,28 @@ class AccountController extends Controller
 					if($value->type == 'invoice'){
 						$invoice = Invoice::findorfail($value->invoice_list);
 						$nyllist[$key]['detailss'] = "To: ".$value->description." (".$invoice->invoice_no.")";
+						// $nyllist[$key]['invoice_number'] = $invoice->invoice_no;
+						// $ships = Shipment::withTrashed()->where('shipment_no',$invoice->ships)->first();
+						// $nyllist[$key]['forwarder_ref_no'] = $ships->forwarder_ref_no;
 					} else {
 						$nyllist[$key]['detailss'] = "To: ".$value->description;
 					}
 					//$nyllist[$key]['detailss'] = "To: ".$value->description;
 					$nyllist[$key]['datess'] = date('d-m-Y',strtotime($value->dates));
+					$nyllist[$key]['name'] = $comname->name;
+					
 					$nyllist[$key]['creditt'] = '';
 					$nyllist[$key]['debitst'] = $value->debit;
+				}
+				if($value->invoice_list != null){
+					$invoice = Invoice::findorfail($value->invoice_list);
+					$nyllist[$key]['invoice_number'] = $invoice->invoice_no;
+					$vv= explode(',',$invoice->ships);
+					$ships = Shipment::withTrashed()->where('shipment_no',$vv)->first();
+					$nyllist[$key]['forwarder_ref_no'] = $ships->forwarder_ref_no;
+				}else{
+					$nyllist[$key]['invoice_number'] = '';
+					$nyllist[$key]['forwarder_ref_no'] = '';
 				}
 			}
 		}	
@@ -299,6 +378,7 @@ class AccountController extends Controller
 						})
 					->sum('debit');
 			foreach ($data12 as $key => $value) {
+				$comname = Transporter::withTrashed()->where('id',$Request->id)->first();
 					if($value->v_type == 'credit'){
 						if($value->from_company != '' && $value->from_company != null){
 							$nyllist[$key]=$value;
@@ -306,11 +386,15 @@ class AccountController extends Controller
 							if($value->type == 'invoice'){
 								$invoice = Invoice::findorfail($value->invoice_list);
 								$nyllist[$key]['detailss'] = "By: ".$com->name." (".$invoice->invoice_no.")";
+								// $nyllist[$key]['invoice_number'] = $invoice->invoice_no;
+								// $ships = Shipment::withTrashed()->where('shipment_no',$invoice->ships)->first();
+								// $nyllist[$key]['forwarder_ref_no'] = $ships->forwarder_ref_no;
 							} else {
 								$nyllist[$key]['detailss'] = "By: ".$com->name." (".$value->description.")";
 							}
 							//$nyllist[$key]['detailss'] = $com->name;
 							$nyllist[$key]['datess'] = date('d-m-Y',strtotime($value->dates));
+							$nyllist[$key]['name'] = $comname->name;
 							$nyllist[$key]['creditt'] = $value->credit;
 							$nyllist[$key]['debitst'] = '';
 						}
@@ -321,11 +405,15 @@ class AccountController extends Controller
 							if($value->type == 'invoice'){
 								$invoice = Invoice::findorfail($value->invoice_list);
 								$nyllist[$key]['detailss'] = "By: ".$com->name." (".$invoice->invoice_no.")";
+								// $nyllist[$key]['invoice_number'] = $invoice->invoice_no;
+								// $ships = Shipment::withTrashed()->where('shipment_no',$invoice->ships)->first();
+								// $nyllist[$key]['forwarder_ref_no'] = $ships->forwarder_ref_no;
 							} else {
 								$nyllist[$key]['detailss'] = "By: ".$com->name." (".$value->description.")";
 							}
 							//$nyllist[$key]['detailss'] = $com->name;
 							$nyllist[$key]['datess'] = date('d-m-Y',strtotime($value->dates));
+							$nyllist[$key]['name'] = $comname->name;
 							$nyllist[$key]['creditt'] = $value->credit;
 							$nyllist[$key]['debitst'] = '';
 						}
@@ -336,11 +424,15 @@ class AccountController extends Controller
 							if($value->type == 'invoice'){
 								$invoice = Invoice::findorfail($value->invoice_list);
 								$nyllist[$key]['detailss'] = "By: ".$com->name." (".$invoice->invoice_no.")";
+								// $nyllist[$key]['invoice_number'] = $invoice->invoice_no;
+								// $ships = Shipment::withTrashed()->where('shipment_no',$invoice->ships)->first();
+								// $nyllist[$key]['forwarder_ref_no'] = $ships->forwarder_ref_no;
 							} else {
 								$nyllist[$key]['detailss'] = "By: ".$com->name." (".$value->description.")";
 							}
 							//$nyllist[$key]['detailss'] = $com->name;
 							$nyllist[$key]['datess'] = date('d-m-Y',strtotime($value->dates));
+							$nyllist[$key]['name'] = $comname->name;
 							$nyllist[$key]['creditt'] = $value->credit;
 							$nyllist[$key]['debitst'] = '';
 						}
@@ -353,11 +445,15 @@ class AccountController extends Controller
 							if($value->type == 'invoice'){
 								$invoice = Invoice::findorfail($value->invoice_list);
 								$nyllist[$key]['detailss'] = "To: ".$com->name." (".$invoice->invoice_no.")";
+								// $nyllist[$key]['invoice_number'] = $invoice->invoice_no;
+								// $ships = Shipment::withTrashed()->where('shipment_no',$invoice->ships)->first();
+								// $nyllist[$key]['forwarder_ref_no'] = $ships->forwarder_ref_no;
 							} else {
 								$nyllist[$key]['detailss'] = "To: ".$com->name." (".$value->description.")";
 							}
 							//$nyllist[$key]['detailss'] = $com->name;
 							$nyllist[$key]['datess'] = date('d-m-Y',strtotime($value->dates));
+							$nyllist[$key]['name'] = $comname->name;
 							$nyllist[$key]['creditt'] = '';
 							$nyllist[$key]['debitst'] = $value->debit;
 						}
@@ -368,14 +464,42 @@ class AccountController extends Controller
 							if($value->type == 'invoice'){
 								$invoice = Invoice::findorfail($value->invoice_list);
 								$nyllist[$key]['detailss'] = "To: ".$com->name." (".$invoice->invoice_no.")";
+								// $nyllist[$key]['invoice_number'] = $invoice->invoice_no;
+								// $ships = Shipment::withTrashed()->where('shipment_no',$invoice->ships)->first();
+								// $nyllist[$key]['forwarder_ref_no'] = $ships->forwarder_ref_no;
 							} else {
 								$nyllist[$key]['detailss'] = "To: ".$com->name." (".$value->description.")";
 							}
 							//$nyllist[$key]['detailss'] = $com->name;
 							$nyllist[$key]['datess'] = date('d-m-Y',strtotime($value->dates));
+							$nyllist[$key]['name'] = $comname->name;
 							$nyllist[$key]['creditt'] = '';
 							$nyllist[$key]['debitst'] = $value->debit;
 						}
+					}
+					if($value->v_type == 'expense'){
+						$nyllist[$key]=$value;
+						if($value->type == 'invoice'){
+							$invoice = Invoice::findorfail($value->invoice_list);
+							$nyllist[$key]['detailss'] = "To: ".$value->description." (".$invoice->invoice_no.")";
+						} else {
+							$nyllist[$key]['detailss'] = "To: ".$value->description;
+						}
+						//$nyllist[$key]['detailss'] = "To: ".$value->description;
+						$nyllist[$key]['datess'] = date('d-m-Y',strtotime($value->dates));
+						$nyllist[$key]['name'] = $comname->name;
+						$nyllist[$key]['creditt'] = '';
+						$nyllist[$key]['debitst'] = $value->debit;
+					}
+					if($value->invoice_list != null){
+						$invoice = Invoice::findorfail($value->invoice_list);
+						$nyllist[$key]['invoice_number'] = $invoice->invoice_no;
+						$vv= explode(',',$invoice->ships);
+						$ships = Shipment::withTrashed()->where('shipment_no',$vv)->first();
+						$nyllist[$key]['forwarder_ref_no'] = $ships->forwarder_ref_no;
+					}else{
+						$nyllist[$key]['invoice_number'] = '';
+						$nyllist[$key]['forwarder_ref_no'] = '';
 					}
 			}
 
@@ -410,17 +534,23 @@ class AccountController extends Controller
 						})
 					->sum('debit');
 			foreach ($data12 as $key => $value) {
+				$comname = Forwarder::withTrashed()->where('id',$Request->id)->first();
 				if($value->v_type == 'credit'){
+
 					if($value->to_company != '' && $value->to_company != null){
 						$nyllist[$key]=$value;
 						$com = Company::withTrashed()->findorfail($value->to_company);
 						if($value->type == 'invoice'){
 							$invoice = Invoice::findorfail($value->invoice_list);
 							$nyllist[$key]['detailss'] = "To: ".$com->name." (".$invoice->invoice_no.")";
+							// $nyllist[$key]['invoice_number'] = $invoice->invoice_no;
+							// $ships = Shipment::withTrashed()->where('shipment_no',$invoice->ships)->first();
+							// $nyllist[$key]['forwarder_ref_no'] = $ships->forwarder_ref_no;
 						} else {
 							$nyllist[$key]['detailss'] = "To: ".$com->name." (".$value->description.")";
 						}
 						$nyllist[$key]['datess'] = date('d-m-Y',strtotime($value->dates));
+						$nyllist[$key]['name'] = $comname->name;
 						$nyllist[$key]['creditt'] = '';
 						$nyllist[$key]['debitst'] = $value->credit;
 					}
@@ -431,11 +561,15 @@ class AccountController extends Controller
 						if($value->type == 'invoice'){
 							$invoice = Invoice::findorfail($value->invoice_list);
 							$nyllist[$key]['detailss'] = "To: ".$com->name." (".$invoice->invoice_no.")";
+							// $nyllist[$key]['invoice_number'] = $invoice->invoice_no;
+							// $ships = Shipment::withTrashed()->where('shipment_no',$invoice->ships)->first();
+							// $nyllist[$key]['forwarder_ref_no'] = $ships->forwarder_ref_no;
 						} else {
 							$nyllist[$key]['detailss'] = "To: ".$com->name." (".$value->description.")";
 						}
 						//$nyllist[$key]['detailss'] = "To: ".$com->name;
 						$nyllist[$key]['datess'] = date('d-m-Y',strtotime($value->dates));
+						$nyllist[$key]['name'] = $comname->name;
 						$nyllist[$key]['creditt'] = '';
 						$nyllist[$key]['debitst'] = $value->credit;
 					}
@@ -446,13 +580,19 @@ class AccountController extends Controller
 						if($value->type == 'invoice'){
 							$invoice = Invoice::findorfail($value->invoice_list);
 							$nyllist[$key]['detailss'] = "To: ".$com->name." (".$invoice->invoice_no.")";
+							// $nyllist[$key]['invoice_number'] = $invoice->invoice_no;
+							// $ships = Shipment::withTrashed()->where('shipment_no',$invoice->ships)->first();
+							// $nyllist[$key]['forwarder_ref_no'] = $ships->forwarder_ref_no;
 						} else {
 							$nyllist[$key]['detailss'] = "To: ".$com->name." (".$value->description.")";
 						}
 						$nyllist[$key]['datess'] = date('d-m-Y',strtotime($value->dates));
+						
+						$nyllist[$key]['name'] = $comname->name;
 						$nyllist[$key]['creditt'] = '';
 						$nyllist[$key]['debitst'] = $value->credit;
 					}
+					
 				}
 
 				if($value->v_type == 'debit'){
@@ -462,10 +602,14 @@ class AccountController extends Controller
 						if($value->type == 'invoice'){
 							$invoice = Invoice::findorfail($value->invoice_list);
 							$nyllist[$key]['detailss'] = "By: ".$com->name." (".$invoice->invoice_no.")";
+							// $nyllist[$key]['invoice_number'] = $invoice->invoice_no;
+							// $ships = Shipment::withTrashed()->where('shipment_no',$invoice->ships)->first();
+							// $nyllist[$key]['forwarder_ref_no'] = $ships->forwarder_ref_no;
 						} else {
 							$nyllist[$key]['detailss'] = "By: ".$com->name." (".$value->description.")";
 						}
 						$nyllist[$key]['datess'] = date('d-m-Y',strtotime($value->dates));
+						$nyllist[$key]['name'] = $comname->name;
 						$nyllist[$key]['creditt'] = $value->debit;
 						$nyllist[$key]['debitst'] = '';
 					}
@@ -476,13 +620,41 @@ class AccountController extends Controller
 						if($value->type == 'invoice'){
 							$invoice = Invoice::findorfail($value->invoice_list);
 							$nyllist[$key]['detailss'] = "By: ".$com->name." (".$invoice->invoice_no.")";
+							// $nyllist[$key]['invoice_number'] = $invoice->invoice_no;
+							// $ships = Shipment::withTrashed()->where('shipment_no',$invoice->ships)->first();
+							// $nyllist[$key]['forwarder_ref_no'] = $ships->forwarder_ref_no;
 						} else {
 							$nyllist[$key]['detailss'] = "By: ".$com->name." (".$value->description.")";
 						}
 						$nyllist[$key]['datess'] = date('d-m-Y',strtotime($value->dates));
+						$nyllist[$key]['name'] = $comname->name;
 						$nyllist[$key]['creditt'] = $value->debit;
 						$nyllist[$key]['debitst'] = '';
 					}
+				}
+				if($value->v_type == 'expense'){
+					$nyllist[$key]=$value;
+					if($value->type == 'invoice'){
+						$invoice = Invoice::findorfail($value->invoice_list);
+						$nyllist[$key]['detailss'] = "To: ".$value->description." (".$invoice->invoice_no.")";
+					} else {
+						$nyllist[$key]['detailss'] = "To: ".$value->description;
+					}
+					//$nyllist[$key]['detailss'] = "To: ".$value->description;
+					$nyllist[$key]['datess'] = date('d-m-Y',strtotime($value->dates));
+					$nyllist[$key]['name'] = $comname->name;
+					$nyllist[$key]['creditt'] = '';
+					$nyllist[$key]['debitst'] = $value->debit;
+				}
+				if($value->invoice_list != null){
+					$invoice = Invoice::findorfail($value->invoice_list);
+					$nyllist[$key]['invoice_number'] = $invoice->invoice_no;
+					$vv= explode(',',$invoice->ships);
+					$ships = Shipment::withTrashed()->where('shipment_no',$vv)->first();
+					$nyllist[$key]['forwarder_ref_no'] = $ships->forwarder_ref_no;
+				}else{
+					$nyllist[$key]['invoice_number'] = '';
+					$nyllist[$key]['forwarder_ref_no'] = '';
 				}
 			}
 		}
@@ -572,7 +744,9 @@ class AccountController extends Controller
 						})->sum('debit');
 
 			foreach ($data12 as $key => $value) {
+				$comname = Company::withTrashed()->where('id',$Request->id)->first();
 				if($value->v_type == 'credit'){
+					
 					if($value->from_company != '' && $value->from_company != null){
 						$nyllist[$key]=$value;
 						$com = Company::withTrashed()->findorfail($value->from_company);
@@ -584,6 +758,7 @@ class AccountController extends Controller
 						}
 						//$nyllist[$key]['detailss'] = "By: ".$com->name;
 						$nyllist[$key]['datess'] = date('d-m-Y',strtotime($value->dates));
+						$nyllist[$key]['name'] = $comname->name;
 						$nyllist[$key]['creditt'] = $value->credit;
 						$nyllist[$key]['debitst'] = '';
 					}
@@ -598,6 +773,7 @@ class AccountController extends Controller
 						}
 						//$nyllist[$key]['detailss'] = "By: ".$com->name;
 						$nyllist[$key]['datess'] = date('d-m-Y',strtotime($value->dates));
+						$nyllist[$key]['name'] = $comname->name;
 						$nyllist[$key]['creditt'] = $value->credit;
 						$nyllist[$key]['debitst'] = '';
 					}
@@ -611,6 +787,7 @@ class AccountController extends Controller
 							$nyllist[$key]['detailss'] = "By: ".$com->name." (".$value->description.")";
 						}
 						$nyllist[$key]['datess'] = date('d-m-Y',strtotime($value->dates));
+						$nyllist[$key]['name'] = $comname->name;
 						$nyllist[$key]['creditt'] = $value->credit;
 						$nyllist[$key]['debitst'] = '';
 					}
@@ -628,6 +805,7 @@ class AccountController extends Controller
 						}
 						//$nyllist[$key]['detailss'] = "To: ".$com->name;
 						$nyllist[$key]['datess'] = date('d-m-Y',strtotime($value->dates));
+						$nyllist[$key]['name'] = $comname->name;
 						$nyllist[$key]['creditt'] = '';
 						$nyllist[$key]['debitst'] = $value->debit;
 					}
@@ -643,6 +821,7 @@ class AccountController extends Controller
 						}
 						//$nyllist[$key]['detailss'] = "To: ".$com->name;
 						$nyllist[$key]['datess'] = date('d-m-Y',strtotime($value->dates));
+						$nyllist[$key]['name'] = $comname->name;
 						$nyllist[$key]['creditt'] = '';
 						$nyllist[$key]['debitst'] = $value->debit;
 					}
@@ -658,8 +837,19 @@ class AccountController extends Controller
 					}
 					//$nyllist[$key]['detailss'] = "To: ".$value->description;
 					$nyllist[$key]['datess'] = date('d-m-Y',strtotime($value->dates));
+					$nyllist[$key]['name'] = $comname->name;
 					$nyllist[$key]['creditt'] = '';
 					$nyllist[$key]['debitst'] = $value->debit;
+				}
+				if($value->invoice_list != null){
+					$invoice = Invoice::findorfail($value->invoice_list);
+					$nyllist[$key]['invoice_number'] = $invoice->invoice_no;
+					$vv= explode(',',$invoice->ships);
+					$ships = Shipment::withTrashed()->where('shipment_no',$vv)->first();
+					$nyllist[$key]['forwarder_ref_no'] = $ships->forwarder_ref_no;
+				}else{
+					$nyllist[$key]['invoice_number'] = '';
+					$nyllist[$key]['forwarder_ref_no'] = '';
 				}
 			}
 		}	
@@ -691,6 +881,7 @@ class AccountController extends Controller
 								  ->orWhere('from_transporter', $Request->id);
 						})->sum('debit');
 			foreach ($data12 as $key => $value) {
+				$comname = Transporter::withTrashed()->where('id',$Request->id)->first();
 				if($value->v_type == 'credit'){
 					if($value->from_company != '' && $value->from_company != null){
 						$nyllist[$key]=$value;
@@ -703,6 +894,7 @@ class AccountController extends Controller
 						}
 						//$nyllist[$key]['detailss'] = $com->name;
 						$nyllist[$key]['datess'] = date('d-m-Y',strtotime($value->dates));
+						$nyllist[$key]['name'] = $comname->name;
 						$nyllist[$key]['creditt'] = $value->credit;
 						$nyllist[$key]['debitst'] = '';
 					}
@@ -718,6 +910,7 @@ class AccountController extends Controller
 						}
 						//$nyllist[$key]['detailss'] = $com->name;
 						$nyllist[$key]['datess'] = date('d-m-Y',strtotime($value->dates));
+						$nyllist[$key]['name'] = $comname->name;
 						$nyllist[$key]['creditt'] = $value->credit;
 						$nyllist[$key]['debitst'] = '';
 					}
@@ -733,6 +926,7 @@ class AccountController extends Controller
 						}
 						//$nyllist[$key]['detailss'] = $com->name;
 						$nyllist[$key]['datess'] = date('d-m-Y',strtotime($value->dates));
+						$nyllist[$key]['name'] = $comname->name;
 						$nyllist[$key]['creditt'] = $value->credit;
 						$nyllist[$key]['debitst'] = '';
 					}
@@ -750,6 +944,7 @@ class AccountController extends Controller
 						}
 						//$nyllist[$key]['detailss'] = $com->name;
 						$nyllist[$key]['datess'] = date('d-m-Y',strtotime($value->dates));
+						$nyllist[$key]['name'] = $comname->name;
 						$nyllist[$key]['creditt'] = '';
 						$nyllist[$key]['debitst'] = $value->debit;
 					}
@@ -765,9 +960,34 @@ class AccountController extends Controller
 						}
 						//$nyllist[$key]['detailss'] = $com->name;
 						$nyllist[$key]['datess'] = date('d-m-Y',strtotime($value->dates));
+						$nyllist[$key]['name'] = $comname->name;
 						$nyllist[$key]['creditt'] = '';
 						$nyllist[$key]['debitst'] = $value->debit;
 					}
+				}
+				if($value->v_type == 'expense'){
+					$nyllist[$key]=$value;
+					if($value->type == 'invoice'){
+						$invoice = Invoice::findorfail($value->invoice_list);
+						$nyllist[$key]['detailss'] = "To: ".$value->description." (".$invoice->invoice_no.")";
+					} else {
+						$nyllist[$key]['detailss'] = "To: ".$value->description;
+					}
+					//$nyllist[$key]['detailss'] = "To: ".$value->description;
+					$nyllist[$key]['datess'] = date('d-m-Y',strtotime($value->dates));
+					$nyllist[$key]['name'] = $comname->name;
+					$nyllist[$key]['creditt'] = '';
+					$nyllist[$key]['debitst'] = $value->debit;
+				}
+				if($value->invoice_list != null){
+					$invoice = Invoice::findorfail($value->invoice_list);
+					$nyllist[$key]['invoice_number'] = $invoice->invoice_no;
+					$vv= explode(',',$invoice->ships);
+					$ships = Shipment::withTrashed()->where('shipment_no',$vv)->first();
+					$nyllist[$key]['forwarder_ref_no'] = $ships->forwarder_ref_no;
+				}else{
+					$nyllist[$key]['invoice_number'] = '';
+					$nyllist[$key]['forwarder_ref_no'] = '';
 				}
 			}
 		}
@@ -799,6 +1019,7 @@ class AccountController extends Controller
 								  ->orWhere('from_forwarder', $Request->id);
 						})->sum('debit');
 			foreach ($data12 as $key => $value) {
+				$comname = Forwarder::withTrashed()->where('id',$Request->id)->first();
 				if($value->v_type == 'credit'){
 					if($value->to_company != '' && $value->to_company != null){
 						$nyllist[$key]=$value;
@@ -810,6 +1031,7 @@ class AccountController extends Controller
 							$nyllist[$key]['detailss'] = "To: ".$com->name." (".$value->description.")";
 						}
 						$nyllist[$key]['datess'] = date('d-m-Y',strtotime($value->dates));
+						$nyllist[$key]['name'] = $comname->name;
 						$nyllist[$key]['creditt'] = '';
 						$nyllist[$key]['debitst'] = $value->credit;
 					}
@@ -825,6 +1047,7 @@ class AccountController extends Controller
 						}
 						//$nyllist[$key]['detailss'] = "To: ".$com->name;
 						$nyllist[$key]['datess'] = date('d-m-Y',strtotime($value->dates));
+						$nyllist[$key]['name'] = $comname->name;
 						$nyllist[$key]['creditt'] = '';
 						$nyllist[$key]['debitst'] = $value->credit;
 					}
@@ -839,6 +1062,7 @@ class AccountController extends Controller
 							$nyllist[$key]['detailss'] = "To: ".$com->name." (".$value->description.")";
 						}
 						$nyllist[$key]['datess'] = date('d-m-Y',strtotime($value->dates));
+						$nyllist[$key]['name'] = $comname->name;
 						$nyllist[$key]['creditt'] = '';
 						$nyllist[$key]['debitst'] = $value->credit;
 					}
@@ -855,6 +1079,7 @@ class AccountController extends Controller
 							$nyllist[$key]['detailss'] = "By: ".$com->name." (".$value->description.")";
 						}
 						$nyllist[$key]['datess'] = date('d-m-Y',strtotime($value->dates));
+						$nyllist[$key]['name'] = $comname->name;
 						$nyllist[$key]['creditt'] = $value->debit;
 						$nyllist[$key]['debitst'] = '';
 					}
@@ -869,9 +1094,34 @@ class AccountController extends Controller
 							$nyllist[$key]['detailss'] = "By: ".$com->name." (".$value->description.")";
 						}
 						$nyllist[$key]['datess'] = date('d-m-Y',strtotime($value->dates));
+						$nyllist[$key]['name'] = $comname->name;
 						$nyllist[$key]['creditt'] = $value->debit;
 						$nyllist[$key]['debitst'] = '';
 					}
+				}
+				if($value->v_type == 'expense'){
+					$nyllist[$key]=$value;
+					if($value->type == 'invoice'){
+						$invoice = Invoice::findorfail($value->invoice_list);
+						$nyllist[$key]['detailss'] = "To: ".$value->description." (".$invoice->invoice_no.")";
+					} else {
+						$nyllist[$key]['detailss'] = "To: ".$value->description;
+					}
+					//$nyllist[$key]['detailss'] = "To: ".$value->description;
+					$nyllist[$key]['datess'] = date('d-m-Y',strtotime($value->dates));
+					$nyllist[$key]['name'] = $comname->name;
+					$nyllist[$key]['creditt'] = '';
+					$nyllist[$key]['debitst'] = $value->debit;
+				}
+				if($value->invoice_list != null){
+					$invoice = Invoice::findorfail($value->invoice_list);
+					$nyllist[$key]['invoice_number'] = $invoice->invoice_no;
+					$vv= explode(',',$invoice->ships);
+					$ships = Shipment::withTrashed()->where('shipment_no',$vv)->first();
+					$nyllist[$key]['forwarder_ref_no'] = $ships->forwarder_ref_no;
+				}else{
+					$nyllist[$key]['invoice_number'] = '';
+					$nyllist[$key]['forwarder_ref_no'] = '';
 				}
 			}
 		}

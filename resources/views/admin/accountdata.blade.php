@@ -28,7 +28,10 @@
                               <tr>
                                 <td> Sr.No</td>
                                   <th class="text-center" style="width: 20%;">Date</th>
-                                  <th class="text-center" style="width: 45%;">Detail</th>
+                                  <th class="text-center" style="width: 30%;">ForwarderName / TransporterName / CompanyName</th>
+                                  <th class="text-center" style="width: 5%;">Invoice Number</th>
+                                  <th class="text-center" style="width: 5%;">Forwarder Ref Number</th>
+                                  <!-- <th class="text-center" style="width: 45%;">Detail</th> -->
                                   <th class="text-center" style="width: 5%;">V.Type</th>
                                   <th class="text-center" style="width: 5%;">V.No</th>
                                   <th class="text-center" style="width: 15%;">Credit</th>
@@ -43,8 +46,11 @@
                                     <tr>
                                       <td> <?php echo $aa = $aa+1; ?></td>
                                       <td>{{ $values->datess }}</td>
-                                      <td>{{ $values->detailss }}</td>
-                                      <td>{{ $values->type }}</td>
+                                      <td>{{ $values->name }}</td>
+                                      <td>{{ $values->invoice_number }}</td>
+                                      <td>{{ $values->forwarder_ref_no }}</td>
+                                      <!-- <td>{{ $values->detailss }}</td> -->
+                                      <td>{{ $values->v_type }}</td>
                                       <td class="text-center">{{ $values->id }}</td>
                                       <td style="text-align: right;">{{ $values->creditt }}</td>
                                       <td style="text-align: right;">{{ $values->debitst }}</td>

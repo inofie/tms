@@ -115,7 +115,7 @@
                                         <div class="form-group">
                                             <label class="col-lg-2 control-label">Password<span style="color: red"> *</span> :</label>
                                             <div class="col-lg-10">
-                                                <input type="password" class="form-control" id="password"  required="required" name="password" value="{{ old('password') }}" placeholder="Enter Password"/>
+                                                <input type="text" class="form-control" id="password" autocomplete="off"  name="password" value="{{ old('password') }}" placeholder="Enter Password"/>
                                                 @error('password')
                                                  <span class="text-danger"> {{ $message }} </span>
                                                 @enderror
@@ -150,7 +150,17 @@
                                                 @enderror
                                             </div>
                                         </div>
-                                       
+
+                                        <div class="form-group">
+                                            <label class="col-lg-2 control-label">Aadhar Number:</label>
+                                            <div class="col-lg-10">
+                                                <input type="text" class="form-control" id="aadhar_card" name="aadhar_card"  value="{{ old('aadhar_card') }}"  placeholder="Aadhar Number"/>
+                                                 @error('aadhar_card')
+                                                 <span class="text-danger"> {{ $message }} </span>
+                                                @enderror
+                                            </div>
+                                        </div>
+
                                         <div class="form-group">
                                             <label class="control-label col-md-2">R.C Book<span style="color: red"> *</span> :</label>
                                             <div class="col-md-10">
@@ -170,7 +180,16 @@
                                                 @enderror
                                             </div>
                                         </div>
-                                        
+
+                                        <div class="form-group">
+                                            <label class="control-label col-md-2">Aadhar Card :</label>
+                                            <div class="col-md-10">
+                                                <input type="file" name="aadhar_card_photo" class="default" >
+                                                 @error('aadhar_card_photo')
+                                                 <span class="text-danger"> {{ $message }} </span>
+                                                @enderror
+                                            </div>
+                                        </div>
                                            <div class="form-group">
                                             <label class="control-label col-md-2">Licence<span style="color: red"> *</span> :</label>
                                             <div class="col-md-10">

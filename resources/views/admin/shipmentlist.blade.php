@@ -205,8 +205,10 @@ table.dataTable{
                                       <div style="width: 100%;float: left;" class="{{ $value->shipment_no }}hide">
                                         @if( $value->status == 1)
                                         <a  data-id="{{ $value->shipment_no }}" style="margin-top: 2%;width: auto; margin:1%;width:auto;background: #7ca00f; color: #fff;" class="btn btn-xs warehouse {{ $value->shipment_no }}hide"><i class="fa fa-plus"></i> Add in Warehouse</i></a>
-
-                                           <a href="{{ route('downloadlr',['id'=>$value->myid]) }}" style="margin-top: 2%;width: auto; margin:1%;width:auto;" class="btn btn-danger btn-xs {{ $value->shipment_no }}hide "><i class="fa fa-download "></i> LR</i></a>
+                                        @endif
+                                        
+                                        @if( $value->status == 1 || $value->status == 2)
+                                        <a href="{{ route('downloadlr',['id'=>$value->myid]) }}" style="margin-top: 2%;width: auto; margin:1%;width:auto;" class="btn btn-danger btn-xs {{ $value->shipment_no }}hide "><i class="fa fa-download "></i> LR</i></a>
                                        @endif
                                       </div>
 

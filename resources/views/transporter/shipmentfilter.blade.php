@@ -148,18 +148,18 @@ Shipment Filter | TMS
 												?>
                                                 <select class="form-control" name="month" id="month" > 
                                                    <option value=""> - Please Select Month -</option>
-                                                   <option value='1'>January</option>
-                                                    <option value='2'>February</option>
-                                                    <option value='3'>March</option>
-                                                    <option value='4'>April</option>
-                                                    <option value='5'>May</option>
-                                                    <option value='6'>June</option>
-                                                    <option value='7'>July</option>
-                                                    <option value='8'>August</option>
-                                                    <option value='9'>September</option>
-                                                    <option value='10'>October</option>
-                                                    <option value='11'>November</option>
-                                                    <option value='12'>December</option>
+                                                   <option value='1'@if($month == '1') selected @endif>January</option>
+                                                    <option value='2'@if($month == '2') selected @endif>February</option>
+                                                    <option value='3'@if($month == '3') selected @endif>March</option>
+                                                    <option value='4'@if($month == '4') selected @endif>April</option>
+                                                    <option value='5'@if($month == '5') selected @endif>May</option>
+                                                    <option value='6'@if($month == '6') selected @endif>June</option>
+                                                    <option value='7'@if($month == '7') selected @endif>July</option>
+                                                    <option value='8'@if($month == '8') selected @endif>August</option>
+                                                    <option value='9'@if($month == '9') selected @endif>September</option>
+                                                    <option value='10'@if($month == '10') selected @endif>October</option>
+                                                    <option value='11'@if($month == '11') selected @endif>November</option>
+                                                    <option value='12' @if($month == '12') selected @endif>December</option>
 
                                                 </select>
                                             </div>

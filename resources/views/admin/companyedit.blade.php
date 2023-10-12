@@ -150,7 +150,7 @@
                                             <div class="col-md-10">
                                                 <input type="file" name="logo" id="logo" class="item-img file ">
                                                 <div style=" overflow: hidden; width: 100px; ">
-                                                <img src="{{ asset('/uploads') }}/{{ $data->logo }}" id="item-img-output" style="margin-top: 1%;float: left;" width="100px" alt="" class="zoom">
+                                                <img src="{{ asset('public/uploads') }}/{{ $data->logo }}" id="item-img-output" style="margin-top: 1%;float: left;" width="100px" alt="" class="zoom">
                                                 </div>
                                                 @error('logo')
                                                  <span class="text-danger"> {{ $message }} </span>

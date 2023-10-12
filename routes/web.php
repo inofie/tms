@@ -70,10 +70,13 @@ Route::get('/permission', 'PermissionController@index');
 Route::post('/permission/save', 'PermissionController@store');
 Route::post('/permission/getPermissions', 'PermissionController@getPermissions');
 
-Route::group(['namespace' => 'Admin','prefix' =>'admin' , 'middleware' => 'auth'], function () {
 
+Route::group(['namespace' => 'Admin','prefix' =>'admin' , 'middleware' => 'auth'], function () {
+	Route::get('/getGST','InvoiceController@getGST')->name('getGST');
 	Route::get('/dashboard','AdminController@Dashboard')->name('admindashboard');
 	Route::get('/liveboard','LiveBoardController@List')->name('liveboard');
+	Route::post('/getLiveBoardData','LiveBoardController@getLiveBoardData')->name('getLiveBoardData');
+	Route::post('/getLiveBoardDataCount','LiveBoardController@getLiveBoardDataCount')->name('getLiveBoardDataCount');
 	Route::get('/transporter/list','TransporterController@List')->name('transporterlist');
 	Route::get('/transporter/add','TransporterController@ADD')->name('transporteradd');
 	Route::post('/transporter/save','TransporterController@Save')->name('transportersave');
@@ -185,9 +188,10 @@ Route::group(['namespace' => 'Admin','prefix' =>'admin' , 'middleware' => 'auth'
 	Route::get('/invoice/download/{id}','InvoiceController@Download')->name('downloadinvoice');
 	Route::get('/invoice/edit/{id}','InvoiceController@InvoiceEdit')->name('invoiceedit');
 	Route::post('/invoice/update','InvoiceController@InvoiceUpdate')->name('invoiceupdate');
+	Route::get('/invoice/creditnote/{id}','InvoiceController@InvoiceCreditnote')->name('invoicecreditnote');
+	Route::post('/invoice/updatenote','InvoiceController@InvoiceUpdatenote')->name('invoiceupdatenote');
 	Route::get('/invoice/view/{id}','InvoiceController@InvoiceView')->name('invoiceview');
-	Route::post('/invoice/delete','InvoiceController@InvoiceDelete')->name('invoicedelete');
-
+	Route::get('/invoice/delete/{id}','InvoiceController@InvoiceDelete')->name('invoicedelete');
 
 	Route::get('/voucher/list','VoucherController@List')->name('voucherlist');
 	Route::get('/voucher/credit','VoucherController@Credit')->name('voucherlcredit');
@@ -195,13 +199,15 @@ Route::group(['namespace' => 'Admin','prefix' =>'admin' , 'middleware' => 'auth'
 	Route::get('/voucher/debit','VoucherController@Debit')->name('voucherldebit');
 	Route::post('/voucher/debit/save','VoucherController@DebitSave')->name('voucherldebitsave');
 	Route::post('/voucher/forwarder','VoucherController@InvoiceBills')->name('invoicebills');
-	Route::post('/voucher/delete','VoucherController@Delete')->name('voucherdelete');
+	Route::get('/voucher/delete/{id}','VoucherController@Delete')->name('voucherdelete');
 	Route::get('/voucher/view/{id}','VoucherController@View')->name('voucherview');
 
 	Route::get('/expense/list','VoucherController@ExpenseList')->name('expenselist');
 	Route::get('/expense/add','VoucherController@ExpenseAdd')->name('expenseadd');
 	Route::post('/expense/save','VoucherController@ExpenseSave')->name('expensesave');
 	Route::get('/expense/view/{id}','VoucherController@ExpenseView')->name('expenseview');
+	Route::get('/expense/edit/{id}','VoucherController@ExpenseEdit')->name('expenseedit');
+	Route::post('/expense/update','VoucherController@ExpenseUpdate')->name('expenseupdate');
 	Route::post('/expense/delete','VoucherController@ExpenseDelete')->name('expensedelete');
 
 
@@ -219,6 +225,7 @@ Route::group(['namespace' => 'Forwarder','prefix' =>'forwarder' , 'middleware' =
 	Route::get('/shipment/list','ShipmentController@List')->name('forwarder-shipmentlist');
 	Route::get('/shipment/all/list','ShipmentController@AllList')->name('forwarder-allshipmentlist');
 	Route::get('/shipment/{id}','ShipmentController@ShipmentDetails')->name('forwarder-shipmentdetail');
+	Route::get('/shipment/summary/list','ShipmentController@ShipmentSummaryList')->name('forwarder-allshipmentsummarylist');
 	Route::get('/lr/download/{id}','ShipmentController@DownloadLR')->name('forwarder-downloadlr');
 	
 	Route::get('/account/invoice/list','AccountController@Account')->name('faccounts');

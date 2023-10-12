@@ -181,7 +181,9 @@ class ForwarderController extends Controller
 
         }
 
-
+        if($Request->status == 1 ){
+            $data = User::where('username',$Request->username)->update(['device_token' => null]);
+        }
         if($Request->password != '' && $Request->password != null){
 
 

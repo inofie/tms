@@ -74,7 +74,11 @@ class RoleController extends Controller
                             ->withErrors($validator)
                             ->withInput();
         } else {
-            $role = Role::create(['name' => strtolower(str_replace(' ', '_', $request->input('name'))),'auth_id'=>'1']);
+            $role = new Role();
+            $role->role_name = 'sub_admin';
+            $role->auth_id = '1';
+            $role->name = strtolower(str_replace(' ', '_', $request->input('name')));
+            $role->save();
             $role->syncPermissions($request->input('permission'));
             return redirect()->route('roleslist') 
                             ->with('success','Role created successfully');

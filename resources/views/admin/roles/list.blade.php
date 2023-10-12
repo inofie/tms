@@ -102,7 +102,7 @@
                               <thead>
                              <tr>
                                   <th>Id</th>
-                                  <th>Guard Name</th>
+                                  <!-- <th>Guard Name</th> -->
                                   <th>Name</th>
                                   <th>Created at</th>
                                   
@@ -116,7 +116,7 @@
                               <tr class="table_space">
                                  
                                   <td>{{ $value->id }}</td>
-                                  <td>{{ $value->guard_name }}</td>
+                                  <!-- <td>{{ $value->guard_name }}</td> -->
                                   <td>{{ $value->name }}</td>
                                   <td>{{ $value->created_at}}</td>
                                   
@@ -198,7 +198,7 @@ function deleteConfirm(id){
 <script type="text/javascript">
   $(document).ready(function() {
     $('#editable-sample').DataTable( {
-       "aaSorting": [[ 2, "desc" ]],
+       "aaSorting": [[ 1, "desc" ]],
        /* "lengthChange": true,
       "lengthMenu": [ 10, 25, 50, 75, 100 ],
         dom: 'Bfrtip',

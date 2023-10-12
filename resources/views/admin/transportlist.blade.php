@@ -104,18 +104,30 @@ All Transporter List | TMS
                           <table class="table table-striped table-hover table-bordered" id="editable-sample">
                               <thead>
                               <tr>
-                                  <th>Full Name</th>
-                                  <th>User Name</th>
-                                  <th>Phone Number</th>
-                                  <th>Licence Number</th>
-                                  <th>Truck Number</th>
-                                  <th>Created Date</th>
-                                  <th>Pan Number</th>
-                                  <th>R.c Book</th>
-                                  <th>Pan Card</th>
-                                  <th>Licence</th>
-                                  <th>Status</th>
-                                  <th></th>
+                                
+                              <th style="width:12.5%;">Full Name</th>
+
+                              <th style="width:12.5%;">User Name</th>
+
+                              <th style="width:10.5%;">Phone Number</th>
+
+                              <th style="width:10.5%;">Licence Number</th>
+
+                              <th style="width:10.5%;">Truck Number</th>
+
+                              <th style="width:2.5%;">Created Date</th>
+
+                              <th style="width:10.5%;">Pan Number</th>
+
+                              <th style="width:10.5%;">R.c Book</th>
+
+                              <th style="width:10.5%;">Pan Card</th>
+
+                              <th style="width:10.5%;">Licence</th>
+
+                              <th style="width:6.5%;">Status</th>
+
+                              <th style="width:12.5%;"></th>
                               </tr>
                               </thead>
                               <tbody>
@@ -134,7 +146,7 @@ All Transporter List | TMS
                                   <td><img src="{{ asset('/uploads') }}/{{ $value->pan_card }}" width="50px" alt="" class="zoom"></td>
                                   <td><img src="{{ asset('/uploads') }}/{{ $value->licence }}" width="50px" alt="" class="zoom"></td>
                                   <td class="center">
-                                  @if($value->status == 0 )Active  @else Deactivated @endif
+                                  @if($value->status == 0 )Active  @else Deactive @endif
                                   </td>
                                   <td class="edit_delete">
                                     <a href="{{ route('transporteredit',['id'=>$value->myid]) }}" class="btn btn-primary btn-xs"><i class="fa fa-pencil"></i></a>

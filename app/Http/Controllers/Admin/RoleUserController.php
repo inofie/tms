@@ -70,6 +70,8 @@ class RoleUserController extends Controller
             $adminUser = new User();
             $adminUser->username = $request['username'];
             $adminUser->name = $request['name'];
+            $check = Role::where('auth_id','1')->where('name',$request['names'])->first();
+            $adminUser->other_id = $check['id'];
             // $adminUser->email = $request['email'];
             $adminUser->password = bcrypt($request['password']);
     
@@ -133,6 +135,7 @@ class RoleUserController extends Controller
             
             'password' => 'sometimes',
             'confirm_password' => 'sometimes',
+            'username'=> 'required|unique:users,username,' . $Request->id,
         );
         $messages = [
         ];
@@ -148,6 +151,7 @@ class RoleUserController extends Controller
            // dd($adminUser);
             $adminUser->username = $Request['username'];
             $adminUser->name = $Request['name'];
+            $adminUser->role = $Request['names'];
             // $adminUser->email = $Request['email'];
             if($Request['password']!= null || !empty($Request['password'])){
                 $adminUser->password = bcrypt($Request['password']);

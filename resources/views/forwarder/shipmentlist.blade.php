@@ -10,7 +10,26 @@ Shipment List | TMS
 
   <link href="{{ asset('assets/advanced-datatable/media/css/demo_table.css')}}" rel="stylesheet" />
 
-  <link rel="stylesheet" href="{{ asset('assets/data-tables/DT_bootstrap.css')}}" />
+  <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.20/css/jquery.dataTables.min.css">
+
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/buttons/1.6.1/css/buttons.dataTables.min.css">
+<script type="text/javascript" src="https://code.jquery.com/jquery-3.3.1.js"></script>
+
+<script type="text/javascript" src="https://cdn.datatables.net/1.10.20/js/jquery.dataTables.min.js"></script>
+
+<script type="text/javascript" src="https://cdn.datatables.net/buttons/1.6.1/js/dataTables.buttons.min.js"></script>
+
+<script type="text/javascript" src="https://cdn.datatables.net/buttons/1.6.1/js/buttons.flash.min.js"></script>
+
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
+
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script>
+
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
+
+<script type="text/javascript" src="https://cdn.datatables.net/buttons/1.6.1/js/buttons.html5.min.js"></script>
+
+<script type="text/javascript" src="https://cdn.datatables.net/buttons/1.6.1/js/buttons.print.min.js"></script>
 @endsection
 
 
@@ -70,6 +89,7 @@ Shipment List | TMS
                                     <th>Date</th>
                                     <th>Consignee</th>
                                     <th>From</th>
+                                    <th>Created Date</th>
                                     <th>To</th>
                                     <th>Shipper Invoice</th>
                                     <th>Forw. Ref. No.</th>
@@ -90,7 +110,7 @@ Shipment List | TMS
                                     <td style="vertical-align: middle;">{{ $value->consignee }}</td>
                                     
                                     <td style="vertical-align: middle;">{{ $value->from1 }}</td>
-                                    
+                                    <td style="vertical-align: middle;">{{ $value->created_at }}</td>
                                     <td style="vertical-align: middle;">{{ $value->to1 }}</td>
 
                                     <td style="vertical-align: middle;">{{ $value->shipper_invoice }}</td>
@@ -113,6 +133,7 @@ Shipment List | TMS
                                       <td class="center" style="vertical-align: middle;">
                                         @if($value->show_detail == 1)
                                      <a href="{{ route('forwarder-shipmentdetail',['id'=>$value->myid]) }}" style="margin-top: 3%;width: auto;background-color: #047fb9;border-color: #047fb9;color: #fff" class="btn  btn-xs "><i class="fa fa-eye"></i> Details</a>
+                                     <a href="{{ route('forwarder-allshipmentsummarylist',['shipment_no'=>$value->shipment_no]) }}" style="margin-top: 3%;width: auto;background-color: #047fb9;border-color: #047fb9;color: #fff" class="btn  btn-xs "><i class="fa fa-eye"></i> Shipment Summary</a>
                                      @if( $value->status == 1)
 
                                      <a href="{{ route('forwarder-downloadlr',['id'=>$value->myid]) }}" style="margin-top: 2%;width: auto; margin:1%;width:auto;" class="btn btn-danger btn-xs {{ $value->shipment_no }}hide "><i class="fa fa-download "></i> LR</i></a>
@@ -121,7 +142,7 @@ Shipment List | TMS
                                         @else
 
                                      <button type="button" style="margin-top: 3%;width: auto; cursor: default;" class="btn btn-default  btn-xs "><i class="fa fa-eye"></i> Details</button>
-                                      
+                                     <button type="button" style="margin-top: 3%;width: auto; cursor: default;" class="btn btn-default  btn-xs "><i class="fa fa-eye"></i> Shipment Summary</button>
                                       @endif
                                       
 
@@ -187,25 +208,23 @@ Shipment List | TMS
 
 @endsection
 
-@section('js1')
-<script type="text/javascript" language="javascript" src="{{ asset('assets/advanced-datatable/media/js/jquery.js') }}"></script>
-
-@endsection
-
-@section('js3')
-
-<script type="text/javascript" language="javascript" src="{{ asset('assets/advanced-datatable/media/js/jquery.dataTables.js') }}"></script>
-<script type="text/javascript" src="{{ asset('assets/data-tables/DT_bootstrap.js') }}"></script>
-@endsection
 @section('js4')
 
 <script type="text/javascript">
   $(document).ready(function() {
     $('#editable-sample').DataTable( {
-       "aaSorting": [[ 0, "desc" ]],
+      "aaSorting": [[ 4, "desc" ]],
+       "columnDefs":
+           [
+               {
+                   "targets": [4],
+                   "visible": false, 
+               },
+           ],
+          //  dom: 'Bfrtip',
        /* "lengthChange": true,
       "lengthMenu": [ 10, 25, 50, 75, 100 ],
-        dom: 'Bfrtip',
+        
         buttons: [      
             'excelHtml5',
             'csvHtml5',     

@@ -30,6 +30,14 @@ use Spatie\Permission\Models\Permission;
 use App\Helper\GlobalHelper;
 use App\Notification;
 use File;
+use SimpleSoftwareIO\QrCode\Facades\QrCode;
+use Yajra\DataTables\Html\Builder;
+use App\DataTables\ShipmentDataTable;
+use App\Jobs\LrMail_Yogini_Job;
+use App\Jobs\LrMail_Ssi_Job;
+use App\Jobs\LrMail_Hansh_Job;
+use App\Jobs\LrMail_Bmf_Job;
+
 class ShipmentController extends Controller
 {
 	public function __construct()
@@ -53,6 +61,11 @@ class ShipmentController extends Controller
         $ff= Company::where('user_id',Auth::user()->id)->first();
         $data = Shipment::where("status","!=",3)->where('company',$ff->id)->get();
         }
+        elseif(Auth::user()->role == "employee") {
+            $ff2= Employee::where('user_id',Auth::user()->id)->first();
+            $ff1= Company::where('id',$ff2->company_id)->first();
+            $data = Shipment::where("status","!=",3)->where('company',$ff1->id)->get();
+            }
         else{
         $data = Shipment::where("status","!=",3)->whereRaw('DATEDIFF(CURDATE(),date) <= 6')->where('paid',0)->get();
         }
@@ -158,7 +171,7 @@ class ShipmentController extends Controller
                 $data->b_e_no = $Request->be_no;
                 if($Request->type2 == "fcl"){
                 $data->container_type = $Request->container_type;
-                $data->destuffing_date = date('Y-m-d',strtotime($Request->destuffing));
+                $data->destuffing_date = $Request->destuffing;
                 $data->container_no = $Request->container_no;
                 $data->shipping_line = $Request->shipping_line;
                 $data->cha = $Request->cha;
@@ -175,6 +188,20 @@ class ShipmentController extends Controller
                 $shipment_no = $Request->shipment_no;
                 $data->shipment_no = $shipment_no;
                 $data->save();
+
+                if($data['qrcode'] == NULL){
+
+                    $png = QrCode::format('png')->size(1000)->generate('tms_'.$data['shipment_no']);
+                    $png = base64_encode($png);
+                    $path = base_path() . '/public/uploads/qrcode/';
+                    $fileName = 'tms_'.$data['shipment_no'] . '.png';
+                    \File::put($path. $fileName, base64_decode($png));
+                    $data->qrcode =$fileName;
+                    $data->save();
+                }
+
+                
+
                 $company = Company::findorfail($Request->company);
                 $company->last_no = (int) filter_var($shipment_no, FILTER_SANITIZE_NUMBER_INT)+1;
                 $company->save();
@@ -272,6 +299,7 @@ class ShipmentController extends Controller
                          $notification = new Notification();
                          $notification->notification_from = $from_user->id;
                          $notification->notification_to = $to_user->id;
+                         $notification->role = 'company';
                          $notification->shipment_id = $data->id;
                          $id = $data->shipment_no;
                          $title= "New Shipment" .' '. $driver->shipment_no .' '. "Added";
@@ -321,6 +349,7 @@ class ShipmentController extends Controller
                             $notification = new Notification();
                             $notification->notification_from = $from_user->id;
                             $notification->notification_to = $to_user->id;
+                            $notification->role = 'driver';
                             $notification->shipment_id = $data->id;
                             $id = $data->shipment_no;
                             $title= "New Shipment" .' '. $driver->shipment_no .' '. "Added";
@@ -349,6 +378,7 @@ class ShipmentController extends Controller
                                 $notification = new Notification();
                                 $notification->notification_from = $from_user->id;
                                 $notification->notification_to = $to_user->id;
+                                $notification->role = 'transporter';
                                 $notification->shipment_id = $data->id;
                                 $id = $data->shipment_no;
                                 $title= "New Shipment" .' '. $transs->shipment_no .' '. "Added";
@@ -452,100 +482,89 @@ class ShipmentController extends Controller
                         }
                         $ship_data->truck_no = $d_list;
                         $trucks = Shipment_Driver::where('shipment_no', $ship_data->shipment_no)->get();
-                 if($Request->transporter != null && $Request->transporter != '' && $Request->transporter != 'null') {
-                    if ($comp->lr == "yoginilr") {
-                        $pdf = PDF::loadView('lr.yoginilr', compact('data', 'trucks'));
-                        file_put_contents("public/pdf/" . $data->shipment_no . ".pdf", $pdf->output());
-                        $path = env('APP_URL') . "public/pdf/" . $data->shipment_no . ".pdf";
-                        // if (!file_exists($path)) {
-                        //     File::makeDirectory($path, 0777, true);
-                        //     chmod($path, 0777);
-                        // }
-                        $shipment = $data->shipment_no;
-						$myemail = $for->email;
-                        $data2 = array('shipment_no'=>$shipment,'email'=>$myemail);
-                        $yogini_username = env('YOGINI_MAIL_USERNAME');
-                        $yogini_password = env('YOGINI_MAIL_PASSWORD');
-                       Config::set('mail.username', $yogini_username);
-                        Config::set('mail.password', $yogini_password);
-                        $mail_service = env('MAIL_SERVICE');
+                        if($Request->transporter != null && $Request->transporter != '' && $Request->transporter != 'null') {
+                            if ($comp->lr == "yoginilr") {
+                                $pdf = PDF::loadView('lr.yoginilr', compact('data', 'trucks'));
+                                file_put_contents("public/pdf/" . $data->shipment_no . ".pdf", $pdf->output());
+                                $path = env('APP_URL') . "public/pdf/" . $data->shipment_no . ".pdf";
+                                $shipment = $data->shipment_no;
+                                // $myemail = 'keyurdomadiya602@gmail.com';
+                                $myemail = $for->email;
+                                $data2 = array('shipment_no'=>$shipment,'email'=>$myemail);
+                                $yogini_username = env('YOGINI_MAIL_USERNAME');
+                                $yogini_password = env('YOGINI_MAIL_PASSWORD');
+                               Config::set('mail.username', $yogini_username);
+                                Config::set('mail.password', $yogini_password);
+                                $mail_service = env('MAIL_SERVICE');
+                                if($mail_service == 'on'){
+                                //  Mail::send('yoginimail', $data2, function($message) use ($data2) {
+                                //     $message->to($data2['email'])->subject('REGARDING LR DETAILS - '.$data2['shipment_no']);
+                                //     $message->from('noreplay@yoginitransport.com','Yogini Transport');
+                                //     $message->attach( public_path('/pdf').'/'.$data2['shipment_no'].'.pdf');
+                                // });
+                                dispatch(new LrMail_Yogini_Job($data2));
+                             }
+                            } elseif ($comp->lr == "ssilr") {
+                                $pdf = PDF::loadView('lr.ssilr', compact('data', 'trucks'));
+                                file_put_contents("public/pdf/" . $data->shipment_no . ".pdf", $pdf->output());
+                                $path = env('APP_URL') . "public/pdf/" . $data->shipment_no . ".pdf";
+                                $shipment = $data->shipment_no;
+                                $myemail =  $for->email;
+                                $data2 = array('shipment_no'=>$shipment,'email'=>$myemail);
+                                $ssi_username = env('SSI_MAIL_USERNAME');
+                                $ssi_password = env('SSI_MAIL_PASSWORD');
+                                Config::set('mail.username', $ssi_username);
+                                Config::set('mail.password', $ssi_password);
+                                $mail_service = env('MAIL_SERVICE');
+                                     if($mail_service == 'on'){
+                                //  Mail::send('ssimail', $data2, function($message) use ($data2) {
+                                //     $message->to($data2['email'])->subject('REGARDING LR DETAILS - '.$data2['shipment_no']);
+                                //     $message->from('noreplay@ssitransway.com','SSI Transway');
+                                //     $message->attach( public_path('/pdf').'/'.$data2['shipment_no'].'.pdf');
+                                // });
+                                dispatch(new LrMail_Ssi_Job($data2));
+                             }
+                            } elseif ($comp->lr == "hanshlr") {
+                                $pdf = PDF::loadView('lr.hanshlr', compact('data', 'trucks'));
+                                file_put_contents("public/pdf/" . $data->shipment_no . ".pdf", $pdf->output());
+                                $path = env('APP_URL') . "public/pdf/" . $data->shipment_no . ".pdf";
+                                $shipment = $data->shipment_no;
+                                $myemail =  $for->email;
+                                $data2 = array('shipment_no'=>$shipment,'email'=>$myemail);
+                                $hansh_username = env('HANS_MAIL_USERNAME');
+                                $hansh_password = env('HANS_MAIL_PASSWORD');
+                                Config::set('mail.username', $hansh_username);
+                                Config::set('mail.password', $hansh_password);
+                                    $mail_service = env('MAIL_SERVICE');
                         if($mail_service == 'on'){
-                         Mail::send('yoginimail', $data2, function($message) use ($data2) {
-                            $message->to($data2['email'])->subject('REGARDING LR DETAILS - '.$data2['shipment_no']);
-                            $message->from('noreplay@yoginitransport.com','Yogini Transport');
-                            $message->attach( public_path('/pdf').'/'.$data2['shipment_no'].'.pdf');
-                        });
-                     }
-                    } elseif ($comp->lr == "ssilr") {
-                        $pdf = PDF::loadView('lr.ssilr', compact('data', 'trucks'));
-                        file_put_contents("public/pdf/" . $data->shipment_no . ".pdf", $pdf->output());
-                        $path = env('APP_URL') . "public/pdf/" . $data->shipment_no . ".pdf";
-                        // if (!file_exists($path)) {
-                        //     File::makeDirectory($path, 0777, true);
-                        //     chmod($path, 0777);
-                        // }
-                        $shipment = $data->shipment_no;
-                        $myemail =  $for->email;
-                        $data2 = array('shipment_no'=>$shipment,'email'=>$myemail);
-                        $ssi_username = env('SSI_MAIL_USERNAME');
-                        $ssi_password = env('SSI_MAIL_PASSWORD');
-                        Config::set('mail.username', $ssi_username);
-                        Config::set('mail.password', $ssi_password);
-                        $mail_service = env('MAIL_SERVICE');
-                             if($mail_service == 'on'){
-                         Mail::send('ssimail', $data2, function($message) use ($data2) {
-                            $message->to($data2['email'])->subject('REGARDING LR DETAILS - '.$data2['shipment_no']);
-                            $message->from('noreplay@ssitransway.com','SSI Transway');
-                            $message->attach( public_path('/pdf').'/'.$data2['shipment_no'].'.pdf');
-                        });
-                     }
-                    } elseif ($comp->lr == "hanshlr") {
-                        $pdf = PDF::loadView('lr.hanshlr', compact('data', 'trucks'));
-                        file_put_contents("public/pdf/" . $data->shipment_no . ".pdf", $pdf->output());
-                        $path = env('APP_URL') . "public/pdf/" . $data->shipment_no . ".pdf";
-                        // if (!file_exists($path)) {
-                        //     File::makeDirectory($path, 0777, true);
-                        //     chmod($path, 0777);
-                        // }
-                        $shipment = $data->shipment_no;
-                        $myemail =  $for->email;
-                        $data2 = array('shipment_no'=>$shipment,'email'=>$myemail);
-                        $hansh_username = env('HANS_MAIL_USERNAME');
-                        $hansh_password = env('HANS_MAIL_PASSWORD');
-                        Config::set('mail.username', $hansh_username);
-                        Config::set('mail.password', $hansh_password);
-                            $mail_service = env('MAIL_SERVICE');
-                if($mail_service == 'on'){
-                         Mail::send('hanshmail', $data2, function($message) use ($data2) {
-                            $message->to($data2['email'])->subject('REGARDING LR DETAILS - '.$data2['shipment_no']);
-                            $message->from('noreplay@hanstransport.com','Hansh Transport');
-                            $message->attach( public_path('/pdf').'/'.$data2['shipment_no'].'.pdf');
-                        });
+                                //  Mail::send('hanshmail', $data2, function($message) use ($data2) {
+                                //     $message->to($data2['email'])->subject('REGARDING LR DETAILS - '.$data2['shipment_no']);
+                                //     $message->from('noreplay@hanstransport.com','Hansh Transport');
+                                //     $message->attach( public_path('/pdf').'/'.$data2['shipment_no'].'.pdf');
+                                // });
+                                dispatch(new LrMail_Hansh_Job($data2));
+                                }
+                            } elseif ($comp->lr == "bmflr") {
+                                $pdf = PDF::loadView('lr.bmflr', compact('data', 'trucks'));
+                                file_put_contents("public/pdf/" . $data->shipment_no . ".pdf", $pdf->output());
+                                $path = env('APP_URL') . "public/pdf/" . $data->shipment_no . ".pdf";
+                                $shipment = $data->shipment_no;
+                                $myemail =  $for->email;
+                                $data2 = array('shipment_no'=>$shipment,'email'=>$myemail);
+                                    $mail_service = env('MAIL_SERVICE');
+                        if($mail_service == 'on'){
+                                //  Mail::send('bmfmail', $data2, function($message) use ($data2) {
+                                //     $message->to($data2['email'])->subject('REGARDING LR DETAILS - '.$data2['shipment_no']);
+                                //     $message->from('noreplay@bmfreight.com','BMF Freight');
+                                //     $message->attach( public_path('/pdf').'/'.$data2['shipment_no'].'.pdf');
+                                // });
+                                dispatch(new LrMail_Bmf_Job($data2));
+                            }
                         }
-                    } elseif ($comp->lr == "bmflr") {
-                        $pdf = PDF::loadView('lr.bmflr', compact('data', 'trucks'));
-                        file_put_contents("public/pdf/" . $data->shipment_no . ".pdf", $pdf->output());
-                        $path = env('APP_URL') . "public/pdf/" . $data->shipment_no . ".pdf";
-                        // if (!file_exists($path)) {
-                        //     File::makeDirectory($path, 0777, true);
-                        //     chmod($path, 0777);
-                        // }
-                        $shipment = $data->shipment_no;
-                        $myemail =  $for->email;
-                        $data2 = array('shipment_no'=>$shipment,'email'=>$myemail);
-                            $mail_service = env('MAIL_SERVICE');
-                if($mail_service == 'on'){
-                         Mail::send('bmfmail', $data2, function($message) use ($data2) {
-                            $message->to($data2['email'])->subject('REGARDING LR DETAILS - '.$data2['shipment_no']);
-                            $message->from('noreplay@bmfreight.com','BMF Freight');
-                            $message->attach( public_path('/pdf').'/'.$data2['shipment_no'].'.pdf');
-                        });
+                      }
                     }
-                }
-              }
-            }
                 // Send LR Mail - End //
-                return redirect()->route('shipmentlist')->with('success','Shipment successfully Created.');
+                return redirect()->route('shipmentlist')->with('success','Shipment created successfully.');
     }
      public function TruckList(Request $Request)
     {
@@ -700,10 +719,10 @@ class ShipmentController extends Controller
                 $summary = new Shipment_Summary();
                 $summary->shipment_no =  $data->shipment_no;
                 $summary->flag = $data->truck_no." is ".$cargo->name;
-               // $summary->transporter_id = $data->transporter_id;
-                $summary->description = "Change Truck Shipment Status By Admin.\n".$data->truck_no." is ".$cargo->name;
+                $summary->transporter_id = $data->transporter_id;
                 $role = User::where('id',Auth::id())->first();
-                $summary->change_status_by = $role->role;
+                $summary->description ="Change Truck Shipment Status By ".$role->name.".\n" . $data->truck_no . " is " . $cargo->name;
+                $summary->change_status_by = $role->name;
                 $summary->created_by = Auth::id();
                 $summary->save();
                 $notification_user=User::where('id',Auth::id())->first();
@@ -719,6 +738,7 @@ class ShipmentController extends Controller
                         $notification = new Notification();
                         $notification->notification_from = $from_user->id;
                         $notification->notification_to = $to_user->id;
+                        $notification->role = 'transporter';
                         $notification->shipment_id = $ship->id;
                         $id = $data->shipment_no;
                         $title= "Status changed";
@@ -748,6 +768,7 @@ class ShipmentController extends Controller
                         $notification = new Notification();
                         $notification->notification_from = $from_user->id;
                         $notification->notification_to = $to_user->id;
+                        $notification->role = 'driver';
                         $notification->shipment_id = $ss->id;
                         $id = $data->shipment_no;
                         $title= "Status changed";
@@ -899,11 +920,18 @@ class ShipmentController extends Controller
                 } else {
                      $ship->all_transporter =$Request->transporter_id;
                 }
+                if($Request->driver_id == null){
+                $mydriverdetails1 = Driver::where('transporter_id', $Request->transporter_id)->where('self', 1)->first();
+                $mydriverdetails = $mydriverdetails1->id;
+                }else{
+                    $mydriverdetails = $Request->driver_id;
+                }
+
                 $ship->save();
                 $data->shipment_no = $Request->shipment_no;
                 $data->shipment_id = $ship->id;
                 $data->transporter_id = $tras->id;
-                $data->driver_id = $Request->driver_id;
+                $data->driver_id = $mydriverdetails;
                 $data->name = $tras->name;
                 $data->created_by = Auth::id();
                 $data->save();
@@ -975,10 +1003,11 @@ class ShipmentController extends Controller
                                 $notification = new Notification();
                                 $notification->notification_from = $from_user->id;
                                 $notification->notification_to = $to_user->id;
+                                $notification->role = 'driver';
                                 $notification->shipment_id = $data->shipment_id;
                                 $id = $data->shipment_no;
                                 $title= "New Shipment assign to" .' '. $to_user['name'] .' - '. $driver->shipment_no;
-                                $message= "New Shipment assign to" .' '. $to_user['name'] .' - '. $driver->shipment_no;
+                                $message= "Tap here to see more details.";
                                 $notification->title = $title;
                                 $notification->message = $message;
                                 $notification->notification_type = '3';
@@ -1006,10 +1035,11 @@ class ShipmentController extends Controller
                                     $notification = new Notification();
                                     $notification->notification_from = $from_user->id;
                                     $notification->notification_to = $to_user->id;
+                                    $notification->role = 'transporter';
                                     $notification->shipment_id = $data->shipment_id;
                                     $id = $data->shipment_no;
                                     $title= "New Shipment assign to you" .' - '. $data->shipment_no;
-                                    $message= "New Shipment assign to you" .' - '. $data->shipment_no;
+                                    $message= "Tap here to see more details.";
                                     $notification->title = $title;
                                     $notification->message = $message;
                                     $notification->notification_type = '3';
@@ -1025,33 +1055,7 @@ class ShipmentController extends Controller
                                     }
                                 }
                             }
-                            //driver
-                            if($driver->driver_id){
-                                $from_user = User::find(Auth::id());
-                                $to_user = Driver::find($driver->driver_id);
-                                if($from_user['id'] != $to_user['id'] && $from_user && $to_user) {
-                                    $notification = new Notification();
-                                    $notification->notification_from = $from_user->id;
-                                    $notification->notification_to = $to_user->id;
-                                    $notification->shipment_id = $data->shipment_id;
-                                    $id = $data->shipment_no;
-                                    $title= "New Shipment assign to" .' '. $to_user['name'] .' - '. $driver->shipment_no;
-                                    $message= "New Shipment assign to" .' '. $to_user['name'] .' - '. $driver->shipment_no;
-                                    $notification->title = $title;
-                                    $notification->message = $message;
-                                    $notification->notification_type = '3';
-                                    $notification->user_name_from = $from_user['username'];
-                                    $notification->save();
-                                    $notification_id = $notification->id;
-                                    if($to_user->device_token != null){
-                                        if($to_user->device_type == 'ios'){
-                                            GlobalHelper::sendFCMIOS($title, $message, $to_user->device_token,$notification->notification_type,$id,$notification_id);
-                                        }else{
-                                            GlobalHelper::sendFCM($notification->title, $notification->message, $to_user->device_token,$notification->notification_type,$id,$notification_id);
-                                        }
-                                    }
-                                }
-                            }
+                       
                         }
             }
                 /// For Transporter
@@ -1402,7 +1406,7 @@ class ShipmentController extends Controller
                 $data->b_e_no = $Request->be_no;
                 if($Request->type2 == "fcl"){
                 $data->container_type = $Request->container_type;
-                $data->destuffing_date = date('Y-m-d',strtotime($Request->destuffing));
+                $data->destuffing_date =$Request->destuffing;
                 $data->container_no = $Request->container_no;
                 $data->shipping_line = $Request->shipping_line;
                 $data->cha = $Request->cha;
@@ -1422,7 +1426,7 @@ class ShipmentController extends Controller
                 $summary->description = "Shipment Edited By Admin";
                 $summary->created_by = Auth::id();
                 $summary->save();
-                return redirect()->route('shipmentlist')->with('success','Shipment successfully Updated.');
+                return redirect()->route('shipmentlist')->with('success','Shipment updated successfully.');
     }
     public function ShipmentDelete(Request $Request)
     {
@@ -1475,14 +1479,15 @@ class ShipmentController extends Controller
      public function ShipmentDelivered(Request $Request)
      {
          $this->check();
+        $role = Auth::user()->role;
         $data = Shipment::where('shipment_no',$Request->shipment_no)->first();
         $data->status = 2;
         $data->updated_by = Auth::id();
         $data->save();
         $summary = new Shipment_Summary();
         $summary->shipment_no = $Request->shipment_no;
-        $summary->flag = "Shiment Delivered";
-        $summary->description = "Shipment Delivered by Admin.";
+        $summary->flag = "Shipment Delivered";
+        $summary->description = "Shipment Delivered by"." ".$role;
         $summary->created_by = Auth::id();
         $summary->save();
         $all_trucks = Shipment_Transporter::where('shipment_no',$Request->shipment_no)->get();
@@ -1589,10 +1594,11 @@ class ShipmentController extends Controller
                         $notification = new Notification();
                         $notification->notification_from = $from_user->id;
                         $notification->notification_to = $to_user->id;
+                        $notification->role = 'transporter';
                         $notification->shipment_id = $data->shipment_id;
                         $id = $data->shipment_no;
                         $title= "New Shipment assign to you" .' - '. $data->shipment_no;
-                        $message= "New Shipment assign to you" .' - '. $data->shipment_no;
+                        $message= "Tap here to see more details.";
                         $notification->title = $title;
                         $notification->message = $message;
                         $notification->notification_type = '3';
@@ -1609,33 +1615,7 @@ class ShipmentController extends Controller
                     }
                 }
                 }
-                if($data->transporter_id){
-                    $transporter=Transporter::where('id',$data->transporter_id)->first();
-                    $from_user = User::find(Auth::id());
-                    $to_user = User::find($transporter['user_id']);
-                    if($from_user['id'] != $to_user['id'] && $from_user && $to_user) {
-                        $notification = new Notification();
-                        $notification->notification_from = $from_user->id;
-                        $notification->notification_to = $to_user->id;
-                        $notification->shipment_id = $data->shipment_id;
-                        $id = $data->shipment_no;
-                        $title= "New Shipment assign to you" .' - '. $data->shipment_no;
-                        $message= "New Shipment assign to you" .' - '. $data->shipment_no;
-                        $notification->title = $title;
-                        $notification->message = $message;
-                        $notification->notification_type = '3';
-                        $notification->user_name_from = $from_user['username'];
-                        $notification->save();
-                        $notification_id = $notification->id;
-                        if($to_user->device_token != null){
-                            if($to_user->device_type == 'ios'){
-                                GlobalHelper::sendFCMIOS($title, $message, $to_user->device_token,$notification->notification_type,$id,$notification_id);
-                            }else{
-                                GlobalHelper::sendFCM($notification->title, $notification->message, $to_user->device_token,$notification->notification_type,$id,$notification_id);
-                            }
-                        }
-                    }
-                }
+               
 
             return redirect()->back()->with('success', "Transporter Add Successfully.");
     }
@@ -1733,7 +1713,7 @@ class ShipmentController extends Controller
                 $data->b_e_no = $Request->be_no;
                 if($Request->type2 == "fcl"){
                 $data->container_type = $Request->container_type;
-                $data->destuffing_date = date('Y-m-d',strtotime($Request->destuffing));
+                $data->destuffing_date = $Request->destuffing;
                 $data->container_no = $Request->container_no;
                 $data->shipping_line = $Request->shipping_line;
                 $data->cha = $Request->cha;
@@ -1826,7 +1806,7 @@ class ShipmentController extends Controller
         $data->save();
         $summary = new Shipment_Summary();
         $summary->shipment_no = $Request->shipment_no;
-        $summary->flag = "Shiment Ontheway";
+        $summary->flag = "Shipment Ontheway";
         $summary->description = "Shipment OnTheWay by Admin.";
         $summary->created_by = Auth::id();
         $summary->save();
@@ -1848,7 +1828,7 @@ class ShipmentController extends Controller
         $olddata->save();
         $summary = new Shipment_Summary();
         $summary->shipment_no = $Request->old_id;
-        $summary->flag = "Shiment Delivered";
+        $summary->flag = "Shipment Delivered";
         $summary->description = "Shipment replace with New Shipment ID by Admin.";
         $summary->created_by = Auth::id();
         $summary->save();
@@ -1942,19 +1922,39 @@ class ShipmentController extends Controller
                 }
         return response()->json(['code'=>'200','msg'=>'New Shipment successfully Generated.']);
     }
-    public function ShipmentAllList(Request $Request)
+    public function ShipmentAllList(Builder $builder, ShipmentDataTable $dataTable,Request $Request)
     {
          $this->check();
-            if(Auth::user()->role == "company") {
-            $ff= Company::where('user_id',Auth::user()->id)->first();
-            $data = Shipment::where('company',$ff->id)->get();
+         $html = $builder->columns([
+            ['data' => 'shipment_no', 'name' => 'shipment_no','title' => 'Ship.No'],
+            ['data' => 'date', 'name' => 'date','title' => 'Date'],
+            ['data' => 'type', 'name' => 'type','title' => 'Type','orderable' => false, 'searchable' => false],
+            ['data' => 'consignor', 'name' => 'consignor','title' => 'Consignor'],
+            ['data' => 'consignee', 'name' => 'consignee','title' => 'Consignee'],
+            ['data' => 'from1', 'name' => 'from1','title' => 'From'],
+            ['data' => 'to1', 'name' => 'to1','title' => 'To'],
+            ['data' => 'status', 'name' => 'status','title' => 'Status'],
+            ['data' => 'action', 'name' => 'action', 'orderable' => false, 'searchable' => false,'title' => 'Action'],
+         ])->parameters([
+           // "scrollX" => true,
+            "processing" => true,
+            "serverSide" => true,
+            "dom" => 'lfrtip',
+            "order" => ["1", "DESC"],
+        ]);
+
+                if(request()->ajax()) {
+                if(Auth::user()->role == "company") {
+                    $ff= Company::where('user_id',Auth::user()->id)->first();
+                    $data = Shipment::where('company',$ff->id)->whereRaw('DATEDIFF(CURDATE(),date) >= 6');
+                    }
+                    else{
+                    $data = Shipment::whereRaw('DATEDIFF(CURDATE(),date) >= 6');
+                    }
+                return $dataTable->dataTable($data)->toJson();
             }
-            else{
-            $data = Shipment::whereRaw('DATEDIFF(CURDATE(),date) >= 6')->get();
-            }
-        //dd($data);
-        $warehouse = Warehouse::get();
-        return view('admin.shipmentalllist',compact('data','warehouse'));
+            $warehouse = Warehouse::get();
+            return view('admin.shipmentalllist',compact('warehouse','html'));
     }
     public function ShipmentSummaryList(Request $Request)
     {
@@ -2066,10 +2066,10 @@ class ShipmentController extends Controller
     	$data = array();
         if(Auth::user()->role == "company") {
             $ff= Company::where('user_id',Auth::user()->id)->first();
-            $tt = Shipment::where('company',$ff->id)->get();
+            $tt = Shipment::where('company',$ff->id)->orderBy('created_at','desc')->get();
             }
             else{
-            $tt = Shipment::get();
+            $tt = Shipment::orderBy('created_at','desc')->get();
             }
         if(isset($Request->shipment)){
             $ttt = $Request->shipment;
@@ -2123,6 +2123,11 @@ class ShipmentController extends Controller
         $ff= Company::where('user_id',Auth::user()->id)->first();
         $datas = Shipment::where('company',$ff->id);
         }
+        elseif(Auth::user()->role == "employee"){
+            $ff2= Employee::where('user_id',Auth::user()->id)->first();
+            $ff1= Company::where('id',$ff2->company_id)->first();
+            $datas = Shipment::where("status","!=",3)->where('company',$ff1->id);
+        }
         else{
 		$datas = Shipment::query();
         }
@@ -2141,7 +2146,9 @@ class ShipmentController extends Controller
             }
 		}
 		if($Request->transporter){
-            $datas = Shipment::withTrashed()->whereRaw("find_in_set('$Request->transporter' , all_transporter)");
+            $check1 = Shipment_Transporter::withTrashed()->whereNull('deleted_at')
+            ->where('transporter_id',$Request->transporter)->groupBy('shipment_no')->pluck('shipment_no')->toArray();
+            $datas = $datas->whereIn('shipment_no',$check1);
         }
 		if($Request->forwarder){
 			$datas = $datas->where('forwarder', $Request->forwarder);

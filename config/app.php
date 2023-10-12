@@ -181,6 +181,7 @@ return [
         App\Providers\RouteServiceProvider::class,
         Barryvdh\DomPDF\ServiceProvider::class,
         App\Providers\EntrustCustomServiceProvider::class,
+        SimpleSoftwareIO\QrCode\QrCodeServiceProvider::class,
  
 
     ],
@@ -236,6 +237,7 @@ return [
         'PDF' => Barryvdh\DomPDF\Facade::class,
         'Excel' => Maatwebsite\Excel\Facades\Excel::class,
         'Helper'=> App\Helper\GlobalHelper::class,
+        'QrCode' => SimpleSoftwareIO\QrCode\Facades\QrCode::class,
 
     ],
 

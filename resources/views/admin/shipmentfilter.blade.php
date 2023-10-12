@@ -142,7 +142,7 @@ Shipment Filter | TMS
 												//$all_year = range(2020, date('Y',strtotime('+2 year')));
 												?>
                                                 <select class="form-control" name="year" id="year" > 
-                                                   <option value=""> -- Please Select Year -- </option>
+                                                   <option value=""> -- Select Year -- </option>
                                                       @foreach($all_year as $value)
                                                       @if($year == $value)
                                                       <option selected="selected" value="{{ $value }}">{{ $value }}</option>
@@ -163,19 +163,19 @@ Shipment Filter | TMS
 												//$all_month = range(1, 12);
 												?>
                                                 <select class="form-control" name="month" id="month" > 
-                                                   <option value=""> -- Please Select Month -- </option>
-                                                   <option value='1'>January</option>
-                                                    <option value='2'>February</option>
-                                                    <option value='3'>March</option>
-                                                    <option value='4'>April</option>
-                                                    <option value='5'>May</option>
-                                                    <option value='6'>June</option>
-                                                    <option value='7'>July</option>
-                                                    <option value='8'>August</option>
-                                                    <option value='9'>September</option>
-                                                    <option value='10'>October</option>
-                                                    <option value='11'>November</option>
-                                                    <option value='12'>December</option>
+                                                   <option value=""> -- Select Month -- </option>
+                                                   <option value='1'@if($month == '1') selected @endif>January</option>
+                                                    <option value='2'@if($month == '2') selected @endif>February</option>
+                                                    <option value='3'@if($month == '3') selected @endif>March</option>
+                                                    <option value='4'@if($month == '4') selected @endif>April</option>
+                                                    <option value='5'@if($month == '5') selected @endif>May</option>
+                                                    <option value='6'@if($month == '6') selected @endif>June</option>
+                                                    <option value='7'@if($month == '7') selected @endif>July</option>
+                                                    <option value='8'@if($month == '8') selected @endif>August</option>
+                                                    <option value='9'@if($month == '9') selected @endif>September</option>
+                                                    <option value='10'@if($month == '10') selected @endif>October</option>
+                                                    <option value='11'@if($month == '11') selected @endif>November</option>
+                                                    <option value='12' @if($month == '12') selected @endif>December</option>
 
                                                 </select>
                                             </div>
@@ -189,7 +189,7 @@ Shipment Filter | TMS
 												//$all_day = range(1, 31);
 												?>
                                                 <select class="form-control" name="date" id="date" > 
-                                                   <option value=""> -- Please Select Date -- </option>
+                                                   <option value=""> -- Select Date -- </option>
                                                       @foreach($all_day as $value)
                                                       @if($date == $value)
                                                       <option selected="selected" value="{{ $value }}">{{ $value }}</option>
@@ -288,16 +288,22 @@ Shipment Filter | TMS
                                     <td style="vertical-align: middle;">{{ $value->transporter_cost }}</td>
                                      <td class="center" style="vertical-align: middle;">
                                      <a href="{{ route('shipalldetail',['id'=>$value->myid]) }}" style="margin-top: 2%;width: auto; margin:1%;width:auto;background-color: #047fb9;border-color: #047fb9;color: #fff" class="btn  btn-xs "><i class="fa fa-eye"></i> View</a>
+                                     @if($value->status == 1)
                                      <a href="{{ route('shipmenttrucklists',['id'=>$value->myid]) }}" style="margin-top: 2%;width: auto; margin:1%;width:auto;" class="btn btn-primary btn-xs"><i class="fa fa-truck"></i> Trucks
                                     </a>
                                     <a data-id="{{ $value->shipment_no }}" style="margin-top: 2%;width: auto; margin:1%;width:auto;background: #047fb9; color: #fff;" class="btn btn-xs delivered"><i class="fa fa-bus"></i> Delivered</i>
                                     </a>
+                                    @endif
                                     <a href="{{ route('addexpensebyadmin',['id'=>$value->myid]) }}" style="margin-top: 2%;width: auto; margin:1%;width:auto;background-color: #673ab7;border-color: #673ab7;color: #fff"  class="btn expense btn-xs"><i class="fa fa-plus"></i> Expense </a>
-                                  
+                                    @if($value->status == 0 || $value->status == 1)
                                     <a href="{{ route('shipmenttransporters',['id'=>$value->myid]) }}" style="margin-top: 2%;width: auto; margin:1%;width:auto;" class="btn btn-warning btn-xs {{ $value->shipment_no }}hide"><i class="fa fa-plus"></i> Transporter</i></a> 
+                                    @endif 
+                                    @if( $value->status == 1)
                                     <a  data-id="{{ $value->shipment_no }}" style="margin-top: 2%;width: auto; margin:1%;width:auto;background: #7ca00f; color: #fff;" class="btn btn-xs warehouse {{ $value->shipment_no }}hide"><i class="fa fa-plus"></i> Add in Warehouse</i></a>
-
+                                    @endif
+                                    @if( $value->status == 2 || $value->status == 1)
                                     <a href="{{ route('downloadlr',['id'=>$value->myid]) }}" style="margin-top: 2%;width: auto; margin:1%;width:auto;" class="btn btn-danger btn-xs {{ $value->shipment_no }}hide "><i class="fa fa-download "></i> LR</i></a>
+                                    @endif
                                     <a href="{{ route('allshipmentsummarylist',['shipment_no'=>$value->shipment_no]) }}" style="margin-top: 3%;width: auto;min-width: 60%;background-color: #673ab7;border-color: #673ab7;color: #fff" class="btn  btn-xs "><i class="fa fa-eye"></i> Shipment Summary</a>
                                     
                                     <br><a href="{{ route('shipmentedit',['id'=>$value->myid]) }}" style="margin-top: 2%;width: auto; margin:1%;width:auto;"  class="btn btn-success btn-xs {{ $value->shipment_no }}hide"><i class="fa fa-pencil"></i> Edit</a><br>

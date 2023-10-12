@@ -125,7 +125,7 @@ class CompanyController extends Controller
                 $comapny->created_by=Auth::user()->id;
 
                 $comapny->myid= uniqid();
-
+                
                 $comapny->status= $Request->status;
 
                  $path = public_path('/uploads');
@@ -209,7 +209,9 @@ class CompanyController extends Controller
 
         }
 
-
+            if($Request->status == 1 ){
+                $data = User::where('username',$Request->username)->update(['device_token' => null]);
+            }
         if($Request->password != '' && $Request->password != null) {
 
                 $user = User::findorfail($Request->user_id);
@@ -238,7 +240,7 @@ class CompanyController extends Controller
                 $comapny->updated_by=Auth::user()->id;
 
                 $comapny->status= $Request->status;
-
+               
                  $path = public_path('/uploads');
                     
                  if($Request->hasFile('logo') && !empty($Request->file('logo'))){

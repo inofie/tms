@@ -27,89 +27,102 @@ use Hash;
 use PDF;
 use Mail;
 use Config;
-
+use Yajra\DataTables\Html\Builder;
+use App\DataTables\VoucherDataTable;
 
 
 class VoucherController extends Controller
 {
 
-	public function List(Request $Request)
+	public function List(Builder $builder, VoucherDataTable $dataTable,Request $Request)
 	{
 
-		$data= array();
-
-		$data1 = Account::where('v_type','credit')->orwhere('v_type','debit')->get();
-
-
-		foreach ($data1 as $key => $value) {
+		$html = $builder->columns([
+            ['data' => 'id', 'name' => 'id','title' => 'No.'],
+            ['data' => 'dates', 'name' => 'dates','title' => 'Date'],
+            ['data' => 'from', 'name' => 'from','orderable' => false, 'searchable' => false,'title' => 'From'],
+            ['data' => 'to', 'name' => 'to','orderable' => false, 'searchable' => false,'title' => 'To'],
+			['data' => 'type', 'name' => 'type','orderable' => false, 'searchable' => false,'title' => 'Type'],
+			['data' => 'amount', 'name' => 'amount','orderable' => false, 'searchable' => false,'title' => 'Amount'],
+            ['data' => 'action', 'name' => 'action', 'orderable' => false, 'searchable' => false,'title' => 'Action'],
+         ])->parameters([
 			
-			$data[$key] = $value;
-
-			if($value->from_company != "" && $value->from_company != null){
-
-				$company_data = Company::withTrashed()->findorfail($value->from_company);
-
-				$data[$key]['from']= $company_data->name;
-
-			} else if($value->from_transporter != "" && $value->from_transporter != null){
-
-				$transporter_data = Transporter::withTrashed()->findorfail($value->from_transporter);
-
-				$data[$key]['from']= $transporter_data->name;
-
-			} else if($value->from_forwarder != "" && $value->from_forwarder != null){
-
-				$forwarder_data = Forwarder::withTrashed()->findorfail($value->from_forwarder);
-
-				$data[$key]['from']= $forwarder_data->name;
-			}
-
-
-			if($value->to_company != "" && $value->to_company != null){
-
-				$company_data = Company::withTrashed()->findorfail($value->to_company);
-
-				$data[$key]['to']= $company_data->name;
-
-			} else if($value->to_transporter != "" && $value->to_transporter != null){
-
-				$transporter_data = Transporter::withTrashed()->findorfail($value->to_transporter);
-
-				$data[$key]['to']= $transporter_data->name;
-
-			} else if($value->to_forwarder != "" && $value->to_forwarder != null){
-
-				$forwarder_data = Forwarder::withTrashed()->findorfail($value->to_forwarder);
-
-				$data[$key]['to']= $forwarder_data->name;
-			}
-
-			if($value->credit != "" && $value->credit != null){
-
-				$data[$key]['type'] = 'Credit';
-
-			} else if($value->debit != "" && $value->debit != null){
-
-				$data[$key]['type'] = 'Debit';
-			} 
-
-			if($value->credit != "" && $value->credit != null){
-
-				$data[$key]['amount'] = $value->credit;
-
-			} else if($value->debit != "" && $value->debit != null){
-
-				$data[$key]['amount'] = $value->debit;
-			} 
-
-
-
-
+            "processing" => true,
+            "serverSide" => true,
+			"order" => ["0", "DESC"],
+			"dom" => 'lfrtip',
+        ]);
+		if(request()->ajax()) {
+		$data1 = Account::where('v_type','credit')->orwhere('v_type','debit');
+		return $dataTable->dataTable($data1)->toJson();
 		}
+
+		// foreach ($data1 as $key => $value) {
+			
+		// 	$data[$key] = $value;
+
+		// 	if($value->from_company != "" && $value->from_company != null){
+
+		// 		$company_data = Company::withTrashed()->findorfail($value->from_company);
+
+		// 		$data[$key]['from']= $company_data->name;
+
+		// 	} else if($value->from_transporter != "" && $value->from_transporter != null){
+
+		// 		$transporter_data = Transporter::withTrashed()->findorfail($value->from_transporter);
+
+		// 		$data[$key]['from']= $transporter_data->name;
+
+		// 	} else if($value->from_forwarder != "" && $value->from_forwarder != null){
+
+		// 		$forwarder_data = Forwarder::withTrashed()->findorfail($value->from_forwarder);
+
+		// 		$data[$key]['from']= $forwarder_data->name;
+		// 	}
+
+
+		// 	if($value->to_company != "" && $value->to_company != null){
+
+		// 		$company_data = Company::withTrashed()->findorfail($value->to_company);
+
+		// 		$data[$key]['to']= $company_data->name;
+
+		// 	} else if($value->to_transporter != "" && $value->to_transporter != null){
+
+		// 		$transporter_data = Transporter::withTrashed()->findorfail($value->to_transporter);
+
+		// 		$data[$key]['to']= $transporter_data->name;
+
+		// 	} else if($value->to_forwarder != "" && $value->to_forwarder != null){
+
+		// 		$forwarder_data = Forwarder::withTrashed()->findorfail($value->to_forwarder);
+
+		// 		$data[$key]['to']= $forwarder_data->name;
+		// 	}
+
+		// 	if($value->credit != "" && $value->credit != null){
+
+		// 		$data[$key]['type'] = 'Credit';
+
+		// 	} else if($value->debit != "" && $value->debit != null){
+
+		// 		$data[$key]['type'] = 'Debit';
+		// 	} 
+
+		// 	if($value->credit != "" && $value->credit != null){
+
+		// 		$data[$key]['amount'] = $value->credit;
+
+		// 	} else if($value->debit != "" && $value->debit != null){
+
+		// 		$data[$key]['amount'] = $value->debit;
+		// 	} 
+
+		// }
 
 //dd($data);
 		
-		return view('admin.voucherlist',compact('data'));
+		return view('admin.voucherlist',compact('html'));
 	}
 
 
@@ -128,7 +141,15 @@ class VoucherController extends Controller
 
 	public function CreditSave(Request $Request)
 	{
-
+		if($Request->invoice2) {
+			$this->validate($Request, [
+			'tds_amount' => 'required',
+			
+			 ],[
+			 'tds_amount.required' => "Please Select tds amount",
+			 
+			 ]);
+		  }
 		$transporter = $Request->transporter_id;
 		
 		$forwarder = $Request->forwarder_id;
@@ -206,8 +227,14 @@ class VoucherController extends Controller
 		$data->cash_from_name = $cash_from_name;
 
 		$data->cash_to_name = $cash_to_name;
-
-		$data->credit = $amount;
+		if($Request->tds_amount){
+		$invoice = Invoice::Where('id',$Request->invoice)->first();
+		$data->credit = $invoice->grand_total - $Request->tds_amount;
+		$data->tds_amount = $Request->tds_amount;
+		$data->payment_type = 'tds';
+		}else{
+			$data->credit = $amount;
+		}
 
 		$data->description = $description;
 
@@ -215,12 +242,10 @@ class VoucherController extends Controller
 
 		if($forwarder != "" && $forwarder != null) {
 
-			if(isset($Request->invoice)){
+		if($Request->invoice != null && $Request->invoice3 == null && $Request->tds_amount == null){
 
 		$aa= "";
-
-		 $total = count($Request->invoice)-1;
-
+		$total = count($Request->invoice)-1;
         foreach($Request->invoice as $key => $value){
 
            if($key == $total){
@@ -228,22 +253,27 @@ class VoucherController extends Controller
                 $invoice = Invoice::findorfail($value);
                 $invoice->paid = 1;
                 $invoice->save();
-
                 $aa = $aa."".$value;
-
             } else {
                 $aa= $aa."".$value.",";
                 $invoice = Invoice::findorfail($value);
                 $invoice->paid = 1;
                 $invoice->save();
-
             }
-
-
         }
          $data->invoice_list = $aa;
-
         }
+
+		elseif($Request->invoice3){
+		$invoice = Invoice::Where('id',$Request->invoice3)->first();
+        $invoice->grand_total = $invoice->grand_total - $amount;
+        $invoice->save();
+		}
+		elseif($Request->tds_amount){
+		$invoice = Invoice::Where('id',$Request->invoice)->first();
+		$invoice->paid = 1;
+		$invoice->save();
+		}
     }
 
         $data->v_type = "credit";
@@ -382,8 +412,8 @@ class VoucherController extends Controller
 	{
 
 		$data = Account::findorfail($Request->id);
-
-		if($data->v_type == 'credit'){
+		//dd($data);
+		if($data->invoice_list){
 
 			$bills = explode(',', $data->invoice_list);
 
@@ -540,6 +570,14 @@ class VoucherController extends Controller
 						$data[$key]['transporter_name'] = $transporter->name;	
 					}
 					}
+					if($value->forwarder_id){
+						
+						$forwarder= Forwarder::withTrashed()->findorfail($value->forwarder_id);
+							
+						if($forwarder ){
+							$data[$key]['forwarder_name'] = $forwarder->name;	
+						}
+						}
 				}	
 
 		return view('admin.expenselist',compact('data'));
@@ -549,9 +587,10 @@ class VoucherController extends Controller
 	public function ExpenseAdd(Request $Request)
 	{
 			$company = Company::get();
+			$transporter = Transporter::get();
+			$forwarder = Forwarder::get();
 
-
-		return view('admin.expense',compact('company'));
+		return view('admin.expense',compact('company','transporter','forwarder'));
 	}
 
 	public function ExpenseSave(Request $Request)
@@ -562,7 +601,8 @@ class VoucherController extends Controller
 		//dd($Request->all());
 		
 		$company = $Request->company_id;
-
+		$transporter = $Request->transporter_id;
+		$forwarder = $Request->forwarder_id;
 		$amount = $Request->amount;
 
 		$type = $Request->type;
@@ -595,7 +635,14 @@ class VoucherController extends Controller
 
 			$data->from_company = $company;
 		}
+		if($transporter != "" && $transporter != null) {
 
+			$data->from_transporter = $transporter;
+		}
+		if($forwarder != "" && $forwarder != null) {
+
+			$data->from_forwarder = $forwarder;
+		}
 		$data->type = $type;
 		
 		$data->dates = date('Y-m-d',strtotime($date));
@@ -625,45 +672,155 @@ class VoucherController extends Controller
         $data->v_type = "expense";
 
 
-      
-
 		$data->save();
 
 
 		$expense = new Expense();
 		$expense->dates = date('Y-m-d',strtotime($date));
 		$expense->company_id = $Request->company_id;
+		$expense->transporter_id = $Request->transporter_id;
+		$expense->forwarder_id = $Request->forwarder_id;
 		$expense->account_id = $data->id;
 		$expense->reason = $description;
-		$expense->type = "company";
+		if($Request->company_id != null){
+			$expense->type = "company";
+		}
+		elseif($Request->transporter_id != null){
+			$expense->type = "transporter";
+		}
+		elseif($Request->forwarder_id != null){
+			$expense->type = "forwarder";
+		}
 		$expense->amount = $amount;
 		$expense->save();
 
 		return redirect()->route('expenselist')->with('success','Expense successfully Added.');
 
 	}
+	public function ExpenseEdit(Request $Request)
+    {
+		$company = Company::withTrashed()->get();
+		$transporter = Transporter::withTrashed()->get();
+		$forwarder = Forwarder::withTrashed()->get();
+        $data = Expense::where('id',$Request->id)->first();
+		$expense = Account::where('id',$data->account_id)->first();
+        
 
+        return view('admin.expenseedit',compact('data','company','expense','transporter','forwarder'));
+
+    }
+
+
+
+    public function ExpenseUpdate(Request $Request)
+    {
+		//dd($Request->all());
+		$company = $Request->company_id;
+		$transporter = $Request->transporter_id;
+		$forwarder = $Request->forwarder_id;
+		$amount = $Request->amount;
+
+		$type = $Request->type;
+
+		$date = $Request->date;
+
+		$chequenumber = $Request->cheque_number;
+
+		$chequebankname = $Request->cheque_bank_name;
+
+		$description = $Request->description;
+
+		$rtgs_paymentby = $Request->rtgs_paymentby;
+
+		$rtgs_transaction = $Request->rtgs_transaction;
+
+		$rtgs_account_number = $Request->rtgs_account_number;
+
+		$rtgs_bank_name = $Request->rtgs_bank_name;
+
+		$cash_from_name = $Request->cash_from_name;
+
+		$cash_to_name = $Request->cash_to_name;
+
+		
+		$expense = Expense::where('id',$Request->id)->first();
+		$expense->dates = date('Y-m-d',strtotime($date));
+		$expense->company_id = $Request->company_id;
+		$expense->transporter_id = $Request->transporter_id;
+		$expense->forwarder_id = $Request->forwarder_id;
+		$expense->reason = $description;
+		if($Request->company_id != null){
+			$expense->type = "company";
+		}
+		elseif($Request->transporter_id != null){
+			$expense->type = "transporter";
+		}
+		elseif($Request->forwarder_id != null){
+			$expense->type = "forwarder";
+		}
+		
+		$expense->amount = $amount;
+		$expense->save();
+
+		$data = Account::where('id',$expense->account_id)->first();
+		
+		$data->from_company = $company;
+		
+		$data->from_transporter = $transporter;
+	
+		$data->from_forwarder = $forwarder;
+		
+		$data->type = $type;
+		$data->dates = date('Y-m-d',strtotime($date));
+		$data->chequenumber = isset($chequenumber) ? ($chequenumber) : NULL;
+		$data->chequebankname = isset($chequebankname) ? ($chequebankname) : NULL;
+		$data->rtgs_paymentby = isset($rtgs_paymentby) ? ($rtgs_paymentby) : NULL;
+		$data->rtgs_transaction = isset($rtgs_transaction) ? ($rtgs_transaction) : NULL;
+		$data->rtgs_account_number = isset($rtgs_account_number) ? ($rtgs_account_number) : NULL;
+		$data->rtgs_bank_name = isset($rtgs_bank_name) ? ($rtgs_bank_name) : NULL;
+		$data->cash_from_name = isset($cash_from_name) ? ($cash_from_name) : NULL;
+		$data->cash_to_name = isset($cash_to_name) ? ($cash_to_name) : NULL;
+		$data->debit = $amount;
+		$data->description = $description;
+        $data->v_type = "expense";
+		//dd($data);
+		$data->save();
+
+		
+		return redirect()->route('expenselist')->with('success','Expense updated successfully.');
+                
+    }
 	public function ExpenseView(Request $Request)
 	{
 		//dd($Request,$Request->id);
 		$data = Expense::findorfail($Request->id);
 		//dd($data);
 		if($data->company_id){
-			$company_data =Company::findorfail($data->company_id);
+			$company_data =Company::withTrashed()->findorfail($data->company_id);
 			$data['company_name']=$company_data->name;
 
 			if($data->transporter_id != ''){
-			$transporter_data = Transporter::findorfail($data->transporter_id);	
+			$transporter_data = Transporter::withTrashed()->findorfail($data->transporter_id);	
 			$data['transporter_name']=$transporter_data->name;
 			$data['transporter'] =$transporter_data ;
 			} else {
 				$data['transporter_name']='';
 			}
-
-			//dd($data);
-
 			return view('admin.expenseview',compact('data'));
-		} else{
+		} 
+		elseif($data->forwarder_id){
+			$forwarder_data =Forwarder::withTrashed()->findorfail($data->forwarder_id);
+			$data['forwarder_name']=$forwarder_data->name;
+			return view('admin.expenseview',compact('data'));
+		}
+		elseif($data->transporter_id){
+			$transporter_data = Transporter::withTrashed()->findorfail($data->transporter_id);	
+			$data['transporter_name']=$transporter_data->name;
+			return view('admin.expenseview',compact('data'));
+		}
+		
+	
+		else{
 			return redirect()->route('expenselist')->with('error','Company Name Not found.');
 		}
 	}

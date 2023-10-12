@@ -1,5 +1,5 @@
 <?php 
-$number = $data->grand_total;
+$number = abs($data->grand_total);
    $no = floor($number);
    $point = round($number - $no, 2) * 100;
    $hundred = null;
@@ -196,6 +196,20 @@ $number = $data->grand_total;
         <td style="border: 1px solid #000 ;text-align: center; font-size: 10px; line-height: 1.2;padding: 5px; border-bottom: 1px solid #000;  width: 30%;" colspan="2"></td>
         <td style="border: 1px solid #000 ;text-align: left; font-size: 10px; line-height: 1.2; font-weight: 700;  padding: 5px; border-bottom: 1px solid #000;  width: 20%; background-color: #e6e6e6;">Dated.</td>
         <td style="border: 1px solid #000 ;text-align: center; font-size: 10px; line-height: 1.2; padding: 5px; border-bottom: 1px solid #000;  width: 30%;"  colspan="2">{{ date('d-m-Y',strtotime($data->invoice_date)) }}</td>
+
+        </tr>
+        <tr>
+
+        
+        <td style="border: 1px solid #000 ; text-align: left; font-size: 10px; font-weight: 700;  background-color: #e6e6e6; padding: 5px; line-height: 1.2; width: 20%;">Forwarder Name.</td>
+        <td style="border: 1px solid #000 ;text-align: center; font-size: 10px; line-height: 1.2;padding: 5px; border-bottom: 1px solid #000;  width: 30%;" colspan="2">{{$data->forwarder_name}}</td>
+        <td style="border: 1px solid #000 ;text-align: left; font-size: 10px; line-height: 1.2; font-weight: 700;  padding: 5px; border-bottom: 1px solid #000;  width: 20%; background-color: #e6e6e6;">Shipper Name.</td>
+        <td style="border: 1px solid #000 ;text-align: center; font-size: 10px; line-height: 1.2; padding: 5px; border-bottom: 1px solid #000;  width: 30%;"  colspan="2">
+        @if($data->imports == 1) 
+          {{$data->consignee}}
+        @else 
+          {{$data->consignor}}
+        @endif</td>
 
         </tr>
 

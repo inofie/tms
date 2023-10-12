@@ -2019,6 +2019,7 @@ class ShipmentController extends Controller
      
      { 
          $this->check();
+         $role = Auth::user()->role;
         $data = Shipment::where('shipment_no',$Request->shipment_no)->first();
         $data->status = 2;
         $data->updated_by = Auth::id();
@@ -2026,8 +2027,8 @@ class ShipmentController extends Controller
 
         $summary = new Shipment_Summary();
         $summary->shipment_no = $Request->shipment_no;
-        $summary->flag = "Shiment Deleivered";
-        $summary->description = "Shipment Delivered by Admin.";
+        $summary->flag = "Shipment Delivered";
+        $summary->description = "Shipment Delivered by"." ".$role;
         $summary->created_by = Auth::id();
         $summary->save();
 
@@ -2492,7 +2493,7 @@ class ShipmentController extends Controller
 
         $summary = new Shipment_Summary();
         $summary->shipment_no = $Request->shipment_no;
-        $summary->flag = "Shiment Ontheway";
+        $summary->flag = "Shipment Ontheway";
         $summary->description = "Shipment OnTheWay by Admin.";
         $summary->created_by = Auth::id();
         $summary->save();
@@ -2530,7 +2531,7 @@ class ShipmentController extends Controller
 
         $summary = new Shipment_Summary();
         $summary->shipment_no = $Request->old_id;
-        $summary->flag = "Shiment Delivered";
+        $summary->flag = "Shipment Delivered";
         $summary->description = "Shipment replace with New Shipment ID by Admin.";
         $summary->created_by = Auth::id();
         $summary->save();

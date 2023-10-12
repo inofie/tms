@@ -21,7 +21,7 @@ use App\Expense;
 use App\Cargostatus;
 use Hash;
 use PDF;
-use Mail;
+use Mail,DateTime;
 use Illuminate\Support\Facades\Auth;
 
 
@@ -62,7 +62,7 @@ class ShipmentController extends Controller
 
         $ff = Forwarder::where('user_id',Auth::user()->id)->first();
             
-        $data = Shipment::where('forwarder',$ff->id)->whereRaw('DATEDIFF(CURDATE(),date) < 7')->get();
+        $data = Shipment::where('forwarder',$ff->id)->whereRaw('DATEDIFF(CURDATE(),date) <= 6')->get();
         //dd(auth()->user());
         return view('forwarder.shipmentlist',compact('data'));
 
@@ -73,8 +73,8 @@ class ShipmentController extends Controller
     {
 
         $this->check();
-            
-        $data = Shipment::where('forwarder',Auth::user()->myid)->whereRaw('DATEDIFF(CURDATE(),date) > 7')->get();
+        $ff = Forwarder::where('user_id',Auth::user()->id)->first();  
+        $data = Shipment::where('forwarder',$ff->id)->whereRaw('DATEDIFF(CURDATE(),date) >= 6')->get();
 
         return view('forwarder.shipmentlist',compact('data'));
 
@@ -389,7 +389,35 @@ class ShipmentController extends Controller
         return view('forwarder.shipmentdetail',compact('data','trucks','load_image','unload_image'));
 
     }
-
+    public function ShipmentSummaryList(Request $Request)
+    {
+        $this->check();
+        $shipment_no = $Request->shipment_no;
+        $data = Shipment_Summary::where('shipment_no', $Request->shipment_no)->get();
+        $count = $data->count();
+        $old_time = "";
+        foreach($data as $key => $value) {
+            if($key > 0) {
+                $datetime1 = new DateTime($value->created_at);
+                $datetime2 = new DateTime($old_time);
+                $interval = $datetime1->diff($datetime2);
+               if($interval->format('%d') > 0){
+                $elapsed = $interval->format('%d')."d ".$interval->format('%h')."h ".$interval->format('%i')."m";
+               }
+               else{
+                if( $interval->format('%h') > 0){
+                    $elapsed = $interval->format('%h')."h ".$interval->format('%i')."m";
+                }
+                else{
+                    $elapsed = $interval->format('%i')."m";
+                }
+               }
+                $data[$key]['timedifference'] = $elapsed;
+            }
+            $old_time = $value->created_at;
+        }
+        return view('admin.shipmentsummarylist',compact('data','shipment_no'));
+    }
 
 
 

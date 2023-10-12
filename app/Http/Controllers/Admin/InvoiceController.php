@@ -27,6 +27,8 @@ use PDF;
 use Mail;
 use App\Account;
 use Config;
+use Yajra\DataTables\Html\Builder;
+use App\DataTables\InvoiceDataTable;
 
 
 
@@ -37,86 +39,267 @@ class InvoiceController extends Controller
     {
       
     }
+	
 
-
- 	public function UnpaidList(Request $Request)
+ 	public function UnpaidList(Builder $builder, InvoiceDataTable $dataTable,Request $Request)
  	{
-
+		$html = $builder->columns([
+            ['data' => 'DT_RowIndex', 'name' => 'DT_RowIndex','orderable' => false, 'searchable' => false,'title' => 'SR No'],
+            ['data' => 'invoice_no', 'name' => 'invoice_no','title' => 'Invoice No'],
+            ['data' => 'invoice_date', 'name' => 'invoice_date','title' => 'Invoice Date'],
+            ['data' => 'invoice_month', 'name' => 'invoice_month','orderable' => false, 'searchable' => false,'title' => 'Invoice Month'],
+            ['data' => 'company_name', 'name' => 'company_name','orderable' => false, 'searchable' => false,'title' => 'Company Name'],
+            ['data' => 'forwarder_name', 'name' => 'forwarder_name','orderable' => false, 'searchable' => false,'title' => 'Forwarder Name'],
+            ['data' => 'shipper_name', 'name' => 'shipper_name','orderable' => false, 'searchable' => false,'title' => 'Shipper Name'],
+            ['data' => 'grand_total', 'name' => 'grand_total','title' => 'Invoice Amount'],
+			['data' => 'voucher_no', 'name' => 'voucher_no','orderable' => false, 'searchable' => false,'title' => 'Software Shipment Voucher No'],
+            ['data' => 'action', 'name' => 'action', 'orderable' => false, 'searchable' => false,'title' => 'Action'],
+         ])->parameters([
+			
+            "processing" => true,
+            "serverSide" => true,
+			"order" => ["2", "DESC"],
+			"dom" => 'lBfrtip',
+			"lengthChange"=> true,
+			"lengthMenu"=> [ 10, 25, 50, 75, 100 ],
+			"buttons" => [
+				[
+					'extend' => 'csvHtml5',
+					'exportOptions'=> [
+					  'columns'=> [0, 1, 2, 3, 4, 5, 6, 7,8]
+					]
+			],
+				[
+					'extend'=> 'excelHtml5',
+					'exportOptions'=> [
+					  'columns'=> [0, 1, 2, 3, 4, 5, 6, 7,8]
+				]
+				],
+			   
+			],
+          
+        ]);
+		if(request()->ajax()) {
 		if(Auth::user()->role == "company") {
 		$ff= Company::where('user_id',Auth::user()->id)->first();
-		$data1 = Invoice::where('company_id',$ff->id)->where('paid',0);
+		$data1 = Invoice::whereNull('deleted_at')->where('company_id',$ff->id)->where('paid',0);
 		}
 		else{
-		$data1 = Invoice::where('paid',0);
+		$data1 = Invoice::whereNull('deleted_at')->where('paid',0);
 		}
-		if(isset($Request->year)){
-            $year = $Request->year;
-        } else {
-            $year = '';
-        }
-        if(isset($Request->month)){
-            $month = $Request->month;
-        } else {
-            $month = '';
-        }
- 	
+		
 		if($Request->year){
 			$data1 = $data1->whereYear('invoice_date', $Request->year);
 		}
 		if($Request->month){
 			$data1 = $data1->whereMonth('invoice_date', $Request->month);
 		}
-		$data1 = $data1->orderby('id','desc')->get();
-		$data =array();
-
-		foreach ($data1 as $key => $value) {
- 				
-			$data[$key]= $value;
-			$companydata = Company::withTrashed()->findorfail($value->company_id);
-			$data[$key]['company_name'] = $companydata->name;
-			$forwarderdata = Forwarder::withTrashed()->findorfail($value->forwarder_id);
-			$data[$key]['forwarder_name'] = $forwarderdata->name;
-			$accountdata = Account::withTrashed()->where('invoice_list',$value->id)->first();
-			if($accountdata){
-			$data[$key]['voucher_no'] = $accountdata->id;
-			}
-			else{
-				$data[$key]['voucher_no'] = '';
-			}
-
-			$shipment_list = explode(',',$value->ships);
-			$shipdata = Shipment::wherein("shipment_no", $shipment_list)->get();
-			
-			$d_list = "";
-			foreach($shipdata as $key2 => $value2){
-			if($value2->imports == 1){
-			$shippername = $value2->consignor;
-			}
-			else{
-			$shippername = $value2->consignee;
-			}
-			if($key2 == 0) {
-			$d_list = $d_list."".$shippername;	
-			}
-			else{
-			$d_list = $d_list.", ".$shippername;	
-			}
-			
+		if($Request->company){
+			$data1 = $data1->where('company_id', $Request->company);
 		}
-		//dd($d_list);
-		$data[$key]['shipper_name'] = $d_list;
+		if($Request->forwarder){
+			$data1 = $data1->where('forwarder_id', $Request->forwarder);
 		}
 		
- 		return view('admin.invoiceunpaidlist',compact('data','year','month'));
+		return $dataTable->dataTable($data1)->toJson();
+		}
+		if(isset($Request->year)){
+            $year = $Request->year;
+        } else {
+    	 $year = '';
+        }
+        if(isset($Request->month)){
+            $month = $Request->month;
+        } else {
+            $month = '';
+        }
+		if(isset($Request->forwarder)){
+            $forwarder = $Request->forwarder;
+        } else {
+            $forwarder = '';
+        }
+        if(isset($Request->company)){
+            $company = $Request->company;
+        } else {
+            $company = '';
+        }
+		$all_forwarder = Forwarder::get();
+        $all_company = Company::where('status',0)->get();
+		
+		// $data1 = $data1->orderby('id','desc')->get();
+		// $data =array();
+
+		// foreach ($data1 as $key => $value) {
+ 				
+		// 	$data[$key]= $value;
+		// 	$companydata = Company::withTrashed()->findorfail($value->company_id);
+		// 	$data[$key]['company_name'] = $companydata->name;
+		// 	$forwarderdata = Forwarder::withTrashed()->findorfail($value->forwarder_id);
+		// 	$data[$key]['forwarder_name'] = $forwarderdata->name;
+		// 	$accountdata = Account::withTrashed()->where('invoice_list',$value->id)->first();
+		// 	if($accountdata){
+		// 	$data[$key]['voucher_no'] = $accountdata->id;
+		// 	}
+		// 	else{
+		// 		$data[$key]['voucher_no'] = '';
+		// 	}
+
+		// 	$shipment_list = explode(',',$value->ships);
+		// 	$shipdata = Shipment::wherein("shipment_no", $shipment_list)->get();
+			
+		// 	$d_list = "";
+		// 	foreach($shipdata as $key2 => $value2){
+		// 	if($value2->imports == 1){
+		// 	$shippername = $value2->consignee;
+		// 	}
+		// 	else{
+		// 	$shippername = $value2->consignor;
+		// 	}
+		// 	if($key2 == 0) {
+		// 	$d_list = $d_list."".$shippername;	
+		// 	}
+		// 	else{
+		// 	$d_list = $d_list.", ".$shippername;	
+		// 	}
+			
+		// }
+		// //dd($d_list);
+		// $data[$key]['shipper_name'] = $d_list;
+		// }
+		
+ 		return view('admin.invoiceunpaidlist',compact('html','month','year','all_forwarder','company','all_company','forwarder'));
 
  	}
 
 
 
- 	public function PaidList(Request $Request)
+	 public function PaidList(Builder $builder, InvoiceDataTable $dataTable,Request $Request)
  	{
- 		
- 		return view('admin.invoicepaidlist');
+		$html = $builder->columns([
+            ['data' => 'DT_RowIndex', 'name' => 'DT_RowIndex','orderable' => false, 'searchable' => false,'title' => 'SR No'],
+            ['data' => 'invoice_no', 'name' => 'invoice_no','title' => 'Invoice No'],
+            ['data' => 'invoice_date', 'name' => 'invoice_date','title' => 'Invoice Date'],
+            ['data' => 'invoice_month', 'name' => 'invoice_month','orderable' => false, 'searchable' => false,'title' => 'Invoice Month'],
+            ['data' => 'company_name', 'name' => 'company_name','orderable' => false, 'searchable' => false,'title' => 'Company Name'],
+            ['data' => 'forwarder_name', 'name' => 'forwarder_name','orderable' => false, 'searchable' => false,'title' => 'Forwarder Name'],
+            ['data' => 'shipper_name', 'name' => 'shipper_name','orderable' => false, 'searchable' => false,'title' => 'Shipper Name'],
+            ['data' => 'grand_total', 'name' => 'grand_total','title' => 'Invoice Amount'],
+			['data' => 'voucher_no', 'name' => 'voucher_no','orderable' => false, 'searchable' => false,'title' => 'Software Shipment Voucher No'],
+            ['data' => 'action', 'name' => 'action', 'orderable' => false, 'searchable' => false,'title' => 'Action'],
+         ])->parameters([
+			
+            "processing" => true,
+            "serverSide" => true,
+			"order" => ["2", "DESC"],
+			"dom" => 'lBfrtip',
+			"lengthChange"=> true,
+			"lengthMenu"=> [ 10, 25, 50, 75, 100 ],
+			"buttons" => [
+				[
+					'extend' => 'csvHtml5',
+					'exportOptions'=> [
+					  'columns'=> [0, 1, 2, 3, 4, 5, 6, 7,8]
+					]
+			],
+				[
+					'extend'=> 'excelHtml5',
+					'exportOptions'=> [
+					  'columns'=> [0, 1, 2, 3, 4, 5, 6, 7,8]
+				]
+				],
+			   
+			],
+          
+        ]);
+		if(request()->ajax()) {
+		if(Auth::user()->role == "company") {
+		$ff= Company::where('user_id',Auth::user()->id)->first();
+		$data1 = Invoice::whereNull('deleted_at')->where('company_id',$ff->id)->where('paid',1);
+		}
+		else{
+		$data1 = Invoice::whereNull('deleted_at')->where('paid',1);
+		}
+		
+		if($Request->year){
+			$data1 = $data1->whereYear('invoice_date', $Request->year);
+		}
+		if($Request->month){
+			$data1 = $data1->whereMonth('invoice_date', $Request->month);
+		}
+		if($Request->company){
+			$data1 = $data1->where('company_id', $Request->company);
+		}
+		if($Request->forwarder){
+			$data1 = $data1->where('forwarder_id', $Request->forwarder);
+		}
+		
+		return $dataTable->dataTable($data1)->toJson();
+		}
+		if(isset($Request->year)){
+            $year = $Request->year;
+        } else {
+    	 $year = '';
+        }
+        if(isset($Request->month)){
+            $month = $Request->month;
+        } else {
+            $month = '';
+        }
+		if(isset($Request->forwarder)){
+            $forwarder = $Request->forwarder;
+        } else {
+            $forwarder = '';
+        }
+        if(isset($Request->company)){
+            $company = $Request->company;
+        } else {
+            $company = '';
+        }
+		$all_forwarder = Forwarder::get();
+        $all_company = Company::where('status',0)->get();
+		
+		// $data1 = $data1->orderby('id','desc')->get();
+		// $data =array();
+
+		// foreach ($data1 as $key => $value) {
+ 				
+		// 	$data[$key]= $value;
+		// 	$companydata = Company::withTrashed()->findorfail($value->company_id);
+		// 	$data[$key]['company_name'] = $companydata->name;
+		// 	$forwarderdata = Forwarder::withTrashed()->findorfail($value->forwarder_id);
+		// 	$data[$key]['forwarder_name'] = $forwarderdata->name;
+		// 	$accountdata = Account::withTrashed()->where('invoice_list',$value->id)->first();
+		// 	if($accountdata){
+		// 	$data[$key]['voucher_no'] = $accountdata->id;
+		// 	}
+		// 	else{
+		// 		$data[$key]['voucher_no'] = '';
+		// 	}
+
+		// 	$shipment_list = explode(',',$value->ships);
+		// 	$shipdata = Shipment::wherein("shipment_no", $shipment_list)->get();
+			
+		// 	$d_list = "";
+		// 	foreach($shipdata as $key2 => $value2){
+		// 	if($value2->imports == 1){
+		// 	$shippername = $value2->consignor;
+		// 	}
+		// 	else{
+		// 	$shippername = $value2->consignee;
+		// 	}
+		// 	if($key2 == 0) {
+		// 	$d_list = $d_list."".$shippername;	
+		// 	}
+		// 	else{
+		// 	$d_list = $d_list.", ".$shippername;	
+		// 	}
+			
+		// }
+		// //dd($d_list);
+		// $data[$key]['shipper_name'] = $d_list;
+		// }
+		
+ 		return view('admin.invoicepaidlist',compact('html','month','year','all_forwarder','company','all_company','forwarder'));
 
  	}
 
@@ -136,10 +319,9 @@ class InvoiceController extends Controller
  	public function ShipmentList(Request $Request)
  	{
 
- 		$data = Shipment::where('company',$Request->company)->where('forwarder',$Request->forwarder)->where('status',2)->where('paid',0)->get();
- 		
-
- 		
+ 		$data = Shipment::where('company',$Request->company)->where('forwarder',$Request->forwarder)
+		->where('status',2)->where('paid',0)->get();
+		
  		return view('admin.myshipmentlist',compact('data'));
 
  	}
@@ -423,7 +605,12 @@ class InvoiceController extends Controller
         $data->forwarder_address = $forw_data->address;
         $data->forwarder_phone = $forw_data->phone;
         $data->forwarder_email = $forw_data->email;
-        $data->forwarder_gst = $forw_data->gst_no;
+
+        if($data->gst_no != null){
+			$data->forwarder_gst = $data->gst_no ;
+		}else{ 
+			$data->forwarder_gst = $forw_data->gst_no ;
+		}
 	
 		$account_qr_id = ['1','3','4','5'];
 		
@@ -466,7 +653,7 @@ class InvoiceController extends Controller
 
                     $mytrucks[$key] = $d_list;
 
-                    $shipdata =Shipment::where('shipment_no',$value)->first();
+                    $shipdata =Shipment::withTrashed()->where('shipment_no',$value)->first();
 
                     $mydates[$key] =date('d-m-Y',strtotime($shipdata->date));
 					
@@ -492,7 +679,7 @@ class InvoiceController extends Controller
 
         $data->alldates = $mydates;
 
-        $f_shipdata = Shipment::where('shipment_no',$all_shipment[0])->first();
+        $f_shipdata = Shipment::withTrashed()->where('shipment_no',$all_shipment[0])->first();
 
         $data->lcl = $f_shipdata->lcl;
         $data->fcl = $f_shipdata->fcl;
@@ -581,7 +768,50 @@ class InvoiceController extends Controller
 
 
  	}
+	 public function InvoiceCreditnote(Request $Request)
+	 {
+		
+		$forwarder = Forwarder::get();
+		$invoice =  Invoice::where('myid',$Request->id)->first();
+		//dd($invoice);
 
+		return view('admin.vouchercreditnote',compact('forwarder','invoice'));
+	 }
+ 
+ 
+ 
+	 public function InvoiceUpdatenote(Request $Request)
+	 {
+		
+		
+		$forwarder = $Request->forwarder_id;
+		$amount = $Request->amount;
+
+		$invoice =  Invoice::where('id',$Request->id)->first();
+		$invoice->grand_total = $invoice->grand_total - $Request->amount;
+		$invoice->save();
+
+		$data = new Account();
+
+		if($forwarder != "" && $forwarder != null) {
+
+			$data->from_forwarder = $forwarder;
+		}
+		
+		$data->dates = date('Y-m-d');
+		$data->debit = $amount;
+		$data->to_company = $invoice->company_id;
+		$data->description = $Request->description;
+
+
+        $data->v_type = "debit";
+
+		$data->save();
+
+
+		return redirect()->route('unpaidshipmentlist')->with('success','Credit note successfully Created.');
+				 
+	 }
 
 
 
@@ -599,7 +829,14 @@ class InvoiceController extends Controller
         $data->forwarder_address = $forw_data->address;
         $data->forwarder_phone = $forw_data->phone;
         $data->forwarder_email = $forw_data->email;
-        $data->forwarder_gst = $forw_data->gst_no;
+
+		if($data->gst_no != null){
+			$data->forwarder_gst = $data->gst_no ;
+		}else{ 
+			$data->forwarder_gst = $forw_data->gst_no ;
+		}
+
+        
 		$account_qr_id = ['1','3','4','5'];
 		$data->is_download = 0;
 		$data->qr_code='';	
@@ -632,7 +869,7 @@ class InvoiceController extends Controller
 
                     $mytrucks[$key] = $d_list;
 
-                    $shipdata =Shipment::where('shipment_no',$value)->first();
+                    $shipdata =Shipment::withTrashed()->where('shipment_no',$value)->first();
 			
                     $mydates[$key] =date('d-m-Y',strtotime($shipdata->date));
 					
@@ -657,7 +894,7 @@ class InvoiceController extends Controller
 
         $data->alldates = $mydates;
 
-        $f_shipdata = Shipment::where('shipment_no',$all_shipment[0])->first();
+        $f_shipdata = Shipment::withTrashed()->where('shipment_no',$all_shipment[0])->first();
 
         $data->lcl = $f_shipdata->lcl;
         $data->fcl = $f_shipdata->fcl;
@@ -730,19 +967,41 @@ class InvoiceController extends Controller
 
 
     }
-
+	public function getGST(Request $Request){
+        $states = Forwarder::where('id', $Request->forwarder_id)->get();
+		$option = '<input></input>';
+		if(isset($Request->id)){
+		foreach($states as $state) {
+			$option .= '<input value="'.$state->gst_no.'"></input>';
+		}
+        //$option = $states->gst_no;
+		// $option = '<input value="'.$option.'"></input>';
+        echo $option;
+    }
+}
 
 
     public function InvoiceEdit(Request $Request)
    {
 
-
         $data = Invoice::where('myid',$Request->id)->first();
+		if($data->gst_no != null){
+			$data['gst_no'] = $data->gst_no ;
+		}else{
+			 $gst= Forwarder::where('id', $data->forwarder_id)->first();
+			 $data['gst_no'] = $gst->gst_no ;
+		}
+
+		// if(isset($Request->forwarder_id)){
+		// 	$ff = Forwarder::where('id', $Request->forwarder_id)->first();
+		// 	$data['gst_no'] = $ff->gst_no ;
+		// }
+
+		$forwarder = Forwarder::orderby('name','asc')->get();
       
         $trucks = Invoice_Truck::where('invoice_id',$data->id)->get();
            
-
-        return view('admin.invoiceedit',compact('data','trucks'));
+        return view('admin.invoiceedit',compact('data','trucks','forwarder'));
 
 
     }
@@ -783,6 +1042,8 @@ class InvoiceController extends Controller
         $data1 = Invoice::findorfail($Request->invoiceid);
         $data1->gst = $Request->gst;
 		$data1->invoice_no = $Request->invoice_no;
+		$data1->forwarder_id = $Request->forwarder_id;
+		$data1->gst_no = $Request->gst_no;
 	//	dd($data1);
         $data1->cgst = $Request->cgst;
         $data1->sgst = $Request->sgst;

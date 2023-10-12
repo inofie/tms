@@ -99,7 +99,8 @@
                              <tr>
                                   <th>User Name</th>
                                   <!-- <th>Email</th> -->
-                                  <th>Role</th>
+                                  <!-- <th>Role</th> -->
+                                  <th>Created at</th>
                                   <th>Action</th>
                               </tr>
                               </thead>
@@ -111,8 +112,8 @@
                                  
                                   <td>{{ $value->username}}</td>
                                   <!-- <td>{{ $value->email }}</td> -->
-                                  <td>{{ $value->role }}</td>
-                               
+                                  <!-- <td>{{ $value->role }}</td> -->
+                                  <td>{{ $value->created_at}}</td>
                                   
                                   
                                   <td class="edit_delete">

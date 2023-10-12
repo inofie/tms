@@ -1,5 +1,5 @@
 <?php 
-$number = $data->grand_total;
+$number = abs($data->grand_total);
    $no = floor($number);
    $point = round($number - $no, 2) * 100;
    $hundred = null;
@@ -178,7 +178,7 @@ $number = $data->grand_total;
           
         </tr>
         <tr>
-           <td style="text-align: left;   padding:5px; width: 50%; font-size: 10px; font-weight: 600; line-height: 1.5; font-family:sans-serif;" rowspan="3">
+           <td style="text-align: left;   padding:5px; width: 50%; font-size: 10px; font-weight: 600; line-height: 1.5; font-family:sans-serif;" rowspan="5">
                   <span style="font-size: 13px; font-weight: 700;"><strong>{{ $data->forwarder_name }}</strong></span><br>{{ $data->forwarder_address }}<br>
                 GSTIN/UIN: <span >{{ $data->forwarder_gst }}</span><br>
                {{--  State Name:<span style="margin-left: 5%">Gujarat, Code : 24</span><br> --}}
@@ -194,10 +194,23 @@ $number = $data->grand_total;
           
         </tr>
         <tr>
+          <td style=" text-align: left; font-size: 10px; font-weight: 700;  background-color: #e6e6e6; padding: 5px; line-height: 1.2; width: 15%;">Forwarder Name.</td>
+          <td style=" text-align: center; font-size: 10px;    padding: 5px; line-height: 1.2; width: 35%;">{{$data->forwarder_name}}</td>
+        </tr>
+
+        <tr>
+          <td style=" text-align: left; font-size: 10px; font-weight: 700;  background-color: #e6e6e6; padding: 5px; line-height: 1.2; width: 15%;">Shipper Name.</td>
+          <td style=" text-align: center; font-size: 10px;    padding: 5px; line-height: 1.2; width: 35%;">@if($data->imports == 1) 
+          {{$data->consignee}}
+        @else 
+          {{$data->consignor}}
+        @endif</td>
+        </tr>
+
+        <tr>
           <td style=" text-align: left; font-size: 10px; font-weight: 700;  background-color: #e6e6e6; padding: 5px; line-height: 1.2; width: 15%;">To.</td>
           <td style=" text-align: center; font-size: 10px;    padding: 5px; line-height: 1.2; width: 35%;">{{ $data->to}}</td>
         </tr>
-
 
       </tbody></table>
 

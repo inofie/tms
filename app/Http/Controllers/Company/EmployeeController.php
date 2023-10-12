@@ -118,7 +118,7 @@ class EmployeeController extends Controller
                 $comapny->company_id= $Request->company;
 
                 $comapny->address= $Request->address;
-
+                $comapny->aadhar_card = $Request->aadhar_card;
                 $comapny->created_by=Auth::user()->id;
 
                 $comapny->myid= uniqid();
@@ -131,6 +131,11 @@ class EmployeeController extends Controller
                         $file_name = time()."1".$Request->pan_card->getClientOriginalName();
                         $Request->pan_card->move($path,$file_name);
                         $comapny->pan_card = $file_name;
+                 }
+                 if($Request->hasFile('aadhar_card_photo') && !empty($Request->file('aadhar_card_photo'))){
+                    $file_name = time()."4".$Request->aadhar_card_photo->getClientOriginalName();
+                    $Request->aadhar_card_photo->move($path,$file_name);
+                    $comapny->aadhar_card_photo = $file_name;
                  }
 
                  if($comapny->save()){
@@ -223,7 +228,7 @@ class EmployeeController extends Controller
                 $comapny->company_id= $Request->company;
 
                 $comapny->address= $Request->address;
-
+                $comapny->aadhar_card = $Request->aadhar_card;
                 $comapny->updated_by=Auth::user()->id;
 
                 $comapny->status= $Request->status;
@@ -235,6 +240,11 @@ class EmployeeController extends Controller
                         $Request->pan_card->move($path,$file_name);
                         $comapny->pan_card = $file_name;
                  }
+                 if($Request->hasFile('aadhar_card_photo') && !empty($Request->file('aadhar_card_photo'))){
+                    $file_name = time()."4".$Request->aadhar_card_photo->getClientOriginalName();
+                    $Request->aadhar_card_photo->move($path,$file_name);
+                    $comapny->aadhar_card_photo = $file_name;
+                }
                  if($comapny->save()){
 
                      return redirect()->route('employeelistcompany')->with('success','Employee Updated successfully.');

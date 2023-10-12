@@ -47,7 +47,7 @@ class NotificationController extends Controller
 
 		$myversion = env('MYAPP_VERSION');
 
-		if ($myversion != $version) {
+		if ($myversion >= $version && $myversion != $version) { 
 
 			return 1;
 
@@ -58,6 +58,33 @@ class NotificationController extends Controller
 		}
 
 	}
+    private function checkstatus($Request) {
+		if ($Request->role == 'admin' || $Request->role == 'sub_admin') {
+			$user = User::withTrashed()->where('id', 1)->first();
+		}
+		if ($Request->role == 'driver'){
+			$user = Driver::withTrashed()->findorfail($Request->user_id);
+		}
+		if ($Request->role == 'company') {
+			$company = User::withTrashed()->where('id', $Request->user_id)->first();
+			$user = Company::where('id',$company->other_id)->first();
+
+		} if($Request->role == 'transporter') {
+			$user = Transporter::withTrashed()->where('id', $Request->other_id)->first();
+			
+		} if($Request->role == 'forwarder') {
+			$user = Forwarder::withTrashed()->where('user_id', $Request->user_id)->first();
+			
+		} if($Request->role == 'employee') {
+			$user = Employee::withTrashed()->where('user_id', $Request->user_id)->first();
+		}
+		
+		if ($user->status == 1) {
+			return 1;
+		} else {
+			return 0;
+		}
+	}
     public function notificationList(Request $Request)
     {
         // dd($Request->all());
@@ -65,7 +92,11 @@ class NotificationController extends Controller
         try{
             $check = $this->checkversion($Request->version);
 			if ($check == 1) {
-				return response()->json(['status' => 'failed', 'message' => 'Please update this application.', 'data' => json_decode('{}'), 'code' => '500'], 200);
+				return response()->json(['status' => 'failed', 'message' => 'Please update this application.', 'data' => json_decode('{}'), 'code' => '500'], 402);
+			}
+            $cc = $this->checkstatus($Request);
+			if ($cc == 1) {
+				return response()->json(['status' => 'failed', 'message' => 'Your account is deactivated. Please contact admin to active your account.', 'data' => json_decode('{}'), 'code' => '420'], 401);
 			}
             $rules = array(
                 'page' => 'numeric',
@@ -89,10 +120,10 @@ class NotificationController extends Controller
                   $perPage = $data['offset'];
               }
               $offset = ($page - 1) * $perPage;
-              $resultList=Notification::where('notification_to',$Request['user_id'])->orderBy('id','desc');
+              $resultList=Notification::where('notification_to',$Request['user_id'])->where('role',$Request->role)->orderBy('id','desc');
               $resultList=$resultList->paginate($perPage);
               foreach ($resultList as $key => $value) {
-                $shipmentno = Shipment::where('id',$value['shipment_id'])->first();
+                $shipmentno = Shipment::withTrashed()->where('id',$value['shipment_id'])->first();
                 if($shipmentno){
                 $resultList[$key]['shipment_no']=$shipmentno->shipment_no;
                 }
@@ -101,7 +132,7 @@ class NotificationController extends Controller
                 $resultList[$key]['ago'] = $lastSeen.' '."ago";
             }
             $otherData = [];
-            $otherData['unread_count']=Notification::where('notification_to',$Request['user_id'])->where('read_status','unread')->count();
+            $otherData['unread_count']=Notification::where('notification_to',$Request['user_id'])->where('role',$Request->role)->where('read_status','unread')->count();
               if(!empty($resultList)){
                   $message='Notification List';
                   $data=$resultList;
@@ -113,7 +144,7 @@ class NotificationController extends Controller
             }
 
         else{
-            $resultList=Notification::where('notification_to',$Request['user_id'])->orderBy('id','desc')->get();
+            $resultList=Notification::where('notification_to',$Request['user_id'])->where('role',$Request->role)->orderBy('id','desc')->get();
             foreach ($resultList as $key => $value) {
                 $shipmentno = Shipment::where('id',$value['shipment_id'])->first();
                 if($shipmentno){
@@ -124,7 +155,7 @@ class NotificationController extends Controller
                 $resultList[$key]['ago'] = $lastSeen;
             }
             $otherData = [];
-            $otherData['unread_count']=Notification::where('notification_to',$Request['user_id'])->where('read_status','unread')->count();
+            $otherData['unread_count']=Notification::where('notification_to',$Request['user_id'])->where('role',$Request->role)->where('read_status','unread')->count();
             return response()->json(['status' => 'success', 'message' => 'Notification List.', 'data' => $resultList, 'code' => '200'], 200);
         }
     }
@@ -134,15 +165,19 @@ class NotificationController extends Controller
           }
     }
 
-    public function readAllNotifications(Request $request){
+    public function readAllNotifications(Request $Request){
         try{
 
 
-            $check = $this->checkversion($request->version);
+            $check = $this->checkversion($Request->version);
 			if ($check == 1) {
-				return response()->json(['status' => 'failed', 'message' => 'Please update this application.', 'data' => json_decode('{}'), 'code' => '500'], 200);
+				return response()->json(['status' => 'failed', 'message' => 'Please update this application.', 'data' => json_decode('{}'), 'code' => '500'], 402);
 			}
-            $notification = Notification::where('notification_to', $request['user_id'])->update(['read_status' => 'read']);
+            // $cc = $this->checkstatus($Request);
+			// if ($cc == 1) {
+			// 	return response()->json(['status' => 'failed', 'message' => 'Your account is deactivated. Please contact admin to active your account.', 'data' => json_decode('{}'), 'code' => '420'], 401);
+			// }
+            $notification = Notification::where('notification_to', $Request['user_id'])->update(['read_status' => 'read']);
 
             return response()->json(['status' => 'success', 'message' => 'All Notifications marked as read.', 'data' =>json_decode('{}'), 'code' => '200'], 200);
         }catch (\Exception $e) {
@@ -150,13 +185,17 @@ class NotificationController extends Controller
         }
     }
 
-    public function deleteSingleNotification(Request $request) {
-        $data = $request->json()->get('data');
+    public function deleteSingleNotification(Request $Request) {
+        $data = $Request->json()->get('data');
         try{
-            $check = $this->checkversion($request->version);
+            $check = $this->checkversion($Request->version);
 			if ($check == 1) {
-				return response()->json(['status' => 'failed', 'message' => 'Please update this application.', 'data' => json_decode('{}'), 'code' => '500'], 200);
+				return response()->json(['status' => 'failed', 'message' => 'Please update this application.', 'data' => json_decode('{}'), 'code' => '500'], 402);
 			}
+            // $cc = $this->checkstatus($Request);
+			// if ($cc == 1) {
+			// 	return response()->json(['status' => 'failed', 'message' => 'Your account is deactivated. Please contact admin to active your account.', 'data' => json_decode('{}'), 'code' => '420'], 401);
+			// }
             if(empty($data)){
                 return $this->APIResponse->respondNotFound(__('Data key not found or Empty'));
             }else{
@@ -184,15 +223,19 @@ class NotificationController extends Controller
         }
     }
 
-    public function deleteAllNotifications(Request $request){
+    public function deleteAllNotifications(Request $Request){
         try{
-            $check = $this->checkversion($request->version);
+            $check = $this->checkversion($Request->version);
 			if ($check == 1) {
-				return response()->json(['status' => 'failed', 'message' => 'Please update this application.', 'data' => json_decode('{}'), 'code' => '500'], 200);
+				return response()->json(['status' => 'failed', 'message' => 'Please update this application.', 'data' => json_decode('{}'), 'code' => '500'], 402);
 			}
-            $checkNotification = Notification::where('notification_to', $request['user_id'])->get();
+            // $cc = $this->checkstatus($Request);
+			// if ($cc == 1) {
+			// 	return response()->json(['status' => 'failed', 'message' => 'Your account is deactivated. Please contact admin to active your account.', 'data' => json_decode('{}'), 'code' => '420'], 401);
+			// }
+            $checkNotification = Notification::where('notification_to', $Request['user_id'])->get();
             if(count($checkNotification) != 0){
-                $notification = Notification::where('notification_to', $request['user_id'])->delete();
+                $notification = Notification::where('notification_to', $Request['user_id'])->delete();
                 return $this->APIResponse->respondWithMessage('Notification delete successfully');
             }
             else{
@@ -203,13 +246,17 @@ class NotificationController extends Controller
         }
     }
 
-    public function readSingleNotifications(Request $request) {
-        $data = $request->all();
+    public function readSingleNotifications(Request $Request) {
+        $data = $Request->all();
         try{
-            $check = $this->checkversion($request->version);
+            $check = $this->checkversion($Request->version);
 			if ($check == 1) {
-				return response()->json(['status' => 'failed', 'message' => 'Please update this application.', 'data' => json_decode('{}'), 'code' => '500'], 200);
+				return response()->json(['status' => 'failed', 'message' => 'Please update this application.', 'data' => json_decode('{}'), 'code' => '500'], 402);
 			}
+            // $cc = $this->checkstatus($Request);
+			// if ($cc == 1) {
+			// 	return response()->json(['status' => 'failed', 'message' => 'Your account is deactivated. Please contact admin to active your account.', 'data' => json_decode('{}'), 'code' => '420'], 401);
+			// }
             if(empty($data)){
                 return $this->APIResponse->respondNotFound(__('Data key not found or Empty'));
             }else{

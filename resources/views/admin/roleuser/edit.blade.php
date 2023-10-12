@@ -83,9 +83,9 @@
                                     {{-- !!Form::select('names', $roles->pluck('name','id'),null, ['class' => 'form-control','id'=>'names'])!! --}}
                                     <select name="names" id="names" class="form-control">
                                     @foreach ($roles as $role)
-                                    <option value="{{ $role->name }}"
-                                        @if(isset($role_id) && $role->id == $role_id) selected @endif>{{ $role->name }}</option>
-                                    @endforeach
+                                    <option value="{{ $role->name }}" {{(old('names')==$role->name)?"selected":""}}
+                                        @if(isset($role_id) && $role->id == $role_id) selected @endif >{{ $role->name }}</option>
+                                    @endforeach 
                                     </select>
                                     @if ($errors->has('names'))
                                     <span class="help-block alert alert-danger">
@@ -130,7 +130,7 @@
                                     <label  class=" control-label" for="password">Password <span class="colorRed"> *</span></label>
                                     <div class="row">
                                         <div class="col-sm-6 jointbox">
-                                            <input autocomplete="new-password" type="password" class="form-control" id="password" name="password" placeholder="Password" value="{{old('password')}}"/>
+                                            <input type="password" class="form-control" id="password" name="password" placeholder="Password" value="{{old('password')}}"/>
                                             @if ($errors->has('password'))
                                             <span class="help-block alert alert-danger">
                                                 <strong>{{ $errors->first('password') }}</strong>
@@ -150,7 +150,7 @@
                                 <div class="form-group save_cancle">
                                             <div class="col-lg-12 center text-center">
                                                 <button class="btn btn-success" type="submit">Save</button>
-                                                <button class="btn btn-default" id="cancelbtn" type="button">Cancel</button>
+                                                <a class="btn btn-default" href="{{ route('roleuserslist') }}">Cancel</a>
                                             </div>
                                         </div>
                             </div>

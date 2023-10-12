@@ -79,10 +79,10 @@
                                     <form class="cmxform form-horizontal tasi-form" method="post" action="{{ route('expensesave') }}">
                                       @csrf
 
-                                        <div class="form-group ">
-                                            <label for="company_id" class="control-label col-lg-2"> From Company :</label>
+                                      <div class="form-group " id="company_id">
+                                            <label for="company_id" class="control-label col-lg-2"> Company :</label>
                                             <div class="col-lg-10">
-                                                <select class="form-control" id="company" name="company_id" required="required"> 
+                                                <select class="form-control" id="fcompany" name="company_id" > 
                                                    <option value=""> -- Please Select Company -- </option>
                                                       @foreach($company as $value)
                                                       @if(old('company_id') == $value->id)
@@ -91,10 +91,39 @@
                                                       <option data-code="{{ $value->code }}" data-bill="{{ $value->bill_no }}" value="{{ $value->id }}">{{ $value->name }}</option>
                                                       @endif
                                                       @endforeach 
-
                                                 </select>
+                                            </div>
+                                        </div>
+                                         
+                                         <div class="form-group " id="transporter_div">
+                                            <label for="transporter_id" class="control-label col-lg-2"> Transporter :</label>
+                                            <div class="col-lg-10">
+                                                <select class="form-control" id="transporter" name="transporter_id" > 
+                                                   <option value=""> -- Please Select Transporter -- </option>
+                                                      @foreach($transporter as $value)
+                                                      @if(old('transporter_id') == $value->id)
+                                                      <option data-code="{{ $value->code }}" data-bill="{{ $value->bill_no }}" selected="selected" value="{{ $value->id }}">{{ $value->name }}</option>
+                                                      @else
+                                                      <option data-code="{{ $value->code }}" data-bill="{{ $value->bill_no }}" value="{{ $value->id }}">{{ $value->name }}</option>
+                                                      @endif
+                                                      @endforeach 
+                                                </select>
+                                            </div>
+                                        </div>
 
-                                               
+                                         <div class="form-group " id="forwarder_div">
+                                            <label for="forwarder_id" class="control-label col-lg-2"> Forwarder :</label>
+                                            <div class="col-lg-10">
+                                                <select class="form-control" id="forwarder" name="forwarder_id" > 
+                                                   <option value=""> -- Please Select Forwarder -- </option>
+                                                      @foreach($forwarder as $value)
+                                                      @if(old('forwarder_id') == $value->id)
+                                                      <option data-code="{{ $value->code }}" data-bill="{{ $value->bill_no }}" selected="selected" value="{{ $value->id }}">{{ $value->name }}</option>
+                                                      @else
+                                                      <option data-code="{{ $value->code }}" data-bill="{{ $value->bill_no }}" value="{{ $value->id }}">{{ $value->name }}</option>
+                                                      @endif
+                                                      @endforeach 
+                                                </select>
                                             </div>
                                         </div>
 
@@ -106,18 +135,30 @@
                                                   <option value="cheque" selected="selected">Cheque</option>
                                                   <option value="netbanking">Net Banking</option>
                                                   <option value="cash">Cash</option>
+                                                  <option value="NEFT">NEFT</option>
+                                                  <option value="IMPS">IMPS</option>
+                                                  <option value="UPI">UPI</option>
                                                   @elseif(old('type') == 'netbanking')
                                                   <option value="cheque">Cheque</option>
                                                   <option value="netbanking" selected="selected">Net Banking</option>
                                                   <option value="cash">Cash</option>
+                                                  <option value="NEFT">NEFT</option>
+                                                  <option value="IMPS">IMPS</option>
+                                                  <option value="UPI">UPI</option>
                                                   @elseif(old('type')=='cash')
                                                   <option value="cheque">Cheque</option>
                                                   <option value="netbanking">Net Banking</option>
                                                   <option value="cash" selected="selected">Cash</option>
+                                                  <option value="NEFT">NEFT</option>
+                                                  <option value="IMPS">IMPS</option>
+                                                  <option value="UPI">UPI</option>
                                                   @else
                                                   <option value="cheque" selected="selected">Cheque</option>
                                                   <option value="netbanking">Net Banking</option>
                                                   <option value="cash">Cash</option>
+                                                  <option value="NEFT">NEFT</option>
+                                                  <option value="IMPS">IMPS</option>
+                                                  <option value="UPI">UPI</option>
                                                   @endif
                                                 </select>
 
@@ -301,7 +342,67 @@
    <script src="{{ asset('js/advanced-form-components.js')}}"></script>
 <script type="text/javascript">
 
-   
+$("#transporter").change(function(){
+
+var trans = $(this).val();
+
+// $('#mylist').html('');
+
+if(trans == ''){
+  $("#forwarder").val("");
+  $('#forwarder_div').css('display','block');
+  $("#fcompany").val("");
+  $('#fcompany_id').css('display','block');
+
+} else {
+
+  $('#forwarder_div').css('display','none');
+  $("#forwarder").val("");
+  $('#fcompany_id').css('display','none');
+  $("#fcompany").val("");
+
+}  
+
+});
+
+$("#forwarder").change(function(){
+
+var trans = $(this).val();
+
+// $('#mylist').html('');
+
+if(trans == ''){
+$("#transporter").val("");
+$('#transporter_div').css('display','block');
+$("#fcompany").val("");
+$('#fcompany_id').css('display','block');
+} else {
+
+  $('#transporter_div').css('display','none');
+  $("#transporter").val("");
+  $('#fcompany_id').css('display','none');
+  $("#fcompany").val("");
+} 
+
+});
+
+$("#fcompany").change(function(){
+var trans = $(this).val();
+// $('#mylist').html('');
+if(trans == ''){
+$("#transporter").val("");
+$('#transporter_div').css('display','block');
+$("#forwarder").val("");
+$('#forwarder_div').css('display','block');
+
+} else {
+
+  $('#transporter_div').css('display','none');
+  $("#transporter").val("");
+  $('#forwarder_div').css('display','none');
+  $("#forwarder").val("");
+} 
+});
 
 
     $('#type').change(function(){
@@ -319,7 +420,7 @@
 
       }
 
-      if(val == 'netbanking'){
+      if(val == 'netbanking' || val == 'UPI' || val == 'IMPS' || val == 'NEFT'){
 
         $('#1').css('display','none');
         $('#3').css('display','none');

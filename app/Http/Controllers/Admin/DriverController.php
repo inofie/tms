@@ -42,14 +42,14 @@ class DriverController extends Controller
             ['data' => 'rc_book', 'name' => 'rc_book','title' => 'R.c Book'],
             ['data' => 'pan_card', 'name' => 'pan_card','title' => 'Pan Card'],
             ['data' => 'licence', 'name' => 'licence','title' => 'Licence'],
-            ['data' => 'transporter_name', 'name' => 'transporter_name','title' => 'Transport'],
+            ['data' => 'transporter_name', 'name' => 'transporter_name','title' => 'Transport','orderable' => false, 'searchable' => false],
             ['data' => 'status', 'name' => 'status','title' => 'Status'],
             ['data' => 'action', 'name' => 'action', 'orderable' => false, 'searchable' => false,'title' => 'Action'],
         ]);
         $data= array();
 
         if(request()->ajax()) {
-            $data1 = Driver::where('self',0)->get();
+            $data1 = Driver::where('self',0)->orderBy('created_at','desc');
             return $dataTable->dataTable($data1)->toJson();
         }
         // foreach ($data1 as $key => $value) {
@@ -116,7 +116,7 @@ class DriverController extends Controller
                 $comapny->licence_no= $Request->licence_no;
 
                 $comapny->pan = $Request->pan;
-
+                $comapny->aadhar_card = $Request->aadhar_card;
                 $comapny->created_by=Auth::user()->id;
 
                 $comapny->myid= uniqid();
@@ -144,7 +144,11 @@ class DriverController extends Controller
                         $Request->licence->move($path,$file_name);
                         $comapny->licence = $file_name;
                  }
-
+                 if($Request->hasFile('aadhar_card_photo') && !empty($Request->file('aadhar_card_photo'))){
+                    $file_name = time()."4".$Request->aadhar_card_photo->getClientOriginalName();
+                    $Request->aadhar_card_photo->move($path,$file_name);
+                    $comapny->aadhar_card_photo = $file_name;
+                }
 
                  if($comapny->save()){
 
@@ -176,7 +180,7 @@ class DriverController extends Controller
         'transporter' => 'required',
         'name' => 'required',
         // 'phone' => 'required|numeric|digits:10|unique:driver,phone,' . $Request->id,
-        'phone' => 'required|exists:driver,id',
+        'phone' => 'required',
         'licence_no' => 'required',
         'truck_no'=>'required',
         'pan'=>'required',
@@ -207,13 +211,16 @@ class DriverController extends Controller
                 $comapny->licence_no= $Request->licence_no;
 
                 $comapny->pan = $Request->pan;
-
+                $comapny->aadhar_card = $Request->aadhar_card;
+                
                 $comapny->created_by=Auth::user()->id;
 
                 $comapny->myid= uniqid();
 
                 $comapny->status= $Request->status;
-
+                if($Request->status == 1 ){
+                    $data = Driver::where('name',$Request->name)->update(['device_token' => null]);
+                }
                 if($Request->password != "" && $Request->password != " " && $Request->password != null ){
 
                     $comapny->password=Hash::make($Request->password);
@@ -244,7 +251,11 @@ class DriverController extends Controller
                         $Request->licence->move($path,$file_name);
                         $comapny->licence = $file_name;
                  }
-
+                 if($Request->hasFile('aadhar_card_photo') && !empty($Request->file('aadhar_card_photo'))){
+                    $file_name = time()."4".$Request->aadhar_card_photo->getClientOriginalName();
+                    $Request->aadhar_card_photo->move($path,$file_name);
+                    $comapny->aadhar_card_photo = $file_name;
+                }
 
                  if($comapny->save()){
 

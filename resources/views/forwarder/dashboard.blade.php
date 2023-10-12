@@ -21,8 +21,8 @@ Dashboard | TMS
                               <i class="fa fa-truck"></i>
                           </div>
                           <div class="value">
-                              <h1 class="count">
-                                  0
+                              <h1>
+                              {{$data['total']}}
                               </h1>
                               <p>Total Shipment</p>
                           </div>
@@ -35,8 +35,8 @@ Dashboard | TMS
                               <i class="fa fa-truck"></i>
                           </div>
                           <div class="value">
-                              <h1 class=" count2">
-                                  0
+                              <h1>
+                              {{$data['pending']}}
                               </h1>
                               <p>Booked Shipment</p>
                           </div></a>
@@ -48,8 +48,8 @@ Dashboard | TMS
                               <i class="fa fa-truck"></i>
                           </div>
                           <div class="value">
-                              <h1 class=" count3">
-                                  0
+                              <h1>
+                              {{$data['delivery']}}
                               </h1>
                              <p>Delivered Shipment</p>
                           </div>
@@ -61,8 +61,8 @@ Dashboard | TMS
                               <i class="fa fa-inr"></i>
                           </div>
                           <div class="value">
-                              <h1 class=" count5">
-                                  0
+                              <h1>
+                              {{$data['remaining']}}
                               </h1>
                               <p>Remaining Payment</p>
                           </div>

@@ -3,6 +3,7 @@
 								<tr>
 								<th class="center">Select</th>
 								<th class="center">Shipment_no</th>
+								<th class="center">Shipper Name</th>
 								<th class="center">From</th>
 								<th class="center">To</th>
 								<th class="center">Date</th>
@@ -14,6 +15,13 @@
 									<tr>
 									<td class="center"><input type="checkbox" name="shipment" value="{{ $value->shipment_no }}" class="shipment" data-shipment_id="{{ $value->shipment_no }}"></td>
 									<td class="center">{{ $value->shipment_no }}</td>
+									<td style="center"> 
+									@if($value->imports == 1) 
+                                        {{$value->consignee}}
+                                      @else 
+                                        {{$value->consignor}}
+                                      @endif
+									</td>
 									<td class="center">{{ $value->from1 }}</td>
 									<td class="center">{{ $value->to1 }}</td>
 									<td class="center">{{ date('d-m-y',strtotime($value->date)) }}</td>

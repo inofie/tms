@@ -1,5 +1,5 @@
 <?php 
-$number = $data->grand_total;
+$number = abs($data->grand_total);
    $no = floor($number);
    $point = round($number - $no, 2) * 100;
    $hundred = null;
@@ -181,7 +181,7 @@ $number = $data->grand_total;
       <table style="border-collapse: collapse; margin-bottom: 0.5%">
 
                 <tr class="details">
-                  <td style="text-align: left; border: 1px solid #000 ;  padding:0px 3px; width: 50%; font-size: 10px; font-weight: 600; line-height: 1.2; font-family:sans-serif;" rowspan="3">
+                  <td style="text-align: left; border: 1px solid #000 ;  padding:0px 3px; width: 50%; font-size: 10px; font-weight: 600; line-height: 1.2; font-family:sans-serif;" rowspan="4">
                     <span style="font-size: 13px; font-weight: 700;"><strong>YOGINI TRANSPORT</strong></span><br>{{ $comp_data->address }}<br>GSTIN/UIN: {{ $comp_data->gst_no }}{{--<br> 
         State Name : Gujarat, Code : 24 --}}<br>E-Mail : {{ $comp_data->email }}
                   </td>
@@ -203,9 +203,24 @@ $number = $data->grand_total;
         </tr>
         <tr class="details">
          
-          <td style="border: 1px solid #000 ; text-align: left; font-size: 10px; font-weight: 700;  background-color: #e6e6e6; padding: 5px; line-height: 1.2; width: 14%;" colspan="2">Mode/Terms of Payment.</td>
-          <td style="border-right: 1px solid #000 ;text-align: center; font-size: 10px; line-height: 1.2; font-weight: 700;  padding: 5px; border-bottom: 1px solid #000;  width: 14%;" colspan="2">30 Days</td>
-  
+          <td style="border: 1px solid #000 ; text-align: left; font-size: 10px; font-weight: 700;  background-color: #e6e6e6; padding: 5px; line-height: 1.2; width: 12%;">Shipper Name.</td>
+          <td style="border-right: 1px solid #000 ;text-align: center; font-size: 10px; line-height: 1.2; font-weight: 700;  padding: 5px; border-bottom: 1px solid #000; width: 12%;">
+          @if($data->imports == 1) 
+          {{$data->consignee}}
+        @else 
+          {{$data->consignor}}
+        @endif</td>
+
+            <td style="border: 1px solid #000 ; text-align: left; font-size: 10px; font-weight: 700;  background-color: #e6e6e6; padding: 5px; line-height: 1.2; width: 16%;">Forwarder Name.</td>
+          <td style="border-right: 1px solid #000 ;text-align: center; font-size: 10px; line-height: 1.2; font-weight: 700;  padding: 5px; border-bottom: 1px solid #000;width: 16%;">{{$data->forwarder_name}}</td>
+          
+        </tr>
+        <tr class="details">
+         
+          <td style="border: 1px solid #000 ; text-align: left; font-size: 10px; font-weight: 700;  background-color: #e6e6e6; padding: 5px; line-height: 1.2; width: 12%;">Mode/Terms of Payment.</td>
+          <td style="border-right: 1px solid #000 ;text-align: center; font-size: 10px; line-height: 1.2; font-weight: 700;  padding: 5px; border-bottom: 1px solid #000;  width: 12%;">30 Days</td>
+          <td style="border: 1px solid #000 ; text-align: left; font-size: 10px; font-weight: 700;  background-color: #e6e6e6; padding: 5px; line-height: 1.2; width: 16%;"></td>
+          <td style="border-right: 1px solid #000 ;text-align: center; font-size: 10px; line-height: 1.2; font-weight: 700;  padding: 5px; border-bottom: 1px solid #000;width: 16%;"></td>
           
         </tr>
       </table>
@@ -496,7 +511,7 @@ $number = $data->grand_total;
 				</td>
                <!-- <td style=" border-left: 1px solid #000;text-align: center; font-size: 13px; width:24.32%; line-height: 1.2; padding: 5px;">
 				@if($data->qr_code)
-					<img src="{{ asset('/Qr_code') }}/{{ $data->qr_code }}" width="75px">
+					<img src="{{ asset('public/Qr_code') }}/{{ $data->qr_code }}" width="75px">
 				@endif
 				</td> -->
 

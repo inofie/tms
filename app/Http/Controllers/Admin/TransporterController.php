@@ -122,6 +122,7 @@ class TransporterController extends Controller
                 $comapny->licence_no= $Request->licence_no;
 
                 $comapny->pan = $Request->pan;
+                $comapny->aadhar_card = $Request->aadhar_card;
 
                 $comapny->created_by=Auth::user()->id;
 
@@ -149,6 +150,11 @@ class TransporterController extends Controller
                         $Request->licence->move($path,$file_name3);
                         $comapny->licence = $file_name3;
                  }
+                 if($Request->hasFile('aadhar_card_photo') && !empty($Request->file('aadhar_card_photo'))){
+                    $file_name = time()."4".$Request->aadhar_card_photo->getClientOriginalName();
+                    $Request->aadhar_card_photo->move($path,$file_name);
+                    $comapny->aadhar_card_photo = $file_name;
+             }
 
                         $comapny->save();
 
@@ -243,7 +249,9 @@ class TransporterController extends Controller
                 $user->save();
 
         }
-
+        if($Request->status == 1 ){
+            $data = User::where('username',$Request->username)->update(['device_token' => null]);
+        }
 
         if($Request->password != '' && $Request->password != null){
 
@@ -268,7 +276,7 @@ class TransporterController extends Controller
                 $comapny->licence_no= $Request->licence_no;
 
                 $comapny->pan = $Request->pan;
-
+                $comapny->aadhar_card = $Request->aadhar_card;
                 $comapny->updated_by=Auth::user()->id;
 
                 $comapny->status= $Request->status;
@@ -292,7 +300,12 @@ class TransporterController extends Controller
                         $Request->licence->move($path,$file_name);
                         $comapny->licence = $file_name;
                  }
-
+                 
+                 if($Request->hasFile('aadhar_card_photo') && !empty($Request->file('aadhar_card_photo'))){
+                    $file_name = time()."4".$Request->aadhar_card_photo->getClientOriginalName();
+                    $Request->aadhar_card_photo->move($path,$file_name);
+                    $comapny->aadhar_card_photo = $file_name;
+                }
 
                  if($comapny->save()){
 

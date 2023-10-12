@@ -603,10 +603,11 @@
 
                                     @if(old('destuffing'))
                                      {{--  <input type="date" id="dds" name="destuffing"  class="form-control" value="{{ old('destuffing') }}"> --}}
-                                     <input class="form-control form-control-inline input-medium default-date-picker1" size="16" name="destuffing" type="text" value="{{ old('destuffing') }}">
+                                     
+                                     <input class="form-control"  name="destuffing" type="date" value="{{ old('destuffing') }}">
                                       @else                                      
                                      {{--  <input type="date" id="dds"  name="destuffing" class="form-control" value="{{ date('d-M-Y',strtotime($data->destuffing_date)) }}"> --}}
-                                       <input class="form-control form-control-inline input-medium default-date-picker1" size="16" name="destuffing" type="text" value="{{ date('d-m-Y',strtotime($data->destuffing_date)) }}">
+                                    <input class="form-control" name="destuffing" type="date" value="{{ $data->destuffing_date }}">
                                       @endif
                                           </div>
                                         </div>

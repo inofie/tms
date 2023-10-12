@@ -101,7 +101,7 @@ class DriverController extends Controller
                 $comapny->licence_no= $Request->licence_no;
 
                 $comapny->pan = $Request->pan;
-
+                $comapny->aadhar_card = $Request->aadhar_card;
                 $comapny->created_by=Auth::user()->id;
 
                 $comapny->myid= uniqid();
@@ -130,7 +130,11 @@ class DriverController extends Controller
                         $comapny->licence = $file_name;
                  }
 
-
+                 if($Request->hasFile('aadhar_card_photo') && !empty($Request->file('aadhar_card_photo'))){
+                    $file_name = time()."4".$Request->aadhar_card_photo->getClientOriginalName();
+                    $Request->aadhar_card_photo->move($path,$file_name);
+                    $comapny->aadhar_card_photo = $file_name;
+                }
                  if($comapny->save()){
 
                      return redirect()->route('transporterdriverlist')->with('success','Driver Added successfully.');
@@ -191,7 +195,7 @@ class DriverController extends Controller
                 $comapny->licence_no= $Request->licence_no;
 
                 $comapny->pan = $Request->pan;
-
+                $comapny->aadhar_card = $Request->aadhar_card;
                 $comapny->created_by=Auth::user()->id;
 
                 $comapny->myid= uniqid();
@@ -223,6 +227,11 @@ class DriverController extends Controller
                         $Request->licence->move($path,$file_name);
                         $comapny->licence = $file_name;
                  }
+                 if($Request->hasFile('aadhar_card_photo') && !empty($Request->file('aadhar_card_photo'))){
+                    $file_name = time()."4".$Request->aadhar_card_photo->getClientOriginalName();
+                    $Request->aadhar_card_photo->move($path,$file_name);
+                    $comapny->aadhar_card_photo = $file_name;
+                }
 
 
                  if($comapny->save()){

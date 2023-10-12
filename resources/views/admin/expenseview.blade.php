@@ -89,16 +89,24 @@
                                     <label class="control-label col-lg-1"></label>
                                   <label class="control-label col-lg-11">Type : {{$data->type }} </label>
                                   </div>
-
+                                  @if($data->company_id != '')
                                   <div class="form-group">
                                     <label class="control-label col-lg-1"></label>
                                   <label class="control-label col-lg-11">Company : {{$data->company_name }} </label>
                                   </div>
+                                  @endif
 
                                   @if($data->transporter_id != '')
                                    <div class="form-group">
                                     <label class="control-label col-lg-1"></label>
                                   <label class="control-label col-lg-11">Transporter : {{$data->transporter_name }} </label>
+                                  </div>
+                                  @endif
+
+                                  @if($data->forwarder_id != '')
+                                   <div class="form-group">
+                                    <label class="control-label col-lg-1"></label>
+                                  <label class="control-label col-lg-11">Forwarder : {{$data->forwarder_name }} </label>
                                   </div>
                                   @endif
 

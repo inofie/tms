@@ -129,6 +129,37 @@
                                             </div>
                                         </div>
                                         @endforeach
+
+                                        <div class="form-group " style="width: 80%; padding-left: 20%">
+                                            <label for="forwarder_id" class="control-label col-lg-2">Forwarder :</label>
+                                            <div class="col-lg-10">
+                                                <select class="form-control" id="forwarder_id" name="forwarder_id"> 
+                                                   <option value=""> -- Please Select Forwarder -- </option>
+                                                      @foreach($forwarder as $value)
+                                                      @if($data->forwarder_id == $value->id)
+                                                      <option data-number="{{ $value->gst_no }}" selected="selected" value="{{ $value->id }}">{{ $value->name }}</option>
+                                                      @else
+                                                      <option data-number="{{ $value->gst_no }}" value="{{ $value->id }}">{{ $value->name }}</option>
+                                                      @endif
+                                                      @endforeach 
+                                                </select>
+                                                @error('forwarder_id')
+                                                 <span class="text-danger"> {{ $message }} </span>
+                                                @enderror
+                                            </div>
+                                        </div>
+
+                                        <div class="form-group " style="width: 80%; padding-left: 20%">
+                                            <label for="name" class="control-label col-lg-2">GST No :</label>
+                                            <div class="col-lg-10">
+                                          
+                                            <input type="text" class="form-control" id="gst_no" value="{{ $data['gst_no'] }}">
+                                                @error('gst_no')
+                                                 <span class="text-danger"> {{ $message }} </span>
+                                                @enderror
+                                            </div>
+                                        </div>
+
                                        <div class="adv-table" style="padding: 1%;">
                                                         <table class="table table-striped table-hover table-bordered" >
                                             <tr>
@@ -294,11 +325,6 @@
    <script src="{{ asset('js/advanced-form-components.js')}}"></script>
 <script type="text/javascript">
 
-
-
-
-
-    
     $('#btn1').click(function(){
 
         var company = $('#company').val();
@@ -358,6 +384,21 @@
        $('#invoice_no').focus();
 
     });
+    $('#forwarder_id').change(function(){
+      finddriver();
+    });
+
+    function finddriver() {
+      
+       var selected = $('#forwarder_id').find('option:selected');
+       if(selected) {
+        var no = selected.data('number'); 
+        $('#gst_no').val(no);
+        var mytransporter = $('#forwarder_id').val();
+        
+         
+       }
+    }
 
                $('.edit').focusout(function(){
 
@@ -721,6 +762,13 @@
 
          var invoice_no =$('#invoice_no').val();
          console.log("invoice_no = "+invoice_no);
+
+         var forwarder_id =$('#forwarder_id').val();
+         console.log("forwarder_id = "+forwarder_id);
+
+         var gst_no =$('#gst_no').val();
+         console.log("gst_no = "+gst_no);
+
          var remarks =$('#remarks').val();
          console.log("remarks = "+remarks);
 
@@ -762,6 +810,8 @@ console.log(truck_number);
                   loading:loading,
                   other:other,
                   invoice_no:invoice_no,
+                  gst_no:gst_no,
+                  forwarder_id:forwarder_id,
                   remarks:remarks,
                   total:total,
                   gst:gst,
