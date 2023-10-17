@@ -200,7 +200,7 @@ class ShipmentController extends Controller
                     $data->save();
                 }
 
-                
+
 
                 $company = Company::findorfail($Request->company);
                 $company->last_no = (int) filter_var($shipment_no, FILTER_SANITIZE_NUMBER_INT)+1;
@@ -893,17 +893,17 @@ class ShipmentController extends Controller
     {
          $this->check();
          $this->validate($Request, [
-        
+
             'transporter_id' => 'required',
-         
+
              ],[
              'transporter_id.required' => "Please select the transporter",
-             
+
              ]);
        // dd($Request);
                 $tras = Transporter::findorfail($Request->transporter_id);
                 $ship =Shipment::where('shipment_no',$Request->shipment_no)->first();
-               
+
                 $ship_check = Shipment_Transporter::where('shipment_no', $Request->shipment_no)->where('transporter_id', $Request->transporter_id)
                 ->where('driver_id',$Request->driver_id)->count();
                 if ($ship_check > 0) {
@@ -1055,7 +1055,7 @@ class ShipmentController extends Controller
                                     }
                                 }
                             }
-                       
+
                         }
             }
                 /// For Transporter
@@ -1615,7 +1615,7 @@ class ShipmentController extends Controller
                     }
                 }
                 }
-               
+
 
             return redirect()->back()->with('success', "Transporter Add Successfully.");
     }
@@ -2231,9 +2231,12 @@ class ShipmentController extends Controller
             }
 		}
         $warehouse = Warehouse::get();
+        $currentYear = date('Y');
+        $startYear = 2020;
+        $yearRange = range($startYear, $currentYear);
        // $data = $datas->orderby('shipment_no','desc')->get();
          //dd($data);
-		return view('admin.shipmentfilter', compact('tt','ttt','tts','data','all_transporter','all_forwarder','company','all_company','search','transporter','forwarder','year','month','date','warehouse'));
+		return view('admin.shipmentfilter', compact('tt','ttt','tts','data','all_transporter','all_forwarder','company','all_company','search','transporter','forwarder','year','month','date','warehouse','yearRange'));
 	}
      public function Driverlist(Request $Request)
     {
