@@ -20,7 +20,7 @@
 
                       @if ($message = Session::get('success'))
                       <div class="alert alert-success alert-block">
-                        <button type="button" class="close" data-dismiss="alert">×</button> 
+                        <button type="button" class="close" data-dismiss="alert">×</button>
                               <strong>{{ $message }}</strong>
                       </div>
                       @endif
@@ -28,7 +28,7 @@
 
                       @if ($message = Session::get('error'))
                       <div class="alert alert-danger alert-block">
-                        <button type="button" class="close" data-dismiss="alert">×</button> 
+                        <button type="button" class="close" data-dismiss="alert">×</button>
                               <strong>{{ $message }}</strong>
                       </div>
                       @endif
@@ -36,7 +36,7 @@
 
                       @if ($message = Session::get('warning'))
                       <div class="alert alert-warning alert-block">
-                        <button type="button" class="close" data-dismiss="alert">×</button> 
+                        <button type="button" class="close" data-dismiss="alert">×</button>
                         <strong>{{ $message }}</strong>
                       </div>
                       @endif
@@ -44,7 +44,7 @@
 
                       @if ($message = Session::get('info'))
                       <div class="alert alert-info alert-block">
-                        <button type="button" class="close" data-dismiss="alert">×</button> 
+                        <button type="button" class="close" data-dismiss="alert">×</button>
                         <strong>{{ $message }}</strong>
                       </div>
                       @endif
@@ -52,12 +52,12 @@
 
                       @if ($errors->any())
                       <div class="alert alert-danger">
-                        <button type="button" class="close" data-dismiss="alert">×</button> 
+                        <button type="button" class="close" data-dismiss="alert">×</button>
                         Please check the form below for errors
                       </div>
                       @endif
                 <!-- page start-->
-              
+
                         <section class="panel">
                             <header class="panel-heading ">
                                Add Expense
@@ -75,7 +75,7 @@
                                       <div class="form-group ">
                                             <label for="transporter_id" class="control-label col-lg-2">Transporter :</label>
                                             <div class="col-lg-10">
-                                                <select class="form-control" name="transporter_id" required="required"> 
+                                                <select class="form-control" name="transporter_id" required="required">
                                                    <option value=""> -- Please Select Transporter -- </option>
                                                       @foreach($data as $value)
                                                       @if(old('transporter_id') == $value->transporter_id)
@@ -94,7 +94,7 @@
                                         </div>
 
 
-                                      
+
 
                                           <div class="form-group">
                                             <label class="col-lg-2 control-label">Reason :</label>
@@ -116,21 +116,21 @@
                                                 @enderror
                                             </div>
                                         </div>
-                                        
-                                      
+
+
 
                                         <div class="form-group save_cancle">
                                             <div class="col-lg-12" style="text-align: center;">
 
                                                 <button class="btn btn-success" type="submit">Save</button>
-                                                <button class="btn btn-default" type="button">Cancel</button>
+                                                <a href="{{ URL::previous() }}" class="btn btn-default">Cancel</a>
                                             </div>
                                         </div>
                                     </form>
                                 </div>
                             </div>
                         </section>
-                 
+
                 <!-- page end-->
             </section>
         </section>
@@ -161,12 +161,12 @@
 <script src="{{ asset('js/advanced-form-components.js')}}"></script>
 
 <script type="text/javascript">
-    
+
     function Addmore(){
 
       var count = $('.myname').length + 1;
 
-      
+
 
       var addrow = '<tr id="row'+count+'"><td><div class="control-label col-lg-10" ><input type="text" class="form-control myname" placeholder="Enter Name" name="name[]"  required="required"></div></td><td><div class="control-label col-lg-10" ><input type="number" class="form-control" name="sorting_id[]"></div></td><td class="text-center"><button onclick="deleterow('+count+')" style="background: #fff;border-radius: 0px;border: 0px;color: red;font-size: 25px;"><i class="fa fa-times"></i></button></tr>';
 

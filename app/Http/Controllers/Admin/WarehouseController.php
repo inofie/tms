@@ -18,6 +18,7 @@ use Hash;
 use Session;
 use Illuminate\Support\Facades\Auth;
 use Config;
+use Yajra\DataTables\Html\Builder;
 use App\DataTables\WarehouseDataTable;
 
 
@@ -29,50 +30,50 @@ class WarehouseController extends Controller
 
     }
 
-    public function List(Request $Request)
-    {
-        $data= array();
-        $data1 = Warehouse::all();
-
-        foreach ($data1 as $key => $value) {
-
-            $data[$key]=$value;
-            $company = Company::withTrashed()->findorfail($value->company_id);
-            $data[$key]->company_name=$company->name;
-            $username = User::withTrashed()->findorfail($value->user_id);
-            $data[$key]->user_name=$username->username;
-
-            # code...
-        }
-
-    	return view('admin.warehouselist',compact('data'));
-    }
-
-    // public function List(Builder $builder, DriverDataTable $dataTable)
+    // public function List(Request $Request)
     // {
-    //     $html = $builder->columns([
-    //         ['data' => 'name', 'name' => 'name','title' => 'Full Name'],
-    //         ['data' => 'phone', 'name' => 'phone','title' => 'User Name'],
-    //         ['data' => 'licence_no', 'name' => 'licence_no','title' => 'Company'],
-    //         ['data' => 'truck_no', 'name' => 'truck_no','title' => 'Address'],
-    //         ['data' => 'pan', 'name' => 'pan','title' => 'Add Proof'],
-    //         ['data' => 'rc_book', 'name' => 'rc_book','title' => 'Phone Number'],
-    //         ['data' => 'pan_card', 'name' => 'pan_card','title' => 'GST Number'],
-    //         ['data' => 'licence', 'name' => 'licence','title' => 'Pan Number'],
-    //         ['data' => 'status', 'name' => 'status','title' => 'Status'],
-    //         ['data' => 'action', 'name' => 'action', 'orderable' => false, 'searchable' => false,'title' => 'Action'],
-    //     ])
-    //     ->parameters([
-    //         "scrollX" => true,
-    //         "order"=> [[ 0, "desc" ]],
-    //         "processing"=> false,
-    //       ]);
-    //     if(request()->ajax()) {
-    //         $result = Warehouse::all();
-    //         return $dataTable->dataTable($result)->toJson();
+    //     $data= array();
+    //     $data1 = Warehouse::all();
+
+    //     foreach ($data1 as $key => $value) {
+
+    //         $data[$key]=$value;
+    //         $company = Company::withTrashed()->findorfail($value->company_id);
+    //         $data[$key]->company_name=$company->name;
+    //         $username = User::withTrashed()->findorfail($value->user_id);
+    //         $data[$key]->user_name=$username->username;
+
+    //         # code...
     //     }
-    //     return view('admin.warehouselist', compact('html'));
+
+    // 	return view('admin.warehouselist',compact('data'));
     // }
+
+    public function List(Builder $builder, WarehouseDataTable $dataTable)
+    {
+        $html = $builder->columns([
+            ['data' => 'name', 'name' => 'name','title' => 'Full Name'],
+            ['data' => 'user_id', 'name' => 'user_id','title' => 'User Name'],
+            ['data' => 'company_id', 'name' => 'company_id','title' => 'Company'],
+            ['data' => 'address', 'name' => 'address','title' => 'Address'],
+            ['data' => 'address_proof', 'name' => 'address_proof','title' => 'Add Proof'],
+            ['data' => 'phone', 'name' => 'phone','title' => 'Phone Number'],
+            ['data' => 'gst', 'name' => 'gst','title' => 'GST Number'],
+            ['data' => 'pan', 'name' => 'pan','title' => 'Pan Number'],
+            ['data' => 'status', 'name' => 'status','title' => 'Status'],
+            ['data' => 'action', 'name' => 'action', 'orderable' => false, 'searchable' => false,'title' => 'Action'],
+        ])
+        ->parameters([
+            "scrollX" => true,
+            "order"=> [[ 0, "desc" ]],
+            "processing"=> false,
+          ]);
+        if(request()->ajax()) {
+            $result = Warehouse::all();
+            return $dataTable->dataTable($result)->toJson();
+        }
+        return view('admin.warehouselist', compact('html'));
+    }
 
 
     public function ADD(Request $Request)

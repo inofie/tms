@@ -3,6 +3,8 @@
 namespace App\DataTables;
 
 use App\Warehouse;
+use App\User;
+use App\Company;
 use Yajra\DataTables\Services\DataTable;
 use App\Helper\GlobalHelper;
 
@@ -18,18 +20,18 @@ class WarehouseDataTable extends DataTable
     {
        return datatables($query)
         ->addColumn('action', function ($warehouse) {
-        $id = $warehouse->id;
+        $id = $warehouse->myid;
 
         return
         '<a class="label label-success" href="' . route('warehouseedit',$id) . '"  title="Update"><i class="fa fa-edit"></i>&nbsp</a>
         <a class="btn btn-danger btn-xs" href="'. route('warehousedelete',$id) .'" title="Delete"><i class="fa fa-trash-o "></i></a>';
         })
         ->addColumn('status',  function($warehouse) {
-            $id = $warehouse->id;
+            $id = $warehouse->myid;
             $status = $warehouse->status;
             $class='text-danger';
             $label='Deactive';
-            if($status==0)
+            if($status==1)
             {
                 $class='text-green';
                 $label='Active';
@@ -39,9 +41,9 @@ class WarehouseDataTable extends DataTable
         ->editColumn('created_at', function($warehouse) {
             return GlobalHelper::getFormattedDate($warehouse->created_at);
         })
-        ->editcolumn('rc_book', function ($data) {
-            if ($data->rc_book) {
-                $image = "<img src='".asset('/public/uploads') ."/".$data->rc_book."' style='vertical-align: middle;width: 50px;height: 50px;border-radius: 50%;'>";
+        ->editcolumn('address_proof', function ($warehouse) {
+            if ($warehouse->address_proof) {
+                $image = "<img src='".asset('/public/uploads') ."/".$warehouse->address_proof."' style='vertical-align: middle;width: 50px;height: 50px;border-radius: 50%;'>";
             }
             else{
                 $image = "<img src='".asset('/noimage.png')."' style='vertical-align: middle;width: 50px;height: 50px;border-radius: 50%;'>";
@@ -49,38 +51,31 @@ class WarehouseDataTable extends DataTable
 
             return $image;
         })
-        ->editcolumn('pan_card', function ($data) {
-            if ($data->pan_card) {
-                $image = "<img src='".asset('/public/uploads') ."/".$data->pan_card."' style='vertical-align: middle;width: 50px;height: 50px;border-radius: 50%;'>";
+        ->editColumn('user_id', function($warehouse) {
+            $username= User::withTrashed()->where('id',$warehouse->user_id)->first();
+            if($username){
+            $username = $username->username;
+            if($username)
+            {
+                return $username;
+            }else{
+                return '';
             }
-            else{
-                $image = "<img src='".asset('/noimage.png')."' style='vertical-align: middle;width: 50px;height: 50px;border-radius: 50%;'>";
-            }
-
-            return $image;
-        })
-        ->editcolumn('licence', function ($data) {
-            if ($data->licence) {
-                $image = "<img src='".asset('/public/uploads') ."/".$data->licence."' style='vertical-align: middle;width: 50px;height: 50px;border-radius: 50%;'>";
-            }
-            else{
-                $image = "<img src='".asset('/noimage.png')."' style='vertical-align: middle;width: 50px;height: 50px;border-radius: 50%;'>";
-            }
-
-            return $image;
-        })
-        ->editColumn('transporter_name',function($data){
-                $id = $data->transporter_id;
-
-                if($id == null){
-                    return '--';
-                }
-                else{
-                $transporter_name=$data->transporterData->name;
-                return  $transporter_name;
-                }
-            })
-        ->rawColumns(['action','rc_book','pan_card','licence','transporter_name']);//->toJson();
+        }else{ return '';}
+    })
+    ->editColumn('company_id', function($warehouse) {
+        $username= company::withTrashed()->where('id',$warehouse->company_id)->first();
+        if($username){
+        $username = $username->name;
+        if($username)
+        {
+            return $username;
+        }else{
+            return '';
+        }
+    }else{ return '';}
+    })
+        ->rawColumns(['action','status','address_proof']);//->toJson();
     }
     /**
      * Get query source of dataTable.

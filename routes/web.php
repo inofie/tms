@@ -82,7 +82,8 @@ Route::group(['namespace' => 'Admin','prefix' =>'admin' , 'middleware' => 'auth'
 	Route::post('/transporter/save','TransporterController@Save')->name('transportersave');
 	Route::get('/transporter/edit/{id}','TransporterController@Edit')->name('transporteredit');
 	Route::post('/transporter/update','TransporterController@Update')->name('transporterupdate');
-	Route::post('/transporter/delete','TransporterController@Delete')->name('transporterdelete');
+	// Route::post('/transporter/delete','TransporterController@Delete')->name('transporterdelete');
+	Route::get('/transporter/delete/{id}','TransporterController@Delete')->name('transporterdelete');
 	Route::get('transporter/type/add','TransporterController@TypeADD')->name('transporttypeadd');
 	Route::post('transporter/type/save','TransporterController@TypeSave')->name('transporttypesave');
 	Route::get('transporter/type/edit/{id}','TransporterController@TypeEdit')->name('transporttypeedit');
@@ -96,8 +97,9 @@ Route::group(['namespace' => 'Admin','prefix' =>'admin' , 'middleware' => 'auth'
 	Route::post('/forwarder/save','ForwarderController@Save')->name('forwardersave');
 	Route::get('/forwarder/edit/{id}','ForwarderController@Edit')->name('forwarderedit');
 	Route::post('/forwarder/update','ForwarderController@Update')->name('forwarderupdate');
-	Route::post('/forwarder/delete','ForwarderController@Delete')->name('forwarderdelete');
-	
+	// Route::post('/forwarder/delete','ForwarderController@Delete')->name('forwarderdelete');
+	Route::get('/forwarder/delete/{id}','ForwarderController@Delete')->name('forwarderdelete');
+
 
 	Route::get('/roleuser','RoleUserController@index')->name('roleuserslist');
 	Route::get('/roleuser/add','RoleUserController@ADD')->name('roleusersadd');
@@ -118,21 +120,24 @@ Route::group(['namespace' => 'Admin','prefix' =>'admin' , 'middleware' => 'auth'
 	Route::post('/company/save','CompanyController@Save')->name('companysave');
 	Route::get('/company/edit/{id}','CompanyController@Edit')->name('companyedit');
 	Route::post('/company/update','CompanyController@Update')->name('companyupdate');
-	Route::post('/company/delete','CompanyController@Delete')->name('companydelete');
+	// Route::post('/company/delete','CompanyController@Delete')->name('companydelete');
+	Route::get('/company/delete/{id}','CompanyController@Delete')->name('companydelete');
 
 	Route::get('/employee/list','EmployeeController@List')->name('employeelist');
 	Route::get('/employee/add','EmployeeController@ADD')->name('employeeadd');
 	Route::post('/employee/save','EmployeeController@Save')->name('employeesave');
 	Route::get('/employee/edit/{id}','EmployeeController@Edit')->name('employeeedit');
 	Route::post('/employee/update','EmployeeController@Update')->name('employeeupdate');
-	Route::post('/employee/delete','EmployeeController@Delete')->name('employeedelete');
+	// Route::post('/employee/delete','EmployeeController@Delete')->name('employeedelete');
+	Route::get('/employee/delete/{id}','EmployeeController@Delete')->name('employeedelete');
 
 	Route::get('/warehouse/list','WarehouseController@List')->name('warehouselist');
 	Route::get('/warehouse/add','WarehouseController@ADD')->name('warehouseadd');
 	Route::post('/warehouse/save','WarehouseController@Save')->name('warehousesave');
 	Route::get('/warehouse/edit/{id}','WarehouseController@Edit')->name('warehouseedit');
 	Route::post('/warehouse/update','WarehouseController@Update')->name('warehouseupdate');
-	Route::post('/warehouse/delete','WarehouseController@Delete')->name('warehousedelete');
+	// Route::post('/warehouse/delete','WarehouseController@Delete')->name('warehousedelete');
+	Route::get('/warehouse/delete/{id}','WarehouseController@Delete')->name('warehousedelete');
 
 	Route::get('/driver/list','DriverController@List')->name('driverlist');
 	Route::get('/driver/add','DriverController@ADD')->name('driveradd');
@@ -159,11 +164,12 @@ Route::group(['namespace' => 'Admin','prefix' =>'admin' , 'middleware' => 'auth'
 	Route::get('/shipment/edit/{id}','ShipmentController@ShipmentEdit')->name('shipmentedit');
 	Route::post('/shipment/update','ShipmentController@ShipmentUpdate')->name('shipmentupdate');
 	Route::post('/shipment/delete','ShipmentController@ShipmentDelete')->name('shipmentdelete');
+	Route::get('/shipment/delete/{id}','ShipmentController@ShipmentDelete')->name('shipmentdeleteLatest');
 	Route::post('/shipment/add/warehouse','ShipmentController@WarehouseAdd')->name('shipwarehousein');
 	Route::post('/shipment/delivered','ShipmentController@ShipmentDelivered')->name('shipmentdelivered');
 	Route::any('/shipment/driverlist','ShipmentController@Driverlist')->name('shipmentdriverlist');
-	
-	
+
+
 
 	Route::get('/shipment/warehouse/list','ShipmentController@WarehouseShipmentList')->name('warehouseshiplist');
 	Route::get('/shipment/warehouse/transporter/add/{id}','ShipmentController@AddWareTransporter')->name('shipmentWaretransporter');
@@ -208,8 +214,8 @@ Route::group(['namespace' => 'Admin','prefix' =>'admin' , 'middleware' => 'auth'
 	Route::get('/expense/view/{id}','VoucherController@ExpenseView')->name('expenseview');
 	Route::get('/expense/edit/{id}','VoucherController@ExpenseEdit')->name('expenseedit');
 	Route::post('/expense/update','VoucherController@ExpenseUpdate')->name('expenseupdate');
-	Route::post('/expense/delete','VoucherController@ExpenseDelete')->name('expensedelete');
-
+	// Route::post('/expense/delete','VoucherController@ExpenseDelete')->name('expensedelete');
+	Route::get('/expense/delete/{id}','VoucherController@ExpenseDelete')->name('expensedelete');
 
 	Route::get('/account','AccountController@Account')->name('accounts');
 	Route::post('/account','AccountController@AccountPDF')->name('accountspdf');
@@ -227,7 +233,7 @@ Route::group(['namespace' => 'Forwarder','prefix' =>'forwarder' , 'middleware' =
 	Route::get('/shipment/{id}','ShipmentController@ShipmentDetails')->name('forwarder-shipmentdetail');
 	Route::get('/shipment/summary/list','ShipmentController@ShipmentSummaryList')->name('forwarder-allshipmentsummarylist');
 	Route::get('/lr/download/{id}','ShipmentController@DownloadLR')->name('forwarder-downloadlr');
-	
+
 	Route::get('/account/invoice/list','AccountController@Account')->name('faccounts');
 	Route::post('/account/invoice/list','AccountController@AccountData')->name('f-invoices-list');
 	Route::get('/account/invoice/download/{id}','AccountController@InvoiceDownload')->name('f-invoices-download');

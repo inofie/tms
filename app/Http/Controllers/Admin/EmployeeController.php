@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 namespace App\Http\Controllers\Admin;
 
@@ -18,7 +18,8 @@ use Hash;
 use Session;
 use Illuminate\Support\Facades\Auth;
 use Config;
-
+use Yajra\DataTables\Html\Builder;
+use App\DataTables\EmployeeDataTable;
 
 
 class EmployeeController extends Controller
@@ -26,27 +27,52 @@ class EmployeeController extends Controller
 
 	public function __construct()
     {
-       
+
     }
 
-    public function List(Request $Request)
-    {	
-        $data= array();
-        $data1 = Employee::all();
+    // public function List(Request $Request)
+    // {
+    //     $data= array();
+    //     $data1 = Employee::all();
 
-        foreach ($data1 as $key => $value) {
+    //     foreach ($data1 as $key => $value) {
 
-            $data[$key]=$value;
-            $company = Company::withTrashed()->findorfail($value->company_id);
-            $data[$key]->company_name=$company->name;
-            $username = User::withTrashed()->findorfail($value->user_id);
-            $data[$key]->user_name=$username->username;
+    //         $data[$key]=$value;
+    //         $company = Company::withTrashed()->findorfail($value->company_id);
+    //         $data[$key]->company_name=$company->name;
+    //         $username = User::withTrashed()->findorfail($value->user_id);
+    //         $data[$key]->user_name=$username->username;
 
-            # code...
-        }
+    //         # code...
+    //     }
 
-    	return view('admin.employeelist',compact('data'));
-    }
+    // 	return view('admin.employeelist',compact('data'));
+    // }
+
+    public function List(Builder $builder, EmployeeDataTable $dataTable,Request $Request)
+	{
+		$html = $builder->columns([
+            ['data' => 'name', 'name' => 'name','title' => 'Full Name'],
+            ['data' => 'user_id', 'name' => 'user_id','title' => 'User Name'],
+            ['data' => 'company_id', 'name' => 'company_id','title' => 'Company'],
+			['data' => 'address', 'name' => 'address','title' => 'Address'],
+			['data' => 'phone', 'name' => 'phone','title' => 'Phone Number'],
+			['data' => 'email', 'name' => 'email','title' => 'Email ID'],
+            ['data' => 'pan_card', 'name' => 'pan_card','title' => 'Pan Card'],
+            ['data' => 'status', 'name' => 'status','title' => 'Status'],
+            ['data' => 'action', 'name' => 'action', 'orderable' => false, 'searchable' => false,'title' => 'Action'],
+         ])->parameters([
+            "processing" => true,
+            "serverSide" => true,
+			"order" => ["0", "DESC"],
+			"dom" => 'lfrtip',
+        ]);
+		if(request()->ajax()) {
+			$data1 =Employee::orderby('id','desc')->get();
+			return $dataTable->dataTable($data1)->toJson();
+		}
+		return view('admin.employeelist',compact('html'));
+	}
 
 
     public function ADD(Request $Request)
@@ -85,7 +111,7 @@ class EmployeeController extends Controller
 
 
          $data = User::where('username',$Request->username)->count();
-                
+
         if($data > 0){
 
             return redirect()->back()->withInput()->with('error','This Username Allready Registred in Our System.');
@@ -93,17 +119,17 @@ class EmployeeController extends Controller
 
 
                  $user = new User();
-                
+
                 $user->name = $Request->name;
-                
+
                 $user->username = $Request->username;
-                
+
                 $user->password = Hash::make($Request->password);
-                
+
                 $user->role = "employee";
-                
+
                 $user->created_by=Auth::user()->id;
-                
+
                 $user->save();
 
                 $comapny = new Employee();
@@ -127,7 +153,7 @@ class EmployeeController extends Controller
                 $comapny->status= $Request->status;
 
                  $path = public_path('/uploads');
-                    
+
                  if($Request->hasFile('pan_card') && !empty($Request->file('pan_card'))){
                         $file_name = time()."1".$Request->pan_card->getClientOriginalName();
                         $Request->pan_card->move($path,$file_name);
@@ -190,17 +216,17 @@ class EmployeeController extends Controller
         if($Request->username != $Request->oldusername) {
 
             $data = User::where('username',$Request->username)->where('id','!=',$Request->user_id)->count();
-                
+
         if($data > 0){
 
             return redirect()->back()->withInput()->with('error','This Username Allready Registred in Our System.');
-        } 
+        }
 
 
                 $user = User::findorfail($Request->user_id);
-                
+
                 $user->username = $Request->username;
-                
+
                 $user->save();
 
         }
@@ -212,14 +238,14 @@ class EmployeeController extends Controller
 
 
                 $user = User::findorfail($Request->user_id);
-                
+
                 $user->password = Hash::make($Request->password);
-                
+
                 $user->save();
 
         }
 
-                
+
                 $comapny = Employee::findorfail($Request->id);
 
                 $comapny->name = $Request->name;
@@ -237,7 +263,7 @@ class EmployeeController extends Controller
                 $comapny->status= $Request->status;
 
                  $path = public_path('/uploads');
-                    
+
                  if($Request->hasFile('pan_card') && !empty($Request->file('pan_card'))){
                         $file_name = time()."1".$Request->pan_card->getClientOriginalName();
                         $Request->pan_card->move($path,$file_name);
@@ -280,8 +306,8 @@ class EmployeeController extends Controller
     }
 
 
-   
-  	
+
+
 
 
 
