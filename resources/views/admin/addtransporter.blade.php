@@ -20,7 +20,7 @@
 
                       @if ($message = Session::get('success'))
                       <div class="alert alert-success alert-block">
-                        <button type="button" class="close" data-dismiss="alert">×</button> 
+                        <button type="button" class="close" data-dismiss="alert">×</button>
                               <strong>{{ $message }}</strong>
                       </div>
                       @endif
@@ -28,7 +28,7 @@
 
                       @if ($message = Session::get('error'))
                       <div class="alert alert-danger alert-block">
-                        <button type="button" class="close" data-dismiss="alert">×</button> 
+                        <button type="button" class="close" data-dismiss="alert">×</button>
                               <strong>{{ $message }}</strong>
                       </div>
                       @endif
@@ -36,7 +36,7 @@
 
                       @if ($message = Session::get('warning'))
                       <div class="alert alert-warning alert-block">
-                        <button type="button" class="close" data-dismiss="alert">×</button> 
+                        <button type="button" class="close" data-dismiss="alert">×</button>
                         <strong>{{ $message }}</strong>
                       </div>
                       @endif
@@ -44,7 +44,7 @@
 
                       @if ($message = Session::get('info'))
                       <div class="alert alert-info alert-block">
-                        <button type="button" class="close" data-dismiss="alert">×</button> 
+                        <button type="button" class="close" data-dismiss="alert">×</button>
                         <strong>{{ $message }}</strong>
                       </div>
                       @endif
@@ -52,12 +52,12 @@
 
                       @if ($errors->any())
                       <div class="alert alert-danger">
-                        <button type="button" class="close" data-dismiss="alert">×</button> 
+                        <button type="button" class="close" data-dismiss="alert">×</button>
                         Please check the form below for errors
                       </div>
                       @endif
                 <!-- page start-->
-              
+
                         <section class="panel">
                             <header class="panel-heading ">
                                Add Transporter
@@ -72,23 +72,23 @@
                                     <form class="cmxform form-horizontal tasi-form" id="signupForm" method="post" action="{{ route('savetransporter') }}" enctype="multipart/form-data">
                                       @csrf
                                       <input type="hidden" name="shipment_no" class="shipment_no" value="{{ $ship->shipment_no }}">
-                                     
+
 
                                         <div class="form-group mytransporter">
                                           <label for="transporter_id" class="control-label col-lg-2">Transporter :</label>
                                            <div class="col-lg-10">
                                            <select class="form-control" name="transporter_id" id="transporter" >
-                                              
+
                                             <option value="">Choose Transporter</option>
                                               @foreach($data as $value)
                                               @if(old('transporter_id') == $value->id)
                                               <option selected="selected" data-number="{{ $value->truck_no }}" value="{{ $value->id }}">{{ $value->name }}</option>
-                                              @else  
+                                              @else
                                               <option data-number="{{ $value->truck_no }}"  value="{{ $value->id }}">{{ $value->name }}</option>
                                               @endif
                                               @endforeach
-                                              
-                                              
+
+
                                           </select>
                                            @error('transporter_id')
                                             <span class="text-danger"> {{ $message }} </span>
@@ -109,7 +109,7 @@
                                           <div class="col-lg-12" style="text-align: center;">
                                               <button class="btn btn-success" id="msubmit" >Save</button>
                                               <button style="display: none;"  id="sform" class="btn btn-success" type="submit">Save</button>
-                                              <button class="btn btn-default" type="reset">Cancel</button>
+                                              <a href="{{ URL::previous() }}" class="btn btn-default">Cancel</a>
                                           </div>
                                       </div>
 
@@ -122,10 +122,10 @@
               <section class="panel">
                   <header class="panel-heading" style="line-height: 30px;">
                       Transporter List
-                       
+
                   </header>
 
-               
+
                         <div class="adv-table" style="padding: 1%;">
                              <table class="table table-striped table-hover table-bordered" id="editable-sample">
                                 <thead>
@@ -153,16 +153,16 @@
 
 
                                 @endforeach
-                                  
-                                
-                                
+
+
+
                                 </tbody>
                             </table>
 
                         </div>
-                
+
               </section>
-                 
+
                 <!-- page end-->
             </section>
         </section>
@@ -179,7 +179,7 @@
   @section('js2')
 
 
-   
+
   @endsection
   @section('js3')
 
@@ -195,23 +195,23 @@
   <script type="text/javascript" src="{{ asset('assets/bootstrap-timepicker/js/bootstrap-timepicker.js')}}"></script>
   <script type="text/javascript" src="{{ asset('assets/jquery-multi-select/js/jquery.multi-select.js')}}"></script>
   <script type="text/javascript" src="{{ asset('assets/jquery-multi-select/js/jquery.quicksearch.js')}}"></script>
-  
+
   @endsection
 
   @section('js4')
- 
+
 
    <script src="{{ asset('js/advanced-form-components.js')}}"></script>
 
 <script type="text/javascript">
-  
+
   /*  $('#transporter').change(function(){
        var selected = $(this).find('option:selected');
-       var no = selected.data('number'); 
-       
+       var no = selected.data('number');
+
        $('#truck_no').val(no);
        $('#truck_no').focus();
-      
+
     });*/
 
 
@@ -219,7 +219,7 @@
     $('#transporter').change(function(){
       $(".driverdiv").remove();
        var selected = $(this).find('option:selected');
-       var no = selected.data('number'); 
+       var no = selected.data('number');
        $('#truck_no').val(no);
        var myshipment = $(".shipment_no").val();
        var mytransporter = $(this).val();
@@ -232,13 +232,13 @@
                       $('.mytransporter').after(result);
                       $('#driver').focus();
                       $('.mydriver').change(function(){
-                          var selected = $(this).find('option:selected'); 
-                          var no = selected.data('number'); 
+                          var selected = $(this).find('option:selected');
+                          var no = selected.data('number');
                           $('#truck_no').val(no);
                           $('#truck_no').focus();
                       });
                     }
-                }); 
+                });
     });
 
  });

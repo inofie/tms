@@ -33,6 +33,8 @@ use File;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 use Yajra\DataTables\Html\Builder;
 use App\DataTables\ShipmentDataTable;
+use App\DataTables\ShipmentLatestDataTable;
+use App\DataTables\ShipmentFilterDataTable;
 use App\Jobs\LrMail_Yogini_Job;
 use App\Jobs\LrMail_Ssi_Job;
 use App\Jobs\LrMail_Hansh_Job;
@@ -54,24 +56,65 @@ class ShipmentController extends Controller
            return redirect()->route('login')->with('error',"You have no permission for that.");
         }
     }
-    public function List(Request $Request)
+    // public function List(Request $Request)
+    // {
+    //      $this->check();
+    //     if(Auth::user()->role == "company") {
+    //     $ff= Company::where('user_id',Auth::user()->id)->first();
+    //     $data = Shipment::where("status","!=",3)->where('company',$ff->id)->get();
+    //     }
+    //     elseif(Auth::user()->role == "employee") {
+    //         $ff2= Employee::where('user_id',Auth::user()->id)->first();
+    //         $ff1= Company::where('id',$ff2->company_id)->first();
+    //         $data = Shipment::where("status","!=",3)->where('company',$ff1->id)->get();
+    //         }
+    //     else{
+    //     $data = Shipment::where("status","!=",3)->whereRaw('DATEDIFF(CURDATE(),date) <= 6')->where('paid',0)->get();
+    //     }
+    //     $warehouse = Warehouse::get();
+    // 	return view('admin.shipmentlist',compact('data','warehouse'));
+   	// }
+    public function List(Builder $builder, ShipmentLatestDataTable $dataTable,Request $Request)
     {
-         $this->check();
-        if(Auth::user()->role == "company") {
-        $ff= Company::where('user_id',Auth::user()->id)->first();
-        $data = Shipment::where("status","!=",3)->where('company',$ff->id)->get();
-        }
-        elseif(Auth::user()->role == "employee") {
-            $ff2= Employee::where('user_id',Auth::user()->id)->first();
-            $ff1= Company::where('id',$ff2->company_id)->first();
-            $data = Shipment::where("status","!=",3)->where('company',$ff1->id)->get();
+            $this->check();
+            $html = $builder->columns([
+               ['data' => 'shipment_no', 'name' => 'shipment_no','title' => 'Ship.No'],
+               ['data' => 'date', 'name' => 'date','title' => 'Date'],
+               ['data' => 'type', 'name' => 'type','title' => 'Type','orderable' => false, 'searchable' => false],
+               ['data' => 'consignor', 'name' => 'consignor','title' => 'Consignor'],
+               ['data' => 'consignee', 'name' => 'consignee','title' => 'Consignee'],
+               ['data' => 'from1', 'name' => 'from1','title' => 'From'],
+               ['data' => 'to1', 'name' => 'to1','title' => 'To'],
+               ['data' => 'invoice_amount', 'name' => 'invoice_amount','title' => 'Amount'],
+               ['data' => 'status', 'name' => 'status','title' => 'Status'],
+               ['data' => 'other', 'name' => 'other', 'orderable' => false, 'searchable' => false,'title' => 'Other'],
+               ['data' => 'action', 'name' => 'action', 'orderable' => false, 'searchable' => false,'title' => 'Action'],
+            ])->parameters([
+              // "scrollX" => true,
+               "processing" => true,
+               "serverSide" => true,
+               "dom" => 'lfrtip',
+               "order" => ["1", "DESC"],
+           ]);
+            if(request()->ajax())
+            {
+                if(Auth::user()->role == "company") {
+                    $ff= Company::where('user_id',Auth::user()->id)->first();
+                    $data = Shipment::where("status","!=",3)->where('company',$ff->id);
+                    }
+                    elseif(Auth::user()->role == "employee") {
+                        $ff2= Employee::where('user_id',Auth::user()->id)->first();
+                        $ff1= Company::where('id',$ff2->company_id)->first();
+                        $data = Shipment::where("status","!=",3)->where('company',$ff1->id);
+                        }
+                    else{
+                    $data = Shipment::where("status","!=",3)->whereRaw('DATEDIFF(CURDATE(),date) <= 6')->where('paid',0);
+                    }
+                    return $dataTable->dataTable($data)->toJson();
             }
-        else{
-        $data = Shipment::where("status","!=",3)->whereRaw('DATEDIFF(CURDATE(),date) <= 6')->where('paid',0)->get();
-        }
-        $warehouse = Warehouse::get();
-    	return view('admin.shipmentlist',compact('data','warehouse'));
-   	}
+            $warehouse = Warehouse::get();
+            return view('admin.shipmentlist',compact('warehouse','html'));
+    }
    	public function Add(Request $Request)
     {
         $this->check();
@@ -200,7 +243,7 @@ class ShipmentController extends Controller
                     $data->save();
                 }
 
-                
+
 
                 $company = Company::findorfail($Request->company);
                 $company->last_no = (int) filter_var($shipment_no, FILTER_SANITIZE_NUMBER_INT)+1;
@@ -901,17 +944,17 @@ class ShipmentController extends Controller
     {
          $this->check();
          $this->validate($Request, [
-        
+
             'transporter_id' => 'required',
-         
+
              ],[
              'transporter_id.required' => "Please select the transporter",
-             
+
              ]);
        // dd($Request);
                 $tras = Transporter::findorfail($Request->transporter_id);
                 $ship =Shipment::where('shipment_no',$Request->shipment_no)->first();
-               
+
                 $ship_check = Shipment_Transporter::where('shipment_no', $Request->shipment_no)->where('transporter_id', $Request->transporter_id)
                 ->where('driver_id',$Request->driver_id)->count();
                 if ($ship_check > 0) {
@@ -1063,7 +1106,7 @@ class ShipmentController extends Controller
                                     }
                                 }
                             }
-                       
+
                         }
             }
                 /// For Transporter
@@ -1511,6 +1554,7 @@ class ShipmentController extends Controller
                 $data1->save();
         }
         return response()->json(['code'=>'200']);
+        // return redirect()->route('shipmentlist')->with('success','Shipment successfully delivered.');
     }
     public function WarehouseShipmentList(Request $Request)
     {
@@ -1623,7 +1667,7 @@ class ShipmentController extends Controller
                     }
                 }
                 }
-               
+
 
             return redirect()->back()->with('success', "Transporter Add Successfully.");
     }
@@ -2069,7 +2113,7 @@ class ShipmentController extends Controller
                 //dd($trucks);
         return view('admin.shipmentdetail',compact('data','trucks'));
     }
-	public function MyFilter(Request $Request)
+	public function MyFilter1(Request $Request)
 	{
     	$data = array();
         if(Auth::user()->role == "company") {
@@ -2246,6 +2290,183 @@ class ShipmentController extends Controller
          //dd($data);
 		return view('admin.shipmentfilter', compact('tt','ttt','tts','data','all_transporter','all_forwarder','company','all_company','search','transporter','forwarder','year','month','date','warehouse','yearRange'));
 	}
+    public function MyFilter(Builder $builder, ShipmentFilterDataTable $dataTable,Request $Request)
+    {
+            $this->check();
+            $html = $builder->columns([
+               ['data' => 'shipment_no', 'name' => 'shipment_no','title' => 'Ship.No'],
+               ['data' => 'date', 'name' => 'date','title' => 'Date'],
+               ['data' => 'type', 'name' => 'type','title' => 'Type','orderable' => false, 'searchable' => false],
+               ['data' => 'consignor', 'name' => 'consignor','title' => 'Consignor'],
+               ['data' => 'consignee', 'name' => 'consignee','title' => 'Consignee'],
+               ['data' => 'from1', 'name' => 'from1','title' => 'From'],
+               ['data' => 'to1', 'name' => 'to1','title' => 'To'],
+               ['data' => 'transporter_name', 'name' => 'transporter_name','title' => 'Transporter Name'],
+               ['data' => 'truck_no', 'name' => 'truck_no','title' => 'Truck No'],
+               ['data' => 'status', 'name' => 'status','title' => 'Status'],
+               ['data' => 'invoice_cost', 'name' => 'invoice_cost','title' => 'Invoice Cost'],
+               ['data' => 'transporter_cost', 'name' => 'transporter_cost','title' => 'Transporter Cost'],
+               ['data' => 'action', 'name' => 'action', 'orderable' => false, 'searchable' => false,'title' => 'Action'],
+            ])->parameters([
+                "processing" => true,
+                "serverSide" => true,
+                "order" => ["4", "DESC"],
+                "dom" => 'lBfrtip',
+                "lengthChange"=> true,
+                'lengthMenu' => [
+                    [ 10, 25, 50, -1 ],
+                    [ '10', '25', '50', 'Show all' ]
+                ],
+                "columnDefs"=>
+                [
+                    [
+                        "targets"=> [7,8,10,11],
+                        "visible"=> false,
+                    ],
+                ],
+                "buttons" => [
+                    [
+                        'extend' => 'csvHtml5',
+                        'exportOptions'=> [
+                          'columns'=> [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
+                        ]
+                ],
+                    [
+                        'extend'=> 'excelHtml5',
+                        'exportOptions'=> [
+                          'columns'=> [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
+                    ]
+                    ],
+
+                ],
+
+            ]);
+           $data = array();
+            if(request()->ajax())
+            {
+                if(Auth::user()->role == "company") {
+                $ff= Company::where('user_id',Auth::user()->id)->first();
+                $datas = Shipment::where('company',$ff->id);
+                }
+                elseif(Auth::user()->role == "employee"){
+                    $ff2= Employee::where('user_id',Auth::user()->id)->first();
+                    $ff1= Company::where('id',$ff2->company_id)->first();
+                    $datas = Shipment::where("status","!=",3)->where('company',$ff1->id);
+                }
+                else{
+                $datas = Shipment::query();
+                }
+                if($Request->shipment){
+                    $datas = $datas->where('id',$Request->shipment);
+                }
+                if($Request->status){
+                    if($Request->status == 'Pending'){
+                    $datas = $datas->where('status',0);
+                    }
+                    if($Request->status == 'Ontheway'){
+                        $datas = $datas->where('status',1);
+                    }
+                    if($Request->status == 'Delivered'){
+                        $datas = $datas->where('status',2);
+                    }
+                }
+                if($Request->transporter){
+                    $check1 = Shipment_Transporter::withTrashed()->whereNull('deleted_at')
+                    ->where('transporter_id',$Request->transporter)->groupBy('shipment_no')->pluck('shipment_no')->toArray();
+                    $datas = $datas->whereIn('shipment_no',$check1);
+                }
+                if($Request->forwarder){
+                    $datas = $datas->where('forwarder', $Request->forwarder);
+                }
+                if($Request->company){
+                    $datas = $datas->where('company', $Request->company);
+                }
+                if($Request->date){
+                    $datas = $datas->whereDay('date',$Request->date);
+                }
+                if($Request->year){
+                    $datas = $datas->whereYear('date', $Request->year);
+                }
+                if($Request->month){
+                    $datas = $datas->whereMonth('date', $Request->month);
+                }
+                if($Request->searchValue){
+                    $datas = $datas->where('shipment_no','like','%'.$Request->searchValue.'%')->orwhere('from1','like','%'.$Request->searchValue.'%')
+                    ->orwhere('to1','like','%'.$Request->searchValue.'%')->orwhere('to2','like','%'.$Request->searchValue.'%')
+                    ->orwhere('consignor','like','%'.$Request->searchValue.'%')->orwhere('consignee','like','%'.$Request->searchValue.'%')
+                    ->orwhere('shipper_invoice','like','%'.$Request->searchValue.'%')->orwhere('forwarder_ref_no','like','%'.$Request->searchValue.'%')
+                    ->orwhere('b_e_no','like','%'.$Request->searchValue.'%');
+                }
+                if($Request->searchValue || $Request->shipment || $Request->transporter || $Request->month || $Request->year || $Request->forwarder || $Request->company || $Request->date || $Request->status){
+                    $data = $datas->orderby('shipment_no','desc');
+                }
+                return $dataTable->dataTable($data)->toJson();
+            }
+            if(Auth::user()->role == "company") {
+                $ff= Company::where('user_id',Auth::user()->id)->first();
+                $tt = Shipment::where('company',$ff->id)->orderBy('created_at','desc')->get();
+                }
+                else{
+                $tt = Shipment::orderBy('created_at','desc')->get();
+                }
+            if(isset($Request->shipment)){
+                $ttt = $Request->shipment;
+            } else {
+                $ttt = '';
+            }
+            if(isset($Request->status)){
+                $tts = $Request->status;
+            } else {
+                $tts = '';
+            }
+            if(isset($Request->searchValue)){
+                $search = $Request->searchValue;
+            } else {
+                $search = '';
+            }
+            if(isset($Request->transporter)){
+                $transporter = $Request->transporter;
+            } else {
+                $transporter = '';
+            }
+            if(isset($Request->forwarder)){
+                $forwarder = $Request->forwarder;
+            } else {
+                $forwarder = '';
+            }
+            if(isset($Request->company)){
+                $company = $Request->company;
+            } else {
+                $company = '';
+            }
+            if(isset($Request->year)){
+                $year = $Request->year;
+            } else {
+                $year = '';
+            }
+            if(isset($Request->month)){
+                $month = $Request->month;
+            } else {
+                $month = '';
+            }
+            if(isset($Request->date)){
+                $date = $Request->date;
+            } else {
+                $date = '';
+            }
+            $all_transporter =  Transporter::get();
+            $all_forwarder = Forwarder::get();
+            $all_company = Company::where('status',0)->get();
+            $warehouse = Warehouse::get();
+            $currentYear = date('Y');
+            $startYear = 2020;
+            $yearRange = range($startYear, $currentYear);
+            $showTable = false;
+            if($Request->search || $Request->shipment || $Request->transporter || $Request->month || $Request->year || $Request->forwarder || $Request->company || $Request->date || $Request->status){
+                $showTable = true;
+            }
+            return view('admin.shipmentfilter',compact('tt','ttt','tts','all_transporter','all_forwarder','company','all_company','search','transporter','forwarder','year','month','date','warehouse','yearRange','html','showTable'));
+    }
      public function Driverlist(Request $Request)
     {
         $this->check();
