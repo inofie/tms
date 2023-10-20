@@ -121,13 +121,10 @@ Shipment Filter | TMS
                                         <div class="form-group ">
                                             <label for="company_ids" class="control-label col-lg-2">Year :</label>
                                             <div class="col-lg-2">
-                                              <?php 
-												$all_year = ['2020','2021','2022','2023','2024','2025','2026','2027','2028','2029','2030','2031','2032','2033','2034','2035','2036','2037','2038','2039','2040'];
-												//$all_year = range(2020, date('Y',strtotime('+2 year')));
-												?>
+                                              
                                                 <select class="form-control" name="year" id="year" > 
                                                    <option value=""> - Please Select Year -</option>
-                                                      @foreach($all_year as $value)
+                                                      @foreach($yearRange as $value)
                                                       @if($year == $value)
                                                       <option selected="selected" value="{{ $value }}">{{ $value }}</option>
                                                       @else

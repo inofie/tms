@@ -40,6 +40,7 @@ class VoucherController extends Controller
 		$html = $builder->columns([
             ['data' => 'id', 'name' => 'id','title' => 'No.'],
             ['data' => 'dates', 'name' => 'dates','title' => 'Date'],
+			['data' => 'invoice_no', 'name' => 'invoice_no','title' => 'Invoice no'],
             ['data' => 'from', 'name' => 'from','orderable' => false, 'searchable' => false,'title' => 'From'],
             ['data' => 'to', 'name' => 'to','orderable' => false, 'searchable' => false,'title' => 'To'],
 			['data' => 'type', 'name' => 'type','orderable' => false, 'searchable' => false,'title' => 'Type'],
@@ -53,10 +54,23 @@ class VoucherController extends Controller
 			"dom" => 'lfrtip',
         ]);
 		if(request()->ajax()) {
-		$data1 = Account::where('v_type','credit')->orwhere('v_type','debit');
-		return $dataTable->dataTable($data1)->toJson();
+		$data1 = Account::where('v_type','!=','expense');
+		
+		if($Request->invoice_no){
+			$invoice_no = $Request->invoice_no;
+			$invoice=Invoice::where('invoice_no',$invoice_no)->first();
+			$invoiveNo = $invoice['id'];
+			$data1 = $data1->where('invoice_list',$invoiveNo);
 		}
 
+		return $dataTable->dataTable($data1)->toJson();
+		}
+		$all_invoice = Invoice::whereNull('deleted_at')->groupBy('invoice_no')->orderBy('id','desc')->get();
+		if(isset($Request->invoice_no)){
+            $invoice_nos = $Request->invoice_no;
+        } else {
+            $invoice_nos = '';
+        }
 		// foreach ($data1 as $key => $value) {
 			
 		// 	$data[$key] = $value;
@@ -122,10 +136,51 @@ class VoucherController extends Controller
 
 //dd($data);
 		
-		return view('admin.voucherlist',compact('html'));
+		return view('admin.voucherlist',compact('html','all_invoice','invoice_nos'));
 	}
 
+	public function List2(Builder $builder, VoucherDataTable $dataTable,Request $Request)
+	{
+		//dd($Request->id);
+		$html = $builder->columns([
+            ['data' => 'id', 'name' => 'id','title' => 'No.'],
+            ['data' => 'dates', 'name' => 'dates','title' => 'Date'],
+			['data' => 'invoice_no', 'name' => 'invoice_no','title' => 'Invoice no'],
+            ['data' => 'from', 'name' => 'from','orderable' => false, 'searchable' => false,'title' => 'From'],
+            ['data' => 'to', 'name' => 'to','orderable' => false, 'searchable' => false,'title' => 'To'],
+			['data' => 'type', 'name' => 'type','orderable' => false, 'searchable' => false,'title' => 'Type'],
+			['data' => 'amount', 'name' => 'amount','orderable' => false, 'searchable' => false,'title' => 'Amount'],
+            ['data' => 'action', 'name' => 'action', 'orderable' => false, 'searchable' => false,'title' => 'Action'],
+         ])->parameters([
+			
+            "processing" => true,
+            "serverSide" => true,
+			"order" => ["0", "DESC"],
+			"dom" => 'lfrtip',
+        ]);
+		if(request()->ajax()) {
+		$data1 = Account::where('v_type','!=','expense');
+		
+		if($Request->invoice_no){
+			$invoice_no = $Request->invoice_no;
+			$invoice=Invoice::where('invoice_no',$invoice_no)->first();
+			$invoiveNo = $invoice['id'];
+			$data1 = $data1->where('invoice_list',$invoiveNo);
+		}
 
+		return $dataTable->dataTable($data1)->toJson();
+		}
+		$all_invoice = Invoice::whereNull('deleted_at')->groupBy('invoice_no')->orderBy('id','desc')->get();
+		if(isset($Request->id)){
+			$invoice=Invoice::where('id',$Request->id)->first();
+            $invoice_nos = $invoice->invoice_no;
+        } else {
+            $invoice_nos = '';
+        }
+
+		
+		return view('admin.voucherlist2',compact('html','all_invoice','invoice_nos'));
+	}
 
 	public function Credit(Request $Request)
 	{
@@ -229,9 +284,15 @@ class VoucherController extends Controller
 		$data->cash_to_name = $cash_to_name;
 		if($Request->tds_amount){
 		$invoice = Invoice::Where('id',$Request->invoice)->first();
-		$data->credit = $invoice->grand_total - $Request->tds_amount;
+		if($invoice->remaining_amount != null){
+			$data->credit = $invoice->remaining_amount - $Request->tds_amount;	
+		}
+		else{
+			$data->credit = $invoice->grand_total - $Request->tds_amount;
+		}
+		
 		$data->tds_amount = $Request->tds_amount;
-		$data->payment_type = 'tds';
+		$data->invoice_list = $invoice->id;
 		}else{
 			$data->credit = $amount;
 		}
@@ -266,7 +327,14 @@ class VoucherController extends Controller
 
 		elseif($Request->invoice3){
 		$invoice = Invoice::Where('id',$Request->invoice3)->first();
-        $invoice->grand_total = $invoice->grand_total - $amount;
+		$data->invoice_list = $invoice->id;
+		if($invoice->remaining_amount != null){
+			$invoice->remaining_amount = $invoice->remaining_amount - $Request->amount;	
+		}
+		else{
+			$invoice->remaining_amount = $invoice->grand_total - $Request->amount;
+		}
+        // $invoice->remaining_amount = $invoice->grand_total - $amount;
         $invoice->save();
 		}
 		elseif($Request->tds_amount){
@@ -557,7 +625,7 @@ class VoucherController extends Controller
 
 					if($value->company_id != null){
 
-					$company= Company::findorfail($value->company_id);
+					$company= Company::withTrashed()->findorfail($value->company_id);
 
 					$data[$key]['company_name'] = $company->name;	
 					}

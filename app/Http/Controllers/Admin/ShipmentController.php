@@ -609,7 +609,8 @@ class ShipmentController extends Controller
                     $ss->status = 1;
                     // $ss->cargo_status = 0;
                     $ss->save();
-                    $transp =Shipment_Transporter::where('shipment_no',$data->shipment_no)->where('transporter_id',$data->transporter_id)->first();
+                    $transp =Shipment_Transporter::where('shipment_no',$data->shipment_no)->where('transporter_id',$data->transporter_id)
+                    ->where('driver_id',$data->driver_id)->first();
                     $transp->status = 1;
                     $transp->save();
                 }
@@ -618,7 +619,8 @@ class ShipmentController extends Controller
                 $ss->status =1;
                 // $ss->cargo_status = 1;
                 $ss->save();
-                $transp =Shipment_Transporter::where('shipment_no',$data->shipment_no)->where('transporter_id',$data->transporter_id)->first();
+                $transp =Shipment_Transporter::where('shipment_no',$data->shipment_no)->where('transporter_id',$data->transporter_id)
+                ->where('driver_id',$data->driver_id)->first();
                 $transp->status = 2;
                 $transp->save();
                 }
@@ -634,12 +636,12 @@ class ShipmentController extends Controller
                 //     $ss->cargo_status = 1;
                 // }
                 $ss->save();
-                $get_all_shipment = Shipment_Driver::where('shipment_no',$data->shipment_no)->where('status',1)->orwhere('status',2)->where('deleted_at','')->count();
-                if($get_all_shipment == 0) {
-                $transp =Shipment_Transporter::where('shipment_no',$data->shipment_no)->where('transporter_id',$data->transporter_id)->first();
-                $transp->status = 2;
+                
+                $transp = Shipment_Transporter::where('shipment_no',$data->shipment_no)->where('transporter_id',$data->transporter_id)
+                ->where('driver_id',$data->driver_id)->first();
+                $transp->status = 3;
                 $transp->save();
-                }
+                
                }
                if($Request->status == "17") {
                 $ss =Shipment::where('shipment_no',$data->shipment_no)->first();
@@ -653,12 +655,12 @@ class ShipmentController extends Controller
                 //     $ss->cargo_status = 1;
                 // }
                 $ss->save();
-                $get_all_shipment = Shipment_Driver::where('shipment_no',$data->shipment_no)->where('status',1)->orwhere('status',2)->where('deleted_at','')->count();
-                if($get_all_shipment == 0) {
-                $transp =Shipment_Transporter::where('shipment_no',$data->shipment_no)->where('transporter_id',$data->transporter_id)->first();
-                $transp->status = 2;
+               
+                $transp =Shipment_Transporter::where('shipment_no',$data->shipment_no)->where('transporter_id',$data->transporter_id)
+                ->where('driver_id',$data->driver_id)->first();
+                $transp->status = 3;
                 $transp->save();
-                }
+                
                }
                if($Request->status == "4" || $Request->status == "5" || $Request->status == "11"  || $Request->status == "12"  || $Request->status == "13"  || $Request->status == "14"
                || $Request->status == "15"  || $Request->status == "18"){
@@ -666,7 +668,8 @@ class ShipmentController extends Controller
                 $ss->status =1;
                 // $ss->cargo_status = 1;
                 $ss->save();
-                $transp =Shipment_Transporter::where('shipment_no',$data->shipment_no)->where('transporter_id',$data->transporter_id)->first();
+                $transp =Shipment_Transporter::where('shipment_no',$data->shipment_no)->where('transporter_id',$data->transporter_id)
+                ->where('driver_id',$data->driver_id)->first();
                 $transp->status = 2;
                 $transp->save();
                 }
@@ -675,7 +678,8 @@ class ShipmentController extends Controller
                 $ss->status =1;
                 // $ss->cargo_status = 1;
                 $ss->save();
-                $transp =Shipment_Transporter::where('shipment_no',$data->shipment_no)->where('transporter_id',$data->transporter_id)->first();
+                $transp =Shipment_Transporter::where('shipment_no',$data->shipment_no)->where('transporter_id',$data->transporter_id)
+                ->where('driver_id',$data->driver_id)->first();
                 $transp->status = 2;
                 $transp->save();
                 }
@@ -684,7 +688,8 @@ class ShipmentController extends Controller
                 $ss->status =1;
                 // $ss->cargo_status = 1;
                 $ss->save();
-                $transp =Shipment_Transporter::where('shipment_no',$data->shipment_no)->where('transporter_id',$data->transporter_id)->first();
+                $transp =Shipment_Transporter::where('shipment_no',$data->shipment_no)->where('transporter_id',$data->transporter_id)
+                ->where('driver_id',$data->driver_id)->first();
                 $transp->status = 2;
                 $transp->save();
                 }
@@ -693,7 +698,8 @@ class ShipmentController extends Controller
                 $ss->status =1;
                 // $ss->cargo_status = 1;
                 $ss->save();
-                $transp =Shipment_Transporter::where('shipment_no',$data->shipment_no)->where('transporter_id',$data->transporter_id)->first();
+                $transp =Shipment_Transporter::where('shipment_no',$data->shipment_no)->where('transporter_id',$data->transporter_id)
+                ->where('driver_id',$data->driver_id)->first();
                 $transp->status = 2;
                 $transp->save();
                 }
@@ -702,7 +708,8 @@ class ShipmentController extends Controller
                 $ss->status =1;
                 // $ss->cargo_status = 1;
                 $ss->save();
-                $transp =Shipment_Transporter::where('shipment_no',$data->shipment_no)->where('transporter_id',$data->transporter_id)->first();
+                $transp =Shipment_Transporter::where('shipment_no',$data->shipment_no)->where('transporter_id',$data->transporter_id)
+                ->where('driver_id',$data->driver_id)->first();
                 $transp->status = 2;
                 $transp->save();
                 }
@@ -711,7 +718,8 @@ class ShipmentController extends Controller
                 $ss->status =1;
                 // $ss->cargo_status = 1;
                 $ss->save();
-                $transp =Shipment_Transporter::where('shipment_no',$data->shipment_no)->where('transporter_id',$data->transporter_id)->first();
+                $transp =Shipment_Transporter::where('shipment_no',$data->shipment_no)->where('transporter_id',$data->transporter_id)
+                ->where('driver_id',$data->driver_id)->first();
                 $transp->status = 2;
                 $transp->save();
                 }
@@ -2160,10 +2168,10 @@ class ShipmentController extends Controller
 			$datas = $datas->whereDay('date',$Request->date);
 		}
 		if($Request->year){
-			$datas = $datas->whereYear('date', $Request->year);
+			$datas = $datas->whereYear('created_at', $Request->year);
 		}
 		if($Request->month){
-			$datas = $datas->whereMonth('date', $Request->month);
+			$datas = $datas->whereMonth('created_at', $Request->month);
 		}
 		if($Request->search){
 			$datas = $datas->where('shipment_no','like','%'.$Request->search.'%')->orwhere('from1','like','%'.$Request->search.'%')
@@ -2231,9 +2239,12 @@ class ShipmentController extends Controller
             }
 		}
         $warehouse = Warehouse::get();
+        $currentYear = date('Y');
+        $startYear = 2020;
+        $yearRange = range($startYear, $currentYear);
        // $data = $datas->orderby('shipment_no','desc')->get();
          //dd($data);
-		return view('admin.shipmentfilter', compact('tt','ttt','tts','data','all_transporter','all_forwarder','company','all_company','search','transporter','forwarder','year','month','date','warehouse'));
+		return view('admin.shipmentfilter', compact('tt','ttt','tts','data','all_transporter','all_forwarder','company','all_company','search','transporter','forwarder','year','month','date','warehouse','yearRange'));
 	}
      public function Driverlist(Request $Request)
     {

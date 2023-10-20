@@ -21,10 +21,10 @@ class InvoiceDataTable extends DataTable
         ->addIndexColumn()
         ->addColumn('action', function ($country) {
         $id = $country->myid;
-      
+        $invoice_no = $country->id;
         return 
         '<a href="' .route('downloadinvoice',$id). '"style="margin-top: 2%;width: auto; margin:1%;background-color: #673ab7;border-color: #673ab7;color: #fff" class="btn expense "><i class="fa fa-download "></i> Download</a>
-        <a target="_blank" style="margin-top: 2%;width: auto; margin:1%;" href="' .route('invoiceview',$id). '" class="btn btn-warning "><i class="fa fa-eye"></i> View</a>
+        <a target="_blank" style="margin-top: 2%;width: auto; margin:1%;" href="' .route('voucherlist2',$invoice_no). '" class="btn btn-warning "><i class="fa fa-eye"></i> View</a>
         <a style="margin-top: 2%;width: auto; margin:1%;" href="' .route('invoiceedit',$id). '" class="btn btn-primary"><i class="fa fa-pencil"></i> Edit</a>
         <a style="margin-top: 2%;width: auto; margin:1%;" href="' .route('invoicecreditnote',$id). '" class="btn btn-info"><i class="fa fa-credit-card"></i> Credit Note</a>
         <a style="margin-top: 2%;width: auto; margin:1%;" href="' .route('invoicedelete',$id). '" class="btn btn-danger"><i class="fa fa-trash-o"></i> Delete</a>';
@@ -44,6 +44,16 @@ class InvoiceDataTable extends DataTable
             $company_name=$data->companyData->name;
             return  $company_name;
             }
+        }) 
+        ->editColumn('remaining_amount',function($data){
+            $id = $data->remaining_amount;
+
+            if($id == null){
+                return $data->grand_total;
+            }else{
+                return $data->remaining_amount;
+            }
+            
         }) 
         ->editColumn('forwarder_name',function($data){
             $id = $data->forwarderData;

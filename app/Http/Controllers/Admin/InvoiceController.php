@@ -52,6 +52,7 @@ class InvoiceController extends Controller
             ['data' => 'forwarder_name', 'name' => 'forwarder_name','orderable' => false, 'searchable' => false,'title' => 'Forwarder Name'],
             ['data' => 'shipper_name', 'name' => 'shipper_name','orderable' => false, 'searchable' => false,'title' => 'Shipper Name'],
             ['data' => 'grand_total', 'name' => 'grand_total','title' => 'Invoice Amount'],
+			['data' => 'remaining_amount', 'name' => 'remaining_amount','title' => 'Unpaid Amount'],
 			['data' => 'voucher_no', 'name' => 'voucher_no','orderable' => false, 'searchable' => false,'title' => 'Software Shipment Voucher No'],
             ['data' => 'action', 'name' => 'action', 'orderable' => false, 'searchable' => false,'title' => 'Action'],
          ])->parameters([
@@ -66,13 +67,13 @@ class InvoiceController extends Controller
 				[
 					'extend' => 'csvHtml5',
 					'exportOptions'=> [
-					  'columns'=> [0, 1, 2, 3, 4, 5, 6, 7,8]
+					  'columns'=> [0, 1, 2, 3, 4, 5, 6, 7,8,9]
 					]
 			],
 				[
 					'extend'=> 'excelHtml5',
 					'exportOptions'=> [
-					  'columns'=> [0, 1, 2, 3, 4, 5, 6, 7,8]
+					  'columns'=> [0, 1, 2, 3, 4, 5, 6, 7,8,9]
 				]
 				],
 			   
@@ -768,6 +769,177 @@ class InvoiceController extends Controller
 
 
  	}
+
+
+	 public function Downloadcreditnote(Request $Request)
+ 	{
+		
+		$acc = Account::where('id',$Request->id)->first();
+		
+ 		$data = Invoice::where('id',$acc->invoice_list)->first();
+		
+        $forw_data = Forwarder::withTrashed()->findorfail($data->forwarder_id); 
+
+        $comp_data = Company::withTrashed()->findorfail($data->company_id);
+
+        $data->forwarder_name = $forw_data->name;
+        $data->forwarder_address = $forw_data->address;
+        $data->forwarder_phone = $forw_data->phone;
+        $data->forwarder_email = $forw_data->email;
+
+        if($data->gst_no != null){
+			$data->forwarder_gst = $data->gst_no ;
+		}else{ 
+			$data->forwarder_gst = $forw_data->gst_no ;
+		}
+	
+		$account_qr_id = ['1','3','4','5'];
+		
+		$data->qr_code='';	
+		$data->is_download = 1;
+		if(in_array($comp_data->id, $account_qr_id)){
+			$data->qr_code = $comp_data->id.'_id.jpeg';
+		}
+			
+        $all_shipment = explode(',',$data->ships);
+        $data->shipment_list = explode(',',$data->ships);
+        $trucklist = array();
+		$containers = array();
+		$seals = array();
+		$shippings =array();
+		foreach($data as $key => $value){
+			$invoicedata = Invoice_Truck::where('invoice_id',$data->id)->first();
+			$data->fright = $invoicedata->fright;
+			$data->detention = $invoicedata->detention;
+			$data->loading = $invoicedata->loading;
+			$data->other = $invoicedata->other;
+			$data->remarks = $invoicedata->remarks;
+		}
+        foreach($all_shipment as $key => $value){
+
+             $driver_list =Shipment_Driver::where('shipment_no',$value)->get();
+            
+            $d_list = "";
+
+                    foreach ($driver_list as $key2 => $value2) { 
+                        if($key2 == 0) {
+                             $d_list = $d_list."".$value2->truck_no; 
+
+                        } else {
+                             $d_list = $d_list.", ".$value2->truck_no; 
+
+                        }
+
+                    }
+
+                    $mytrucks[$key] = $d_list;
+
+                    $shipdata =Shipment::withTrashed()->where('shipment_no',$value)->first();
+
+                    $mydates[$key] =date('d-m-Y',strtotime($shipdata->date));
+					
+					if($shipdata->container_no){
+						$containers[] = $shipdata->container_no;
+					}
+					if($shipdata->seal_no){
+						$seals[] = $shipdata->seal_no;
+					}
+					if($shipdata->shipping_line){
+						$shippings[] = $shipdata->seal_no;
+					}
+					$data->weight += $shipdata->weight;
+					
+        }
+			
+		
+		$data->container = implode(',',array_unique($containers));
+		$data->seal = implode(',',array_unique($seals));
+		$data->shipping = implode(',',array_unique($shippings));
+		
+		$data->trucklist = $mytrucks;
+
+        $data->alldates = $mydates;
+
+        $f_shipdata = Shipment::withTrashed()->where('shipment_no',$all_shipment[0])->first();
+
+        $data->lcl = $f_shipdata->lcl;
+        $data->fcl = $f_shipdata->fcl;
+		//$data->weight = $f_shipdata->weight;
+		$data->consignee = $f_shipdata->consignee;
+		$data->consignee_address = $f_shipdata->consignee_address;
+		$data->consignor = $f_shipdata->consignor;
+		$data->consignor_address = $f_shipdata->consignor_address;
+		$data->imports = $f_shipdata->imports;
+		$data->forwarder_ref_no = $f_shipdata->forwarder_ref_no;
+			
+		if(sizeof($all_shipment) > 1){
+			$data->consignee = '-';
+			$data->consignee_address = '';
+		}
+      
+		if(sizeof($all_shipment) > 1){
+			$data->from = '';
+			$data->to = '';
+			$data->forwarder_ref_no = '';
+			$data->weight = '';
+			if($f_shipdata->imports == 1){
+				$data->consignee = '';
+			}else {
+				$data->consignor = '';
+			}
+		} else {
+			$data->from = $f_shipdata->from1;
+			if($f_shipdata->to2 != ''){
+               $data->to = $f_shipdata->to1.",".$f_shipdata->to2;
+		   	} else {
+				$data->to = $f_shipdata->to1;
+		   	}
+		}
+
+       //dd($data);
+        if($comp_data->lr =='yoginilr' ){
+
+           
+          //  return View('bill.yoginibill',compact('data','comp_data'));
+
+
+            $pdf = PDF::loadView('bill_creditnote.yoginibill',compact('data','comp_data','acc'));
+
+             return $pdf->download('Yogini Bill '.$data->invoice_no.'.pdf');
+
+        }
+
+         if($comp_data->lr =='ssilr' ){
+
+            $pdf = PDF::loadView('bill_creditnote.ssibill',compact('data','comp_data','acc'));
+
+            return $pdf->download('SSI Bill'.$data->invoice_no.'.pdf');
+
+        }
+
+        if($comp_data->lr =='hanshlr' ){
+
+            $pdf = PDF::loadView('bill_creditnote.hanshbill',compact('data','comp_data','acc'));
+
+            return $pdf->download('Hansh Bill '.$data->invoice_no.'.pdf');
+
+        }
+
+
+        if($comp_data->lr =='bmflr' ){
+
+            $pdf = PDF::loadView('bill_creditnote.bmfbill',compact('data','comp_data','acc'));
+
+            return $pdf->download('BMF Bill '.$data->invoice_no.'.pdf');
+
+        }
+
+ 		//return view('bill.yoginibill',compact('data','comp_data'));
+       //return view('bill.ssibill',compact('data','comp_data'));
+       //return view('bill.hanshbill',compact('data','comp_data'));
+       // return view('bill.bmfbill',compact('data','comp_data'));
+
+ 	}
 	 public function InvoiceCreditnote(Request $Request)
 	 {
 		
@@ -788,7 +960,22 @@ class InvoiceController extends Controller
 		$amount = $Request->amount;
 
 		$invoice =  Invoice::where('id',$Request->id)->first();
-		$invoice->grand_total = $invoice->grand_total - $Request->amount;
+		//dd($invoice->remaining_amount);
+
+		if($invoice->remaining_amount != null){
+			$finalamount = $invoice->remaining_amount - $amount;	
+		}
+		else{
+			$finalamount = $invoice->grand_total - $amount;
+		}
+
+		//$finalamount = $invoice->grand_total - $Request->amount;
+		if($finalamount < 0){
+		$invoice->remaining_amount = 0;
+		}else{
+		$invoice->remaining_amount = $finalamount;
+		}
+		
 		$invoice->save();
 
 		$data = new Account();
@@ -799,12 +986,12 @@ class InvoiceController extends Controller
 		}
 		
 		$data->dates = date('Y-m-d');
-		$data->debit = $amount;
+		$data->credit = $amount;
 		$data->to_company = $invoice->company_id;
 		$data->description = $Request->description;
+		$data->invoice_list = $invoice->id;
 
-
-        $data->v_type = "debit";
+        $data->v_type = "credit";
 
 		$data->save();
 

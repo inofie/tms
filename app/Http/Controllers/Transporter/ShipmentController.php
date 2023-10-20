@@ -2963,6 +2963,9 @@ class ShipmentController extends Controller
             }
        
         }
+        $currentYear = date('Y');
+        $startYear = 2020;
+        $yearRange = range($startYear, $currentYear);
        
             // dd($data[$key]);
         // $data = $data[$key]->get();
@@ -2970,7 +2973,7 @@ class ShipmentController extends Controller
        
        
 		
-		return view('transporter.shipmentfilter', compact('tt','ttt','tts','data','all_transporter','all_forwarder','search','transporter','forwarder','year','month','date'));
+		return view('transporter.shipmentfilter', compact('tt','ttt','tts','data','all_transporter','all_forwarder','search','transporter','forwarder','year','month','date','yearRange'));
 	}
 
      public function Driverlist(Request $Request)

@@ -21,11 +21,17 @@ class VoucherDataTable extends DataTable
         ->addIndexColumn()
         ->addColumn('action', function ($country) {
         $id = $country->id;
-      
+        if($country->invoice_list != null && $country->v_type == 'credit'){
+            return 
+            '<a href="' .route('voucherview',$id) . '"style="min-width: 20%; width: auto;" class="btn btn-primary "><i class="fa fa-eye"></i> View</a>
+            <a href="' .route('downloadinvoicecreditnote',$id). '"style="margin-top: 2%;width: auto; margin:1%;background-color: #673ab7;border-color: #673ab7;color: #fff" class="btn expense "><i class="fa fa-download "></i> Download</a>
+            <a href="' .route('voucherdelete',$id) . '"style="min-width: 20%; width: auto;" class="btn btn-danger "><i class="fa fa-trash-o "> Delete</a>';    
+        } 
+        else{
         return 
         '<a href="' .route('voucherview',$id) . '"style="min-width: 20%; width: auto;" class="btn btn-primary "><i class="fa fa-eye"></i> View</a>
         <a href="' .route('voucherdelete',$id) . '"style="min-width: 20%; width: auto;" class="btn btn-danger "><i class="fa fa-trash-o "> Delete</a>';
-    
+        }
     })
         
     ->editColumn('from', function($country) {
@@ -40,7 +46,18 @@ class VoucherDataTable extends DataTable
     ->editColumn('amount', function($country) {
         return GlobalHelper::getamount($country->id);
     })
-        ->rawColumns(['action','from','to','type','amount']);//->toJson();
+    ->editColumn('invoice_no',function($data){
+        $id = $data->invoiceData;
+
+        if($id == null){
+            return '--';
+        }
+        else{
+        $voucher=$data->invoiceData->invoice_no;
+        return  $voucher;
+        }
+    })
+        ->rawColumns(['action','from','to','type','invoice_no']);//->toJson();
     }
     /**
      * Get query source of dataTable.

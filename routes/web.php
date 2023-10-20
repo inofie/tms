@@ -186,6 +186,7 @@ Route::group(['namespace' => 'Admin','prefix' =>'admin' , 'middleware' => 'auth'
 	Route::post('/invoice/new/gst','InvoiceController@ShipmentGST')->name('invoiceshipmentgst');
 	Route::post('/invoice/new/save','InvoiceController@ShipmentSave')->name('invoicesave');
 	Route::get('/invoice/download/{id}','InvoiceController@Download')->name('downloadinvoice');
+	Route::get('/voucher/download/{id}','InvoiceController@Downloadcreditnote')->name('downloadinvoicecreditnote');
 	Route::get('/invoice/edit/{id}','InvoiceController@InvoiceEdit')->name('invoiceedit');
 	Route::post('/invoice/update','InvoiceController@InvoiceUpdate')->name('invoiceupdate');
 	Route::get('/invoice/creditnote/{id}','InvoiceController@InvoiceCreditnote')->name('invoicecreditnote');
@@ -194,6 +195,7 @@ Route::group(['namespace' => 'Admin','prefix' =>'admin' , 'middleware' => 'auth'
 	Route::get('/invoice/delete/{id}','InvoiceController@InvoiceDelete')->name('invoicedelete');
 
 	Route::get('/voucher/list','VoucherController@List')->name('voucherlist');
+	Route::get('/voucher/list/{id}','VoucherController@List2')->name('voucherlist2');
 	Route::get('/voucher/credit','VoucherController@Credit')->name('voucherlcredit');
 	Route::post('/voucher/credit/save','VoucherController@CreditSave')->name('voucherlcreditsave');
 	Route::get('/voucher/debit','VoucherController@Debit')->name('voucherldebit');

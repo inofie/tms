@@ -105,11 +105,11 @@ Shipment Summary | TMS
                                     <!-- <th>Shipment No</th> -->
                                     <th>Description</th>
                                     <th>Title</th>
-                                    <th>Created Date</th>
+                                    
                                     <th>Image</th>
                                     <th>Time</th>
                                     <th>Time Difference</th>
-                                    
+                                    <th>Created Date</th>
                                     
                                 </tr>
                                 </thead>
@@ -121,11 +121,11 @@ Shipment Summary | TMS
                               
                               <td  style="vertical-align: middle;">{{ $value->description }}</td>
                               <td  style="vertical-align: middle;">{{ $value->flag }}</td>
-                              <td style="vertical-align: middle;">{{ $value->created_at }}</td>
+                             
                               <td><img src="{{ asset('public/uploads') }}/{{ $value->image }}" width="50px" alt="" class="zoom"></td>
                               <td  style="vertical-align: middle;">{{ ($value->created_at->format('d-m-Y h:i A')) }}</td>
                               <td  style="vertical-align: middle;">{{ $value->timedifference }}</td>
-                              
+                              <td style="vertical-align: middle;">{{ $value->created_at }}</td>
                              
                               </td>
                                 </tr>
@@ -155,26 +155,38 @@ Shipment Summary | TMS
 <script type="text/javascript">
 $(document).ready(function() {
   $('#editable-sample').DataTable( {
-    "aaSorting": [[ 2, "asc" ]],
+    "aaSorting": [[ 5, "asc" ]],
        "columnDefs":
            [
                {
-                   "targets": [2],
+                   "targets": [5],
                    "visible": false, 
                },
            ],
-      "bPaginate": false,
+      "bPaginate": true,
       "bLengthChange": true,
       "bFilter": false,
-      "bInfo": false,
+      "bInfo": true,
       
-     /* "lengthChange": true,
+    "lengthChange": true,
     "lengthMenu": [ 10, 25, 50, 75, 100 ],
       dom: 'Bfrtip',
-      buttons: [      
-          'excelHtml5',
-          'csvHtml5',     
-      ]*/
+      buttons: [
+            {
+                extend: 'csvHtml5',
+                exportOptions: {
+                  columns: [0, 1, 3, 4 ]
+                }
+            },
+            {
+                extend: 'excelHtml5',
+                exportOptions: {
+                  columns: [0, 1, 3, 4 ]
+                }
+            },
+           
+            
+        ]
   } );
 
   $('#editable-sample_wrapper').css( "maxWidth",'100%').css('overflow','auto');

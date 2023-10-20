@@ -3121,22 +3121,12 @@ class ApiController extends Controller {
 
 				if ($Request->role == "transporter") {
 
-					$get_shipment_trans_datas = Shipment_Transporter::withTrashed()
+					$data1 = Shipment_Transporter::withTrashed()
 					->where('transporter_id', $Request->other_id)
 					->whereNull('deleted_at')->where('is_trucktransfer', '0')
-					->orderby('id','desc')->get();
-					
-					$get_shipment_trans_id = [];
-					$shipments = [];
-					foreach($get_shipment_trans_datas as $get_shipment_trans_data) {
-						
-						if($get_shipment_trans_data->status == "1" && !in_array($get_shipment_trans_data->shipment_id, $shipments)) {
-							array_push($get_shipment_trans_id,$get_shipment_trans_data->id);
-						}
-						array_push($shipments,$get_shipment_trans_data->shipment_id);
-					}
-					
-					$data1 = Shipment_Transporter::wherein('id',$get_shipment_trans_id)->orderby('id','desc')->paginate($perPage);
+					->orderby('id','desc')->where('status','1')->groupBy('shipment_no')->paginate($perPage);
+
+			
 					$data = array();
 					foreach ($data1  as $key => $value) {
 
@@ -3317,22 +3307,12 @@ class ApiController extends Controller {
 			if ($Request->role == "transporter") {
 				
 
-				$get_shipment_trans_datas = Shipment_Transporter::withTrashed()
+				$data2 = Shipment_Transporter::withTrashed()
 					->where('transporter_id', $Request->other_id)
 					->whereNull('deleted_at')->where('is_trucktransfer', '0')
-					->orderby('id','desc')->get();
+					->orderby('id','desc')->where('status','1')->groupBy('shipment_no')->get();
 					
-					$get_shipment_trans_id = [];
-					$shipments = [];
-					foreach($get_shipment_trans_datas as $get_shipment_trans_data) {
-						
-						if($get_shipment_trans_data->status == "1" && !in_array($get_shipment_trans_data->shipment_id, $shipments)) {
-							array_push($get_shipment_trans_id,$get_shipment_trans_data->id);
-						}
-						array_push($shipments,$get_shipment_trans_data->shipment_id);
-					}
-					
-				$data2 = Shipment_Transporter::wherein('id',$get_shipment_trans_id)->orderby('id','desc')->get();
+				
 				$data = array();
 
 				foreach ($data2 as $key => $value) {
@@ -3543,25 +3523,17 @@ class ApiController extends Controller {
 				}
 				}
 				if ($Request->role == "transporter") {
-				$get_shipment_trans_datas = Shipment_Transporter::withTrashed()
-				->where('transporter_id', $Request->other_id)
-				->whereNull('deleted_at')->where('is_trucktransfer', '0')
-				->orderby('id','desc')->get();
-				//dd($get_shipment_trans_datas);
-				$get_shipment_trans_id = [];
-				$shipments = [];
-				foreach($get_shipment_trans_datas as $get_shipment_trans_data) {
-					
-					
-					if($get_shipment_trans_data->status == 2 && !in_array($get_shipment_trans_data->shipment_id, $shipments)) {
-						
-						array_push($get_shipment_trans_id,$get_shipment_trans_data->id);
-						
-					}
-					array_push($shipments,$get_shipment_trans_data->shipment_id);
-				}
 				
-				$data1 = Shipment_Transporter::wherein('id',$get_shipment_trans_id)->orderby('id','desc')->paginate($perPage);
+				
+					$get_shipment_trans_datas = Shipment_Transporter::withTrashed()
+					->where('transporter_id', $Request->other_id)
+					->whereNull('deleted_at')->where('is_trucktransfer', '0')
+					->orderby('id','desc')->whereIn('status',['1'])->pluck('shipment_no')->toArray();
+
+					$data1 = Shipment_Transporter::whereNotIn('shipment_no',$get_shipment_trans_datas)
+					->where('status','2')
+					->where('transporter_id', $Request->other_id)->groupBy('shipment_no')->orderby('id','desc')->paginate($perPage);
+
 				$data = array();
 				foreach ($data1 as $key => $value) {
 					$data[$key] = Shipment::withTrashed()->where('shipment_no', $value->shipment_no)->first();
@@ -3766,24 +3738,14 @@ class ApiController extends Controller {
 			if ($Request->role == "transporter") {
 
 				$get_shipment_trans_datas = Shipment_Transporter::withTrashed()
-				->where('transporter_id', $Request->other_id)
-				->whereNull('deleted_at')->where('is_trucktransfer', '0')
-				->orderby('id','desc')->get();
-				//dd($get_shipment_trans_datas);
-				$get_shipment_trans_id = [];
-				$shipments = [];
-				foreach($get_shipment_trans_datas as $get_shipment_trans_data) {
+					->where('transporter_id', $Request->other_id)
+					->whereNull('deleted_at')->where('is_trucktransfer', '0')
+					->orderby('id','desc')->whereIn('status',['1'])->pluck('shipment_no')->toArray();
 					
-					
-					if($get_shipment_trans_data->status == 2 && !in_array($get_shipment_trans_data->shipment_id, $shipments)) {
-						
-						array_push($get_shipment_trans_id,$get_shipment_trans_data->id);
-						
-					}
-					array_push($shipments,$get_shipment_trans_data->shipment_id);
-				}
+				$data2 = Shipment_Transporter::whereNotIn('shipment_no',$get_shipment_trans_datas)
+					->where('status','2')
+					->where('transporter_id', $Request->other_id)->groupBy('shipment_no')->orderby('id','desc')->get();
 				
-				$data2 = Shipment_Transporter::wherein('id',$get_shipment_trans_id)->orderby('id','desc')->get();
 				$data = array();
 
 				foreach ($data2 as $key => $value) {
@@ -4026,29 +3988,12 @@ class ApiController extends Controller {
 				$get_shipment_trans_datas = Shipment_Transporter::withTrashed()
 				->where('transporter_id', $Request->other_id)
 				->whereNull('deleted_at')->where('is_trucktransfer', '0')
-				->orderby('id','desc')->pluck('id')->toarray();
+				->orderby('id','desc')->whereIn('status',['1','2'])->pluck('shipment_no')->toArray();
+			
 
-				$get_shipment_trans_datas1 = Shipment_Transporter::withTrashed()
-				->where('transporter_id', $Request->other_id)
-				->whereNull('deleted_at')->where('is_trucktransfer', '0')
-				->orderby('id','desc')->get();
-				
-				$get_shipment_trans_id = [];
-				foreach($get_shipment_trans_datas1 as $get_shipment_trans_data) {
-					
-					if($get_shipment_trans_data->status == 3) {
-						array_push($get_shipment_trans_id,$get_shipment_trans_data->id);
-					}
-				}
+				$data1 = Shipment_Transporter::whereNotIn('shipment_no',$get_shipment_trans_datas)
+				->where('transporter_id', $Request->other_id)->groupBy('shipment_no')->orderby('id','desc')->paginate($perPage);
 
-				if($get_shipment_trans_datas == $get_shipment_trans_id){
-					$get_shipment_trans_id = $get_shipment_trans_id;
-				}
-				else{
-					$get_shipment_trans_id = '';
-				}
-				dd($get_shipment_trans_id);
-				$data1 = Shipment_Transporter::whereIn('id',$get_shipment_trans_id)->orderby('id','desc')->paginate($perPage);
 				$data = array();
 				foreach ($data1 as $key => $value) {
 					$data[$key] = Shipment::withTrashed()->where('shipment_no', $value->shipment_no)->first();
@@ -4248,22 +4193,12 @@ class ApiController extends Controller {
 				$get_shipment_trans_datas = Shipment_Transporter::withTrashed()
 				->where('transporter_id', $Request->other_id)
 				->whereNull('deleted_at')->where('is_trucktransfer', '0')
-				->orderby('id','desc')->get();
-				//dd($get_shipment_trans_datas);
-				$get_shipment_trans_id = [];
-				$shipments = [];
-				foreach($get_shipment_trans_datas as $get_shipment_trans_data) {
-					
-					
-					if($get_shipment_trans_data->status == 3 && !in_array($get_shipment_trans_data->shipment_id, $shipments)) {
-						
-						array_push($get_shipment_trans_id,$get_shipment_trans_data->id);
-						
-					}
-					array_push($shipments,$get_shipment_trans_data->shipment_id);
-				}
+				->orderby('id','desc')->whereIn('status',['1','2'])->pluck('shipment_no')->toArray();
+			
+
+				$data2 = Shipment_Transporter::whereNotIn('shipment_no',$get_shipment_trans_datas)
+				->where('transporter_id', $Request->other_id)->groupBy('shipment_no')->orderby('id','desc')->get();
 				
-				$data2 = Shipment_Transporter::wherein('id',$get_shipment_trans_id)->orderby('id','desc')->get();
 				$data = array();
 
 				foreach ($data2 as $key => $value) {
@@ -4468,22 +4403,22 @@ class ApiController extends Controller {
 			}
 			$data->transporter_name = $t_list;
 			if ($Request->role == "transporter") {
-				$data2 = Shipment_Driver::withTrashed()->where('shipment_no',$Request->shipment_no)->where('transporter_id', $Request->other_id)->whereNull('deleted_at')
-				->orderby('id','desc')->first();
-				//dd($data2);
+				$data2 = Shipment_Transporter::withTrashed()->where('shipment_no',$Request->shipment_no)
+				->where('transporter_id', $Request->other_id)->whereNull('deleted_at')
+				->pluck('status')->toArray();
+				
 			if($data2){
 			foreach($data as $key => $value){
-				if($data2->status == 3 || $data2->status == 17){
+				if(in_array("1",$data2)){
+					$data->status = 1;
+				}
+				elseif(in_array("2",$data2) && !in_array("1",$data2)){
 				$data->status = 2;
 				}
-				if($data2->status == 1){
-					$data->status = 0;
+				else{
+				$data->status = 3;
 				}
-				if($data2->status == 2 || $data2->status == 4 || $data2->status == 5 || $data2->status == 6 || $data2->status == 7
-				|| $data2->status == 8 || $data2->status == 9 || $data2->status == 10 || $data2->status == 11 || $data2->status == 12
-				|| $data2->status == 13 || $data2->status == 14 || $data2->status == 15 || $data2->status == 18){
-				$data->status = 1;
-				}
+			
 			}
 			}
 			else{
@@ -4932,7 +4867,7 @@ class ApiController extends Controller {
 				->where('transporter_id', $data->transporter_id)
 				->where('driver_id',$data->driver_id)->first();
 				$transp->is_trucktransfer = '1';
-				$transp->status = 2;
+				$transp->status = 3;
 				$transp->save();
 				if ($Request->hasFile('image') && !empty($Request->file('image'))) {
 					$file_name = time() . $Request->image->getClientOriginalName();
@@ -6651,60 +6586,36 @@ class ApiController extends Controller {
 			}
 		else if ($Request->role == "transporter") {
 		
-			$get_shipment_trans_datas = Shipment_Transporter::withTrashed()
-			->where('transporter_id', $Request->other_id)
-			->whereNull('deleted_at')->where('is_trucktransfer', '0')
-			->orderby('id','desc')->get();
 			
-			$get_shipment_trans_id = [];
-			$shipments = [];
-			foreach($get_shipment_trans_datas as $get_shipment_trans_data) {
-				
-				if($get_shipment_trans_data->status == "1" && !in_array($get_shipment_trans_data->shipment_id, $shipments)) {
-					array_push($get_shipment_trans_id,$get_shipment_trans_data->id);
-				}
-				array_push($shipments,$get_shipment_trans_data->shipment_id);
-			}
 			
-		$pending1 = Shipment_Transporter::wherein('id',$get_shipment_trans_id)->orderby('id','desc')->get();
+		$pending1 = $data2 = Shipment_Transporter::withTrashed()
+		->where('transporter_id', $Request->other_id)
+		->whereNull('deleted_at')->where('is_trucktransfer', '0')
+		->orderby('id','desc')->where('status','1')->groupBy('shipment_no')->get();
+
         $data['pending'] = count($pending1);
-		
-		$get_shipment_trans_datas = Shipment_Transporter::withTrashed()
-			->where('transporter_id', $Request->other_id)
-			->whereNull('deleted_at')->where('is_trucktransfer', '0')
-			->orderby('id','desc')->get();
-			
-			$get_shipment_trans_id = [];
-			$shipments = [];
-			foreach($get_shipment_trans_datas as $get_shipment_trans_data) {
-				
-				if($get_shipment_trans_data->status == "2" && !in_array($get_shipment_trans_data->shipment_id, $shipments)) {
-					array_push($get_shipment_trans_id,$get_shipment_trans_data->id);
-				}
-				array_push($shipments,$get_shipment_trans_data->shipment_id);
-			}
-			
-			$ontheway1 = Shipment_Transporter::wherein('id',$get_shipment_trans_id)->orderby('id','desc')->get();
-       
-        $data['ontheway'] = count($ontheway1);
 
 		$get_shipment_trans_datas = Shipment_Transporter::withTrashed()
-			->where('transporter_id', $Request->other_id)
-			->whereNull('deleted_at')->where('is_trucktransfer', '0')
-			->orderby('id','desc')->get();
+					->where('transporter_id', $Request->other_id)
+					->whereNull('deleted_at')->where('is_trucktransfer', '0')
+					->orderby('id','desc')->whereIn('status',['1'])->pluck('shipment_no')->toArray();
+					
+					$ontheway1 = Shipment_Transporter::whereNotIn('shipment_no',$get_shipment_trans_datas)
+					->where('status','2')
+					->where('transporter_id', $Request->other_id)->groupBy('shipment_no')->orderby('id','desc')->get();
 			
-			$get_shipment_trans_id = [];
-			$shipments = [];
-			foreach($get_shipment_trans_datas as $get_shipment_trans_data) {
-				
-				if($get_shipment_trans_data->status == "3" && !in_array($get_shipment_trans_data->shipment_id, $shipments)) {
-					array_push($get_shipment_trans_id,$get_shipment_trans_data->id);
-				}
-				array_push($shipments,$get_shipment_trans_data->shipment_id);
-			}
-			
-			$delivery1 = Shipment_Transporter::wherein('id',$get_shipment_trans_id)->orderby('id','desc')->get();
-       
+		
+        $data['ontheway'] = count($ontheway1);
+
+		$get_shipment_trans_datas1 = Shipment_Transporter::withTrashed()
+		->where('transporter_id', $Request->other_id)
+		->whereNull('deleted_at')->where('is_trucktransfer', '0')
+		->orderby('id','desc')->whereIn('status',['1','2'])->pluck('shipment_no')->toArray();
+	
+
+		$delivery1 = Shipment_Transporter::whereNotIn('shipment_no',$get_shipment_trans_datas1)
+		->where('transporter_id', $Request->other_id)->groupBy('shipment_no')->orderby('id','desc')->get();
+		
        
         $data['delivery'] = count($delivery1);
 			
@@ -6898,6 +6809,17 @@ class ApiController extends Controller {
                             ->orderby("id", "desc");
                      
 					}
+					if (isset($Request->month)) {
+						
+                        $data1 = $data1->whereMonth(
+                            "created_at",
+                            $Request->month
+                        )
+                            
+                            ->whereNull("deleted_at")
+                            ->orderby("id", "desc");
+                     
+					}
 				if($Request->other_id != 0)
 				{
 					$data1 = $data1->
@@ -7085,6 +7007,17 @@ class ApiController extends Controller {
                         $data1 = $data1->whereYear(
                             "created_at",
                             $Request->year
+                        )
+                            
+                            ->whereNull("deleted_at")
+                            ->orderby("id", "desc");
+                     
+					}
+					if (isset($Request->month)) {
+						
+                        $data1 = $data1->whereMonth(
+                            "created_at",
+                            $Request->month
                         )
                             
                             ->whereNull("deleted_at")
@@ -7344,6 +7277,17 @@ class ApiController extends Controller {
                         $data1 = $data1->whereYear(
                             "created_at",
                             $Request->year
+                        )
+                            
+                            ->whereNull("deleted_at")
+                            ->orderby("id", "desc");
+                     
+					}
+					if (isset($Request->month)) {
+						
+                        $data1 = $data1->whereMonth(
+                            "created_at",
+                            $Request->month
                         )
                             
                             ->whereNull("deleted_at")
@@ -7785,6 +7729,17 @@ class ApiController extends Controller {
                             ->orderby("id", "desc");
                      
 					}
+					if (isset($Request->month)) {
+						
+                        $data1 = $data1->whereMonth(
+                            "created_at",
+                            $Request->month
+                        )
+                            
+                            ->whereNull("deleted_at")
+                            ->orderby("id", "desc");
+                     
+					}
 				if($Request->other_id != 0)
 				{
 					$data1 = $data1->
@@ -7972,6 +7927,17 @@ class ApiController extends Controller {
                         $data1 = $data1->whereYear(
                             "created_at",
                             $Request->year
+                        )
+                            
+                            ->whereNull("deleted_at")
+                            ->orderby("id", "desc");
+                     
+					}
+					if (isset($Request->month)) {
+						
+                        $data1 = $data1->whereMonth(
+                            "created_at",
+                            $Request->month
                         )
                             
                             ->whereNull("deleted_at")
@@ -8232,6 +8198,18 @@ class ApiController extends Controller {
                             ->orderby("id", "desc");
                      
 					}
+					if (isset($Request->month)) {
+						
+                        $data1 = $data1->whereMonth(
+                            "created_at",
+                            $Request->month
+                        )
+                            
+                            ->whereNull("deleted_at")
+                            ->orderby("id", "desc");
+                     
+					}
+					
 				
 				if (isset($Request->status))
 				{

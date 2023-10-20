@@ -1,5 +1,5 @@
 <?php 
-$number = abs($data->grand_total);
+$number = abs($acc->credit);
    $no = floor($number);
    $point = round($number - $no, 2) * 100;
    $hundred = null;
@@ -44,13 +44,13 @@ $number = abs($data->grand_total);
 
 
 ?>
-
 <!DOCTYPE html>
 <html>
   <head>
     <meta charset="utf-8" />
-    <title>Yogini Invoice - {{ $data->invoice_no }}</title>
+    <title>Credit Note</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
     <style>
 
       .invoice-box {
@@ -154,147 +154,107 @@ $number = abs($data->grand_total);
   <body>
 @if($data->is_download != 1)
 	  <div style="width: 100%; min-height:150px;border-collapse: collapse;">&nbsp;&nbsp;&nbsp;&nbsp;</div>
-@endif 
-    <div class="invoice-box">
-	 @if($data->is_download == 1)
-      <table style="width: 100%; color: #000;">
-        <tr style="height: 20px;">
-          {{-- <td>
-            <img style="width: 99%; text-align: center;" src="{{ asset('uploads/y.jpg')}}">
-          </td> --}}
-	        <td style="width: 25%;padding: 0px 10px 0px 0px"> 
-            	<img src="{{asset('uploads/yogi.png')}}" alt="" style="width: 80%">
-        	</td> 
-       		<td style="width: 35%;font-size: 12px;font-family:Helvetica Neue;text-align: revert;font-weight: 400; text-align: left; line-height: 1.5">
-             	<p>L/22,Swatantra Senaninagar,Opp.Nava Vadaj Bus Stop,Nava Vadaj,Ahmedabad-380013</p>
+@endif
+	  <div class="invoice-box">
+		  @if($data->is_download == 1)
+      <table style="width: 100%">
+        <tr>
+          <!-- <td>
+            <img style="width: 99%; text-align: center;" src="{{ asset('public/uploads/22y.jpg')}}" >
+          </td> -->
+          <td style="text-align: center;width: 80%;font-size: 36px;font-weight: 1200; line-height: 1.5">
+             	<p>Credit Note</p>
         	</td>
-       		<td style="width: 20%;font-size: 12px;font-weight: 400; line-height: 1.5">
-             	<p>yoginitransport@gmail.com<br>info@yoginitransport.com</p>
-        	</td>
-         	<td style="width: 20%;font-size: 12px;font-weight: 400; line-height: 1.5">
-             	<p>+91 9925235184<br>+91 9714714903</p>
-        	</td> 
         </tr>
       </table>
-		<hr style="border:1.3px solid #ef7f1a;background:#ef7f1a;width: 100%; margin: 0 0 5px 0;">
 	@endif
       <table style="border-collapse: collapse; margin-bottom: 0.5%">
-
-                <tr class="details">
-                  <td style="text-align: left; border: 1px solid #000 ;  padding:0px 3px; width: 50%; font-size: 10px; font-weight: 600; line-height: 1.2; font-family:sans-serif;" rowspan="4">
-                    <span style="font-size: 13px; font-weight: 700;"><strong>YOGINI TRANSPORT</strong></span><br>{{ $comp_data->address }}<br>GSTIN/UIN: {{ $comp_data->gst_no }}{{--<br> 
-        State Name : Gujarat, Code : 24 --}}<br>E-Mail : {{ $comp_data->email }}
+        <tr>
+          <td style="border: 1px solid #000 ; text-align: left; font-size: 10px; font-weight: 700;  background-color: #e6e6e6; line-height: 1.1; width: 16.66%;">Invoice No.</td>
+          <td style="border: 1px solid #000 ; text-align: center; font-size: 13px;    line-height: 1.1; width: 16.66%;">{{ $data->invoice_no }}</td>
+          <td style="border: 1px solid #000 ; text-align: left; font-size: 10px; font-weight: 700;  background-color: #e6e6e6; line-height: 1.1; width: 16.66%;">Dated.</td>
+          <td style="border: 1px solid #000 ; text-align: center; font-size: 10px;    line-height: 1.1; width: 16.66%;">{{ date('d-M-Y',strtotime($data->invoice_date)) }}</td>
+          <td style="text-align: left; border: 1px solid #000 ;  padding:5px; width: 33.36%; font-size: 10px; font-weight: 600; line-height: 1.7; font-family:sans-serif; margin-left: 7px;" rowspan="6">
+                    <span style="font-size: 13px; font-weight: 700;"><strong>{{ $data->forwarder_name }}</strong></span><br>{{ $data->forwarder_address }}<br>
+                GSTIN/UIN: <span >{{ $data->forwarder_gst }}</span><br>
+               {{--  State Name:<span style="margin-left: 5%">Gujarat, Code : 24</span><br> --}}
+                A/C: <span>@if($data->imports == 1) {{$data->consignee}} @else {{$data->consignor}} @endif  {{-- @if($data->consignee_address) <br> {{$data->consignee_address}}  @endif --}}</span>
                   </td>
-                  <td style="border: 1px solid #000 ; text-align: left; font-size: 10px; font-weight: 700;  background-color: #e6e6e6; padding: 5px; line-height: 1.2; width: 12%;">Invoice No.</td>
-                  <td style="border: 1px solid #000 ;text-align: center; font-size: 10px; line-height: 1.2; font-weight: 700;  padding: 5px; border-bottom: 1px solid #000; width: 12%;">{{ $data->invoice_no }}</td>
-                   <td style="border: 1px solid #000 ; text-align: left; font-size: 10px; font-weight: 700;  background-color: #e6e6e6; padding: 5px; line-height: 1.2; width: 16%;">Dated.</td>
-                  <td style="border: 1px solid #000 ;text-align: center; font-size: 10px; line-height: 1.2; font-weight: 700;  padding: 5px; border-bottom: 1px solid #000;  width: 16%;">{{ date('d-m-Y',strtotime($data->invoice_date)) }}</td>
-                  
         </tr>
-
-        <tr class="details">
-         
-          <td style="border: 1px solid #000 ; text-align: left; font-size: 10px; font-weight: 700;  background-color: #e6e6e6; padding: 5px; line-height: 1.2; width: 12%;">Supplier's Ref.</td>
-          <td style="border-right: 1px solid #000 ;text-align: center; font-size: 10px; line-height: 1.2; font-weight: 700;  padding: 5px; border-bottom: 1px solid #000; width: 12%;">
-
-            <td style="border: 1px solid #000 ; text-align: left; font-size: 10px; font-weight: 700;  background-color: #e6e6e6; padding: 5px; line-height: 1.2; width: 16%;">Weight</td>
-          <td style="border-right: 1px solid #000 ;text-align: center; font-size: 10px; line-height: 1.2; font-weight: 700;  padding: 5px; border-bottom: 1px solid #000;width: 16%;">@if($data->weight) {{ $data->weight}}KG @endif</td>
+         <tr>
+          <td style="border: 1px solid #000 ; text-align: left; font-size: 10px; font-weight: 700;  background-color: #e6e6e6; line-height: 1.1; width: 16.66%;">Supplier's Ref.</td>
+          <td style="border: 1px solid #000 ; text-align: center; font-size: 10px;    line-height: 1.1; width: 16.66%;"></td>
+          <td style="border: 1px solid #000 ; text-align: left; font-size: 10px; font-weight: 700;  background-color: #e6e6e6; line-height: 1.1; width: 16.66%;">Shipper Invoice No.</td>
+          <td style="border: 1px solid #000 ; text-align: center; font-size: 10px;    line-height: 1.1; width: 16.66%;"></td>
           
         </tr>
-        <tr class="details">
-         
-          <td style="border: 1px solid #000 ; text-align: left; font-size: 10px; font-weight: 700;  background-color: #e6e6e6; padding: 5px; line-height: 1.2; width: 12%;">Shipper Name.</td>
-          <td style="border-right: 1px solid #000 ;text-align: center; font-size: 10px; line-height: 1.2; font-weight: 700;  padding: 5px; border-bottom: 1px solid #000; width: 12%;">
-          @if($data->imports == 1) 
+        <tr>
+          <td style="border: 1px solid #000 ; text-align: left; font-size: 10px; font-weight: 700;  background-color: #e6e6e6; line-height: 1.1; width: 16.66%;">Weight.</td>
+          <td style="border: 1px solid #000 ; text-align: center; font-size: 10px;    line-height: 1.1; width: 16.66%;">@if($data->weight) {{ $data->weight}}KG @endif</td>
+          <td style="border: 1px solid #000 ; text-align: left; font-size: 10px; font-weight: 700;  background-color: #e6e6e6; line-height: 1.1; width: 16.66%;">Bill Of Entry.</td>
+          <td style="border: 1px solid #000 ; text-align: center; font-size: 10px;    line-height: 1.1; width: 16.66%;"></td>
+        </tr>
+
+        <tr>
+          <td style="border: 1px solid #000 ; text-align: left; font-size: 10px; font-weight: 700;  background-color: #e6e6e6; line-height: 1.1; width: 16.66%;">Shipper Name.</td>
+          <td style="border: 1px solid #000 ; text-align: center; font-size: 10px;    line-height: 1.1; width: 16.66%;">@if($data->imports == 1) 
           {{$data->consignee}}
         @else 
           {{$data->consignor}}
         @endif</td>
-
-            <td style="border: 1px solid #000 ; text-align: left; font-size: 10px; font-weight: 700;  background-color: #e6e6e6; padding: 5px; line-height: 1.2; width: 16%;">Forwarder Name.</td>
-          <td style="border-right: 1px solid #000 ;text-align: center; font-size: 10px; line-height: 1.2; font-weight: 700;  padding: 5px; border-bottom: 1px solid #000;width: 16%;">{{$data->forwarder_name}}</td>
-          
+          <td style="border: 1px solid #000 ; text-align: left; font-size: 10px; font-weight: 700;  background-color: #e6e6e6; line-height: 1.1; width: 16.66%;">Forwarder Name.</td>
+          <td style="border: 1px solid #000 ; text-align: center; font-size: 10px;    line-height: 1.1; width: 16.66%;">{{$data->forwarder_name}}</td>
         </tr>
-        <tr class="details">
-         
-          <td style="border: 1px solid #000 ; text-align: left; font-size: 10px; font-weight: 700;  background-color: #e6e6e6; padding: 5px; line-height: 1.2; width: 12%;">Mode/Terms of Payment.</td>
-          <td style="border-right: 1px solid #000 ;text-align: center; font-size: 10px; line-height: 1.2; font-weight: 700;  padding: 5px; border-bottom: 1px solid #000;  width: 12%;">30 Days</td>
-          <td style="border: 1px solid #000 ; text-align: left; font-size: 10px; font-weight: 700;  background-color: #e6e6e6; padding: 5px; line-height: 1.2; width: 16%;"></td>
-          <td style="border-right: 1px solid #000 ;text-align: center; font-size: 10px; line-height: 1.2; font-weight: 700;  padding: 5px; border-bottom: 1px solid #000;width: 16%;"></td>
-          
+
+        <tr>
+          <td style="border: 1px solid #000 ; text-align: left; font-size: 10px; font-weight: 700;  background-color: #e6e6e6; line-height: 1.1; width: 16.66%;">From.</td>
+          <td style="border: 1px solid #000 ; text-align: center; font-size: 10px;    line-height: 1.1; width: 16.66%;">{{ $data->from}}</td>
+          <td style="border: 1px solid #000 ; text-align: left; font-size: 10px; font-weight: 700;  background-color: #e6e6e6; line-height: 1.1; width: 16.66%;">To.</td>
+          <td style="border: 1px solid #000 ; text-align: center; font-size: 10px;    line-height: 1.1; width: 16.66%;">{{ $data->to}}</td>
         </tr>
-      </table>
 
+          <tr>
+          <td style="border: 1px solid #000 ; text-align: left; font-size: 10px; font-weight: 700;  background-color: #e6e6e6; line-height: 1.1; width: 16.66%;">Mode/Terms of
+Payment. </td>
+          <td style="border: 1px solid #000 ; text-align: center; font-size: 10px;    line-height: 1.1; width: 16.66%;">30 Days</td>
+          <td style="border: 1px solid #000 ; text-align: left; font-size: 10px; font-weight: 700;  background-color: #e6e6e6; line-height: 1.1; width: 16.66%;">Shipment Type.</td>
 
-      <table style="border-collapse: collapse; margin-bottom: 0.5% ; border: 1px solid #000;" >
-
-              <tr class="details">
-                <td style="border: 1px solid #000 ; text-align: left; font-size: 10px; font-weight: 700; background-color: #e6e6e6;  padding: 5px; line-height: 1.2; width: 50%;">To,</td>
-                <td style="border: 1px solid #000 ; text-align: center; font-size: 10px; font-weight: 700; background-color: #e6e6e6; padding: 5px; line-height: 1.2; width: 15%;">From.</td>
-                 <td style="border: 1px solid #000 ; text-align: left; font-size: 10px; font-weight: 700; padding: 5px; line-height: 1.2; width: 35%;">{{ $data->from}}</td>
-                
-              </tr>
-
-              <tr class="details">
-
-                <td style="text-align: left; border: 1px solid #000 ;  padding:0px 3px; width: 50%; font-size: 10px; font-weight: 600; line-height: 1.2; font-family:sans-serif;" rowspan="4">
-                  <span style="font-size: 13px; font-weight: 700;"><strong>{{ $data->forwarder_name }}</strong></span><br>{{ $data->forwarder_address }}<br>
-                GSTIN/UIN: <span >{{ $data->forwarder_gst }}</span><br>
-               {{--  State Name:<span style="margin-left: 5%">Gujarat, Code : 24</span><br> --}}
-                A/C: <span> @if($data->imports == 1) {{$data->consignee}} @else {{$data->consignor}} @endif {{-- @if($data->consignee_address) <br> {{$data->consignee_address}}  @endif --}}</span>
-                </td>
-               
-                <td style="border: 1px solid #000 ; text-align: center; font-size: 10px; font-weight: 700;   line-height: 1.2; width: 15%; background-color: #e6e6e6;">To.</td>
-                <td style="border: 1px solid #000 ;border-right:1px solid #000 ; text-align: left; font-size: 10px; font-weight: 700;   line-height: 1.2; width: 35%;"> {{ $data->to}}</td>
-              </tr>
-              <tr>
-                <td style="border: 1px solid #000 ; text-align: center; font-size: 10px; font-weight: 700;   line-height: 1.2; width: 15%; background-color: #e6e6e6;">Shipper Invoice No:</td>
-                <td style="border: 1px solid #000 ; text-align: left; font-size: 10px; font-weight: 700;   line-height: 1.2; width: 35%;"></td>
-
-              </tr>
-              <tr>
-                <td style="border: 1px solid #000 ; text-align: center; font-size: 10px; font-weight: 700;   line-height: 1.2; width: 15%; background-color: #e6e6e6;">Bill Of Entry.</td>
-                <td style="border: 1px solid #000 ; text-align: left; font-size: 10px; font-weight: 700;   line-height: 1.2; width: 35%;"></td>
-
-              </tr>
-              <tr>
-                
-
-                <td style="border: 1px solid #000 ; text-align: center; font-size: 10px; font-weight: 700;   line-height: 1.2; width: 15%; background-color: #e6e6e6;">Shipment Type.</td>
-                <td style="border: 1px solid #000 ; text-align: left; font-size: 10px; font-weight: 700;   line-height: 1.2; width: 35%;" >
-                  <table style="width: 100%">
+          <td style="border: 1px solid #000 ;text-align: center; font-size: 10px; line-height: 1.1; border-bottom: 1px solid #000; width: 16.66%;" >
+                  <table>
                     <tr>
-                      <td style="width:10%;text-align: right;">
-                        @if($data->lcl == 1)
+                      <td style="width:4.165%;">
+                           @if($data->lcl == 1)
                           <input type="checkbox" checked="checked" name="vehicle1" >
                         @else 
-                          <input type="checkbox"   name="vehicle1" >
+                          <input type="checkbox"   name="vehicle1" disabled>
                         @endif
                       </td>
-                      <td style="width:40%;text-align:left;">
+                      <td style="width:4.165%; text-align: center; font-size: 10px; line-height: 1.1; padding: 5px;">
                         LCL
                       </td>
-                      <td style="width:10%;text-align: right;">
+                      <td style="width:4.165%;">
                      @if($data->fcl == 1)
-                          <input type="checkbox" checked="checked" name="vehicle1" >
+                          <input type="checkbox" checked="checked" name="vehicle1"  >
                         @else 
-                          <input type="checkbox"   name="vehicle1" >
+                          <input type="checkbox"   name="vehicle1" disabled>
                         @endif
                       </td>
-                      <td style="width:40%;text-align:left;">
+                      <td style="width:4.165%; text-align: center; font-size: 10px; line-height: 1.1; padding: 5px;">
                         FCL
                       </td>
-                    </tr>
+                       </tr>
                   </table>
 
-                </td>
-
-              </tr>
-             
+        </td>
+          
+        </tr>
+          
+        </tr>
+      
 
       </table>
 
-      <table style="border-collapse: collapse; margin-bottom: 0.5%; border: 1px solid #000 ;">
+        <table style="border-collapse: collapse; margin-bottom: 0.5%; border: 1px solid #000 ;">
 
               <tr>
                 <td style="border: 1px solid #000 ; text-align: center; font-size: 12px; font-weight: 700; background-color: #e6e6e6;  width:5%; line-height: 1.2; padding: 5px;">Sr. No.</td>
@@ -330,7 +290,7 @@ $number = abs($data->grand_total);
                     @endforeach
                 </td>
                 <td style=" vertical-align: baseline;border-left: 1px solid #000 ; border-right: 1px solid #000 ; text-align: center; font-size: 10px;   width:11.66%; line-height: 1.2; padding: 1px;" >
-                    @foreach($data->shipment_list as $key => $value)
+                  @foreach($data->shipment_list as $key => $value)
                           @if($key == 0)
                               {{ $value}}
                           @else 
@@ -339,9 +299,8 @@ $number = abs($data->grand_total);
 
                     @endforeach
 
-                 </td>
+                </td>
                 <td style=" vertical-align: baseline;border-left: 1px solid #000 ; border-right: 1px solid #000 ; text-align: center; font-size: 10px;   width:23.66%; line-height: 1.2; padding: 1px;" >
-                  
                   @foreach($data->trucklist as $key1 => $value1)
                           @if($key1 == 0)
                               {{ $value1}}
@@ -349,13 +308,12 @@ $number = abs($data->grand_total);
                               <br>{{ $value1}}
                           @endif
 
-                    @endforeach
-                </td>
-                <td style=" vertical-align: baseline;border-left: 1px solid #000 ; border-right: 1px solid #000 ; text-align: right; font-size: 10px;   width:15.66%; line-height: 1.2; padding: 1px;" > {{ number_format($data->fright,2) }}</td>
-                <td style=" vertical-align: baseline;border-left: 1px solid #000 ; border-right: 1px solid #000 ; text-align: right; font-size: 10px;   width:15.66%; line-height: 1.2; padding: 1px;" > {{ number_format($data->detention,2) }}</td>
-                <td style=" vertical-align: baseline;border-left: 1px solid #000 ; border-right: 1px solid #000 ; text-align: right; font-size: 10px;   width:15.66%; line-height: 1.2; padding: 1px;" > {{ number_format($data->loading,2) }}</td>
-                <td style=" vertical-align: baseline;border-left: 1px solid #000 ; border-right: 1px solid #000 ; text-align: right; font-size: 10px;   width:15.66%; line-height: 1.2; padding: 1px;" > {{ number_format($data->other,2) }}</td>
-                <td style=" vertical-align: baseline;border-left: 1px solid #000 ; border-right: 1px solid #000 ; text-align: right; font-size: 10px;   width:15.66%; line-height: 1.2; padding: 1px;" > {{ number_format($data->grand_total,2) }}</td>
+                    @endforeach</td>
+                    <td style=" vertical-align: baseline;border-left: 1px solid #000 ; border-right: 1px solid #000 ; text-align: right; font-size: 10px;   width:15.66%; line-height: 1.2; padding: 1px;" > &nbsp;</td>
+                <td style=" vertical-align: baseline;border-left: 1px solid #000 ; border-right: 1px solid #000 ; text-align: right; font-size: 10px;   width:15.66%; line-height: 1.2; padding: 1px;" > &nbsp;</td>
+                <td style=" vertical-align: baseline;border-left: 1px solid #000 ; border-right: 1px solid #000 ; text-align: right; font-size: 10px;   width:15.66%; line-height: 1.2; padding: 1px;" > &nbsp;</td>
+                <td style=" vertical-align: baseline;border-left: 1px solid #000 ; border-right: 1px solid #000 ; text-align: right; font-size: 10px;   width:15.66%; line-height: 1.2; padding: 1px;" > &nbsp;</td>
+                <td style=" vertical-align: baseline;border-left: 1px solid #000 ; border-right: 1px solid #000 ; text-align: right; font-size: 10px;   width:15.66%; line-height: 1.2; padding: 1px;" > {{ number_format($acc->credit,2) }}</td>
 
               </tr>
 
@@ -402,28 +360,15 @@ $number = abs($data->grand_total);
                 <td style=" border-left: 1px solid #000 ; border-right: 1px solid #000 ; text-align: center; font-size: 10px;   width:5%; line-height: 1.2; padding: 1px;">&nbsp;</td>
               </tr>
               
-
-             
-
-        
              
                <tr>
-                <td style=" border: 1px solid #000 ; border-right: 1px solid #000 ; text-align: center; font-size: 10px; font-weight: 700;   width:5%; line-height: 1.2; padding: 3px;">&nbsp;</td>
-                <td style=" border: 1px solid #000 ; border-right: 1px solid #000 ;text-align: center; font-size: 10px; font-weight: 700;   width: 24%; line-height: 1.2;  padding: 3px; background-color: #e6e6e6;" >Total</td>
-                 <td style=" border: 1px solid #000 ; border-right: 1px solid #000 ;text-align: center; font-size: 10px; font-weight: 700;   width: 10%; line-height: 1.2;  padding: 3px; background-color: #e6e6e6;" ></td>
-                <td style=" border: 1px solid #000 ; border-right: 1px solid #000 ;text-align: center; font-size: 10px; font-weight: 700;   width: 10.66%; line-height: 1.2;  padding: 3px;">&nbsp;</td>
-                <td style=" border: 1px solid #000 ; border-right: 1px solid #000 ;text-align: center; font-size: 10px; font-weight: 700;   width: 11.66%; line-height: 1.2;  padding: 3px;">&nbsp;</td>
+                <td style=" background-color: #e6e6e6;border: 1px solid #000 ; border-right: 1px solid #000 ; text-align: right; font-size: 10px; font-weight: 700;   width:84.34%; line-height: 1.2; padding: 3px;" colspan="6" >Total : </td>
                 <td style=" border: 1px solid #000 ; border-right: 1px solid #000 ;text-align: center; font-size: 10px; font-weight: 700;   width: 23.66%; line-height: 1.2;  padding: 3px;">&nbsp; </td>  
                 <td style=" border: 1px solid #000 ; border-right: 1px solid #000 ;text-align: center; font-size: 10px; font-weight: 700;   width: 23.66%; line-height: 1.2;  padding: 3px;">&nbsp; </td>  
                 <td style=" border: 1px solid #000 ; border-right: 1px solid #000 ;text-align: center; font-size: 10px; font-weight: 700;   width: 23.66%; line-height: 1.2;  padding: 3px;">&nbsp; </td>  
                 <td style=" border: 1px solid #000 ; border-right: 1px solid #000 ;text-align: center; font-size: 10px; font-weight: 700;   width: 23.66%; line-height: 1.2;  padding: 3px;">&nbsp; </td>  
-                <td style=" border: 1px solid #000 ; border-right: 1px solid #000 ;text-align: center; font-size: 10px; font-weight: 700;   width: 23.66%; line-height: 1.2;  padding: 3px;">&nbsp; </td>       
-                <td style=" border: 1px solid #000 ; border-right: 1px solid #000 ;text-align: right; font-size: 10px; font-weight: 700;   width: 15.66%; line-height: 1.2;  padding: 3px;"><i class="fa fa-inr"></i> {{ number_format($data->grand_total,2) }}</td>
-
+                <td style=" border: 1px solid #000 ; border-right: 1px solid #000 ;text-align: right; font-size: 10px; font-weight: 700;   width: 15.66%; line-height: 1.2;  padding: 3px;"><i class="fa fa-inr"></i> {{ number_format($acc->credit,2) }}</td>
               </tr>
-
-              
-
       </table>
       
 
@@ -437,8 +382,9 @@ $number = abs($data->grand_total);
 
             
           </tr>
-          </table>
-          <table  style="border-collapse: collapse; margin-bottom: 0.5% ;">
+        
+      </table>
+      <table  style="border-collapse: collapse; margin-bottom: 0.5% ;">
           <tr>
             <td style=" border: 1px solid #000 ; border-right: 1px solid #000 ; text-align: center; font-size: 10px; font-weight: 700;   width:39%; line-height: 1.2; padding: 5px; background-color: #e6e6e6;">Remarks</td>
 
@@ -447,7 +393,6 @@ $number = abs($data->grand_total);
           </tr>
         
       </table>
-
       <table  style="border-collapse: collapse; margin-bottom: 0.5%;">
           <tr>
             <td style=" border: 1px solid #000 ; border-right: 1px solid #000 ; text-align: center; font-size: 12px; font-weight: 700;   width:75.68%; line-height: 1.2; padding: 8px; background-color: #e6e6e6;">HSN/SAC</td>
@@ -457,20 +402,23 @@ $number = abs($data->grand_total);
           </tr>
 
           <tr>
-            <td style=" border: 1px solid #000 ; border-right: 1px solid #000 ; text-align: left; font-size: 10px; font-weight: 700;   width:75.68%; line-height: 1.2; padding: 5px; ">996791</td>
+            <td style=" border: 1px solid #000 ; border-right: 1px solid #000 ; text-align: left; font-size: 10px; font-weight: 700;   width:75.68%; line-height: 1.2; padding: 5px; ">&nbsp;</td>
 
               <td style=" border: 1px solid #000 ;  text-align: center; font-size: 10px; font-weight: 700;   width:24.32%; line-height: 1.2; padding: 5px; "></td>
             
           </tr>
 
            <tr>
-            <td style=" border: 1px solid #000 ; border-right: 1px solid #000 ; text-align: right; font-size: 10px; font-weight: 700;   width:75.68%; line-height: 1.2; padding: 5px; ">Total</td>
+            <td style="     background-color: #e6e6e6;border: 1px solid #000 ; border-right: 1px solid #000 ; text-align: right; font-size: 10px; font-weight: 700;   width:75.68%; line-height: 1.2; padding: 5px; ">Total</td>
 
-              <td style=" border: 1px solid #000 ;  text-align: center; font-size: 10px; font-weight: 700;   width:24.32%; line-height: 1.2; padding: 5px; ">{{-- <i class="fa fa-inr"></i> {{ number_format($data->grand_total,2) }} --}}</td>
+              <td style=" border: 1px solid #000 ;  text-align: center; font-size: 10px; font-weight: 700;   width:24.32%; line-height: 1.2; padding: 5px; "></td>
             
           </tr>
         
       </table>
+      
+
+       
 
       <table style="border-collapse: collapse; border: 1px solid #000; margin-bottom: 0.5%;" >
         <tr>
@@ -487,38 +435,33 @@ $number = abs($data->grand_total);
             <td style=" border: 1px solid #000 ; border-right: 1px solid #000 ; text-align: center; font-size: 12px; font-weight: 700;   width:37.84%; line-height: 1.2; padding: 5px; background-color: #e6e6e6;">Container No.</td>
             <td style=" border: 1px solid #000; text-align: center; font-size: 13px; width:37.84%; line-height: 1.2; padding: 5px;">
 				{{ $data->container }}
-			</td> 
-            <td style=" border-left: 1px solid #000; text-align: left; font-size: 13px; width:24.32%; line-height: 1.2; padding: 5px;" rowspan="3">
-				@if($data->qr_code)
-					<img src="{{ asset('Qr_code') }}/{{ $data->qr_code }}" width="100%">
-				@endif
 			</td>
+            <!-- <td style=" border-left: 1px solid #000; text-align: left; font-size: 13px; width:24.32%; line-height: 1.2; padding: 5px;" rowspan="3">
+				@if($data->qr_code)
+					<img src="{{ asset('public/Qr_code') }}/{{ $data->qr_code }}" width="100%">
+				@endif
+			</td> -->
             </tr>
             <tr>
                <td style=" border: 1px solid #000 ; border-right: 1px solid #000 ; text-align: center; font-size: 12px; font-weight: 700;   width:37.84%; line-height: 1.2; padding: 5px; background-color: #e6e6e6;">Seal No.</td>
                 
-                <td style="border: 1px solid #000; text-align: center; font-size: 13px; width:37.84%; line-height: 1.2; padding: 5px;">
-					{{ $data->seal }}
-				</td>
+                <td style=" border: 1px solid #000; text-align: center; font-size: 13px; width:37.84%; line-height: 1.2; padding: 5px;">
+				{{ $data->seal }}
+			</td>
                 <!-- <td style=" border-left: 1px solid #000;text-align: center; font-size: 13px; width:24.32%; line-height: 2; padding: 5px;"></td> -->
 
             </tr>
             
             <tr>
-                <td style=" border: 1px solid #000 ; border-right: 1px solid #000 ; text-align: center; font-size: 12px; font-weight: 700;   width:37.84%; line-height: 1.2; padding: 5px; background-color: #e6e6e6;">Shipping No.</td>
-                <td style="border: 1px solid #000; text-align: center; font-size: 13px; width:37.84%; line-height: 1.2; padding: 5px;">
-					{{ $data->shipping }}
-				</td>
-               <!-- <td style=" border-left: 1px solid #000;text-align: center; font-size: 13px; width:24.32%; line-height: 1.2; padding: 5px;">
-				@if($data->qr_code)
-					<img src="{{ asset('Qr_code') }}/{{ $data->qr_code }}" width="75px">
-				@endif
-				</td> -->
+                <td style=" border: 1px solid #000 ; border-right: 1px solid #000 ; text-align: center; font-size: 12px; font-weight: 700;   width:37.84%; line-height: 1.2; padding: 5px; background-color: #e6e6e6;">Shipping line.</td>
+                <td style=" border: 1px solid #000; text-align: center; font-size: 13px; width:37.84%; line-height: 1.2; padding: 5px;">
+				{{ $data->shipping }}
+			</td>
+                <!--- <td style=" border-left: 1px solid #000;text-align: center; font-size: 13px; width:24.32%; line-height: 1.2; padding: 5px;">for HANS TRANSPORT</span></td> -->
 
             </tr>
       </table>
 
-     
 
             <table style="border-collapse: collapse; border: 1px solid #000; margin-bottom: 0.5%;">
         <tr >
@@ -529,20 +472,20 @@ $number = abs($data->grand_total);
 
          <tr >
                 <td style="text-align: left; font-size: 10px; font-weight: 700; padding: 3px 5px; padding-top: 10px; line-height: 1.2; width: 50%;">Being Bill Issued against shipment</td>
-                <td style=" text-align: left; font-size: 10px; font-weight: 700;padding: 3px 5px; padding-top: 10px; line-height: 1.2; width: 50%;">Bank Name :<span style="margin-left: 14.3%"> YES BANK</span></td>
+                <td style=" text-align: left; font-size: 10px; font-weight: 700;padding: 3px 5px; padding-top: 10px; line-height: 1.2; width: 50%;">Bank Name :<span style="margin-left: 14.3%"> BANK OF BARODA</span></td>
                 
               </tr>
 
                <tr >
                 <td style="text-align: left; font-size: 10px; font-weight: 700; padding: 3px 5px; line-height: 1.2; width: 50%;">Company's PAN
-                  :<span style="margin-left: 5.3%">AACFY4389E</span></td>
-                <td style=" text-align: left; font-size: 10px; font-weight: 700;padding: 3px 5px; line-height: 1.2; width: 50%;">A/c No :<span style="margin-left: 20.3%"> 070984600000084</span></td>
+                  :<span style="margin-left: 5.3%">ASKPG6891R</span></td>
+                <td style=" text-align: left; font-size: 10px; font-weight: 700;padding: 3px 5px; line-height: 1.2; width: 50%;">A/c No :<span style="margin-left: 20.3%"> 03330200001406</span></td>
                 
               </tr>
 
               <tr >
                 <td style=" text-align: left; font-size: 10px; font-weight: 700;padding: 3px 5px; line-height: 1.2; width: 50%; padding-bottom: 10px;">Subject:<span style="margin-left: 15.8%; "> Ahmedabad Junction</span></td>
-                <td style=" text-align: left; font-size: 10px; font-weight: 700;padding: 3px 5px; line-height: 1.2; width: 50%; padding-bottom: 10px;">Branch & IFS Code :<span style="margin-left: 5.3% " >YESB0000709 (All are zeros)</span></td>
+                <td style=" text-align: left; font-size: 10px; font-weight: 700;padding: 3px 5px; line-height: 1.2; width: 50%; padding-bottom: 10px;">Branch & IFS Code :<span style="margin-left: 5.3% " > BARB0NAVRAN</span></td>
                 
               </tr>
 
@@ -551,7 +494,7 @@ $number = abs($data->grand_total);
       </table>
       <table style="border-collapse: collapse;">
         <tr>
-          <td style="text-align: center; font-size: 12px; line-height: 1.2; font-weight: 700; padding:5px; border: 1px solid #000;">Note:If Any Changes Please Inform us to within 6 days of invoice date.
+          <td style="text-align: center; font-size: 12px; line-height: 1.2; font-weight: 700; padding:5px; background-color: #2c3c6f; color: #fff;">Note:If Any Changes Please Inform us to within 6 days of invoice date.
 </td>
 
         </tr>
