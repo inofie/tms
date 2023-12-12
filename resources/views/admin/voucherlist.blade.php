@@ -115,11 +115,8 @@ All Voucher List | Helard
                               <div class="btn-group pull-right" style="padding: 0px 0.3%;">
                                  <a href="{{ route('voucherldebit') }}"> <button  class="btn btn-success">
                                  New Debit Voucher <i class="fa fa-plus"></i>
-<<<<<<< HEAD
                                   </button></a></br>
-=======
                                   </button></a>
->>>>>>> 01ab8dae6d4008aac2eceb550a6f5620f6f77bb1
                               </div>
                               <div class="btn-group pull-right" style="padding: 0px 0.3%;">
                                  <a href="{{ route('voucherlcredit') }}"> <button  class="btn btn-success">

@@ -45,6 +45,7 @@ class InvoiceController extends Controller
  	{
 		$html = $builder->columns([
             ['data' => 'DT_RowIndex', 'name' => 'DT_RowIndex','orderable' => false, 'searchable' => false,'title' => 'SR No'],
+			['data' => 'id', 'name' => 'id','title' => 'ID','visible' => false],
             ['data' => 'invoice_no', 'name' => 'invoice_no','title' => 'Invoice No'],
             ['data' => 'invoice_date', 'name' => 'invoice_date','title' => 'Invoice Date'],
             ['data' => 'invoice_month', 'name' => 'invoice_month','orderable' => false, 'searchable' => false,'title' => 'Invoice Month'],
@@ -59,10 +60,16 @@ class InvoiceController extends Controller
 			
             "processing" => true,
             "serverSide" => true,
-			"order" => ["2", "DESC"],
+			"language" => [
+				"processing" => '<i class="fa fa-spinner fa-spin fa-3x fa-fw" style="z-index:9999;text-align: center;position:absolute;margin:0px auto;"></i>'
+			],
+			"order" => ["1", "DESC"],
 			"dom" => 'lBfrtip',
 			"lengthChange"=> true,
-			"lengthMenu"=> [ 10, 25, 50, 75, 100 ],
+			'lengthMenu' => [
+				[ 10, 25, 50, -1 ],
+				[ '10', '25', '50', 'Show all' ]
+			],
 			"buttons" => [
 				[
 					'extend' => 'csvHtml5',
@@ -178,6 +185,7 @@ class InvoiceController extends Controller
  	{
 		$html = $builder->columns([
             ['data' => 'DT_RowIndex', 'name' => 'DT_RowIndex','orderable' => false, 'searchable' => false,'title' => 'SR No'],
+			['data' => 'id', 'name' => 'id','title' => 'ID','visible' => false],
             ['data' => 'invoice_no', 'name' => 'invoice_no','title' => 'Invoice No'],
             ['data' => 'invoice_date', 'name' => 'invoice_date','title' => 'Invoice Date'],
             ['data' => 'invoice_month', 'name' => 'invoice_month','orderable' => false, 'searchable' => false,'title' => 'Invoice Month'],
@@ -191,10 +199,16 @@ class InvoiceController extends Controller
 			
             "processing" => true,
             "serverSide" => true,
-			"order" => ["2", "DESC"],
+			"language" => [
+				"processing" => '<i class="fa fa-spinner fa-spin fa-3x fa-fw" style="z-index:9999;text-align: center;position:absolute;margin:0px auto;"></i>'
+			],
+			"order" => ["1", "DESC"],
 			"dom" => 'lBfrtip',
 			"lengthChange"=> true,
-			"lengthMenu"=> [ 10, 25, 50, 75, 100 ],
+			'lengthMenu' => [
+				[ 10, 25, 50, -1 ],
+				[ '10', '25', '50', 'Show all' ]
+			],
 			"buttons" => [
 				[
 					'extend' => 'csvHtml5',
@@ -421,8 +435,13 @@ class InvoiceController extends Controller
 
 
         //dd($Request);
- 		 
- 		$shipment_no= $Request->invoice_no."/".getenv('FIN_YEAR');
+		if(date('m') >= 4 ){
+            $financial_year = date('y').'-'.(date('y') + 1);
+        }else{
+            $financial_year = (date('y')-1).'-'.date('y'); 
+        }
+		
+ 		$shipment_no= $Request->invoice_no."/".$financial_year;
 
  		if($Request->totalshipment == 1){
 

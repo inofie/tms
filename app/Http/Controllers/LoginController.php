@@ -10,11 +10,13 @@ use App\Driver;
 use App\Employee;
 use App\Forwarder;
 use App\Shipment;
+use App\level;
 use App\Transporter;
 use App\Truck;
 use App\Warehouse;
 use Hash;
 use Session;
+
 use Illuminate\Support\Facades\Auth;
 
 
@@ -40,8 +42,48 @@ class LoginController extends Controller
 				return redirect()->route('transporterdashboard');
 			
 			}else if(Auth::user()->role == 'forwarder') {
-
+				
 				return redirect()->route('forwarderdashboard');
+			}
+			else if(Auth::user()->role == 'Forwarder_level1') {
+
+				return redirect()->route('userlist2');
+			}
+			else if(Auth::user()->role == 'Forwarder_level2') {
+
+				return redirect()->route('userlist2');
+			}
+			else if(Auth::user()->role == 'Forwarder_level3') {
+
+				return redirect()->route('userlist2');
+			}
+			else if(Auth::user()->role == 'Forwarder_level4') {
+
+				return redirect()->route('userlist2');
+			}
+			else if(Auth::user()->role == 'Forwarder_level5') {
+
+				return redirect()->route('userlist2');
+			}
+			else if(Auth::user()->role == 'Forwarder_level6') {
+
+				return redirect()->route('userlist2');
+			}
+			else if(Auth::user()->role == 'Forwarder_level7') {
+
+				return redirect()->route('userlist2');
+			}
+			else if(Auth::user()->role == 'Forwarder_level8') {
+
+				return redirect()->route('userlist2');
+			}
+			else if(Auth::user()->role == 'Forwarder_level9') {
+
+				return redirect()->route('userlist2');
+			}
+			else if(Auth::user()->role == 'Forwarder_level10') {
+
+				return redirect()->route('userlist2');
 			}
 			else if(Auth::user()->role == 'warehouse') {
 
@@ -114,12 +156,15 @@ class LoginController extends Controller
 		//dd(Hash::make($request->password));
 
 		$check = User::where('username',$request->username)->count();
-
+		$check2 = User::where('username',$request->username)->first();
 		if($check == 0 ) { 
 
 		 return redirect()->back()->withInput()->withError("This Username is not registed in Our System.");
 		}
+		if($check2->status == 1) { 
 
+			return redirect()->back()->withInput()->withError("Your account is deactivated. Please contact admin to active your account.");
+		   }
 		$userdata = User::where('username',$request->username)->first();
 
 		// if($userdata->role == "transporter"){
@@ -143,10 +188,105 @@ class LoginController extends Controller
         				return redirect()->route('admindashboard'); 
         			
         		} elseif(Auth::user()->role == 'forwarder') {
-
+					$check = DB::table('levels')->where('forwarder_id',Auth::id())->first();
+					if(!$check){
+					DB::table('levels')->insert(
+						array([
+						'name'   =>   'Level 1',
+						'level_name'   =>   '1',
+						'forwarder_id'   =>   Auth::id(),
+						],
+						[
+							'name'   =>   'Level 2',
+							'level_name'   =>   '2',
+							'forwarder_id'   =>   Auth::id(),
+						],
+						[
+							'name'   =>   'Level 3',
+							'level_name'   =>   '3',
+							'forwarder_id'   =>   Auth::id(),
+						],
+						[
+							'name'   =>   'Level 4',
+							'level_name'   =>   '4',
+							'forwarder_id'   =>   Auth::id(),
+						],
+						[
+							'name'   =>   'Level 5',
+							'level_name'   =>   '5',
+							'forwarder_id'   =>   Auth::id(),
+						],
+						[
+							'name'   =>   'Level 6',
+							'level_name'   =>   '6',
+							'forwarder_id'   =>   Auth::id(),
+						],
+						[
+							'name'   =>   'Level 7',
+							'level_name'   =>   '7',
+							'forwarder_id'   =>   Auth::id(),
+						],
+						[
+							'name'   =>   'Level 8',
+							'level_name'   =>   '8',
+							'forwarder_id'   =>   Auth::id(),
+						],
+						[
+							'name'   =>   'Level 9',
+							'level_name'   =>   '9',
+							'forwarder_id'   =>   Auth::id(),
+						],
+						[
+							'name'   =>   'Level 10',
+							'level_name'   =>   '10',
+							'forwarder_id'   =>   Auth::id(),
+						],
+					)	
+				);
+				}
         				return redirect()->route('forwarderdashboard'); 
         			
         		} 
+				else if(Auth::user()->role == 'Forwarder_level1') {
+
+					return redirect()->route('userlist2');
+				}
+				else if(Auth::user()->role == 'Forwarder_level2') {
+	
+					return redirect()->route('userlist2');
+				}
+				else if(Auth::user()->role == 'Forwarder_level3') {
+	
+					return redirect()->route('userlist2');
+				}
+				else if(Auth::user()->role == 'Forwarder_level4') {
+	
+					return redirect()->route('userlist2');
+				}
+				else if(Auth::user()->role == 'Forwarder_level5') {
+	
+					return redirect()->route('userlist2');
+				}
+				else if(Auth::user()->role == 'Forwarder_level6') {
+	
+					return redirect()->route('userlist2');
+				}
+				else if(Auth::user()->role == 'Forwarder_level7') {
+	
+					return redirect()->route('userlist2');
+				}
+				else if(Auth::user()->role == 'Forwarder_level8') {
+	
+					return redirect()->route('userlist2');
+				}
+				else if(Auth::user()->role == 'Forwarder_level9') {
+	
+					return redirect()->route('userlist2');
+				}
+				else if(Auth::user()->role == 'Forwarder_level10') {
+	
+					return redirect()->route('userlist2');
+				}
 				elseif(Auth::user()->role == 'transporter') {
 
 					return redirect()->route('transporterdashboard'); 

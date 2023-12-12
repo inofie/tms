@@ -2078,7 +2078,12 @@ class ApiController extends Controller {
 			}
 			$shipment_no = $Request->shipment_no;
 			$data->shipment_no = $shipment_no;
-			$data->lr_no = $shipment_no . "/" . getenv('FIN_YEAR');
+			if(date('m') >= 4 ){
+				$financial_year = date('y').'-'.(date('y') + 1);
+			}else{
+				$financial_year = (date('y')-1).'-'.date('y'); 
+			}
+			$data->lr_no = $shipment_no . "/" . $financial_year;
 			$data->myid = uniqid();
 			$data->save();
 
@@ -3047,9 +3052,14 @@ class ApiController extends Controller {
 				$offset = ($page - 1) * $perPage;
 
 				if ($Request->role == "admin"|| $Request->role == 'sub_admin' ) {
-
+					$check = User::where('id',$Request->user_id)->where('other_id',$Request->other_id)->first();
+					if($check->role == 'company'){
+						$data1 = Shipment::where('company', $Request->other_id)->where('status', 0)
+						->whereNull('deleted_at')->orderby('created_at', 'desc');
+					}
+					else{
 					$data1 = Shipment::where('status', 0)->whereNull('deleted_at')->orderby('created_at', 'desc');
-
+					}
 					$data = array();
 					$data1 = $data1->paginate($perPage);
 					foreach ($data1 as $key => $value) {
@@ -3068,7 +3078,7 @@ class ApiController extends Controller {
 
 						}
 					}
-
+				
 				}
 				if ($Request->role == 'employee') {
 
@@ -3229,9 +3239,14 @@ class ApiController extends Controller {
 
 			else{
 			if ($Request->role == "admin" || $Request->role == 'sub_admin') {
-
-				$data1 = Shipment::where('status', 0)->whereNull('deleted_at')->orderby('created_at', 'desc')->get();
-
+				$check = User::where('id',$Request->user_id)->where('other_id',$Request->other_id)->first();
+					if($check->role == 'company'){
+						$data1 = Shipment::where('company', $Request->other_id)->where('status', 0)
+						->whereNull('deleted_at')->orderby('created_at', 'desc')->get();
+					}
+					else{
+					$data1 = Shipment::where('status', 0)->whereNull('deleted_at')->orderby('created_at', 'desc')->get();
+					}
 				$data = array();
 
 				foreach ($data1 as $key => $value) {
@@ -3436,7 +3451,13 @@ class ApiController extends Controller {
 				$offset = ($page - 1) * $perPage;
 
 				if ($Request->role == "admin"|| $Request->role == 'sub_admin') {
+					$check = User::where('id',$Request->user_id)->where('other_id',$Request->other_id)->first();
+					if($check->role == 'company'){
+						$data1 = Shipment::where('company', $Request->other_id)->where('status', 1)
+						->whereNull('deleted_at')->orderby('created_at', 'desc');
+					}else{
 					$data1 = Shipment::where('status', 1)->whereNull('deleted_at')->orderby('created_at', 'desc');
+					}
 					$data = array();
 					$data1 = $data1->paginate($perPage);
 
@@ -3642,9 +3663,13 @@ class ApiController extends Controller {
 			else{
 
 			if ($Request->role == "admin"|| $Request->role == 'sub_admin') {
-
+				$check = User::where('id',$Request->user_id)->where('other_id',$Request->other_id)->first();
+				if($check->role == 'company'){
+					$data1 = Shipment::where('company', $Request->other_id)->where('status', 1)
+					->whereNull('deleted_at')->orderby('created_at', 'desc')->get();
+				}else{
 				$data1 = Shipment::where('status', 1)->whereNull('deleted_at')->orderby('created_at', 'desc')->get();
-
+				}
 				$data = array();
 
 				foreach ($data1 as $key => $value) {
@@ -3874,9 +3899,13 @@ class ApiController extends Controller {
 				$offset = ($page - 1) * $perPage;
 
 			if ($Request->role == "admin"|| $Request->role == 'sub_admin') {
-
+				$check = User::where('id',$Request->user_id)->where('other_id',$Request->other_id)->first();
+				if($check->role == 'company'){
+					$data1 = Shipment::where('company', $Request->other_id)->where('status', 2)
+					->whereNull('deleted_at')->orderby('created_at', 'desc');
+				}else{
 				$data1 = Shipment::where('status', 2)->whereNull('deleted_at')->orderby('created_at', 'desc');
-
+				}
 				$data = array();
 				$data1 = $data1->paginate($perPage);
 				foreach ($data1 as $key => $value) {
@@ -4113,9 +4142,13 @@ class ApiController extends Controller {
 
 			else{
 			if ($Request->role == "admin" || $Request->role == 'sub_admin') {
-
+				$check = User::where('id',$Request->user_id)->where('other_id',$Request->other_id)->first();
+				if($check->role == 'company'){
+					$data1 = Shipment::where('company', $Request->other_id)->where('status', 2)
+					->whereNull('deleted_at')->orderby('created_at', 'desc')->get();
+				}else{
 				$data1 = Shipment::where('status', 2)->whereNull('deleted_at')->orderby('created_at', 'desc')->get();
-
+				}
 				$data = array();
 
 				foreach ($data1 as $key => $value) {
@@ -5375,7 +5408,14 @@ class ApiController extends Controller {
 			// }
 			$data = Shipment::where('id', $Request->id)->first();
 			$data->shipment_no = $Request->shipment_no;
-			$data->lr_no = $Request->shipment_no."/".getenv('FIN_YEAR');
+
+			if(date('m') >= 4 ){
+				$financial_year = date('y').'-'.(date('y') + 1);
+			}else{
+				$financial_year = (date('y')-1).'-'.date('y'); 
+			}
+			
+			$data->lr_no = $Request->shipment_no."/".$financial_year;
 			$data->date = $Request->date;
 			$data->company = $Request->company_id;
 			if ($Request->type1 == "import") {
@@ -6453,7 +6493,12 @@ class ApiController extends Controller {
 			$data->remark = $olddata->remark;
 			$shipment_no = $Request->new_shipment_no;
 			$data->shipment_no = $shipment_no;
-			$data->lr_no = $shipment_no . "/" . getenv('FIN_YEAR');
+			if(date('m') >= 4 ){
+				$financial_year = date('y').'-'.(date('y') + 1);
+			}else{
+				$financial_year = (date('y')-1).'-'.date('y'); 
+			}
+			$data->lr_no = $shipment_no . "/" .$financial_year;
 			$data->myid = uniqid();
 			$data->save();
 			$company = Company::findorfail($olddata->company);
@@ -6588,7 +6633,7 @@ class ApiController extends Controller {
 		
 			
 			
-		$pending1 = $data2 = Shipment_Transporter::withTrashed()
+		$pending1 = Shipment_Transporter::withTrashed()
 		->where('transporter_id', $Request->other_id)
 		->whereNull('deleted_at')->where('is_trucktransfer', '0')
 		->orderby('id','desc')->where('status','1')->groupBy('shipment_no')->get();

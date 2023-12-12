@@ -78,7 +78,16 @@ Shipment List | TMS
               <!-- page start-->
               <section class="panel">
                   <header class="panel-heading" style="line-height: 30px;">
-                      Shipment List</header>
+                      Shipment List
+                      <div class="btn-group pull-right">
+                                
+                                <a style="padding:0px 1px;" href="{{route('myfilterforwarder')}}">
+                                  <button  class="btn btn-primary">
+                                      <i class="fa fa-plus"></i> Filter
+                                  </button>
+                                </a>
+                      </div>
+                    </header>
 
                
                         <div class="adv-table" style="padding: 1%;">

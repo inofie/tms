@@ -8,7 +8,7 @@ Shipment List | TMS
 <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.20/css/jquery.dataTables.min.css">
 <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/buttons/1.6.1/css/buttons.dataTables.min.css">
 <style type="text/css">
-  .pannel{
+  /* .pannel{
     overflow:hidden;
   }
 table.dataTable{
@@ -26,7 +26,7 @@ table.dataTable{
 .state-overview .panel .value h1 {
     font-weight: 500 !important;
     font-size: 20px !important;
-}
+} */
 .text-blue
 {
   color:blue;

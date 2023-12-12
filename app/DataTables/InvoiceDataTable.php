@@ -24,13 +24,17 @@ class InvoiceDataTable extends DataTable
         $invoice_no = $country->id;
         return 
         '<a href="' .route('downloadinvoice',$id). '"style="margin-top: 2%;width: auto; margin:1%;background-color: #673ab7;border-color: #673ab7;color: #fff" class="btn expense "><i class="fa fa-download "></i> Download</a>
-        <a target="_blank" style="margin-top: 2%;width: auto; margin:1%;" href="' .route('voucherlist2',$invoice_no). '" class="btn btn-warning "><i class="fa fa-eye"></i> View</a>
+        <a target="_blank" style="margin-top: 2%;width: auto; margin:1%;" href="' .route('voucherlist2',$invoice_no). '" class="btn btn-warning "><i class="fa fa-eye"></i> Vouchers</a>
+        <a target="_blank" style="margin-top: 2%;width: auto; margin:1%;" href="' .route('invoiceview',$id). '" class="btn btn-warning "><i class="fa fa-eye"></i> View</a>
         <a style="margin-top: 2%;width: auto; margin:1%;" href="' .route('invoiceedit',$id). '" class="btn btn-primary"><i class="fa fa-pencil"></i> Edit</a>
         <a style="margin-top: 2%;width: auto; margin:1%;" href="' .route('invoicecreditnote',$id). '" class="btn btn-info"><i class="fa fa-credit-card"></i> Credit Note</a>
         <a style="margin-top: 2%;width: auto; margin:1%;" href="' .route('invoicedelete',$id). '" class="btn btn-danger"><i class="fa fa-trash-o"></i> Delete</a>';
     
     })
-        
+    ->addColumn('invoice_date', function($shipment) {
+        $date = date_create($shipment->invoice_date);
+        return date_format($date, "d/m/Y");
+    })
         ->editColumn('invoice_month', function($country) {
             return date('M-y',strtotime($country->invoice_date));
         })
@@ -80,8 +84,12 @@ class InvoiceDataTable extends DataTable
         ->editColumn('shipper_name', function($country) {
             return GlobalHelper::getshippername($country->ships);
         })
+        ->filterColumn('invoice_date', function($query, $keyword) {
+            $sql = 'DATE_FORMAT(invoice_date,"%d/%m/%Y") like ?';
+            $query->whereRaw($sql, ["%{$keyword}%"]);
+          })
 
-        ->rawColumns(['action','company_name','forwarder_name','voucher_no','shipper_name']);//->toJson();
+        ->rawColumns(['action','company_name','forwarder_name','voucher_no','shipper_name','invoice_date']);//->toJson();
     }
     /**
      * Get query source of dataTable.

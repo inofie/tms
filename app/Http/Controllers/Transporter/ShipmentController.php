@@ -58,24 +58,35 @@ class ShipmentController extends Controller
 
         $ff= Transporter::where('user_id',Auth::user()->id)->first();
 
-        // $data2 = Shipment_Driver::withTrashed()->where('transporter_id', $ff->id)->whereNull('deleted_at')
-        //         ->groupBy('shipment_no')
-		// 		// ->whereRaw('id IN (select MAX(id) FROM shipment_driver GROUP BY shipment_no)')
-        //         ->get();
-        $data = Shipment::withTrashed()->whereRaw("find_in_set('$ff->id' , all_transporter)")->get();
+        $data2 = Shipment_Transporter::withTrashed()
+        ->where('transporter_id', $ff->id)->whereNull('deleted_at')
+        ->groupBy('shipment_no')->orderby('id','desc')->get();
 
+        $data = array();
 
-        foreach ($data as $key => $value) {
-            // $data1 = Shipment::withTrashed()->whereNull('deleted_at')->where('shipment_no', $value->shipment_no)->first();
-            // if($data1){
-            // $data[$key] = $data1;
-            $data3 = Shipment_Driver::withTrashed()->where('shipment_no', $value->shipment_no)->
-            where('transporter_id', $ff->id)->orderBy('id','desc')->first();
-            if($data3){
-             $data[$key]['status'] = $data3->status;
+        foreach($data2 as $key => $value){
+            $datashipment = Shipment::withTrashed()->where('shipment_no', $value->shipment_no)
+            ->whereRaw('DATEDIFF(CURDATE(),date) <= 6')->whereNull('deleted_at')->first();
+            if($datashipment){
+            $datafinal = Shipment_Transporter::where('shipment_no', $value->shipment_no)->pluck('status')->toArray();
+            $data[$key] = $datashipment;
+
+            if($datafinal){
+            if(in_array("1",$datafinal)){
+                $data[$key]['status'] = 1;
             }
-        //}
-    }
+            elseif(in_array("2",$datafinal) && !in_array("1",$datafinal)){
+                $data[$key]['status'] = 2;
+            }
+            else{
+                $data[$key]['status'] = 3;
+            }
+            }
+        } 
+           
+        }
+       // dd($data);
+        
         $warehouse = Warehouse::get();
 
     	return view('transporter.shipmentlist',compact('data','warehouse'));
@@ -1111,7 +1122,7 @@ class ShipmentController extends Controller
 
 
 
-        return view('admin.addexpense2',compact('data','ship'));
+        return view('transporter.addexpense2',compact('data','ship'));
 
 
 
@@ -1126,20 +1137,20 @@ class ShipmentController extends Controller
 
               $this->validate($Request, [
 
-        'transporter_id' => 'required',
+        
         'amount' => 'required|numeric',
 
          ],[
-         'transporter_id.required' => "Please Select Transporter",
+         
          'amount.required' => "Please Enter Amount",
 
          ]);
 
               $shipment_data = Shipment::where('shipment_no', $Request->shipment_no)->first();
 
-
+                $ff= Transporter::where('user_id',Auth::user()->id)->first();
                 $account = new Account();
-                $account->to_transporter = $Request->transporter_id;
+                $account->to_transporter = $ff->id;
                 $account->from_company = $shipment_data->company;
                 $account->description =  $Request->shipment_no.' '.$shipment_data->date.''.' Expense.'. $Request->reason;
                 $account->dates = date('Y-m-d');
@@ -1150,7 +1161,7 @@ class ShipmentController extends Controller
                 $expense = new Expense();
                 $expense->dates = date('Y-m-d');
                 $expense->account_id = $account->id;
-                $expense->transporter_id = $Request->transporter_id;
+                $expense->transporter_id = $ff->id;
                 $expense->company_id = $shipment_data->company;
                 $expense->reason = $Request->reason;
                 $expense->amount = $Request->amount;
@@ -1161,7 +1172,7 @@ class ShipmentController extends Controller
                 $summary = new Shipment_Summary();
                 $summary->shipment_no =  $Request->shipment_no;
                 $summary->flag = "Add Expense";
-                $summary->transporter_id = $Request->transporter_id;
+                $summary->transporter_id = $ff->id;
                 $summary->description = "Add Expense. ".$Request->reason;
                 $summary->created_by = Auth::id();
                 $summary->save();
@@ -1204,7 +1215,7 @@ class ShipmentController extends Controller
 
 
 
-        return view('admin.addtransporter',compact('data','ship','shiptransporter'));
+        return view('transporter.addtransporter',compact('data','ship','shiptransporter'));
 
     }
 
@@ -2726,26 +2737,39 @@ class ShipmentController extends Controller
          $this->check();
 
          $ff= Transporter::where('user_id',Auth::user()->id)->first();
-        //$cargostatus = Shipment_Driver::where('shipment_no',$data->shipment_no)->latest()->take(1)->first();
 
-        $data2 = Shipment_Driver::withTrashed()->where('transporter_id', $ff->id)->whereNull('deleted_at')
-				->whereRaw('id IN (select MAX(id) FROM shipment_driver GROUP BY shipment_no)')->get();
-        $data = array();
-
-        foreach ($data2 as $key => $value) {
-            $data1 = Shipment::withTrashed()->where('shipment_no', $value->shipment_no)->first();
-            $data[$key] = $data1;
-            $data3 = Shipment_Driver::withTrashed()->where('shipment_no', $value->shipment_no)->
-            where('transporter_id', $ff->id)->orderBy('id','desc')->first();
-            if($data3){
-             $data[$key]['status'] = $data3->status;
-            }
-        }
-        //dd($data);
-
-        $warehouse = Warehouse::get();
-
-        return view('transporter.shipmentalllist',compact('data','warehouse'));
+         $data2 = Shipment_Transporter::withTrashed()
+         ->where('transporter_id', $ff->id)->whereNull('deleted_at')
+         ->groupBy('shipment_no')->orderby('id','desc')->get();
+ 
+         $data = array();
+ 
+         foreach($data2 as $key => $value){
+             $datashipment = Shipment::withTrashed()->where('shipment_no', $value->shipment_no)
+             ->whereRaw('DATEDIFF(CURDATE(),date) >= 6')->whereNull('deleted_at')->first();
+             if($datashipment){
+             $datafinal = Shipment_Transporter::where('shipment_no', $value->shipment_no)->pluck('status')->toArray();
+             $data[$key] = $datashipment;
+ 
+             if($datafinal){
+             if(in_array("1",$datafinal)){
+                 $data[$key]['status'] = 1;
+             }
+             elseif(in_array("2",$datafinal) && !in_array("1",$datafinal)){
+                 $data[$key]['status'] = 2;
+             }
+             else{
+                 $data[$key]['status'] = 3;
+             }
+             }
+         } 
+            
+         }
+        // dd($data);
+         
+         $warehouse = Warehouse::get();
+ 
+         return view('transporter.shipmentlist',compact('data','warehouse'));
 
     }
 
@@ -2883,7 +2907,7 @@ class ShipmentController extends Controller
     }
 	public function MyFilter(Request $Request)
 	{
-        dd($Request);
+        //dd($Request);
     	$data = array();
         $tt = Shipment::get();
         if(isset($Request->shipment)){
@@ -2934,7 +2958,7 @@ class ShipmentController extends Controller
 
         $ff= Transporter::where('user_id',Auth::user()->id)->first();
 
-        $data = Shipment::with('statusData')->withTrashed()->whereNull('deleted_at')
+        $data = Shipment::withTrashed()->whereNull('deleted_at')
         ->whereRaw("find_in_set('$ff->id' , all_transporter)");
 
         if($month) {
@@ -2974,7 +2998,7 @@ class ShipmentController extends Controller
        
        
 		
-		return view('transporter.shipmentfilter', compact('tt','ttt','tts','data','all_transporter','all_forwarder','search','transporter','forwarder','year','month','date'));
+		return view('transporter.shipmentfilter', compact('tt','ttt','tts','data','all_transporter','all_forwarder','search','transporter','forwarder','year','month','date','yearRange'));
 	}
 
      public function Driverlist(Request $Request)

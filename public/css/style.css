@@ -3120,9 +3120,9 @@ ul.amounts li {
 }
 
 .form-horizontal.tasi-form .form-group:last-child {
-    border-bottom: none;
-    padding-bottom: 0px;
-    margin-bottom: 0px;
+    border-bottom: 1px solid #eff2f7;
+    padding-bottom: 15px;
+    margin-bottom: 15px;
 }
 
 

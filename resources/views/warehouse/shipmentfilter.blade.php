@@ -122,13 +122,8 @@ Shipment Filter | TMS
                                         <div class="form-group ">
                                             <label for="company_ids" class="control-label col-lg-2">Year :</label>
                                             <div class="col-lg-2">
-<<<<<<< HEAD
-                                              
-                                                <select class="form-control" name="year" id="year" > 
-=======
 
                                                 <select class="form-control" name="year" id="year" >
->>>>>>> 01ab8dae6d4008aac2eceb550a6f5620f6f77bb1
                                                    <option value=""> -- Please Select Year -- </option>
                                                       @foreach($yearRange as $value)
                                                       @if($year == $value)

@@ -3,6 +3,7 @@ namespace App\DataTables;
 use App\Shipment;
 use Yajra\DataTables\Services\DataTable;
 use App\Helper\GlobalHelper;
+use Carbon\Carbon;
 class ShipmentLatestDataTable extends DataTable
 {
     /**
@@ -48,6 +49,10 @@ class ShipmentLatestDataTable extends DataTable
             return $view.' '.$expense;
 
         })
+        ->editColumn('date', function($shipment) {
+            return GlobalHelper::getFormattedDatefilter($shipment->date);
+            
+        })
         ->editColumn('created_at', function($shipment) {
             return GlobalHelper::getFormattedDate($shipment->created_at);
         })
@@ -87,7 +92,11 @@ class ShipmentLatestDataTable extends DataTable
                 }
                 return $import.'/'.$lcl;
             })
-        ->rawColumns(['action','other','type','status']);//->toJson();
+            ->filterColumn('date', function($query, $keyword) {
+                $sql = 'DATE_FORMAT(date,"%d/%m/%Y") like ?';
+                $query->whereRaw($sql, ["%{$keyword}%"]);
+              })
+        ->rawColumns(['action','other','type','status','date']);//->toJson();
     }
     /**
      * Get query source of dataTable.

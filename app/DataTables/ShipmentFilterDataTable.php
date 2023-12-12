@@ -7,6 +7,7 @@ use App\Shipment_Driver;
 use App\Invoice;
 use App\Expense;
 use Yajra\DataTables\Services\DataTable;
+use Yajra\DataTables\Html\Column;
 use App\Helper\GlobalHelper;
 class ShipmentFilterDataTable extends DataTable
 {
@@ -39,7 +40,7 @@ class ShipmentFilterDataTable extends DataTable
                 <a href="' .route('downloadlr',$id) . '" style="margin-top: 2%;width: auto; margin:1%;width:auto;" class="btn btn-danger btn-xs {{ $value->shipment_no }}hide "><i class="fa fa-download "></i> LR</i></a>
                 ';
             }
-            if($shipment->status == 2)
+            if($shipment->status == 2 || $shipment->status == 3)
             {
                 $view ='<a href="' .route('downloadlr',$id) . '" style="margin-top: 2%;width: auto; margin:1%;width:auto;" class="btn btn-danger btn-xs {{ $value->shipment_no }}hide "><i class="fa fa-download "></i> LR</i></a>';
             }
@@ -51,8 +52,9 @@ class ShipmentFilterDataTable extends DataTable
             return $view.' '.$expense.' '.$shipmentSummary.' '.$edit.''.$delete;
         })
 
-        ->editColumn('created_at', function($shipment) {
-            return GlobalHelper::getFormattedDate($shipment->created_at);
+        ->addColumn('date', function($shipment) {
+            $date = date_create($shipment->date);
+            return date_format($date, "d/m/Y");
         })
         ->addColumn('status',  function($shipment) {
             $status = $shipment->status;
@@ -154,7 +156,11 @@ class ShipmentFilterDataTable extends DataTable
                             return $transporter_cost = '-';
                         }
         })
-        ->rawColumns(['action','type','status','transporter_name','truck_no','invoice_cost','transporter_cost']);//->toJson();
+        ->filterColumn('date', function($query, $keyword) {
+            $sql = 'DATE_FORMAT(date,"%d/%m/%Y") like ?';
+            $query->whereRaw($sql, ["%{$keyword}%"]);
+          })
+        ->rawColumns(['action','type','status','transporter_name','truck_no','invoice_cost','transporter_cost','date']);//->toJson();
     }
     /**
      * Get query source of dataTable.
@@ -186,7 +192,11 @@ class ShipmentFilterDataTable extends DataTable
      */
     protected function getColumns()
     {
-        return ['id',  'date', 'shipment_no', 'status', 'created_at', 'updated_at'];
+        return [
+            Column::make('id'),
+            Column::make('shipment_no'),
+            Column::make('date')->exportFormat('dd/mm/yyyy'),
+        ];
     }
     /**
      * Get filename for export.

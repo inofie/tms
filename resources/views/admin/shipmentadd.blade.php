@@ -63,7 +63,7 @@
                 <div class="form-group ">
                   <label for="firstname" class="control-label col-lg-2">Shipment No</label>
                   <div class="col-lg-10">
-                    <input class=" form-control" id="shipment_no" name="shipment_no" type="text" value="{{ old('shipment_no') }}" /> @error('shipment_no') <span class="text-danger"> {{ $message }} </span> @enderror
+                    <input class=" form-control" id="shipment_no" required name="shipment_no" type="text" value="{{ old('shipment_no') }}" /> @error('shipment_no') <span class="text-danger"> {{ $message }} </span> @enderror
                   </div>
                 </div>
                 <div class="form-group">
@@ -142,11 +142,15 @@
                 <div class="form-group ">
                   <label for="cars" class="control-label col-lg-2">Forwarder <span style="color: red">*</span>: </label>
                   <div class="col-lg-10">
-                    <select class="form-control" name="forwarder" id="forwarder">
+                    <select class="form-control forwarderChange" data-level="0" name="forwarder" id="forwarder">
                       <option value="">Choose Forwarder</option> @foreach($forwarder as $value) @if(old('forwarder') == $value->id) <option selected="selected" data-name="{{ $value->name }}" value="{{ $value->id }}">{{ $value->name }}</option> @else <option data-name="{{ $value->name }}" value="{{ $value->id }}">{{ $value->name }}</option> @endif @endforeach
                     </select> @error('forwarder') <span class="text-danger"> {{ $message }} </span> @enderror
                   </div>
                 </div>
+                <input type="hidden" name="dependlevel" id="dependlevel" value="0">
+                <div id="dependforwarder"></div>
+                
+          
                 <div class="form-group ">
                   <label for="cars" class="control-label col-lg-2">Forwarder View Details <span style="color: red">*</span>: </label>
                   <div class="col-lg-10"> @if(old('show_detail') == 1) <div class="radio">
@@ -261,6 +265,7 @@
                 </div>
               </form>
             </div>
+           
             <div id="hfcls" style="display: none;">
               <div class="form-group">
                 <label class="col-lg-2 control-label">To :</label>
@@ -367,6 +372,8 @@
     // }
 
     finddriver();
+    findforwarderlevel();
+    findforwarderlevel2();
   });
     $(document).on('submit', 'form', function() {
         $('button').attr('disabled', 'disabled');
@@ -418,9 +425,38 @@ function lclclick(){
   $('#hfcls').html(myfcls);
   $('#myfcls').html('');
   }
+  $(document).on("change", ".forwarderChange", function(){
+    var level = $(this).attr('data-level');
+    var value = $(this).val();
+    var id = $('#forwarder').val();
+    findforwarderlevel(level,id,value);
+  });
+
+  function findforwarderlevel(level,id,value){
+    var dependlevel = $('#dependlevel').val();
+        console.log('level - '+ level);
+        console.log('dependlevel - '+ dependlevel);
+    if(level <= dependlevel) {
+      console.log('ig');
+      var lowend = parseInt(level)+1;
+      console.log(lowend);
+      for (var i = lowend; i <= 10; i++) {
+        console.log('i - '+ i);
+        $('#forwarderdiv'+i).remove();
+      }
+    }
+    $('#dependlevel').val(level);
+    $.ajax({
+        type: 'GET',
+        url: '{{route('dependlistforwarder2')}}',
+        data: { id :id , level :level, value:value },
+        success: function(data) {
+            $('#dependforwarder').append(data);
+        }
+    });
+  }
   
-
-
+ 
     $('#transporter').change(function(){
       finddriver();
     });
@@ -516,7 +552,7 @@ function lclclick(){
       
       });
 
-
+     
  
 
 </script>

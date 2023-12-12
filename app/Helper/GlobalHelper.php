@@ -93,6 +93,17 @@ class GlobalHelper
     }
   }
 
+  public static function getFormattedDatefilter($date)
+  {
+    if(!empty($date)){
+      $date = date_create($date);
+      return date_format($date, "d/m/Y");
+    }
+    else {
+      return "";
+    }
+  }
+
   /**
   * Developed By : Ajarudin Gugna
   * Date         :

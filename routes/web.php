@@ -224,6 +224,8 @@ Route::group(['namespace' => 'Admin','prefix' =>'admin' , 'middleware' => 'auth'
 	Route::post('/account/list','AccountController@AccountData')->name('accountdata');
 	Route::get('/notifications/list','NotificationController@List')->name('notificationlist');
 	Route::get('/getNotification','NotificationController@getNotification')->name('getNotification');
+	Route::get('/depend2','ShipmentController@listforwarder')->name('dependlistforwarder');
+	Route::get('/depend3','ShipmentController@listforwarderlevel2')->name('dependlistforwarder2');
 });
 
 
@@ -235,7 +237,7 @@ Route::group(['namespace' => 'Forwarder','prefix' =>'forwarder' , 'middleware' =
 	Route::get('/shipment/{id}','ShipmentController@ShipmentDetails')->name('forwarder-shipmentdetail');
 	Route::get('/shipment/summary/list','ShipmentController@ShipmentSummaryList')->name('forwarder-allshipmentsummarylist');
 	Route::get('/lr/download/{id}','ShipmentController@DownloadLR')->name('forwarder-downloadlr');
-
+	Route::get('/shipment/all/filter','ShipmentController@MyFilter')->name('myfilterforwarder');
 	Route::get('/account/invoice/list','AccountController@Account')->name('faccounts');
 	Route::post('/account/invoice/list','AccountController@AccountData')->name('f-invoices-list');
 	Route::get('/account/invoice/download/{id}','AccountController@InvoiceDownload')->name('f-invoices-download');
@@ -243,6 +245,24 @@ Route::group(['namespace' => 'Forwarder','prefix' =>'forwarder' , 'middleware' =
 
 	Route::get('/account/ledger','AccountController@LedgerAccount')->name('f-main-account');
 	Route::post('/account/ledger','AccountController@LegerData')->name('f-main-account-data');
+	// Route::resource('level','levelController');
+	Route::get('/level','LevelController@index')->name('levellist');
+	Route::get('/level/add','LevelController@levelAdd')->name('leveladd');
+	Route::post('/level/save','LevelController@store')->name('levelsave');
+	Route::get('/level/edit/{id}','LevelController@edit')->name('leveledit');
+	Route::post('/level/update','LevelController@update')->name('levelupdate');
+	Route::get('/user','UserController@index')->name('userlist');
+	Route::get('/user2','UserController@index2')->name('userlist2');
+	Route::get('/user/add2','UserController@Add2')->name('useradd2');
+	Route::post('/user/save2','UserController@store2')->name('usersave2');
+	Route::get('/depend','UserController@list')->name('dependlist');
+	Route::get('/dependlevelname','UserController@levelname')->name('levelname');
+	Route::get('/user/add','UserController@Add')->name('useradd');
+	Route::post('/user/save','UserController@store')->name('usersave');
+	Route::get('/user/edit/{id}','UserController@edit')->name('useredit');
+	Route::post('/user/update','UserController@update')->name('userupdate');
+	Route::post('/user/status-change', 'UserController@changeStatus');
+
 
 });
 Route::group(['namespace' => 'Transporter','prefix' =>'transporter' , 'middleware' => 'auth'], function () {
@@ -254,11 +274,11 @@ Route::group(['namespace' => 'Transporter','prefix' =>'transporter' , 'middlewar
 	Route::get('/shipment/trucks/list/{id}','ShipmentController@TruckList')->name('shipmenttrucklist');
 	Route::post('/shipment/change/truckstatus','ShipmentController@ChangeTruckStatus')->name('changetruckstatusadmins');
 	Route::post('/shipment/truck/delete','ShipmentController@DeleteTruckStatus')->name('deletetruckstatusadmins');
-	Route::get('/shipment/expense/add/{id}','ShipmentController@AddExpense')->name('addexpensebyadmin');
+	Route::get('/shipment/expense/add/{id}','ShipmentController@AddExpense')->name('addexpensebytransporter');
 	Route::post('/shipment/expense/save','ShipmentController@SaveExpense')->name('expensesave2');
 	Route::get('/shipment/transporter/add/{id}','ShipmentController@AddTransporter')->name('shipmenttransporter');
 	Route::post('/shipment/transporter/save','ShipmentController@SaveTransporter')->name('savetransporters');
-	Route::post('/shipment/transporter/delete','ShipmentController@DeleteTransporter')->name('deleteshiptransporter');
+	Route::post('/shipment/transporter/delete','ShipmentController@DeleteTransporter')->name('deleteshiptransporters');
 	Route::get('/lr/download/{id}','ShipmentController@DownloadLR')->name('downloadlr');
 	Route::get('/shipment/detail/{id}','ShipmentController@ShipmentDetails')->name('shipmentdetailstransporter');
 	Route::post('/shipment/amount/update','ShipmentController@ShipmentAmount')->name('shipmentamount');
@@ -287,7 +307,6 @@ Route::group(['namespace' => 'Transporter','prefix' =>'transporter' , 'middlewar
 	Route::get('/driver/edit/{id}','DriverController@Edit')->name('transporterdriveredit');
 	Route::post('/driver/update','DriverController@Update')->name('transporterdriverupdate');
 	Route::post('/driver/delete/{id}','DriverController@Delete')->name('transporterdriverdelete');
-
 	Route::get('/account','AccountController@Account')->name('transporteraccounts');
 	Route::post('/account','AccountController@AccountPDF')->name('transporteraccountspdf');
 	Route::post('/account/list','AccountController@AccountData')->name('transporteraccountdata');

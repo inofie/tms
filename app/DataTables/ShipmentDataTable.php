@@ -34,6 +34,10 @@ class ShipmentDataTable extends DataTable
         <a href="' .route('addexpensebyadmin',$id) . '" style="margin-top: 2%;width: auto; margin:1%;width:auto;background-color: #673ab7;border-color: #673ab7;color: #fff"  class="btn expense btn-xs"><i class="fa fa-plus"></i> Expense </a>';
     }
     })
+    ->addColumn('date', function($shipment) {
+        $date = date_create($shipment->date);
+        return date_format($date, "d/m/Y");
+    })
 
         ->editColumn('created_at', function($country) {
             return GlobalHelper::getFormattedDate($country->created_at);
@@ -70,7 +74,11 @@ class ShipmentDataTable extends DataTable
                 }
                 return $import.'/'.$lcl;
             })
-        ->rawColumns(['action','type','status']);//->toJson();
+            ->filterColumn('date', function($query, $keyword) {
+                $sql = 'DATE_FORMAT(date,"%d/%m/%Y") like ?';
+                $query->whereRaw($sql, ["%{$keyword}%"]);
+              })
+        ->rawColumns(['action','type','status','date']);//->toJson();
     }
     /**
      * Get query source of dataTable.

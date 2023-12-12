@@ -409,6 +409,7 @@
                             </li>
                       </ul>
                   </li>
+                  
                   <li class="sub-menu">
                       <a href="javascript:;" class="{{ Request::is('forwarder/account*') ? 'active' : '' }}">
                           <i class="fa fa-bus"></i>
@@ -423,6 +424,44 @@
                             </li>
                       </ul>
                   </li>
+                  <li>
+                      <a class="{{ Request::is('level*') ? 'active' : '' }}" href="{{url('forwarder/level')}}">
+                          <i class="fa fa-globe"></i>
+                          <span>Forwarder Level</span>
+                      </a>
+                  </li>
+                  <li>
+                      <a class="{{ Request::is('user*') ? 'active' : '' }}" href="{{url('forwarder/user')}}">
+                          <i class="fa fa-user"></i>
+                          <span>Forwarder Users</span>
+                      </a>
+                  </li>
+                  
+                  @elseif(Auth::user()->role == 'Forwarder_level1' || Auth::user()->role == 'Forwarder_level2' || Auth::user()->role == 'Forwarder_level3' || Auth::user()->role == 'Forwarder_level4'
+                  || Auth::user()->role == 'Forwarder_level5' || Auth::user()->role == 'Forwarder_level6' || Auth::user()->role == 'Forwarder_level7' || Auth::user()->role == 'Forwarder_level8'
+                  || Auth::user()->role == 'Forwarder_level9' || Auth::user()->role == 'Forwarder_level10')
+                  <li>
+                      <a class="{{ Request::is('user*') ? 'active' : '' }}" href="{{ route('userlist2')}}">
+                          <i class="fa fa-user"></i>
+                          <span>Forwarder Users</span>
+                      </a>
+                  </li>
+                  <li class="sub-menu">
+                      <a href="javascript:;" class="{{ Request::is('forwarder/shipment*') ? 'active' : '' }}">
+                          <i class="fa fa-bus"></i>
+                          <span>Manage Shipment</span>
+                      </a>
+                      <ul class="sub">
+                          <li class="{{ Request::is('forwarder/shipment/list') ? 'active' : '' }}">
+                            <a  href="{{ route('forwarder-shipmentlist') }}">Latest List</a>
+                          </li>
+                          <li class="{{ Request::is('forwarder/shipment/all/list') ? 'active' : '' }}">
+                              <a  href="{{ route('forwarder-allshipmentlist') }}">Old List</a>
+                            </li>
+                      </ul>
+                  </li>
+                  
+                  
                 @elseif(Auth::user()->role == 'transporter')
                         <li>
                         <a class="{{ Request::is('transporter/dashboard*') ? 'active' : '' }}" href="{{ route('transporterdashboard') }}">

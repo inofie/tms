@@ -21,6 +21,7 @@ use App\Cargostatus;
 use App\Account;
 use Hash;
 use PDF;
+use App\Level;
 use Mail,DateTime;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\WebNotificationController;
@@ -78,9 +79,10 @@ class ShipmentController extends Controller
     {
             $this->check();
             $html = $builder->columns([
+                ['data' => 'id', 'name' => 'id','title' => 'ID','visible' => false],
                ['data' => 'shipment_no', 'name' => 'shipment_no','title' => 'Ship.No'],
                ['data' => 'date', 'name' => 'date','title' => 'Date'],
-               ['data' => 'type', 'name' => 'type','title' => 'Type','orderable' => false, 'searchable' => false],
+               ['data' => 'type', 'name' => 'type','title' => 'Type','orderable' => false,'searchable' => false],
                ['data' => 'consignor', 'name' => 'consignor','title' => 'Consignor'],
                ['data' => 'consignee', 'name' => 'consignee','title' => 'Consignee'],
                ['data' => 'from1', 'name' => 'from1','title' => 'From'],
@@ -94,7 +96,7 @@ class ShipmentController extends Controller
                "processing" => true,
                "serverSide" => true,
                "dom" => 'lfrtip',
-               "order" => ["1", "DESC"],
+               "order" => ["0", "DESC"],
            ]);
             if(request()->ajax())
             {
@@ -124,7 +126,40 @@ class ShipmentController extends Controller
     	$transporter = Transporter::orderby('name','asc')->get();
     	return view('admin.shipmentadd',compact('company','truck_type','forwarder','transporter'));
    	}
-      public function Save(Request $Request)
+
+    public function listforwarderlevel2(Request $request){
+        $currentlevel = $request->level;
+        
+        $nextlevel = $request->level +1 ;
+        $forwarder = Forwarder::where('id',$request->id)->first(); 
+        $levelname = level::where('forwarder_id',$forwarder->user_id)->where('level_name',$nextlevel)->first();
+        
+        if($currentlevel > 0){
+            $cities = User::where('level', $nextlevel)->where('forwarder_id',$forwarder->user_id)->where('status',0)->where('depend_id',$request->value);
+        } else {
+            $cities = User::where('level', $nextlevel)->where('forwarder_id',$forwarder->user_id)->where('status',0);
+        }
+        $cities = $cities->get();
+       if($cities->count()) {
+        $option = '<div class="form-group " id="forwarderdiv'.$nextlevel.'">
+        <label class="col-lg-2 control-label">Select '.$levelname->name.'</label>
+        <div class="col-lg-10">
+        <select class="form-control forwarderChange" data-level="'.$nextlevel.'" name="forwarder'.$nextlevel.'" id="forwarder'.$nextlevel.'">
+        <option selected>Please Select User</option>';
+        foreach($cities as $city) {
+            $option .= '<option value="'.$city['id'].'">'.$city['username'].'</option>';
+        }
+        $option .= '</select>
+        </div>
+        </div>';
+         echo $option;
+       } else {
+        return "";
+       }
+        
+    }
+
+    public function Save(Request $Request)
     {
        //dd($Request);
          $this->check();
@@ -201,6 +236,18 @@ class ShipmentController extends Controller
                 $data->status = 1;
                 }
                 $data->forwarder = $Request->forwarder;
+
+                $level = $Request->dependlevel;
+                $value = [];
+                if($level > 0){
+                for ($i = 1; $i <= $level; $i++) {
+                $value1 = $Request['forwarder'.''.$i];
+                array_push($value,$value1);
+                }
+                $data->forwarder_level = implode(",",$value);
+                }
+        
+               // dd($data);
                 $data->show_detail = $Request->show_detail;
                 $data->consignor = $Request->consignor;
                 $data->consignor_address = $Request->consignor_add;
@@ -245,12 +292,22 @@ class ShipmentController extends Controller
 
 
 
+
+
                 $company = Company::findorfail($Request->company);
                 $company->last_no = (int) filter_var($shipment_no, FILTER_SANITIZE_NUMBER_INT)+1;
                 $company->save();
                 $aa= Shipment::findorfail($data->id);
                 $aa->shipment_no =$shipment_no;
-                $aa->lr_no = $shipment_no."/".getenv('FIN_YEAR');
+
+                
+                if(date('m') >= 4 ){
+                    $financial_year = date('y').'-'.(date('y') + 1);
+                }else{
+                    $financial_year = (date('y')-1).'-'.date('y'); 
+                }
+
+                $aa->lr_no = $shipment_no."/".$financial_year;
                 $aa->myid = uniqid();
                 $aa->save();
                 $summary = new Shipment_Summary();
@@ -275,33 +332,7 @@ class ShipmentController extends Controller
                     $transs->created_by = Auth::id();
                     $transs->myid = uniqid();
                     $transs->save();
-                    // $summary = new Shipment_Summary();
-                    // $summary->shipment_no = $shipment_no;
-                    // $summary->flag = "create";
-                    // $summary->transporter_id = $Request->transporter;
-                    // $summary->description = "Add Transporter";
-                    // $summary->save();
-                }
-               /* if($Request->truck_no != null && $Request->truck_no != '' && $Request->truck_no != 'null') {
-                    $tt=Transporter::findorfail($Request->transporter);
-                    $driver = new Shipment_Driver();
-                    $driver->shipment_no = $shipment_no;
-                    $driver->transporter_id = $Request->transporter;
-                    $driver->truck_no = $Request->truck_no;
-                    $driver->driver_id =  $driver_id->id;
-                    $driver->mobile = $tt->phone;
-                    $driver->created_by = Auth::id();
-                    $driver->myid = uniqid();
-                    $driver->save();
-                    $summary = new Shipment_Summary();
-                    $summary->shipment_no = $shipment_no;
-                    $summary->flag = "create";
-                    $summary->transporter_id = $Request->transporter;
-                    $summary->description = "Add Truck. \n".$Request->truck_no."(".$tt->phone.").";
-                    $summary->save();
-                }
-*/
-                if (($Request->driver_id != null && $Request->driver_id != '' && $Request->driver_id != 'null') || ($Request->truck_no != null && $Request->truck_no != '' && $Request->truck_no != 'null')) {
+
                     if ($Request->driver_id != null && $Request->driver_id != '' && $Request->driver_id != 'null') {
                         $mydriverdetails = Driver::findorfail($Request->driver_id);
                     } else {
@@ -329,6 +360,35 @@ class ShipmentController extends Controller
                         $summary->driver_id = $Request->driver_id;
                         $summary->description = "Add Driver. \n" . $mytruckno . "(Co.No." . $tt->phone . ").";
                         $summary->save();
+                    // $summary = new Shipment_Summary();
+                    // $summary->shipment_no = $shipment_no;
+                    // $summary->flag = "create";
+                    // $summary->transporter_id = $Request->transporter;
+                    // $summary->description = "Add Transporter";
+                    // $summary->save();
+                }
+               /* if($Request->truck_no != null && $Request->truck_no != '' && $Request->truck_no != 'null') {
+                    $tt=Transporter::findorfail($Request->transporter);
+                    $driver = new Shipment_Driver();
+                    $driver->shipment_no = $shipment_no;
+                    $driver->transporter_id = $Request->transporter;
+                    $driver->truck_no = $Request->truck_no;
+                    $driver->driver_id =  $driver_id->id;
+                    $driver->mobile = $tt->phone;
+                    $driver->created_by = Auth::id();
+                    $driver->myid = uniqid();
+                    $driver->save();
+                    $summary = new Shipment_Summary();
+                    $summary->shipment_no = $shipment_no;
+                    $summary->flag = "create";
+                    $summary->transporter_id = $Request->transporter;
+                    $summary->description = "Add Truck. \n".$Request->truck_no."(".$tt->phone.").";
+                    $summary->save();
+                }
+*/
+                
+                    
+                       
                     $notification_user=User::where('id',Auth::id())->first();
                     if($notification_user['role']=='admin'){
                         $from_user = User::find(1);
@@ -345,8 +405,8 @@ class ShipmentController extends Controller
                          $notification->role = 'company';
                          $notification->shipment_id = $data->id;
                          $id = $data->shipment_no;
-                         $title= "New Shipment" .' '. $driver->shipment_no .' '. "Added";
-                         $message= "New Shipment" .' '. $driver->shipment_no .' '. "Added";
+                         $title= "New Shipment" .' '. $data->shipment_no .' '. "Added";
+                         $message= "New Shipment" .' '. $data->shipment_no .' '. "Added";
                          $notification->title = $title;
                          $notification->message = $message;
                          $notification->notification_type = '1';
@@ -385,6 +445,7 @@ class ShipmentController extends Controller
                     //      // }
                     //  }
                          //driver
+                    if ($Request->driver_id != null && $Request->driver_id != '' && $Request->driver_id != 'null') {
                     if(isset($Request['driver_id']) && $Request['driver_id'] != ''){
                         if(!empty($driver->driver_id)){
                         $to_user = Driver::find($driver->driver_id);
@@ -412,8 +473,10 @@ class ShipmentController extends Controller
                             }
                         }
                     }
+                    }
                 }
                         //transporter
+                        if ($Request->transporter != null && $Request->transporter != '' && $Request->transporter != 'null') {
                         if($transs->transporter_id){
                             $transporter=Transporter::where('id',$transs->transporter_id)->first();
                             $to_user = User::find($transporter['user_id']);
@@ -441,8 +504,8 @@ class ShipmentController extends Controller
                                 }
                             }
                         }
-            }
-                // Code For Notification start
+                    }  
+                    // Code For Notification start
                 // For ALL Company Notification
                 // $token =array();
                 // $all_company = Company::get();
@@ -992,29 +1055,13 @@ class ShipmentController extends Controller
                 $summary->transporter_id = $Request->transporter_id;
                 $summary->description = "Add Transporter. - ".$tras->name;
                 $summary->save();
-                  if (($Request->driver_id != null && $Request->driver_id != '' && $Request->driver_id != 'null') || ($Request->truck_no != null && $Request->truck_no != '' && $Request->truck_no != 'null')) {
+                  
                     if ($Request->driver_id != null && $Request->driver_id != '' && $Request->driver_id != 'null') {
                         $mydriverdetails = Driver::findorfail($Request->driver_id);
-                        $token = array();
-                        $tuser = User::findorfail($tras->user_id);
-                        if($mydriverdetails->device_token != "") {
-                            array_push($token,$mydriverdetails->device_token);
-                        //  $title = "New Shipment Assigned.";
-                        //  $message= "We would like to inform, the shipment number ".$Request->shipment_no." is assigned to you.";
-                        //  $aa = new WebNotificationController();
-                        //  $aa->index($token,$title,$message,$Request->shipment_no);
-                        }
+                        
                     } else {
                         $mydriverdetails = Driver::where('transporter_id', $Request->transporter_id)->where('self', 1)->first();
-                        $token = array();
-                        $tuser = User::findorfail($tras->user_id);
-                        if($mydriverdetails->device_token != "") {
-                            array_push($token,$mydriverdetails->device_token);
-                        //  $title = "New Shipment Assigned.";
-                        //  $message= "We would like to inform, the shipment number ".$Request->shipment_no." is assigned to you.";
-                        //  $aa = new WebNotificationController();
-                        //  $aa->index($token,$title,$message,$Request->shipment_no);
-                        }
+                        
                     }
                     if ($Request->truck_no != null && $Request->truck_no != '' && $Request->truck_no != 'null') {
                         $mytruckno = $Request->truck_no;
@@ -1044,7 +1091,9 @@ class ShipmentController extends Controller
                         // $summary1->transporter_id = $Request->transporter_id;
                         // $summary1->description = "Add Driver & Truck No. ".$mytruckno;
                         // $summary1->save();
-                    $notification_user=User::where('id',Auth::id())->first();
+                        $notification_user=User::where('id',Auth::id())->first();
+                    if (($Request->driver_id != null && $Request->driver_id != '' && $Request->driver_id != 'null')) {
+                    
                     if($notification_user['role']=='transporter' || $notification_user['role']=='admin' || $notification_user['role']=='company'){
                         //driver
                         if($driver->driver_id){
@@ -1075,6 +1124,7 @@ class ShipmentController extends Controller
                             }
                         }
                     }
+                }
                         if($notification_user['role']=='admin' || $notification_user['role']=='company')
                         {
                             //transporter
@@ -1108,7 +1158,7 @@ class ShipmentController extends Controller
                             }
 
                         }
-            }
+            //}
                 /// For Transporter
                 $token =array();
                 if($tras->user_id != null && $tras->user_id != '' && $tras->user_id != 'null') {
@@ -1937,7 +1987,12 @@ class ShipmentController extends Controller
         $company->save();
         $aa= Shipment::findorfail($data->id);
         $aa->shipment_no =$shipment_no;
-        $aa->lr_no = $shipment_no."/".getenv('FIN_YEAR');
+        if(date('m') >= 4 ){
+            $financial_year = date('y').'-'.(date('y') + 1);
+        }else{
+            $financial_year = (date('y')-1).'-'.date('y'); 
+        }
+        $aa->lr_no = $shipment_no."/".$financial_year;
         $aa->myid = uniqid();
         $aa->save();
         $summary = new Shipment_Summary();
@@ -1978,6 +2033,7 @@ class ShipmentController extends Controller
     {
          $this->check();
          $html = $builder->columns([
+            ['data' => 'id', 'name' => 'id','title' => 'ID','visible' => false],
             ['data' => 'shipment_no', 'name' => 'shipment_no','title' => 'Ship.No'],
             ['data' => 'date', 'name' => 'date','title' => 'Date'],
             ['data' => 'type', 'name' => 'type','title' => 'Type','orderable' => false, 'searchable' => false],
@@ -1992,7 +2048,7 @@ class ShipmentController extends Controller
             "processing" => true,
             "serverSide" => true,
             "dom" => 'lfrtip',
-            "order" => ["1", "DESC"],
+            "order" => ["0", "DESC"],
         ]);
 
                 if(request()->ajax()) {
@@ -2000,6 +2056,11 @@ class ShipmentController extends Controller
                     $ff= Company::where('user_id',Auth::user()->id)->first();
                     $data = Shipment::where('company',$ff->id)->whereRaw('DATEDIFF(CURDATE(),date) >= 6');
                     }
+                    elseif(Auth::user()->role == "employee") {
+                        $ff2= Employee::where('user_id',Auth::user()->id)->first();
+                        $ff1= Company::where('id',$ff2->company_id)->first();
+                        $data = Shipment::where('company',$ff1->id)->whereRaw('DATEDIFF(CURDATE(),date) >= 6');
+                        }
                     else{
                     $data = Shipment::whereRaw('DATEDIFF(CURDATE(),date) >= 6');
                     }
@@ -2116,10 +2177,15 @@ class ShipmentController extends Controller
 	public function MyFilter1(Request $Request)
 	{
     	$data = array();
-        if(Auth::user()->role == "company") {
+            if(Auth::user()->role == "company") {
             $ff= Company::where('user_id',Auth::user()->id)->first();
             $tt = Shipment::where('company',$ff->id)->orderBy('created_at','desc')->get();
             }
+            elseif(Auth::user()->role == "employee") {
+                $ff2= Employee::where('user_id',Auth::user()->id)->first();
+                $ff1= Company::where('id',$ff2->company_id)->first();
+                $tt = Shipment::where("status","!=",3)->where('company',$ff1->id)->orderBy('created_at','desc')->get();
+                }
             else{
             $tt = Shipment::orderBy('created_at','desc')->get();
             }
@@ -2301,28 +2367,33 @@ class ShipmentController extends Controller
                ['data' => 'consignee', 'name' => 'consignee','title' => 'Consignee'],
                ['data' => 'from1', 'name' => 'from1','title' => 'From'],
                ['data' => 'to1', 'name' => 'to1','title' => 'To'],
-               ['data' => 'transporter_name', 'name' => 'transporter_name','title' => 'Transporter Name'],
-               ['data' => 'truck_no', 'name' => 'truck_no','title' => 'Truck No'],
+               ['data' => 'transporter_name', 'name' => 'transporter_name','title' => 'Transporter Name','orderable' => false, 'searchable' => false],
+               ['data' => 'truck_no', 'name' => 'truck_no','title' => 'Truck No','orderable' => false, 'searchable' => false],
                ['data' => 'status', 'name' => 'status','title' => 'Status'],
-               ['data' => 'invoice_cost', 'name' => 'invoice_cost','title' => 'Invoice Cost'],
-               ['data' => 'transporter_cost', 'name' => 'transporter_cost','title' => 'Transporter Cost'],
+               ['data' => 'invoice_cost', 'name' => 'invoice_cost','title' => 'Invoice Cost','orderable' => false, 'searchable' => false],
+               ['data' => 'transporter_cost', 'name' => 'transporter_cost','title' => 'Transporter Cost','orderable' => false, 'searchable' => false],
                ['data' => 'action', 'name' => 'action', 'orderable' => false, 'searchable' => false,'title' => 'Action'],
             ])->parameters([
                 "processing" => true,
                 "serverSide" => true,
-                "order" => ["4", "DESC"],
+                "language" => [
+                    "processing" => '<i class="fa fa-spinner fa-spin fa-3x fa-fw" style="z-index:9999;text-align: center;position:absolute;margin:0px auto;"></i>'
+                ],
+                "order" => ["1", "DESC"],
                 "dom" => 'lBfrtip',
                 "lengthChange"=> true,
                 'lengthMenu' => [
                     [ 10, 25, 50, -1 ],
                     [ '10', '25', '50', 'Show all' ]
                 ],
+                
                 "columnDefs"=>
                 [
                     [
                         "targets"=> [7,8,10,11],
                         "visible"=> false,
                     ],
+                    
                 ],
                 "buttons" => [
                     [
@@ -2456,13 +2527,23 @@ class ShipmentController extends Controller
             }
             $all_transporter =  Transporter::get();
             $all_forwarder = Forwarder::get();
-            $all_company = Company::where('status',0)->get();
+            if(Auth::user()->role == "company") {
+                $all_company = Company::where('user_id',Auth::user()->id)->get();
+            }
+            elseif(Auth::user()->role == "employee"){
+            $ff2= Employee::where('user_id',Auth::user()->id)->first();
+            $all_company = Company::where('id',$ff2->company_id)->get();
+            }
+            else{
+                $all_company = Company::where('status',0)->get();
+            }
+            
             $warehouse = Warehouse::get();
             $currentYear = date('Y');
             $startYear = 2020;
             $yearRange = range($startYear, $currentYear);
             $showTable = false;
-            if($Request->search || $Request->shipment || $Request->transporter || $Request->month || $Request->year || $Request->forwarder || $Request->company || $Request->date || $Request->status){
+            if($Request->searchValue || $Request->shipment || $Request->transporter || $Request->month || $Request->year || $Request->forwarder || $Request->company || $Request->date || $Request->status){
                 $showTable = true;
             }
             return view('admin.shipmentfilter',compact('tt','ttt','tts','all_transporter','all_forwarder','company','all_company','search','transporter','forwarder','year','month','date','warehouse','yearRange','html','showTable'));

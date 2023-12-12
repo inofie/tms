@@ -23,6 +23,8 @@ use Hash;
 use PDF;
 use Mail,DateTime;
 use Illuminate\Support\Facades\Auth;
+use Yajra\DataTables\Html\Builder;
+use App\DataTables\ShipmentFilter1DataTable;
 
 
 
@@ -58,11 +60,16 @@ class ShipmentController extends Controller
     public function List(Request $Request)
     {
 
-        $this->check();
-
-        $ff = Forwarder::where('user_id',Auth::user()->id)->first();
-            
+        //$this->check();
+        if(Auth::user()->role == "forwarder") {
+        $ff = Forwarder::where('user_id',Auth::user()->id)->first(); 
         $data = Shipment::where('forwarder',$ff->id)->whereRaw('DATEDIFF(CURDATE(),date) <= 6')->get();
+        }
+        else{
+        $ff = User::where('id',Auth::user()->id)->first();
+        $data = Shipment::withTrashed()->whereNull('deleted_at')
+        ->whereRaw("find_in_set('$ff->id' , forwarder_level)")->whereRaw('DATEDIFF(CURDATE(),date) <= 6')->get();
+        }
         //dd(auth()->user());
         return view('forwarder.shipmentlist',compact('data'));
 
@@ -72,20 +79,158 @@ class ShipmentController extends Controller
      public function AllList(Request $Request)
     {
 
-        $this->check();
-        $ff = Forwarder::where('user_id',Auth::user()->id)->first();  
+       // $this->check();
+        if(Auth::user()->role == "forwarder") {
+        $ff = Forwarder::where('user_id',Auth::user()->id)->first(); 
         $data = Shipment::where('forwarder',$ff->id)->whereRaw('DATEDIFF(CURDATE(),date) >= 6')->get();
+        }
+        else{
+            $ff = User::where('id',Auth::user()->id)->first();
+            $data = Shipment::withTrashed()->whereNull('deleted_at')
+            ->whereRaw("find_in_set('$ff->id' , forwarder_level)")->whereRaw('DATEDIFF(CURDATE(),date) >= 6')->get();
+        }
 
         return view('forwarder.shipmentlist',compact('data'));
 
     }
-
+    public function MyFilter(Builder $builder, ShipmentFilter1DataTable $dataTable,Request $Request)
+    {
+            //$this->check();
+            $html = $builder->columns([
+               ['data' => 'shipment_no', 'name' => 'shipment_no','title' => 'Ship.No'],
+               ['data' => 'date', 'name' => 'date','title' => 'Date'],
+               ['data' => 'type', 'name' => 'type','title' => 'Type','orderable' => false, 'searchable' => false],
+               ['data' => 'consignor', 'name' => 'consignor','title' => 'Consignor'],
+               ['data' => 'consignee', 'name' => 'consignee','title' => 'Consignee'],
+               ['data' => 'from1', 'name' => 'from1','title' => 'From'],
+               ['data' => 'to1', 'name' => 'to1','title' => 'To'],
+               ['data' => 'action', 'name' => 'action', 'orderable' => false, 'searchable' => false,'title' => 'Action'],
+            ])->parameters([
+                "processing" => true,
+                "serverSide" => true,
+                "order" => ["4", "DESC"],
+                "dom" => 'lfrtip',
+                "lengthChange"=> true,
+               
+            ]);
+           $data = array();
+            if(request()->ajax())
+            {
+                if(Auth::user()->role == "forwarder") {
+                $ff= Forwarder::where('user_id',Auth::user()->id)->first();
+                $datas = Shipment::whereNull("deleted_at")->where('forwarder',$ff->id)->orderby("id", "desc");
+                }else{
+                    $ff = User::where('id',Auth::user()->id)->first();
+                    $datas = Shipment::withTrashed()->whereNull('deleted_at')
+                            ->whereRaw("find_in_set('$ff->id' , forwarder_level)")->orderby("id", "desc");
+                }
+                
+                if($Request->shipment){
+                    $datas = $datas->where('id',$Request->shipment);
+                }
+                if($Request->status){
+                    if($Request->status == 'Pending'){
+                    $datas = $datas->where('status',0);
+                    }
+                    if($Request->status == 'Ontheway'){
+                        $datas = $datas->where('status',1);
+                    }
+                    if($Request->status == 'Delivered'){
+                        $datas = $datas->where('status',2);
+                    }
+                }
+                
+                
+                if($Request->date){
+                    $datas = $datas->whereDay('date',$Request->date);
+                }
+                if($Request->year){
+                    $datas = $datas->whereYear('date', $Request->year);
+                }
+                if($Request->month){
+                    $datas = $datas->whereMonth('date', $Request->month);
+                }
+                if($Request->searchValue){
+                    $datas = $datas->where('shipment_no','like','%'.$Request->searchValue.'%')->orwhere('from1','like','%'.$Request->searchValue.'%')
+                    ->orwhere('to1','like','%'.$Request->searchValue.'%')->orwhere('to2','like','%'.$Request->searchValue.'%')
+                    ->orwhere('consignor','like','%'.$Request->searchValue.'%')->orwhere('consignee','like','%'.$Request->searchValue.'%')
+                    ->orwhere('shipper_invoice','like','%'.$Request->searchValue.'%')->orwhere('forwarder_ref_no','like','%'.$Request->searchValue.'%')
+                    ->orwhere('b_e_no','like','%'.$Request->searchValue.'%');
+                }
+                if($Request->searchValue || $Request->shipment  || $Request->month || $Request->year  || $Request->date || $Request->status){
+                    $data = $datas->orderby('shipment_no','desc');
+                }
+                return $dataTable->dataTable($data)->toJson();
+            }
+            if(Auth::user()->role == "forwarder") {
+            $ff2= Forwarder::where('user_id',Auth::user()->id)->first();
+            $tt = Shipment::whereNull("deleted_at")->where('forwarder',$ff2->id)->orderby("id", "desc")->get();
+            }else{
+                $ff2 = User::where('id',Auth::user()->id)->first();
+                $tt = Shipment::withTrashed()->whereNull('deleted_at')
+                        ->whereRaw("find_in_set('$ff2->id' , forwarder_level)")->orderby("id", "desc")->get();
+            }
+                
+            if(isset($Request->shipment)){
+                $ttt = $Request->shipment;
+            } else {
+                $ttt = '';
+            }
+            if(isset($Request->status)){
+                $tts = $Request->status;
+            } else {
+                $tts = '';
+            }
+            if(isset($Request->searchValue)){
+                $search = $Request->searchValue;
+            } else {
+                $search = '';
+            }
+            
+            if(isset($Request->year)){
+                $year = $Request->year;
+            } else {
+                $year = '';
+            }
+            if(isset($Request->month)){
+                $month = $Request->month;
+            } else {
+                $month = '';
+            }
+            if(isset($Request->date)){
+                $date = $Request->date;
+            } else {
+                $date = '';
+            }
+            $all_transporter =  Transporter::get();
+            $all_forwarder = Forwarder::get();
+            if(Auth::user()->role == "company") {
+                $all_company = Company::where('user_id',Auth::user()->id)->get();
+            }
+            elseif(Auth::user()->role == "employee"){
+            $ff2= Employee::where('user_id',Auth::user()->id)->first();
+            $all_company = Company::where('id',$ff2->company_id)->get();
+            }
+            else{
+                $all_company = Company::where('status',0)->get();
+            }
+            
+            $warehouse = Warehouse::get();
+            $currentYear = date('Y');
+            $startYear = 2020;
+            $yearRange = range($startYear, $currentYear);
+            $showTable = false;
+            if($Request->search || $Request->shipment || $Request->transporter || $Request->month || $Request->year || $Request->forwarder || $Request->company || $Request->date || $Request->status){
+                $showTable = true;
+            }
+            return view('forwarder.shipmentfilter',compact('tt','ttt','tts','search','year','month','date','warehouse','yearRange','html','showTable'));
+    }
 
 
     public function DownloadLR(Request $Request)
     {
 
-         $this->check();
+         //$this->check();
 
         $data2 = Shipment::where('myid',$Request->id)->first();
         
@@ -391,7 +536,7 @@ class ShipmentController extends Controller
     }
     public function ShipmentSummaryList(Request $Request)
     {
-        $this->check();
+        //$this->check();
         $shipment_no = $Request->shipment_no;
         $data = Shipment_Summary::where('shipment_no', $Request->shipment_no)->get();
         $count = $data->count();
