@@ -92,18 +92,6 @@ All WareHouse List | TOT
         $("#delete"+id).submit();
       }
     }
-  $(document).ready(function() {
 
-    $('#editable-sample').DataTable( {
-       "aaSorting": [[ 0, "desc" ]],
-       /* "lengthChange": true,
-      "lengthMenu": [ 10, 25, 50, 75, 100 ],
-        dom: 'Bfrtip',
-        buttons: [
-            'excelHtml5',
-            'csvHtml5',
-        ]*/
-    } );
-} );
 </script>
 @endsection

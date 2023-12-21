@@ -9946,6 +9946,32 @@ class ApiController extends Controller {
 								// $nyllist[$key]['total_credit'] = $cc;
 								// $nyllist[$key]['total_debit'] = $dd;
 								$nyllist[$key]['amount'] = $value->credit;
+								$nyllist[$key]['debit'] = $value->credit;
+								$nyllist[$key]['credit'] = 0;
+								// $nyllist[$key]['debitst'] = '';
+							}
+							if($value->to_company != '' && $value->to_company != null){
+								$nyllist[$key]=$value;
+								$com = Company::withTrashed()->findorfail($value->to_company);
+								if($value->type == 'invoice'){
+									$invoice = Invoice::findorfail($value->invoice_list);
+									$nyllist[$key]['detailss'] = "By: ".$com->name." (".$invoice->invoice_no.")";
+									$nyllist[$key]['invoice_no'] = $invoice->invoice_no;
+								} else {
+									if($value->description){
+										$nyllist[$key]['detailss'] = "By: ".$com->name." (".$value->description.")";
+										}else{
+											$nyllist[$key]['detailss'] = "By: ".$com->name."";
+										}
+									$nyllist[$key]['invoice_no'] = '';
+								}
+								//$nyllist[$key]['detailss'] = $com->name;
+								$nyllist[$key]['datess'] = date('d-m-Y',strtotime($value->dates));
+								// $nyllist[$key]['total_credit'] = $cc;
+								// $nyllist[$key]['total_debit'] = $dd;
+								$nyllist[$key]['amount'] = $value->credit;
+								$nyllist[$key]['debit'] = $value->credit;
+								$nyllist[$key]['credit'] = 0;
 								// $nyllist[$key]['debitst'] = '';
 							}
 							if($value->from_transporter != '' && $value->from_transporter != null){
@@ -9968,6 +9994,8 @@ class ApiController extends Controller {
 								// $nyllist[$key]['total_credit'] = $cc;
 								// $nyllist[$key]['total_debit'] = $dd;
 								 $nyllist[$key]['amount'] = $value->credit;
+								 $nyllist[$key]['debit'] = $value->credit;
+								$nyllist[$key]['credit'] = 0;
 								// $nyllist[$key]['debitst'] = '';
 							}
 							if($value->from_forwarder != '' && $value->from_forwarder != null){
@@ -9990,6 +10018,8 @@ class ApiController extends Controller {
 								// $nyllist[$key]['total_credit'] = $cc;
 								// $nyllist[$key]['total_debit'] = $dd;
 								 $nyllist[$key]['amount'] = $value->credit;
+								 $nyllist[$key]['debit'] = $value->credit;
+								$nyllist[$key]['credit'] = 0;
 								// $nyllist[$key]['debitst'] = '';
 							}
 							$nyllist[$key]['datess'] = date('d-m-Y',strtotime($value->dates));
@@ -10017,6 +10047,8 @@ class ApiController extends Controller {
 								// $nyllist[$key]['total_debit'] = $dd;
 								// $nyllist[$key]['creditt'] = '';
 								 $nyllist[$key]['amount'] = $value->debit;
+								 $nyllist[$key]['credit'] = $value->debit;
+							$nyllist[$key]['debit'] = 0;
 							}
 							if($value->to_company != '' && $value->to_company != null){
 								$com = Company::withTrashed()->findorfail($value->to_company);
@@ -10039,6 +10071,8 @@ class ApiController extends Controller {
 								// $nyllist[$key]['total_debit'] = $dd;
 								// $nyllist[$key]['creditt'] = '';
 								$nyllist[$key]['amount'] = $value->debit;
+								$nyllist[$key]['credit'] = $value->debit;
+								$nyllist[$key]['debit'] = 0;
 							}
 						}
 						if($value->v_type == 'expense'){
@@ -10061,6 +10095,8 @@ class ApiController extends Controller {
 							// $nyllist[$key]['total_debit'] = $dd;
 							// $nyllist[$key]['creditt'] = '';
 							 $nyllist[$key]['amount'] = $value->debit;
+							 $nyllist[$key]['credit'] = $value->debit;
+							 $nyllist[$key]['debit'] =  $value->credit;
 						}
 				}
 		}
@@ -10430,8 +10466,14 @@ class ApiController extends Controller {
 				if (!empty($nyllist)) {
 					$message = 'Account Data List Successfully.';
 					$dataa = $nyllist;
-					$total_credit = (int)($cc);
-					$total_debit = (int)($dd);
+					if($Request->role == 'transporter'){
+						$total_credit = (int)($dd);
+						$total_debit = (int)($cc);
+					}else{
+						$total_credit = (int)($cc);
+						$total_debit = (int)($dd);
+					}
+					
 					return $this->APIResponse->successWithPaginationaccountlist($message, $dataa,$total_credit,$total_debit);
 				}
 			  else {
@@ -11015,7 +11057,27 @@ class ApiController extends Controller {
 							//$nyllist[$key]['detailss'] = $com->name;
 							$nyllist[$key]['datess'] = date('d-m-Y',strtotime($value->dates));
 							 $nyllist[$key]['amount'] = $value->credit;
-							// $nyllist[$key]['debitst'] = '';
+							$nyllist[$key]['debit'] = $value->credit;
+							$nyllist[$key]['credit'] = 0;
+						}
+						if($value->to_company != '' && $value->to_company != null){
+							$nyllist[$key]=$value;
+							$com = Company::withTrashed()->findorfail($value->to_company);
+							if($value->type == 'invoice'){
+								$invoice = Invoice::findorfail($value->invoice_list);
+								$nyllist[$key]['detailss'] = "By: ".$com->name." (".$invoice->invoice_no.")";
+							} else {
+								if($value->description){
+									$nyllist[$key]['detailss'] = "By: ".$com->name." (".$value->description.")";
+									}else{
+										$nyllist[$key]['detailss'] = "By: ".$com->name."";
+									}
+							}
+							//$nyllist[$key]['detailss'] = $com->name;
+							$nyllist[$key]['datess'] = date('d-m-Y',strtotime($value->dates));
+							 $nyllist[$key]['amount'] = $value->credit;
+							$nyllist[$key]['debit'] = $value->credit;
+							$nyllist[$key]['credit'] = 0;
 						}
 						if($value->from_transporter != '' && $value->from_transporter != null){
 							$com = Transporter::withTrashed()->findorfail($value->from_transporter);
@@ -11033,6 +11095,8 @@ class ApiController extends Controller {
 							//$nyllist[$key]['detailss'] = $com->name;
 							$nyllist[$key]['datess'] = date('d-m-Y',strtotime($value->dates));
 							 $nyllist[$key]['amount'] = $value->credit;
+							 $nyllist[$key]['debit'] = $value->credit;
+							$nyllist[$key]['credit'] = 0;
 							// $nyllist[$key]['debitst'] = '';
 						}
 						if($value->from_forwarder != '' && $value->from_forwarder != null){
@@ -11051,6 +11115,8 @@ class ApiController extends Controller {
 							//$nyllist[$key]['detailss'] = $com->name;
 							$nyllist[$key]['datess'] = date('d-m-Y',strtotime($value->dates));
 							$nyllist[$key]['amount'] = $value->credit;
+							$nyllist[$key]['debit'] = $value->credit;
+							$nyllist[$key]['credit'] = 0;
 							// $nyllist[$key]['debitst'] = '';
 						}
 					}
@@ -11072,6 +11138,9 @@ class ApiController extends Controller {
 							$nyllist[$key]['datess'] = date('d-m-Y',strtotime($value->dates));
 							// $nyllist[$key]['creditt'] = '';
 							$nyllist[$key]['amount'] = $value->debit;
+							$nyllist[$key]['credit'] = $value->debit;
+							$nyllist[$key]['debit'] = 0;
+							
 						}
 						if($value->to_company != '' && $value->to_company != null){
 							$com = Company::withTrashed()->findorfail($value->to_company);
@@ -11090,6 +11159,9 @@ class ApiController extends Controller {
 							$nyllist[$key]['datess'] = date('d-m-Y',strtotime($value->dates));
 							// $nyllist[$key]['creditt'] = '';
 							 $nyllist[$key]['amount'] = $value->debit;
+							 $nyllist[$key]['credit'] = $value->debit;
+							 $nyllist[$key]['debit'] = 0;
+							
 						}
 					}
 			}
@@ -11455,10 +11527,22 @@ class ApiController extends Controller {
 					 $nyllist[$key]['amount'] = $value->debit;
 				}
 			}
-	 	}
-}
-	return response()->json(['status' => 'success', 'message' => 'Account Data List Successfully.', 'data' => $nyllist,'total_credit'=> (int)($cc),'total_debit'=> (int)($dd), 'code' => '200'], 200);
-	}
+	 		}
+			}
+					
+					if($Request->role == 'transporter'){
+						$total_credit = (int)($dd);
+						$total_debit = (int)($cc);
+					}else{
+						$total_credit = (int)($cc);
+						$total_debit = (int)($dd);
+					}
+					
+					
+					return response()->json(['status' => 'success', 'message' => 'Account Data List Successfully.', 'data' => $nyllist,
+					'total_credit'=> $total_credit,
+					'total_debit'=> $total_debit, 'code' => '200'], 200);
+			}
 	catch (\Exception $e) {
 		//dd($e);
 			return response()->json(['status' => 'failed', 'message' => $e->getMessage(), 'data' => json_decode('{}'), 'code' => '500'], 200);

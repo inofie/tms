@@ -48,8 +48,9 @@ class ShipmentFilterDataTable extends DataTable
             $shipmentSummary='
             <a href="' . route('allshipmentsummarylist',['shipment_no'=>$shipment_no]). '" style="margin-top: 3%;width: auto;min-width: 60%;background-color: #673ab7;border-color: #673ab7;color: #fff" class="btn  btn-xs "><i class="fa fa-eye"></i> Shipment Summary</a>';
             $edit='<a href="' . route('shipmentedit',$id). '" style="margin-top: 3%;width: auto;min-width: 80%;"  class="btn btn-success btn-xs {{ $value->shipment_no }}hide"><i class="fa fa-pencil"></i> Edit</a>';
-            $delete='<a href="' .route('shipmentdeleteLatest',$shipment_no) . '"style="margin-top: 3%;width: auto;min-width: 80%;" class="btn btn-danger btn-xs"><i class="fa fa-trash"> Delete </a>';
-            return $view.' '.$expense.' '.$shipmentSummary.' '.$edit.''.$delete;
+            $delete='<a href="' .route('shipmentdeleteLatest',$shipment_no) . '"style="margin-top: 3%;width: auto;min-width: 80%;" class="btn btn-danger btn-xs"><i class="fa fa-trash"></i> Delete </a>';
+            $details = '<a href="' . route('shipmentdetails',$id). '" style="margin-top: 3%;width: auto; min-width: 80%;background-color: #047fb9;border-color: #047fb9;color: #fff" class="btn  btn-xs "><i class="fa fa-eye"></i> View</a>';
+            return $view.' '.$expense.' '.$shipmentSummary.' '.$edit.''.$delete.''.$details;
         })
 
         ->addColumn('date', function($shipment) {

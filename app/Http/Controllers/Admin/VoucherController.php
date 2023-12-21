@@ -40,7 +40,7 @@ class VoucherController extends Controller
 		$html = $builder->columns([
             ['data' => 'id', 'name' => 'id','title' => 'No.'],
             ['data' => 'dates', 'name' => 'dates','title' => 'Date'],
-			['data' => 'invoice_no', 'name' => 'invoice_no','orderable' => false,'searchable' => false,'title' => 'Invoice no'],
+			['data' => 'invoice_no', 'name' => 'invoice.invoice_no','title' => 'Invoice no'],
             ['data' => 'from', 'name' => 'from','orderable' => false, 'searchable' => false,'title' => 'From'],
             ['data' => 'to', 'name' => 'to','orderable' => false, 'searchable' => false,'title' => 'To'],
 			['data' => 'type', 'name' => 'type','orderable' => false, 'searchable' => false,'title' => 'Type'],
@@ -52,6 +52,11 @@ class VoucherController extends Controller
             "serverSide" => true,
 			"order" => ["0", "DESC"],
 			"dom" => 'lfrtip',
+			"lengthChange"=> true,
+			'lengthMenu' => [
+				[ 10, 25, 50, -1 ],
+				[ '10', '25', '50', 'all' ]
+			]
         ]);
 		if(request()->ajax()) {
 		$data1 = Account::where('v_type','!=','expense');

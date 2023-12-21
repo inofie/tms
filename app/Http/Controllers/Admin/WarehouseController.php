@@ -64,7 +64,7 @@ class WarehouseController extends Controller
             ['data' => 'action', 'name' => 'action', 'orderable' => false, 'searchable' => false,'title' => 'Action'],
         ])
         ->parameters([
-            "scrollX" => true,
+           
             "order"=> [[ 0, "desc" ]],
             "processing"=> false,
           ]);

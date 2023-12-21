@@ -1056,6 +1056,14 @@ class InvoiceController extends Controller
 		$seals = array();
 		$shippings =array();
 		$data->weight = 0;
+		foreach($data as $key => $value){
+			$invoicedata = Invoice_Truck::where('invoice_id',$data->id)->first();
+			$data->fright = $invoicedata->fright;
+			$data->detention = $invoicedata->detention;
+			$data->loading = $invoicedata->loading;
+			$data->other = $invoicedata->other;
+			$data->remarks = $invoicedata->remarks;
+		}
         foreach($all_shipment as $key => $value){
 
              $driver_list =Shipment_Driver::where('shipment_no',$value)->get();
@@ -1166,7 +1174,7 @@ class InvoiceController extends Controller
 
             /*$pdf = PDF::loadView('bill.bmflr',compact('data','comp_data'));
             return $pdf->download('BMF Bill '.$data->invoice_no.'.pdf');*/
-            return view('bill.bmfbill',compact('data','comp_data'));
+            return view('bill.bmfbillView',compact('data','comp_data'));
 
         }
 

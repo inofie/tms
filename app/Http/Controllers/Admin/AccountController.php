@@ -794,6 +794,50 @@ class AccountController extends Controller
 				}
 
 				if($value->v_type == 'debit'){
+
+					if($value->from_forwarder != '' && $value->from_forwarder != null){
+						$com = Forwarder::withTrashed()->findorfail($value->from_forwarder);
+						$nyllist[$key]=$value;
+						if($value->type == 'invoice'){
+							$invoice = Invoice::findorfail($value->invoice_list);
+							$nyllist[$key]['detailss'] = "By: ".$com->name." (".$invoice->invoice_no.")";
+							// $nyllist[$key]['invoice_number'] = $invoice->invoice_no;
+							// $ships = Shipment::withTrashed()->where('shipment_no',$invoice->ships)->first();
+							// $nyllist[$key]['forwarder_ref_no'] = $ships->forwarder_ref_no;
+						} else {
+							$nyllist[$key]['detailss'] = "By: ".$com->name." (".$value->description.")";
+						}
+						$nyllist[$key]['datess'] = date('d-m-Y',strtotime($value->dates));
+						$nyllist[$key]['name'] = $comname->name;
+						
+						// $ships = Shipment::withTrashed()->where('id',$Request->id)->first();
+						 
+						$nyllist[$key]['creditt'] = $value->debit;
+						$nyllist[$key]['debitst'] = '';
+					}
+					
+					if($value->from_company!= '' && $value->from_company != null){
+						$com = Company::withTrashed()->findorfail($value->from_company);
+						$nyllist[$key]=$value;
+						if($value->type == 'invoice'){
+							$invoice = Invoice::findorfail($value->invoice_list);
+							$nyllist[$key]['detailss'] = "To: ".$com->name." (".$invoice->invoice_no.")";
+							// $nyllist[$key]['invoice_number'] = $invoice->invoice_no;
+							// $ships = Shipment::withTrashed()->where('shipment_no',$invoice->ships)->first();
+							// $nyllist[$key]['forwarder_ref_no'] = $ships->forwarder_ref_no;
+						} else {
+							$nyllist[$key]['detailss'] = "To: ".$com->name." (".$value->description.")";
+						}
+						//$nyllist[$key]['detailss'] = "To: ".$com->name;
+						$nyllist[$key]['datess'] = date('d-m-Y',strtotime($value->dates));
+						$nyllist[$key]['name'] = $comname->name;
+						
+						
+						$nyllist[$key]['creditt'] = '';
+						$nyllist[$key]['debitst'] = $value->debit;
+					}
+
+
 					if($value->to_transporter != '' && $value->to_transporter != null){
 						$com = Transporter::withTrashed()->findorfail($value->to_transporter);
 						$nyllist[$key]=$value;
